@@ -49,9 +49,12 @@ __dora_meta__ = {
 
 import json
 import os
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
+
+if TYPE_CHECKING:
+    import redis.asyncio as _aioredis_type
 
 logger = structlog.get_logger(__name__)
 
@@ -99,9 +102,10 @@ class RedisClient:
             password: Redis password (optional)
             decode_responses: Decode responses as strings (default: True)
         """
+        self._client: _aioredis_type.Redis | None = None
+        self._available = False
+
         if not _has_redis:
-            self._client = None
-            self._available = False
             logger.warning("Redis not available - operations will fail gracefully")
             return
 
@@ -110,8 +114,6 @@ class RedisClient:
         self._db = db
         self._password = password or os.getenv("REDIS_PASSWORD")
         self._decode_responses = decode_responses
-        self._client: aioredis.Redis | None = None
-        self._available = False
 
     @must_stay_async("callers use await")
     async def connect(self) -> bool:
@@ -166,6 +168,14 @@ class RedisClient:
         """Check if Redis is available."""
         return self._available and self._client is not None
 
+    def _ensure_client(self) -> _aioredis_type.Redis:
+        """Return the Redis client, raising if unavailable.
+
+        Callers MUST check ``is_available()`` before calling this.
+        """
+        assert self._client is not None, "Redis client is not connected"
+        return self._client
+
     def _prefixed_key(self, key: str, tenant_id: str | None = None) -> str:
         """
         Create a tenant-prefixed key for multi-tenant isolation.
@@ -218,14 +228,15 @@ class RedisClient:
             # Store task data (with tenant prefix)
             prefixed_queue = self._prefixed_key(queue_name)
             task_key = f"{prefixed_queue}:task:{task_id}"
-            await self._client.setex(
+            client = self._ensure_client()
+            await client.setex(
                 task_key,
                 3600,  # 1 hour TTL
                 json.dumps(task_data),
             )
 
             # Add to priority queue (sorted set)
-            await self._client.zadd(
+            await client.zadd(
                 f"{prefixed_queue}:queue",
                 {task_id: priority},
             )
@@ -254,7 +265,8 @@ class RedisClient:
         try:
             # Get highest priority task (lowest score) - with tenant prefix
             prefixed_queue = self._prefixed_key(queue_name)
-            result = await self._client.zpopmin(f"{prefixed_queue}:queue", count=1)
+            client = self._ensure_client()
+            result = await client.zpopmin(f"{prefixed_queue}:queue", count=1)
 
             if not result:
                 return None
@@ -263,14 +275,14 @@ class RedisClient:
             task_key = f"{prefixed_queue}:task:{task_id}"
 
             # Get task data
-            task_data_str = await self._client.get(task_key)
+            task_data_str = await client.get(task_key)
             if not task_data_str:
                 return None
 
             # Delete task data
-            await self._client.delete(task_key)
+            await client.delete(task_key)
 
-            task_data = json.loads(task_data_str)
+            task_data: dict[str, Any] = json.loads(task_data_str)
             logger.debug(f"Dequeued task {task_id} from {queue_name}")
             return task_data
         except Exception as e:
@@ -284,7 +296,8 @@ class RedisClient:
 
         try:
             prefixed_queue = self._prefixed_key(queue_name)
-            return await self._client.zcard(f"{prefixed_queue}:queue")
+            count: int = await self._ensure_client().zcard(f"{prefixed_queue}:queue")
+            return count
         except Exception as e:
             logger.error(f"Redis queue_size failed: {e}")
             return 0
@@ -308,7 +321,7 @@ class RedisClient:
 
         try:
             prefixed = self._prefixed_key(key)
-            value = await self._client.get(prefixed)
+            value = await self._ensure_client().get(prefixed)
             return int(value) if value else 0
         except Exception as e:
             logger.error(f"Redis get_rate_limit failed: {e}")
@@ -331,7 +344,7 @@ class RedisClient:
 
         try:
             prefixed = self._prefixed_key(key)
-            await self._client.setex(prefixed, ttl, value)
+            await self._ensure_client().setex(prefixed, ttl, value)
             return True
         except Exception as e:
             logger.error(f"Redis set_rate_limit failed: {e}")
@@ -353,9 +366,10 @@ class RedisClient:
 
         try:
             prefixed = self._prefixed_key(key)
-            count = await self._client.incr(prefixed)
+            client = self._ensure_client()
+            count: int = await client.incr(prefixed)
             if count == 1:  # First increment, set TTL
-                await self._client.expire(prefixed, ttl)
+                await client.expire(prefixed, ttl)
             return count
         except Exception as e:
             logger.error(f"Redis increment_rate_limit failed: {e}")
@@ -376,9 +390,10 @@ class RedisClient:
 
         try:
             context_key = self._prefixed_key(f"task_context:{task_id}")
-            context_str = await self._client.get(context_key)
+            context_str = await self._ensure_client().get(context_key)
             if context_str:
-                return json.loads(context_str)
+                result: dict[str, Any] = json.loads(context_str)
+                return result
             return {}
         except Exception as e:
             logger.error(f"Redis get_task_context failed: {e}")
@@ -403,7 +418,7 @@ class RedisClient:
 
         try:
             context_key = self._prefixed_key(f"task_context:{task_id}")
-            await self._client.setex(context_key, ttl, json.dumps(context))
+            await self._ensure_client().setex(context_key, ttl, json.dumps(context))
             return True
         except Exception as e:
             logger.error(f"Redis set_task_context failed: {e}")
@@ -432,7 +447,7 @@ class RedisClient:
 
         try:
             context_key = self._prefixed_key(f"slack:thread:{thread_uuid}:context")
-            context_str = await self._client.get(context_key)
+            context_str = await self._ensure_client().get(context_key)
             if context_str:
                 data = json.loads(context_str)
                 return data if isinstance(data, list) else []
@@ -472,7 +487,7 @@ class RedisClient:
 
         try:
             context_key = self._prefixed_key(f"slack:thread:{thread_uuid}:context")
-            await self._client.setex(context_key, ttl, json.dumps(messages))
+            await self._ensure_client().setex(context_key, ttl, json.dumps(messages))
             return True
         except Exception as e:
             logger.error(
@@ -509,7 +524,8 @@ class RedisClient:
         try:
             existing = await self.get_thread_context(thread_uuid)
             existing.append(message)
-            return await self.set_thread_context(thread_uuid, existing, ttl=ttl)
+            stored: bool = await self.set_thread_context(thread_uuid, existing, ttl=ttl)
+            return stored
         except Exception as e:
             logger.error(
                 "redis_append_thread_message_failed",
@@ -530,9 +546,12 @@ class RedisClient:
 
         try:
             prefixed = self._prefixed_key(key)
+            client = self._ensure_client()
             if amount == 1:
-                return await self._client.decr(prefixed)
-            return await self._client.decrby(prefixed, amount)
+                result_val: int = await client.decr(prefixed)
+                return result_val
+            result_val = await client.decrby(prefixed, amount)
+            return result_val
         except Exception as e:
             logger.error(f"Redis decrement_rate_limit failed: {e}")
             return 0
@@ -554,7 +573,8 @@ class RedisClient:
 
         try:
             prefixed = key if raw else self._prefixed_key(key)
-            return await self._client.get(prefixed)
+            result_str: str | None = await self._ensure_client().get(prefixed)
+            return result_str
         except Exception as e:
             logger.error(f"Redis get failed: {e}")
             return None
@@ -585,10 +605,11 @@ class RedisClient:
 
         try:
             prefixed = key if raw else self._prefixed_key(key)
+            client = self._ensure_client()
             if ttl:
-                await self._client.setex(prefixed, ttl, value)
+                await client.setex(prefixed, ttl, value)
             else:
-                await self._client.set(prefixed, value)
+                await client.set(prefixed, value)
             return True
         except Exception as e:
             logger.error(f"Redis set failed: {e}")
@@ -622,11 +643,12 @@ class RedisClient:
 
         try:
             prefixed = key if raw else self._prefixed_key(key)
+            client = self._ensure_client()
             if ttl:
                 # Use SET with NX and EX flags for atomic set-if-not-exists with TTL
-                result = await self._client.set(prefixed, value, nx=True, ex=ttl)
+                result = await client.set(prefixed, value, nx=True, ex=ttl)
             else:
-                result = await self._client.setnx(prefixed, value)
+                result = await client.setnx(prefixed, value)
             return bool(result)
         except Exception as e:
             logger.error(f"Redis setnx failed: {e}")
@@ -645,7 +667,7 @@ class RedisClient:
 
         try:
             prefixed = key if raw else self._prefixed_key(key)
-            await self._client.delete(prefixed)
+            await self._ensure_client().delete(prefixed)
             return True
         except Exception as e:
             logger.error(f"Redis delete failed: {e}")
@@ -665,7 +687,7 @@ class RedisClient:
 
         try:
             prefixed = pattern if raw else self._prefixed_key(pattern)
-            return [key async for key in self._client.scan_iter(match=prefixed)]
+            return [key async for key in self._ensure_client().scan_iter(match=prefixed)]
         except Exception as e:
             logger.error(f"Redis keys failed: {e}")
             return []

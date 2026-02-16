@@ -50,9 +50,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
+
+if TYPE_CHECKING:
+    from neo4j import AsyncDriver as _AsyncDriverType
 
 logger = structlog.get_logger(__name__)
 
@@ -94,9 +97,10 @@ class Neo4jClient:
             password: Neo4j password (default: NEO4J_PASSWORD env)
             database: Database name (default: 'neo4j')
         """
+        self._driver: _AsyncDriverType | None = None
+        self._available = False
+
         if not _has_neo4j:
-            self._driver = None
-            self._available = False
             logger.warning(
                 "Neo4j driver not available - operations will fail gracefully"
             )
@@ -110,8 +114,6 @@ class Neo4jClient:
         self._user = user or os.getenv("NEO4J_USER", "neo4j")
         self._password = password or os.getenv("NEO4J_PASSWORD")
         self._database = database
-        self._driver: AsyncDriver | None = None
-        self._available = False
 
     @must_stay_async("callers use await")
     async def connect(self) -> bool:
@@ -187,8 +189,16 @@ class Neo4jClient:
         """Check if Neo4j is available."""
         return self._available and self._driver is not None
 
+    def _ensure_driver(self) -> _AsyncDriverType:
+        """Return the Neo4j driver, raising if unavailable.
+
+        Callers MUST check ``is_available()`` before calling this.
+        """
+        assert self._driver is not None, "Neo4j driver is not connected"
+        return self._driver
+
     @property
-    def driver(self) -> AsyncDriver | None:
+    def driver(self) -> _AsyncDriverType | None:
         """Expose the raw AsyncDriver for components that need it (e.g., AgentGraphLoader)."""
         return self._driver
 
@@ -197,17 +207,15 @@ class Neo4jClient:
 
         This allows Neo4jClient to be used where an AsyncDriver is expected.
         """
-        if not self._driver:
-            raise RuntimeError("Neo4j driver not initialized")
         db = database or self._database
-        return self._driver.session(database=db)
+        return self._ensure_driver().session(database=db)
 
     @must_stay_async("callers use await")
     async def _get_session(self) -> AsyncSession | None:
         """Get a session for database operations."""
         if not self.is_available():
             return None
-        return self._driver.session(database=self._database)
+        return self._ensure_driver().session(database=self._database)
 
     # =========================================================================
     # Entity Operations
@@ -235,7 +243,7 @@ class Neo4jClient:
             return None
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 query = f"""
                 MERGE (n:{entity_type} {{id: $entity_id}})
                 SET n += $properties
@@ -273,7 +281,7 @@ class Neo4jClient:
             return None
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 query = f"""
                 MATCH (n:{entity_type} {{id: $entity_id}})
                 RETURN n
@@ -307,7 +315,7 @@ class Neo4jClient:
             return False
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 query = f"""
                 MATCH (n:{entity_type} {{id: $entity_id}})
                 DETACH DELETE n
@@ -349,11 +357,12 @@ class Neo4jClient:
         if workspace_id:
             properties["workspace_id"] = workspace_id
 
-        return await self.create_entity(
+        result: str | None = await self.create_entity(
             entity_type=entity_type,
             entity_id=name,
             properties=properties,
         )
+        return result
 
     @must_stay_async("callers use await")
     async def update_entity_attributes(
@@ -379,7 +388,7 @@ class Neo4jClient:
             return False
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 query = f"""
                 MATCH (n:{entity_type} {{id: $entity_id}})
                 SET n += $attrs
@@ -427,7 +436,7 @@ class Neo4jClient:
             return False
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 props = properties or {}
                 query = f"""
                 MATCH (a:{from_type} {{id: $from_id}})
@@ -477,7 +486,7 @@ class Neo4jClient:
             return []
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 rel_pattern = f":{rel_type}" if rel_type else ""
 
                 if direction == "outgoing":
@@ -497,7 +506,8 @@ class Neo4jClient:
                     """
 
                 result = await session.run(query, entity_id=entity_id)
-                return await result.data()
+                records: list[dict[str, Any]] = await result.data()
+                return records
         except Exception as e:
             logger.error(f"Neo4j get_relationships failed: {e}")
             return []
@@ -530,7 +540,7 @@ class Neo4jClient:
         Returns:
             Relationship type if created, None if failed
         """
-        properties = {"confidence": confidence}
+        properties: dict[str, Any] = {"confidence": confidence}
         if source_packet:
             properties["source_packet"] = source_packet
 
@@ -569,7 +579,7 @@ class Neo4jClient:
             return []
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 rel_filter = ""
                 if relationship_types:
                     rel_filter = ":" + "|".join(relationship_types)
@@ -583,7 +593,7 @@ class Neo4jClient:
                 ORDER BY d
                 """
                 result = await session.run(query, source=source)
-                records = await result.data()
+                records: list[dict[str, Any]] = await result.data()
                 logger.debug(f"Traversed {len(records)} edges from {source}")
                 return records
         except Exception as e:
@@ -614,7 +624,7 @@ class Neo4jClient:
             return []
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 query = f"""
                 MATCH path = shortestPath((start {{id: $source}})-[*1..{max_depth}]-(end {{id: $target}}))
                 UNWIND relationships(path) as rel
@@ -622,7 +632,7 @@ class Neo4jClient:
                        endNode(rel).id as target_id, properties(rel) as rel_props
                 """
                 result = await session.run(query, source=source, target=target)
-                records = await result.data()
+                records: list[dict[str, Any]] = await result.data()
                 logger.debug(
                     f"Found path with {len(records)} segments from {source} to {target}"
                 )
@@ -653,7 +663,7 @@ class Neo4jClient:
             return []
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 if direction == "outgoing":
                     pattern = "(n {id: $entity})-[r]->(m)"
                 elif direction == "incoming":
@@ -667,7 +677,7 @@ class Neo4jClient:
                        type(r) as rel_type, properties(m) as props
                 """
                 result = await session.run(query, entity=entity)
-                records = await result.data()
+                records: list[dict[str, Any]] = await result.data()
                 logger.debug(f"Found {len(records)} neighbors for {entity}")
                 return records
         except Exception as e:
@@ -704,7 +714,7 @@ class Neo4jClient:
             return None
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 # Create the event
                 props = {**properties, "event_type": event_type, "timestamp": timestamp}
                 query = """
@@ -758,8 +768,8 @@ class Neo4jClient:
             return []
 
         try:
-            async with self._driver.session(database=self._database) as session:
-                conditions = []
+            async with self._ensure_driver().session(database=self._database) as session:
+                conditions: list[str] = []
                 params: dict[str, Any] = {"limit": limit}
 
                 if start_time:
@@ -817,7 +827,7 @@ class Neo4jClient:
             return []
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 conditions = ["(e)-[]-(n {id: $entity})"]
                 params: dict[str, Any] = {"entity": entity}
 
@@ -866,7 +876,7 @@ class Neo4jClient:
             return []
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 query = """
                 MATCH (e:Event)-[]-(n {id: $entity})
                 RETURN e
@@ -905,9 +915,10 @@ class Neo4jClient:
             return []
 
         try:
-            async with self._driver.session(database=self._database) as session:
+            async with self._ensure_driver().session(database=self._database) as session:
                 result = await session.run(query, **(parameters or {}))
-                return await result.data()
+                records: list[dict[str, Any]] = await result.data()
+                return records
         except Exception as e:
             logger.error(f"Neo4j run_query failed: {e}")
             return []

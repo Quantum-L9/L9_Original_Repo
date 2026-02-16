@@ -50,7 +50,7 @@ __dora_meta__ = {
 
 import os
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import structlog
 
@@ -66,6 +66,9 @@ if TYPE_CHECKING:
 
     from core.agents.schemas import AgentConfig
     from memory.substrate_service import MemorySubstrateService
+
+    from .phase_1_load_kernels import KernelParsed
+    from .phase_2_instantiate import BootstrapInstanceData
 
 logger = structlog.get_logger(__name__)
 
@@ -394,9 +397,11 @@ class AgentBootstrapOrchestrator:
         try:
             instance = ctx.phase_results[-1].context_delta.get("instance")
             # Get raw kernels list from phase 1
-            kernels_list = []  # Would need to be passed from phase 1
+            kernels_list: dict[str, KernelParsed] = {}  # Would need to be passed from phase 1
             await phase_3_bind_kernels.bind_kernels_to_agent(
-                instance, kernels_list, self._memory_substrate
+                cast("BootstrapInstanceData", instance),
+                kernels_list,
+                cast("MemorySubstrateService", self._memory_substrate),
             )
             duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
@@ -496,8 +501,9 @@ class AgentBootstrapOrchestrator:
                     instance = pr.context_delta["instance"]
                     break
 
-            tool_count = await phase_5_bind_tools.bind_tools_and_capabilities(
-                instance, self._memory_substrate
+            await phase_5_bind_tools.bind_tools_and_capabilities(
+                cast("BootstrapInstanceData", instance),
+                cast("MemorySubstrateService", self._memory_substrate),
             )
             duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
@@ -505,7 +511,7 @@ class AgentBootstrapOrchestrator:
                 phase=5,
                 name="bind_tools",
                 success=True,
-                context_delta={"tools": [], "tools_bound": tool_count},
+                context_delta={"tools": [], "tools_bound": 0},
                 duration_ms=duration,
             )
         except Exception as e:
@@ -532,10 +538,11 @@ class AgentBootstrapOrchestrator:
                     instance = pr.context_delta["instance"]
                     break
 
+            kernels_dict: dict[str, KernelParsed] = {}  # kernels list
             await phase_6_wire_governance.wire_governance_gates(
-                instance,
-                self._memory_substrate,
-                [],  # kernels list
+                cast("BootstrapInstanceData", instance),
+                cast("MemorySubstrateService", self._memory_substrate),
+                kernels_dict,
             )
             duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
@@ -800,7 +807,7 @@ class AgentBootstrapOrchestrator:
                 logger.info("Phase 3: Binding kernels...")
                 with metrics.time_phase(3):
                     await phase_3_bind_kernels.bind_kernels_to_agent(
-                        instance, kernels, self.substrate
+                        instance, kernels, cast("MemorySubstrateService", self.substrate)
                     )
                     failed_phase = 3
                 logger.info("✓ Phase 3 complete")
@@ -817,20 +824,18 @@ class AgentBootstrapOrchestrator:
                 # Phase 5: Bind tools
                 logger.info("Phase 5: Binding tools & capabilities...")
                 with metrics.time_phase(5):
-                    tool_count = await phase_5_bind_tools.bind_tools_and_capabilities(
-                        instance, self.substrate
+                    await phase_5_bind_tools.bind_tools_and_capabilities(
+                        instance, cast("MemorySubstrateService", self.substrate)
                     )
                     failed_phase = 5
-                metrics.set_tools_bound(
-                    tool_count if isinstance(tool_count, int) else 0
-                )
+                metrics.set_tools_bound(0)
                 logger.info("✓ Phase 5 complete")
 
                 # Phase 6: Wire governance
                 logger.info("Phase 6: Wiring governance gates...")
                 with metrics.time_phase(6):
                     await phase_6_wire_governance.wire_governance_gates(
-                        instance, self.substrate, kernels
+                        instance, cast("MemorySubstrateService", self.substrate), kernels
                     )
                     failed_phase = 6
                 logger.info("✓ Phase 6 complete")
