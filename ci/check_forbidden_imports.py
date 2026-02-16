@@ -9,21 +9,21 @@ Checks all Python files for forbidden imports and patterns:
 - print() statements (use structlog logger instead)
 
 Usage:
-    python ci/lint_forbidden_imports.py              # Check all files
-    python ci/lint_forbidden_imports.py --fix        # Auto-fix where possible
-    python ci/lint_forbidden_imports.py path/to/file.py  # Check specific file
+    python ci/check_forbidden_imports.py              # Check all files
+    python ci/check_forbidden_imports.py --fix        # Auto-fix where possible
+    python ci/check_forbidden_imports.py path/to/file.py  # Check specific file
 """
 
 # ============================================================================
 __dora_meta__ = {
-    "component_name": "Lint Forbidden Imports",
+    "component_name": "Check Forbidden Imports",
     "module_version": "1.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2025-12-25T23:48:36Z",
     "updated_at": "2026-01-07T13:35:57Z",
     "layer": "operations",
     "domain": "ci",
-    "module_name": "lint_forbidden_imports",
+    "module_name": "check_forbidden_imports",
     "type": "cli",
     "status": "active",
     "integrates_with": {
@@ -75,7 +75,7 @@ SKIP_PATTERNS = [
     "docs/CodeGen",  # CodeGen documentation scripts
     "docs/roadmap",  # Roadmap documentation and example scripts
     # CI/CD tools (print() is standard for CLI output)
-    "ci/lint_forbidden_imports.py",  # This script references print() in its documentation
+    "ci/check_forbidden_imports.py",  # This script references print() in its documentation
     "ci/",  # All CI scripts are CLI tools
     # Scripts directory (CLI tools and utilities)
     "scripts/",  # All scripts are CLI tools

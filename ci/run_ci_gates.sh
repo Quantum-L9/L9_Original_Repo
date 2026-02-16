@@ -216,8 +216,8 @@ gate_5_forbidden_imports() {
 
     log_header "GATE 5: FORBIDDEN IMPORTS LINT"
 
-    if [ ! -f "$SCRIPT_DIR/lint_forbidden_imports.py" ]; then
-        log_error "Linter script not found: $SCRIPT_DIR/lint_forbidden_imports.py"
+    if [ ! -f "$SCRIPT_DIR/check_forbidden_imports.py" ]; then
+        log_error "Linter script not found: $SCRIPT_DIR/check_forbidden_imports.py"
         return 1
     fi
 
@@ -225,16 +225,16 @@ gate_5_forbidden_imports() {
 
     # If specific files provided, check only those
     if [ ${#files[@]} -gt 0 ]; then
-        if ! python3 "$SCRIPT_DIR/lint_forbidden_imports.py" "${files[@]}"; then
+        if ! python3 "$SCRIPT_DIR/check_forbidden_imports.py" "${files[@]}"; then
             log_error "Forbidden imports/patterns found in files"
-            log_info "Run with --fix to auto-fix: python3 ci/lint_forbidden_imports.py --fix [files]"
+            log_info "Run with --fix to auto-fix: python3 ci/check_forbidden_imports.py --fix [files]"
             return 1
         fi
     else
         # Check all Python files in the repo
-        if ! python3 "$SCRIPT_DIR/lint_forbidden_imports.py"; then
+        if ! python3 "$SCRIPT_DIR/check_forbidden_imports.py"; then
             log_error "Forbidden imports/patterns found in codebase"
-            log_info "Run with --fix to auto-fix: python3 ci/lint_forbidden_imports.py --fix"
+            log_info "Run with --fix to auto-fix: python3 ci/check_forbidden_imports.py --fix"
             return 1
         fi
     fi

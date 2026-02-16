@@ -153,6 +153,11 @@ jobs:
       - name: Install dependencies
         run: pip install pyyaml structlog aiofiles psutil pydantic-settings pydantic
 
+      - name: Check Python syntax (Gate 0)
+        run: |
+          echo "🐍 Checking Python syntax..."
+          python3 ci/check_syntax.py
+
       - name: Check ADR compliance (errors only)
         run: |
           echo "📋 Checking ADR compliance..."
@@ -217,14 +222,23 @@ jobs:
           fi
 
       - name: Check noqa placement (GMP-CI-2026-02)
-        run: |
-          echo "🔍 Checking for noqa-inside-string bugs..."
-          python3 ci/check_noqa_placement.py
+        run: python3 ci/check_noqa_placement.py
+
+      - name: Check stale noqa comments (GMP-115)
+        run: python3 ci/check_stale_noqa.py
+
+      - name: Check global state patterns
+        run: python3 ci/check_global_state.py
 
       - name: Check ADR enforcement manifest coverage
         run: |
           echo "📋 Checking ADR enforcement manifest coverage..."
           python3 ci/check_adr_enforcement_manifest.py
+
+      - name: Auto-stub missing ADRs in manifest (dry-run)
+        run: |
+          echo "📝 Checking for ADRs missing from enforcement manifest..."
+          python3 ci/auto_stub_adr_enforcement.py --dry-run
 
       - name: Check GMP report naming convention
         run: |
@@ -238,7 +252,7 @@ jobs:
       - name: Check forbidden imports (Gate 5)
         run: |
           echo "🚫 Checking for forbidden imports (logging, aiohttp, print)..."
-          python3 ci/lint_forbidden_imports.py
+          python3 ci/check_forbidden_imports.py
 
       - name: Check tool wiring consistency (Gate 6)
         run: |
@@ -400,7 +414,7 @@ jobs:
       - name: Check DORA compliance
         run: |
           echo "🔍 Checking DORA block compliance..."
-          python ci/dora_compliance_check.py --check --path .
+          python ci/check_dora_compliance.py --check --path .
         continue-on-error: true # Don't block CI yet - report only
 
   # ===========================================================================

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """ci/auto_stub_adr_enforcement.py — Auto-add manifest stubs for new ADRs.
 
+This is a CI AUTO-FIX SCRIPT that modifies config/adr-enforcement.yaml.
+It intentionally uses print() for CLI output (whitelisted for ci/ scripts).
+
 When a new ADR file is added to readme/adr/, this script detects it and
 appends a stub entry to config/adr-enforcement.yaml so CI doesn't fail.
 
@@ -148,8 +151,8 @@ def main() -> int:
     # Re-stage the manifest so the commit includes the update
     import subprocess
 
-    subprocess.run(  # noqa: S603 — trusted cmd, no shell
-        ["git", "add", str(MANIFEST)],  # noqa: S607 — trusted system command
+    subprocess.run(
+        ["git", "add", str(MANIFEST)],
         cwd=L9_ROOT,
         capture_output=True,
     )

@@ -7,16 +7,16 @@ Checks all Python and YAML files for missing DORA blocks and auto-injects if mis
 
 Usage:
     # Check only (CI mode - fails if missing)
-    python ci/dora_compliance_check.py --check
+    python ci/check_dora_compliance.py --check
 
     # Auto-fix missing blocks
-    python ci/dora_compliance_check.py --fix
+    python ci/check_dora_compliance.py --fix
 
     # Check specific directory
-    python ci/dora_compliance_check.py --check --path core/agents/
+    python ci/check_dora_compliance.py --check --path core/agents/
 
     # Dry run (show what would be fixed)
-    python ci/dora_compliance_check.py --fix --dry-run
+    python ci/check_dora_compliance.py --fix --dry-run
 
 Exit codes:
     0 - All files compliant
@@ -26,14 +26,14 @@ Exit codes:
 
 # ============================================================================
 __dora_meta__ = {
-    "component_name": "Dora Compliance Check",
+    "component_name": "Check DORA Compliance",
     "module_version": "1.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-18T03:39:59Z",
     "updated_at": "2026-01-31T22:21:50Z",
     "layer": "operations",
     "domain": "ci",
-    "module_name": "dora_compliance_check",
+    "module_name": "check_dora_compliance",
     "type": "cli",
     "status": "active",
     "integrates_with": {
