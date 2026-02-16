@@ -145,7 +145,7 @@ repos:
       - id: check-type-checking
         name: Check TYPE_CHECKING pattern (ADR-0002)
         entry: |
-          bash -c 'FAILED=0; grep -rl "if TYPE_CHECKING:" --include="*.py" . 2>/dev/null | grep -v .venv | grep -v tests/ | grep -v current_work/ | while IFS= read -r f; do if ! grep -q "from __future__ import annotations" "$f"; then echo "❌ $f needs __future__ annotations"; FAILED=1; fi; done; exit $FAILED'
+          bash -c 'FAILED=0; grep -rl "^\s*if TYPE_CHECKING:" --include="*.py" . 2>/dev/null | grep -v .venv | grep -v tests/ | grep -v current_work/ | while IFS= read -r f; do if ! grep -q "from __future__ import annotations" "$f"; then echo "❌ $f needs __future__ annotations (ADR-0002)"; FAILED=1; fi; done; if grep -rnE "^\s*from typing import.*TYPE_CHECKING" --include="*.py" . 2>/dev/null | grep -v .venv | grep -v tests/ | grep -v current_work/ | while read -r line; do file=$(echo "$line" | cut -d: -f1); if ! grep -q "^\s*if TYPE_CHECKING:" "$file"; then echo "❌ $line: TYPE_CHECKING imported but not used in a guard (ADR-0002)"; FAILED=1; fi; done; exit $FAILED'
         language: system
         pass_filenames: false
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Working Memory Service",
@@ -33,8 +35,6 @@ Backing: Redis. TTL: 4 hours (configurable).
 Shared across all agents (L-CTO, Cursor, future agents) on same repo/branch.
 Adapted for L9 async architecture.
 """
-
-from __future__ import annotations
 
 import hashlib
 import json

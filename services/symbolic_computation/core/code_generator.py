@@ -40,6 +40,7 @@ __dora_meta__ = {
 import subprocess
 import time
 from collections.abc import Callable
+from typing import Any
 
 import structlog
 import sympy
@@ -78,7 +79,7 @@ class CodeGenerator:
     def __init__(
         self,
         config: SymbolicComputationConfig | None = None,
-        metrics_collector: any | None = None,
+        metrics_collector: Any | None = None,
     ):
         """
         Initialize the code generator.
@@ -209,27 +210,42 @@ class CodeGenerator:
         language: str,
     ) -> str:
         """Generate C or Fortran code using SymPy's codegen."""
-        from sympy.utilities.codegen import CCodeGen, FCodeGen, Routine
+        from sympy.utilities.codegen import codegen
 
-        # Create routine
-        Routine(function_name, expr, argument_sequence=var_symbols)
-
-        # Select code generator
-        if language.upper() == "C":
-            code_gen = CCodeGen()
-        elif language.upper() == "FORTRAN":
-            code_gen = FCodeGen()
+        # Map language names to SymPy expected names
+        lang = language.lower()
+        if lang == "c":
+            target_lang = "c"
+        elif lang == "fortran":
+            target_lang = "f95"
         else:
-            raise ValueError(f"Unsupported language: {language}")
+            target_lang = lang
 
-        # Generate code
-        result = code_gen.routine(function_name, expr, argument_sequence=var_symbols)
+        # Generate code using the high-level codegen function
+        # It handles both old and new SymPy versions better
+        try:
+            results = codegen(
+                (function_name, expr),
+                target_lang,
+                "test",
+                argument_sequence=var_symbols,
+                header=False,
+                empty=False,
+            )
+        except TypeError:
+            # Fallback for newer SymPy if argument_sequence is renamed
+            results = codegen(
+                (function_name, expr),
+                target_lang,
+                "test",
+                arguments=var_symbols,
+                header=False,
+                empty=False,
+            )
 
-        # Write to string
+        # Extract source code from results
         source_lines = []
-        for file_name, file_content in code_gen.write(
-            [result], str(self.config.codegen_temp_dir), to_files=False
-        ):
+        for file_name, file_content in results:
             if file_name.endswith((".c", ".f90", ".f")):
                 source_lines.append(file_content)
 
@@ -356,8 +372,9 @@ def {function_name}({args}):
     ) -> Callable | None:
         """Compile C code to shared library and load."""
         import ctypes
+        from pathlib import Path
 
-        temp_dir = self.config.codegen_temp_dir
+        temp_dir = Path(self.config.codegen_temp_dir)
         source_file = temp_dir / f"{output_name}.c"
         lib_file = temp_dir / f"{output_name}.so"
 
@@ -410,6 +427,7 @@ __dora_footer__ = {
         "rest-api",
         "service",
         "subprocess",
+        "sympy",
     ],
     "keywords": ["compile", "generate", "generated", "generator", "sympy"],
     "business_value": "Implements CodeGenerator for code generator functionality",

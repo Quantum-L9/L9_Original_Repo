@@ -208,7 +208,7 @@ async def discover_tools_for_task(
         if settings.l9_tool_feedback_enabled:
             try:
                 # If you have a central substrate accessor, use that here
-                substrate_service = get_memory_substrate_service()  # or pass in
+                substrate_service = await get_memory_substrate_service()  # or pass in
                 feedback_service = get_tool_feedback_service(substrate_service)
 
                 task_type = _infer_task_type(task_payload)

@@ -48,7 +48,7 @@ class TestDynamicDiscovery:
         """Discovered tools should be in OpenAI function calling format."""
         with (
             patch(
-                "core.tools.dynamic_discovery.find_relevant_tools",
+                "core.tools.tool_embeddings.find_relevant_tools",
                 new_callable=AsyncMock,
                 return_value=mock_tool_embedding_results,
             ),
@@ -59,7 +59,9 @@ class TestDynamicDiscovery:
         ):
             from core.tools.dynamic_discovery import discover_tools_for_task
 
-            tools = await discover_tools_for_task("search for user preferences")
+            tools = await discover_tools_for_task(
+                "search for user preferences", use_hybrid=False
+            )
 
             assert len(tools) == 2
             assert tools[0]["type"] == "function"
@@ -87,7 +89,7 @@ class TestDynamicDiscovery:
             many_results.append(mock)
 
         with patch(
-            "core.tools.dynamic_discovery.find_relevant_tools",
+            "core.tools.tool_embeddings.find_relevant_tools",
             new_callable=AsyncMock,
             return_value=many_results,
         ):
@@ -97,6 +99,7 @@ class TestDynamicDiscovery:
             tools = await discover_tools_for_task(
                 "test query",
                 max_tokens=500,  # Very small budget
+                use_hybrid=False,
             )
 
             # Should have loaded fewer than 20 tools due to budget
@@ -148,7 +151,7 @@ class TestAgentInstanceDynamicDiscovery:
         """Create test task."""
         return AgentTask(
             id=uuid4(),
-            kind=TaskKind.CHAT,
+            kind=TaskKind.CONVERSATION,
             payload={"query": "How do I search memory?"},
             agent_id="test-agent",
         )
@@ -220,7 +223,7 @@ class TestAgentInstanceDynamicDiscovery:
 
         task = AgentTask(
             id=uuid4(),
-            kind=TaskKind.CHAT,
+            kind=TaskKind.CONVERSATION,
             payload={"query": "test query"},
             agent_id="test",
         )
@@ -232,7 +235,7 @@ class TestAgentInstanceDynamicDiscovery:
         # Try content field
         task2 = AgentTask(
             id=uuid4(),
-            kind=TaskKind.CHAT,
+            kind=TaskKind.CONVERSATION,
             payload={"content": "test content"},
             agent_id="test",
         )

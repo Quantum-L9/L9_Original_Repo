@@ -610,10 +610,21 @@ else
     echo "  Checking ADR-0002: TYPE_CHECKING pattern..."
     for file in $STAGED_PY_FILES; do
         if [ -f "$file" ]; then
-            if grep -q "if TYPE_CHECKING:" "$file" 2>/dev/null; then
+            # Skip the ADR checker itself (contains patterns as strings)
+            if [[ "$file" == "ci/check_adr_compliance.py" ]]; then continue; fi
+            if grep -q "^\s*if TYPE_CHECKING:" "$file" 2>/dev/null; then
                 if ! grep -q "from __future__ import annotations" "$file"; then
                     echo -e "  ${RED}❌ ADR-0002: TYPE_CHECKING without __future__ in $file${NC}"
                     echo "     Fix: Add 'from __future__ import annotations' at top"
+                    ADR_VIOLATIONS=$((ADR_VIOLATIONS + 1))
+                fi
+            fi
+            # Check if TYPE_CHECKING is imported but not used in a guard
+            if grep -qE "^\s*from typing import.*TYPE_CHECKING" "$file" 2>/dev/null; then
+                # Ensure it's not actually used in 'if TYPE_CHECKING:'
+                if ! grep -q "^\s*if TYPE_CHECKING:" "$file"; then
+                    echo -e "  ${RED}❌ ADR-0002: TYPE_CHECKING imported but not used in a guard in $file${NC}"
+                    echo "     Fix: Wrap type-only imports in 'if TYPE_CHECKING:' block"
                     ADR_VIOLATIONS=$((ADR_VIOLATIONS + 1))
                 fi
             fi
