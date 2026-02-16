@@ -194,29 +194,32 @@ class ReflectionEngine:
         Returns:
             Learning insights
         """
-        learning = {
-            "what_worked": [],
-            "what_failed": [],
+        what_worked: list[str] = []
+        what_failed: list[str] = []
+        what_to_change: list[str] = []
+        learning: dict[str, object] = {
+            "what_worked": what_worked,
+            "what_failed": what_failed,
             "why_it_happened": "",
-            "what_to_change": [],
+            "what_to_change": what_to_change,
         }
 
         if comparison["prediction_accuracy"] > 0.7:
             # High accuracy - action worked as expected
-            learning["what_worked"].append(
+            what_worked.append(
                 f"Action {action_record['action'].get('type')} succeeded as predicted"
             )
             learning["why_it_happened"] = "Prediction model was accurate"
         else:
             # Low accuracy - unexpected outcome
-            learning["what_failed"].append(
+            what_failed.append(
                 f"Action {action_record['action'].get('type')} did not match expectation"
             )
             learning["why_it_happened"] = (
                 "Context may have changed or model needs calibration"
             )
-            learning["what_to_change"].append("Improve context awareness")
-            learning["what_to_change"].append("Recalibrate confidence scoring")
+            what_to_change.append("Improve context awareness")
+            what_to_change.append("Recalibrate confidence scoring")
 
         return learning
 

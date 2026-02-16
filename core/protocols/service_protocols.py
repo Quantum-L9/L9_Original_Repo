@@ -334,13 +334,52 @@ class GovernanceService(Protocol):
 
 
 # =============================================================================
+# CacheService - High-level cache interface (DI binding)
+# =============================================================================
+
+
+@runtime_checkable
+class CacheService(Protocol):
+    """Cache interface for DI registration. Implementations: RedisClient, etc."""
+
+    ...
+
+
+# =============================================================================
+# ToolRegistry - Tool discovery and dispatch (DI binding)
+# =============================================================================
+
+
+@runtime_checkable
+class ToolRegistry(Protocol):
+    """Registry for tool discovery. Implementations: ExecutorToolRegistry, etc."""
+
+    ...
+
+
+# =============================================================================
+# WorldModelService - World model interface (DI binding)
+# =============================================================================
+
+
+@runtime_checkable
+class WorldModelService(Protocol):
+    """World model service. Implementations: WorldModelEngine, etc."""
+
+    ...
+
+
+# =============================================================================
 # Exports
 # =============================================================================
 
 __all__ = [
+    "CacheService",
     "GovernanceService",
     "LLMService",
     "MemoryService",
+    "ToolRegistry",
+    "WorldModelService",
 ]
 
 # ============================================================================

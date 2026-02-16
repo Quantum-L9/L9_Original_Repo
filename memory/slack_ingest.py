@@ -732,13 +732,13 @@ async def handle_slack_events(
     # Parse and normalize event
     normalized = SlackRequestNormalizer.parse_event_callback(payload)
 
-    event_id = normalized.get("event_id")
-    team_id = normalized.get("team_id")
-    channel_id = normalized.get("channel_id")
+    event_id: str = str(normalized.get("event_id") or "")
+    team_id: str = str(normalized.get("team_id") or "")
+    channel_id: str = str(normalized.get("channel_id") or "")
     thread_ts = normalized.get("thread_ts")
     thread_uuid = normalized.get("thread_uuid")
     thread_string = normalized.get("thread_string")
-    user_id = normalized.get("user_id")
+    user_id: str = str(normalized.get("user_id") or "")
     text = normalized.get("text", "")
     event_type = normalized.get("event_type")
 

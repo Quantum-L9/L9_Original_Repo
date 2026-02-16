@@ -129,7 +129,7 @@ except ModuleNotFoundError:  # pragma: no cover - handled explicitly
         ClientSession = _StubClientSession  # type: ignore[misc]
 
     aiohttp = _StubAioHttpModule()  # type: ignore
-    sys.modules.setdefault("aiohttp", aiohttp)
+    sys.modules.setdefault("aiohttp", aiohttp)  # type: ignore[arg-type]
 
 import networkx as nx
 
@@ -236,8 +236,8 @@ class ReasoningStep:
     premise: str
     conclusion: str
     confidence: float
-    evidence: list[str] = None
-    timestamp: datetime = None
+    evidence: list[str] | None = None
+    timestamp: datetime | None = None
 
     def __post_init__(self) -> None:
         """Initialize default values for evidence and timestamp.
@@ -687,7 +687,8 @@ class ReasoningStepParser:
             ):
                 current_step.conclusion = line
             elif current_step:
-                current_step.evidence.append(line)
+                if current_step.evidence is not None:
+                    current_step.evidence.append(line)
 
         # Add final step
         if current_step:
@@ -969,29 +970,31 @@ class ProductionToThEngine:
     @must_stay_async("callers use await")
     async def validate_reasoning(self, result: ReasoningResult) -> dict[str, Any]:
         """Validate reasoning result quality"""
-        validation = {
+        issues: list[str] = []
+        recommendations: list[str] = []
+        validation: dict[str, object] = {
             "valid": True,
-            "issues": [],
+            "issues": issues,
             "quality_score": 0.0,
-            "recommendations": [],
+            "recommendations": recommendations,
         }
 
         # Check confidence threshold
         if result.overall_confidence < self.config.confidence_threshold:
-            validation["issues"].append(
+            issues.append(
                 f"Low confidence: {result.overall_confidence:.3f}"
             )
             validation["valid"] = False
 
         # Check reasoning steps
         if len(result.steps) < 2:
-            validation["issues"].append("Insufficient reasoning steps")
-            validation["recommendations"].append("Request more detailed analysis")
+            issues.append("Insufficient reasoning steps")
+            recommendations.append("Request more detailed analysis")
 
         # Check execution time
         if result.execution_time > self.config.reasoning_timeout:
-            validation["issues"].append("Reasoning timeout exceeded")
-            validation["recommendations"].append(
+            issues.append("Reasoning timeout exceeded")
+            recommendations.append(
                 "Consider simpler query or increase timeout"
             )
 

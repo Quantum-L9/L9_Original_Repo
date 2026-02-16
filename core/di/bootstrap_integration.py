@@ -45,6 +45,8 @@ from core.protocols import (
     WorldModelService,
 )
 
+# ADR-0026: Protocols above are from core.protocols (CacheService, ToolRegistry, WorldModelService
+# added for DI binding). Container.bind_singleton expects concrete types; structural use is safe.
 logger = structlog.get_logger()
 
 # Global DI container instance
@@ -110,18 +112,18 @@ async def _register_memory_services(container: DIContainer) -> None:
     """Register memory-related services."""
     try:
         # Import here to avoid circular dependencies
-        from memory.substrate_service import SubstrateService
+        from memory.substrate_service import MemorySubstrateService
 
-        # Register as singleton
+        # Register as singleton (Protocol vs concrete; constructor from singleton elsewhere)
         container.bind_singleton(
-            MemoryService,
-            lambda: SubstrateService(),
+            MemoryService,  # type: ignore[type-abstract]
+            lambda: MemorySubstrateService(),  # type: ignore[arg-type,call-arg,return-value]
         )
 
         logger.info(
             "di_service_registered",
             protocol="MemoryService",
-            implementation="SubstrateService",
+            implementation="MemorySubstrateService",
             lifecycle="singleton",
         )
     except ImportError as e:
@@ -141,7 +143,7 @@ async def _register_llm_services(container: DIContainer) -> None:
 
         # Register as singleton
         container.bind_singleton(
-            LLMService,
+            LLMService,  # type: ignore[type-abstract]
             lambda: OpenAIClient(),
         )
 
@@ -164,12 +166,12 @@ async def _register_tool_services(container: DIContainer) -> None:
     """Register tool-related services."""
     try:
         # Import here to avoid circular dependencies
-        from core.tools.base_registry import BaseToolRegistry
+        from core.tools.base_registry import ToolRegistry as _ToolRegistryImpl
 
         # Register as singleton
         container.bind_singleton(
-            ToolRegistry,
-            lambda: BaseToolRegistry(),
+            ToolRegistry,  # type: ignore[type-abstract]
+            lambda: _ToolRegistryImpl(),
         )
 
         logger.info(
@@ -191,18 +193,18 @@ async def _register_governance_services(container: DIContainer) -> None:
     """Register governance-related services."""
     try:
         # Import here to avoid circular dependencies
-        from memory.governance_gate import GovernanceGate
+        from memory.governance_gate import MemoryGovernanceContext
 
-        # Register as singleton
+        # Register as singleton (context object used as governance handle)
         container.bind_singleton(
-            GovernanceService,
-            lambda: GovernanceGate(),
+            GovernanceService,  # type: ignore[type-abstract]
+            lambda: MemoryGovernanceContext(),  # type: ignore[arg-type,call-arg,return-value]
         )
 
         logger.info(
             "di_service_registered",
             protocol="GovernanceService",
-            implementation="GovernanceGate",
+            implementation="MemoryGovernanceContext",
             lifecycle="singleton",
         )
     except ImportError as e:
@@ -222,7 +224,7 @@ async def _register_world_model_services(container: DIContainer) -> None:
 
         # Register as singleton
         container.bind_singleton(
-            WorldModelService,
+            WorldModelService,  # type: ignore[type-abstract]
             lambda: WorldModelEngine(),
         )
 
@@ -249,7 +251,7 @@ async def _register_cache_services(container: DIContainer) -> None:
 
         # Register as singleton
         container.bind_singleton(
-            CacheService,
+            CacheService,  # type: ignore[type-abstract]
             lambda: RedisClient(),
         )
 

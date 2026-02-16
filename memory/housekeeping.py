@@ -115,13 +115,14 @@ class HousekeepingEngine:
             logger.warning("No repository set, skipping GC")
             return {"status": "skipped", "reason": "no_repository"}
 
-        results = {
+        errors: list[str] = []
+        results: dict[str, object] = {
             "ttl_evicted": 0,
             "orphans_cleaned": 0,
             "parentless_cleaned": 0,
             "artifacts_cleaned": 0,
             "tags_gc": 0,
-            "errors": [],
+            "errors": errors,
         }
 
         # TTL eviction
@@ -130,7 +131,7 @@ class HousekeepingEngine:
             results["ttl_evicted"] = count
         except Exception as e:
             logger.error(f"TTL eviction failed: {e}")
-            results["errors"].append(f"ttl_eviction: {e!s}")
+            errors.append(f"ttl_eviction: {e!s}")
 
         # Orphan cleanup
         try:
@@ -138,7 +139,7 @@ class HousekeepingEngine:
             results["orphans_cleaned"] = count
         except Exception as e:
             logger.error(f"Orphan cleanup failed: {e}")
-            results["errors"].append(f"orphan_cleanup: {e!s}")
+            errors.append(f"orphan_cleanup: {e!s}")
 
         # Parentless cleanup
         try:
@@ -146,7 +147,7 @@ class HousekeepingEngine:
             results["parentless_cleaned"] = count
         except Exception as e:
             logger.error(f"Parentless cleanup failed: {e}")
-            results["errors"].append(f"parentless_cleanup: {e!s}")
+            errors.append(f"parentless_cleanup: {e!s}")
 
         # Artifact cleanup
         try:
@@ -154,7 +155,7 @@ class HousekeepingEngine:
             results["artifacts_cleaned"] = count
         except Exception as e:
             logger.error(f"Artifact cleanup failed: {e}")
-            results["errors"].append(f"artifact_cleanup: {e!s}")
+            errors.append(f"artifact_cleanup: {e!s}")
 
         # Tag GC
         try:
@@ -162,7 +163,7 @@ class HousekeepingEngine:
             results["tags_gc"] = count
         except Exception as e:
             logger.error(f"Tag GC failed: {e}")
-            results["errors"].append(f"tag_gc: {e!s}")
+            errors.append(f"tag_gc: {e!s}")
 
         # Update stats
         self._stats["ttl_evicted"] += results["ttl_evicted"]

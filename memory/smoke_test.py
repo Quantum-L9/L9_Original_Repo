@@ -34,6 +34,7 @@ __dora_meta__ = {
 import asyncio
 import os
 import sys
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -47,14 +48,14 @@ logger = structlog.get_logger(__name__)
 
 
 @must_stay_async("callers use await")
-async def smoke_test() -> dict[str, any]:
+async def smoke_test() -> dict[str, Any]:
     """
     Run smoke test to verify memory system.
 
     Returns:
         Dict with test results
     """
-    results = {
+    results: dict[str, Any] = {
         "status": "unknown",
         "tests": {},
         "errors": [],

@@ -98,7 +98,7 @@ except ImportError:
 # Optional: Calibration Services (Bayesian Upgrade - GMP-32)
 # Uses simplified interface that adapts to L9 executor patterns
 try:
-    from core.calibration import (  # noqa: F401 — availability check
+    from core.calibration import (
         CalibrationService,
         GatingPolicyService,
     )
@@ -200,7 +200,7 @@ if TYPE_CHECKING:
 # Stage 5: Predictive Memory Warming (optional - graceful degradation)
 try:
     from memory.warming_service import (
-        MemoryWarmingService,  # noqa: F401 — availability check
+        MemoryWarmingService,
     )
 
     _has_memory_warming = True
@@ -502,7 +502,7 @@ class AgentExecutorService:
         self._idempotency_store: IdempotencyStore | None = None
         if _has_idempotency_store and IdempotencyStore is not None:
             try:
-                self._idempotency_store = IdempotencyStore(substrate_service)
+                self._idempotency_store = IdempotencyStore(substrate_service)  # type: ignore[arg-type]  # protocol structural match
                 logger.info(
                     "agent.executor.idempotency_store: substrate-backed enabled"
                 )
@@ -1798,7 +1798,8 @@ class AgentExecutorService:
                     top_k=7,  # Slightly more than 5 to account for governance filtering
                 )
                 if relevant_tools:
-                    instance.bind_tools(relevant_tools)
+                    if hasattr(instance, "bind_tools"):
+                        instance.bind_tools(relevant_tools)
                     logger.info(
                         "agent.executor.tools.shortlisted",
                         task_id=str(instance.task.id),
@@ -1831,9 +1832,10 @@ class AgentExecutorService:
                         f"{a.source_domain}->{a.target_domain}: {a.pattern} ({a.confidence:.0%})"
                         for a in analogies
                     )
-                    instance.add_system_context(
-                        f"[DTB cross-domain insights] {analogy_hints}"
-                    )
+                    if hasattr(instance, "add_system_context"):
+                        instance.add_system_context(
+                            f"[DTB cross-domain insights] {analogy_hints}"
+                        )
                     logger.info(
                         "agent.executor.dtb.analogies_found",
                         task_id=str(instance.task.id),
@@ -1958,7 +1960,7 @@ class AgentExecutorService:
                     )
                     aios_result.uncertainty = calibration_result.uncertainty
                     # Store for gating check
-                    instance.last_confidence = aios_result.calibrated_confidence
+                    instance.last_confidence = aios_result.calibrated_confidence  # type: ignore[attr-defined]  # dynamic AgentInstance attr
                     logger.debug(
                         "agent.executor.confidence_calibrated",
                         task_id=str(instance.task.id),

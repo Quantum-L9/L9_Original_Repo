@@ -60,8 +60,13 @@ import contextlib
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 
 import structlog
+
+if TYPE_CHECKING:
+    from redis.asyncio import Redis as _AioRedisType
+    from runtime.redis_client import RedisClient as _RedisClientType
 
 logger = structlog.get_logger(__name__)
 
@@ -121,7 +126,7 @@ class AuthRateLimiter:
             config: Rate limit configuration (uses defaults if not provided)
         """
         self._config = config or AuthRateLimitConfig()
-        self._redis_client = None
+        self._redis_client: _RedisClientType | None = None
         self._redis_available = False
 
         # In-memory fallback storage
@@ -148,6 +153,21 @@ class AuthRateLimiter:
             )
 
         return self._redis_available
+
+    def _get_redis(self) -> _RedisClientType:
+        """Return the Redis client wrapper, raising if unavailable.
+
+        Callers MUST check ``_ensure_redis()`` before calling this.
+        """
+        assert self._redis_client is not None, "Redis client not available"
+        return self._redis_client
+
+    def _get_raw_redis(self) -> _AioRedisType:
+        """Return the underlying aioredis.Redis connection for raw operations.
+
+        Callers MUST check ``_ensure_redis()`` before calling this.
+        """
+        return self._get_redis()._ensure_client()
 
     async def check_allowed(
         self,
@@ -348,7 +368,7 @@ class AuthRateLimiter:
         """Get lockout expiry time."""
         if await self._ensure_redis():
             try:
-                ttl = await self._redis_client.ttl(key)
+                ttl = await self._get_raw_redis().ttl(key)
                 if ttl and ttl > 0:
                     return datetime.now(UTC) + timedelta(seconds=ttl)
             except Exception as e:
@@ -368,7 +388,7 @@ class AuthRateLimiter:
 
         if await self._ensure_redis():
             with contextlib.suppress(Exception):
-                await self._redis_client.setex(
+                await self._get_raw_redis().setex(
                     key,
                     self._config.lockout_duration_seconds,
                     "locked",
@@ -386,7 +406,7 @@ class AuthRateLimiter:
         """Clear lockout for key."""
         if await self._ensure_redis():
             with contextlib.suppress(Exception):
-                await self._redis_client.delete(key)
+                await self._get_redis().delete(key)
 
         self._lockouts.pop(key, None)
 
@@ -401,20 +421,21 @@ class AuthRateLimiter:
         ts = timestamp.timestamp()
 
         # IP failures
+        raw = self._get_raw_redis()
         ip_key = f"auth_failures:ip:{ip_address}"
-        await self._redis_client.zadd(ip_key, {str(ts): ts})
-        await self._redis_client.expire(ip_key, self._config.window_seconds)
+        await raw.zadd(ip_key, {str(ts): ts})
+        await raw.expire(ip_key, self._config.window_seconds)
 
         if username:
             # User failures
             user_key = f"auth_failures:user:{username}"
-            await self._redis_client.zadd(user_key, {str(ts): ts})
-            await self._redis_client.expire(user_key, self._config.window_seconds)
+            await raw.zadd(user_key, {str(ts): ts})
+            await raw.expire(user_key, self._config.window_seconds)
 
             # Combined failures
             combined_key = f"auth_failures:combined:{ip_address}:{username}"
-            await self._redis_client.zadd(combined_key, {str(ts): ts})
-            await self._redis_client.expire(combined_key, self._config.window_seconds)
+            await raw.zadd(combined_key, {str(ts): ts})
+            await raw.expire(combined_key, self._config.window_seconds)
 
     async def _redis_count_failures(
         self,
@@ -425,18 +446,19 @@ class AuthRateLimiter:
         now = datetime.now(UTC)
         cutoff = (now - timedelta(seconds=self._config.window_seconds)).timestamp()
 
+        raw = self._get_raw_redis()
         ip_key = f"auth_failures:ip:{ip_address}"
-        ip_count = await self._redis_client.zcount(ip_key, cutoff, "+inf")
+        ip_count = await raw.zcount(ip_key, cutoff, "+inf")
 
         user_count = 0
         combined_count = 0
 
         if username:
             user_key = f"auth_failures:user:{username}"
-            user_count = await self._redis_client.zcount(user_key, cutoff, "+inf")
+            user_count = await raw.zcount(user_key, cutoff, "+inf")
 
             combined_key = f"auth_failures:combined:{ip_address}:{username}"
-            combined_count = await self._redis_client.zcount(
+            combined_count = await raw.zcount(
                 combined_key, cutoff, "+inf"
             )
 
@@ -449,7 +471,7 @@ class AuthRateLimiter:
     async def _redis_clear_user_failures(self, username: str) -> None:
         """Clear user failures from Redis."""
         user_key = f"auth_failures:user:{username}"
-        await self._redis_client.delete(user_key)
+        await self._get_redis().delete(user_key)
 
 
 # =============================================================================

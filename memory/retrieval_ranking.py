@@ -319,14 +319,14 @@ class MultiFactorRanker:
         ranked = self.rank(ranking_items, agent_uncertainty, reference_time)
 
         # Convert back to dicts with added fields
-        results = []
-        for item in ranked:
-            result = dict(item.metadata)
+        results: list[dict[str, Any]] = []
+        for ranked_item in ranked:
+            result = dict(ranked_item.metadata)
             result["ranking"] = {
-                "final_score": round(item.final_score, 4),
-                "recency_score": round(item.recency_score, 4),
-                "frequency_score": round(item.frequency_score, 4),
-                "uncertainty_score": round(item.uncertainty_score, 4),
+                "final_score": round(ranked_item.final_score, 4),
+                "recency_score": round(ranked_item.recency_score, 4),
+                "frequency_score": round(ranked_item.frequency_score, 4),
+                "uncertainty_score": round(ranked_item.uncertainty_score, 4),
             }
             results.append(result)
 
