@@ -384,7 +384,13 @@ def _run_safety_scan(
 
 def _execute_tool(agent: Any, tool_id: str, params: dict[str, Any]) -> Any:
     """
-    Execute the tool through the agent's tool registry.
+    Execute the tool through the canonical ExecutorToolRegistry.
+
+    All tool execution MUST go through ExecutorToolRegistry.dispatch_tool_call()
+    which enforces governance, sanitization, and audit logging.
+
+    Legacy fallback paths (agent.tools.execute, direct executor calls) are
+    forbidden to prevent governance bypass.
 
     Args:
         agent: The kernel-aware agent
@@ -395,34 +401,36 @@ def _execute_tool(agent: Any, tool_id: str, params: dict[str, Any]) -> Any:
         Tool execution result
 
     Raises:
-        RuntimeError: If agent has no tool execution capability
+        RuntimeError: If ExecutorToolRegistry is not available or tool not found
     """
-    # ADR-0094: Use primary base registry for tool executor lookup
-    try:
-        from core.tools.base_registry import get_tool_registry
+    import asyncio
 
-        registry = get_tool_registry()
-        executor = registry.get_executor(tool_id)
-        if executor:
-            import asyncio
+    # CANONICAL PATH ONLY: Use ExecutorToolRegistry with governance
+    from core.tools.base_registry import get_tool_registry
 
-            # Handle async executors
-            if asyncio.iscoroutinefunction(executor):
-                try:
-                    loop = asyncio.get_running_loop()
-                    return loop.run_until_complete(executor(**params))
-                except RuntimeError:
-                    return asyncio.run(executor(**params))
-            else:
-                return executor(**params)
-    except ImportError:
-        pass
+    registry = get_tool_registry()
+    if registry is None:
+        raise RuntimeError(
+            "ExecutorToolRegistry not initialized. "
+            "Legacy tool execution path forbidden. Use ExecutorToolRegistry."
+        )
 
-    # Fallback to agent's tools
-    if hasattr(agent, "tools") and hasattr(agent.tools, "execute"):
-        return agent.tools.execute(tool_id, params)
+    executor = registry.get_executor(tool_id)
+    if executor is None:
+        raise RuntimeError(
+            f"No executor registered for tool: {tool_id}. "
+            f"Legacy tool execution path forbidden. Use ExecutorToolRegistry."
+        )
 
-    raise RuntimeError(f"No executor found for tool: {tool_id}")
+    # Handle async executors
+    if asyncio.iscoroutinefunction(executor):
+        try:
+            loop = asyncio.get_running_loop()
+            return loop.run_until_complete(executor(**params))
+        except RuntimeError:
+            return asyncio.run(executor(**params))
+    else:
+        return executor(**params)
 
 
 # =============================================================================

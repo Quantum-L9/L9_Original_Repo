@@ -686,11 +686,14 @@ class IngestionPipeline:
         - Event node for the packet
         - Relationships to agent, thread, and parent events
 
-        This is best-effort - failures don't block ingestion.
+        P0: Neo4j is mandatory. Graph sync failure raises to caller.
         """
         neo4j = await get_neo4j_client()
         if not neo4j:
-            return  # Neo4j not available, skip silently
+            raise RuntimeError(
+                "Neo4j client not available during graph_sync_node. "
+                "P0: Neo4j is mandatory — cannot skip graph sync."
+            )
 
         packet_id = str(envelope.packet_id)
         agent_id = envelope.metadata.agent if envelope.metadata else None

@@ -75,15 +75,11 @@ except ImportError as e:
     logger.warning(f"MCP memory components not available: {e}")
 
 # Import governance context for memory operations
-try:
-    from config.rls_config import get_rls_config
-    from memory.governance_gate import build_governance_context, governance_context
+# P0: Governance is mandatory for MCP tool execution — fail-closed
+from config.rls_config import get_rls_config
+from memory.governance_gate import build_governance_context, governance_context
 
-    _has_governance = True
-except ImportError as e:
-    logger.warning(f"Governance gate not available: {e}")
-    _has_governance = False
-    _has_mcp = False
+_has_governance = True
 
 
 def get_verify_api_key():

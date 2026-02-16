@@ -452,7 +452,7 @@ async def graph_sync_node(
     - Thread entity (if thread_id present)
     - Relationships between Event ↔ Agent ↔ Thread
 
-    This is best-effort - failures don't block the pipeline.
+    P0: Neo4j is mandatory. Graph sync failure propagates as pipeline error.
     GMP-NEO4J-DAG: Added to enable WorldModel graph queries.
     """
     logger.debug("graph_sync_node: Syncing to Neo4j")
@@ -466,12 +466,16 @@ async def graph_sync_node(
         logger.warning("graph_sync_node: Skipping due to previous errors")
         return state
 
-    # Best-effort Neo4j sync - don't fail pipeline on graph errors
+    # P0: Neo4j is mandatory — fail pipeline on graph errors
     try:
         neo4j = await get_neo4j_client()
         if not neo4j or not neo4j.is_available():
-            logger.debug("graph_sync_node: Neo4j not available, skipping")
-            return state
+            errors.append("graph_sync_node: Neo4j client not available (P0: mandatory)")
+            return {
+                **state,
+                "written_tables": written_tables,
+                "errors": errors,
+            }
 
         packet_id = envelope.get("packet_id", str(uuid4()))
         packet_type = envelope.get("packet_type", "unknown")
@@ -538,9 +542,9 @@ async def graph_sync_node(
         logger.debug(f"graph_sync_node: Synced packet {packet_id} to Neo4j")
 
     except Exception as e:
-        # Best-effort: log warning but don't fail pipeline
-        logger.warning(f"graph_sync_node: Neo4j sync failed (non-critical): {e}")
-        # Don't append to errors - Neo4j is optional enhancement
+        # P0: Neo4j is mandatory — propagate as pipeline error
+        logger.error(f"graph_sync_node: Neo4j sync failed (P0: mandatory): {e}")
+        errors.append(f"graph_sync_node: {e}")
 
     return {
         **state,
