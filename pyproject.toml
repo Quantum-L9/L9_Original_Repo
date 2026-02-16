@@ -47,6 +47,7 @@ module = [
 ignore_errors = true
 
 [tool.ruff]
+target-version = "py312"  # Python 3.12+ (PEP 695 type params, match/case, etc.)
 exclude = [
     # Archived / non-production
     "_archived",
