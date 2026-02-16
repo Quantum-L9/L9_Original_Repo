@@ -1,0 +1,96 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Sympy Schema V6"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-06T16:58:22Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "sympy_schema_v6"
+# type: "schema"
+# status: "active"
+# ============================================================================
+
+---
+system: SymPy Symbolic Computation Service
+module: core.symbolic_computation
+name: SymPy Service
+role: High-performance expression evaluation, code generation, caching
+rootpath: L9/core/symbolic_computation
+version: 6.0.0
+
+depends_on:
+  hard: []
+  soft: [governance]
+
+integration:
+  connectto:
+    - L9/core/memory_manager.py
+    - L9/core/governance.py
+    - L9/tools/registry.py
+
+governance:
+  anchors: [Igor, Compliance]
+  escalationpolicy: "Escalate if expression exceeds max_length or uses dangerous functions"
+  auditscope: [expression_eval, code_generation, performance_metrics]
+
+memorytopology:
+  workingmemory:
+    storagetype: redis
+    keyspace: l9_sympy_cache
+  episodicmemory:
+    storagetype: postgres
+    schema: sympy_results
+  semanticmemory:
+    storagetype: neo4j
+    relationship: EXPRESSION_DEPENDS_ON
+
+cursorinstructions:
+  generatefiles:
+    - __init__.py
+    - config.py
+    - core/__init__.py
+    - core/expression_evaluator.py
+    - core/code_generator.py
+    - core/optimizer.py
+    - core/cache_manager.py
+    - core/metrics.py
+    - core/validator.py
+    - core/models.py
+    - api/__init__.py
+    - api/routes.py
+    - tools/__init__.py
+    - tools/symbolic_tool.py
+    
+  generatedocs:
+    - README.md
+    - ARCHITECTURE.md
+    - API_SPEC.md
+    - PERFORMANCE_GUIDE.md
+    - INTEGRATION_GUIDE.md
+    
+  linkexisting:
+    - L9/core/memory_manager.py
+    - L9/core/governance.py
+    - L9/tools/registry.py
+
+deployment:
+  endpoints:
+    - GET /health
+    - POST /evaluate
+    - POST /generate_code
+    - POST /optimize
+    - GET /metrics
+  apis:
+    - INTERNAL: JSON packets via PacketEnvelope
+    - EXTERNAL: None (internal service only)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["api-config", "code-generation", "configuration", "foundation", "model-config", "redis-config", "schema", "tool-config"]
+# keywords: ["depends_on", "governance", "integration", "memorytopology", "module", "name"]
+# last_modified: "2026-01-06T16:58:22Z"
+# ============================================================================

@@ -96,7 +96,6 @@ error_policy:
   retry_strategy: "exponential_backoff"
   max_retries: 3
   timeout_seconds: 120
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

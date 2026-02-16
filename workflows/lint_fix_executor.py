@@ -352,7 +352,7 @@ class LintFixExecutor:
                     except_var = "e"
                     modified_lines = []
 
-                    for i, line in enumerate(lines):
+                    for _i, line in enumerate(lines):
                         # Track except blocks
                         if re.match(r"\s*except\s+(\w+)\s+as\s+(\w+)", line):
                             match = re.match(r"\s*except\s+(\w+)\s+as\s+(\w+)", line)

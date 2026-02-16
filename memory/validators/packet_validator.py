@@ -38,15 +38,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import Iterable
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 import structlog
 from pydantic import ValidationError
 
 from core.schemas import VALID_DERIVE_TYPES, PacketEnvelopeIn
 from memory.audit_utils import detect_injection_markers, detect_pii_types
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 logger = structlog.get_logger(__name__)
 
@@ -159,7 +161,7 @@ class PacketValidator:
             )
 
         # TTL must be in future (if provided)
-        if packet_in.ttl and packet_in.ttl < datetime.now(timezone.utc):
+        if packet_in.ttl and packet_in.ttl < datetime.now(UTC):
             raise PacketValidationError(
                 f"ttl must be in the future, got {packet_in.ttl}",
                 field="ttl",
@@ -236,7 +238,7 @@ class PacketValidator:
                         error_code="INVALID_SOURCE_TIMESTAMP_FORMAT",
                     ) from None
 
-            if source_timestamp > datetime.now(timezone.utc):
+            if source_timestamp > datetime.now(UTC):
                 raise PacketValidationError(
                     f"source_timestamp cannot be in the future, got {source_timestamp}",
                     field="provenance.source_timestamp",

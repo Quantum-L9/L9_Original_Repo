@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -185,7 +185,7 @@ The following data models define the contracts for this subsystem:
 
 `AcceptanceSpec`, `ActionNode`, `BootImpact`, `ConstraintChallenger`, `ConstraintNode`, `DeliberationCell`, `DependencyEdge`, `DependencySpec`, `EnvironmentSpec`, `ErrorPolicy`
 
-*...and 42 more*
+*...and 40 more*
 
 ### Module Constants
 
@@ -193,10 +193,10 @@ The following data models define the contracts for this subsystem:
 |----------|-------|------|
 | `FORBIDDEN_PATTERNS` | `['if applicable', 'when needed', 'as req...` | 64 |
 | `REQUIRED_SECTIONS` | `['metadata', 'ownership', 'runtime_wirin...` | 81 |
-| `INTENT_EXTRACTION_PROMPT` | `'You are an intent extraction system. An...` | 71 |
-| `PRODUCER_PROMPT` | `'You are IR Producer Agent. Your role is...` | 99 |
-| `CRITIC_PROMPT` | `'You are IR Critic Agent. Your role is t...` | 130 |
-| `CHALLENGE_PROMPT` | `'You are a constraint analysis expert. R...` | 53 |
+| `INTENT_EXTRACTION_PROMPT` | `'You are an intent extraction system. An...` | 73 |
+| `PRODUCER_PROMPT` | `'You are IR Producer Agent. Your role is...` | 102 |
+| `CRITIC_PROMPT` | `'You are IR Critic Agent. Your role is t...` | 133 |
+| `CHALLENGE_PROMPT` | `'You are a constraint analysis expert. R...` | 55 |
 | `ADAPTER_TEMPLATE` | `'"""\n{{ module_name }} Adapter\n{{ \'=\...` | 77 |
 | `ROUTE_TEMPLATE` | `'"""\n{{ module_name }} Routes\n{{ \'=\'...` | 161 |
 
@@ -207,7 +207,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class IrEngineRequest(BaseModel):
     """Request model for ir_engine operations."""
@@ -299,7 +299,7 @@ IR_ENGINE_ENABLED=true
 
 Validate a YAML schema file.
 
-- **File:** `schema_validator.py:400`
+- **File:** `schema_validator.py:407`
 - **Async:** No
 - **Returns:** `MetaContractValidationResult`
 
@@ -307,7 +307,7 @@ Validate a YAML schema file.
 
 Validate and parse a YAML schema file.
 
-- **File:** `schema_validator.py:417`
+- **File:** `schema_validator.py:424`
 - **Async:** No
 - **Returns:** `MetaContract`
 
@@ -331,7 +331,7 @@ Compile a MetaContract to IR.
 
 Compile ModuleIR to Python source files.
 
-- **File:** `ir_to_python.py:952`
+- **File:** `ir_to_python.py:959`
 - **Async:** No
 - **Returns:** `dict[str, str]`
 
@@ -365,7 +365,7 @@ Ir Engine operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "ir_engine",
   "message": "Operation completed",

@@ -5,7 +5,7 @@ GMP State — State definition for GMP execution
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -16,11 +16,9 @@ class GMPPhase(str, Enum):
     START = "start"
     MEMORY_READ = "memory_read"
     SCOPE_LOCK = "scope_lock"
-    USER_CONFIRM_SCOPE = "user_confirm_scope"
     BASELINE = "baseline"
     IMPLEMENT = "implement"
     VALIDATE = "validate"
-    USER_CONFIRM_VALIDATION = "user_confirm_validation"
     MEMORY_WRITE = "memory_write"
     FINALIZE = "finalize"
     END = "end"
@@ -32,8 +30,14 @@ class GMPState:
     """
     State object for GMP execution.
 
-    This is passed through all nodes and accumulates results.
+    Passed through all nodes and accumulates results.
+    Autonomous agents (L, Emma) provide todo_plan and file_budget_may
+    at invocation time — no interactive prompts.
     """
+
+    # Agent identity (auto-injected by SDK)
+    agent_id: str = ""
+    tenant_id: str = ""
 
     # Task info
     task: str = ""
@@ -47,11 +51,10 @@ class GMPState:
     memory_context: dict[str, Any] = field(default_factory=dict)
     memory_read_done: bool = False
 
-    # Scope definition
+    # Scope definition (provided by caller or built by scope_lock)
     todo_plan: list[dict[str, str]] = field(default_factory=list)
     file_budget_may: list[str] = field(default_factory=list)
     file_budget_may_not: list[str] = field(default_factory=list)
-    scope_confirmed: bool = False
 
     # Baseline
     baseline_passed: bool = False
@@ -64,12 +67,12 @@ class GMPState:
     # Validation
     validation_passed: bool = False
     validation_results: dict[str, str] = field(default_factory=dict)
-    validation_confirmed: bool = False
+    retry_count: int = 0
+    max_retries: int = 3
 
     # Memory write
     memory_write_done: bool = False
     lessons_saved: int = 0
-    patterns_saved: int = 0
 
     # Finalize
     report_path: str = ""
@@ -78,9 +81,9 @@ class GMPState:
     # Errors
     errors: list[str] = field(default_factory=list)
 
-    # Messages for display
+    # Messages for display / audit trail
     messages: list[str] = field(default_factory=list)
 
     def add_message(self, msg: str):
-        """Add a message to the log."""
-        self.messages.append(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+        """Add a timestamped message to the log."""
+        self.messages.append(f"[{datetime.now(tz=UTC).strftime('%H:%M:%S')}] {msg}")

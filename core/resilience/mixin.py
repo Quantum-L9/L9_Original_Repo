@@ -27,6 +27,8 @@ ADR: readme/adr/0014-resilience-mixin-pattern.md
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Resilience Mixin",
@@ -49,12 +51,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any
 
 import structlog
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
     from core.observability.circuit_breaker import CircuitBreaker
     from memory.dead_letter import DeadLetterQueue
     from memory.substrate_dag_wrapper import RetryPolicy
@@ -99,6 +102,7 @@ class ResilienceMixin:
     _dlq: DeadLetterQueue | None
     _retry_policy: RetryPolicy | None
 
+    @must_stay_async("callers use await")
     async def with_resilience(
         self,
         operation: Callable[[], Awaitable[Any]],

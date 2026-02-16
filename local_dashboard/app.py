@@ -10,7 +10,7 @@ Usage:
        docker compose up -d
 
     2. Run this dashboard:
-       cd /Users/ib-mac/Projects/L9/local_dashboard
+       cd local_dashboard
        python app.py
 
     3. Open: http://127.0.0.1:5050
@@ -39,7 +39,7 @@ __dora_meta__ = {
 
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 
@@ -61,9 +61,7 @@ from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 L9_API_URL = os.getenv("L9_API_URL", "http://localhost:8000")
-L9_API_KEY = os.getenv(
-    "L9_API_KEY", "9c4753df3b7ee85e2370b0e9a55355e59a9cf3c15f65791de4ab8cdd656b4304"
-)
+L9_API_KEY = os.getenv("L9_API_KEY", "")
 
 # Local settings
 LOCAL_HOST = "127.0.0.1"  # Only accessible from this machine
@@ -581,14 +579,14 @@ async def chat(request: Request):
                 {
                     "role": "user",
                     "content": message,
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(tz=UTC).isoformat(),
                 }
             )
             conversation_history.append(
                 {
                     "role": "assistant",
                     "content": reply,
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(tz=UTC).isoformat(),
                 }
             )
 
@@ -676,7 +674,7 @@ __dora_footer__ = {
         "operations",
     ],
     "keywords": ["app", "chat", "health", "index"],
-    "business_value": "cd /Users/ib-mac/Projects/L9/local_dashboard python app.py 3. Open: http://127.0.0.1:5050",
+    "business_value": "cd local_dashboard && python app.py  # Open: http://127.0.0.1:5050",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

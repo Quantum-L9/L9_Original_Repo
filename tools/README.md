@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Development and maintenance tools
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -84,21 +84,21 @@ tools/
 ├── adr/adr_indexer.py
 ├── adr/adr_scanner.py
 ├── adr/adr_validator.py
+├── adr/docstring_injector.py
 ├── architecture_reports/__init__.py
 ├── architecture_reports/architecture_report.py
 ├── architecture_reports/async_function_map_report.py
 ├── architecture_reports/class_definitions_report.py
 ├── architecture_reports/config.py
-├── architecture_reports/config_files_report.py
-└── ... (22 more files)
+└── ... (46 more files)
 ```
 
-| File              | Purpose                       |
-| ----------------- | ----------------------------- |
-| `__init__.py`     | Core module (PROTECTED)       |
-| `mac_protocol.py` | Mac protocol message schema.  |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `mac_protocol.py` | Mac protocol message schema. |
 | `mac_protocol.py` | Mac protocol response schema. |
-| `mac_protocol.py` | Component                     |
+| `track_mypy_progress.py` | Type coverage data for a single module. |
 
 ### Naming Conventions
 
@@ -121,7 +121,7 @@ class MacMessage:
 
 ```
 
-**Lines:** 33-54 in `mac_protocol.py`
+**Lines:** 34-66 in `mac_protocol.py`
 
 ### `mac_protocol.py` — MacResponse
 
@@ -133,31 +133,19 @@ class MacResponse:
 
 ```
 
-**Lines:** 57-77 in `mac_protocol.py`
+**Lines:** 69-100 in `mac_protocol.py`
 
-### `mac_protocol.py` — Config
+### `track_mypy_progress.py` — ModuleCoverage
 
 ```python
-class Config:
-    """No description"""
+class ModuleCoverage:
+    """Type coverage data for a single module."""
 
     # Key methods:
 
 ```
 
-**Lines:** 45-54 in `mac_protocol.py`
-
-### `mac_protocol.py` — Config
-
-```python
-class Config:
-    """No description"""
-
-    # Key methods:
-
-```
-
-**Lines:** 68-77 in `mac_protocol.py`
+**Lines:** 36-46 in `track_mypy_progress.py`
 
 ### `adr_enforcer.py` — Violation
 
@@ -167,13 +155,30 @@ class Violation:
 
     # Key methods:
 
-    async def to_dict(self, ...): ...
+    def to_dict(self, ...) -> dict: ...
 
 ```
 
 **Public Methods:** `to_dict`
 
-**Lines:** 41-54 in `adr_enforcer.py`
+**Lines:** 83-101 in `adr_enforcer.py`
+
+### `adr_enforcer.py` — ValidationReport
+
+```python
+class ValidationReport:
+    """Comprehensive validation report."""
+
+    # Key methods:
+
+    def to_dict(self, ...) -> dict: ...
+
+```
+
+**Public Methods:** `to_dict`
+
+**Lines:** 105-130 in `adr_enforcer.py`
+
 
 ---
 
@@ -182,13 +187,35 @@ class Violation:
 The following data models define the contracts for this subsystem:
 
 - **`MacResponse`** — Mac protocol response schema.
+- **`Schema`** — Schema definition for artifact classification.
+
+### Exported Symbols (`__all__`)
+
+`ConceptExtractor`, `ConceptReview`, `ConceptYAML`, `DocumentClassifier`, `ExtractedConcept`, `FileScanner`, `GenerationResult`, `KnowledgeHarvester`, `L9Compiler`, `L9SpecGenerator`
+
+*...and 9 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `SCRIPT_VERSION` | `'3.0.0'` | 51 |
+| `REPO_DIR` | `_REPO_ROOT` | 56 |
+| `REPO_NAME` | `os.path.basename(os.path.abspath(REPO_DI...` | 57 |
+| `REPO_INDEX_DIR` | `os.path.join(_REPO_ROOT, 'reports/repo-i...` | 58 |
+| `DROPBOX_EXPORT_DIR` | `os.getenv('L9_DROPBOX_EXPORT_DIR', os.pa...` | 59 |
+| `ICLOUD_EXPORT_DIR` | `os.getenv('L9_ICLOUD_EXPORT_DIR', os.pat...` | 63 |
+| `SKIP_DIRS` | `{'.git', '__pycache__', '.venv', 'venv',...` | 76 |
+| `REQUIRED_SECTIONS` | `['# ADR-', '## Status', '## Context', '#...` | 33 |
+
+*...and 26 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class ToolsRequest(BaseModel):
     """Request model for tools operations."""
@@ -247,9 +274,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Tools feature flags
-L9_ENABLE_TOOLS_TRACING: true # Enable detailed tracing
-L9_ENABLE_TOOLS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_TOOLS_AUDIT: true # Enable audit logging
+L9_ENABLE_TOOLS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_TOOLS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_TOOLS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -280,36 +307,38 @@ TOOLS_ENABLED=true
 
 Load and parse .gitignore patterns.
 
-- **File:** `export_repo_indexes.py:75`
+- **File:** `export_repo_indexes.py:92`
 - **Async:** No
 
 #### `def is_ignored(rel_path, patterns, is_dir)`
 
 Check if a path matches any gitignore pattern.
 
-- **File:** `export_repo_indexes.py:93`
+- **File:** `export_repo_indexes.py:110`
 - **Async:** No
 
-#### `def generate_tree()`
+#### `def generate_meta_header(index_name) -> str`
 
-Generate tree.txt using actual directory structure, respecting .gitignore.
+Generate a standard meta header for every index file.
 
-- **File:** `export_repo_indexes.py:119`
+- **File:** `export_repo_indexes.py:163`
+- **Async:** No
+- **Returns:** `str`
+
+#### `def walk_python_files()`
+
+Walk repo yielding (fpath, rel_path) for every non-ignored .py file.
+
+- **File:** `export_repo_indexes.py:192`
 - **Async:** No
 
-#### `def generate_api_surfaces()`
+#### `def walk_all_files()`
 
-Map all callable interfaces across different API surface types.
+Walk repo yielding (fpath, rel_path, is_dir) for every non-ignored file.
 
-- **File:** `export_repo_indexes.py:166`
+- **File:** `export_repo_indexes.py:221`
 - **Async:** No
 
-#### `def generate_entrypoints()`
-
-Identify app entrypoints with useful metadata.
-
-- **File:** `export_repo_indexes.py:217`
-- **Async:** No
 
 ### Usage Example
 
@@ -340,7 +369,7 @@ Tools operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "tools",
   "message": "Operation completed",
@@ -351,7 +380,6 @@ Tools operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -359,12 +387,12 @@ Tools operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                        | Type      | Description                    |
-| ----------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `tools_operation_duration_ms` | Histogram | Operation latency distribution |
-| `tools_operation_total`       | Counter   | Total operations processed     |
-| `tools_error_total`           | Counter   | Total errors encountered       |
-| `tools_active_connections`    | Gauge     | Current active connections     |
+| `tools_operation_total` | Counter | Total operations processed |
+| `tools_error_total` | Counter | Total errors encountered |
+| `tools_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -382,7 +410,6 @@ Tools emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/tools/`:
-
 - `test_tools.py` — Core unit tests
 - `test_tools_integration.py` — Integration tests (if applicable)
 
@@ -425,7 +452,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

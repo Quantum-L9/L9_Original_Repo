@@ -8,6 +8,9 @@
 venv/
 .envrc
 
+# Hypothesis test artifacts
+.hypothesis/
+
 # Python cache / build artifacts
 __pycache__/
 *.pyc
@@ -43,7 +46,7 @@ neo4j/data/
 # igor/ already listed below
 
 # --- Development agents (not ready for production) ---
-agents/codegenagent/
+# agents/codegenagent/ removed (moved to core/agents/codegenagent)
 
 # --- Perplexity Research Results (ephemeral, reviewed weekly) ---
 agents/cursor/perplexity_research_results/
@@ -117,16 +120,16 @@ docs/12-19-25/generated/specs/config_loader.yaml
 .Trash/
 
 # CodeGen extractions (generated output)
-codegen/extractions/
+
 
 # Python packaging artifacts
 *.egg-info/
 
 # CodeGen folder (specs, schemas, templates - not production)
 # Use /codegen/ to match ONLY root-level, not nested dirs like core/codegen/
-/codegen/
+
 .tmp.driveupload/
-tests/agents/codegenagent/
+tests/# agents/codegenagent/ removed (moved to core/agents/codegenagent)
 tests/codegen/email_agent/private_auth/
 email_agent/private_auth/
 *.tfvars

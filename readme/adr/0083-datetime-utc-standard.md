@@ -1,8 +1,8 @@
 # ADR-0083: Datetime UTC Standard
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Source:** Bug Audit PR #81  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Source:** Bug Audit PR #81
 
 ## Context
 

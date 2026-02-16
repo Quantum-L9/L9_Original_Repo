@@ -12,6 +12,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Parameterized Cypher Templates",
@@ -510,6 +512,7 @@ class CypherTemplateLibrary:
 
         return modified_query, remaining_params
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         neo4j_client: Any,  # Neo4jClient from memory.graph_client

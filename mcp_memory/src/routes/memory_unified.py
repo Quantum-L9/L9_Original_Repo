@@ -12,6 +12,8 @@ MANDATORY: ALL WRITES ROUTE THROUGH MAIN L9 INGESTION PIPELINE.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Memory Unified",
@@ -39,7 +41,7 @@ __dora_meta__ = {
 import json
 import os
 import time
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 import asyncpg
@@ -52,6 +54,13 @@ if TYPE_CHECKING:
 import asyncio
 
 from config.rls_config import get_rls_config
+from core.config_constants import (
+    ALLOWED_SCOPES_L,
+    DEFAULT_SEARCH_SCOPES,
+    get_allowed_scopes_for_caller,
+    get_default_project_id,
+    get_default_scope_for_caller,
+)
 from memory.governance_gate import (
     build_governance_context,
     governance_context,
@@ -86,6 +95,7 @@ def map_mcp_scope_to_db_scope(mcp_scope: str) -> str:
         "developer": "developer",  # Developer collaboration (L + Cursor)
         "l-private": "l-private",  # L's private operations (L only)
         "global": "global",  # Cross-project shared knowledge
+        "cursor": "cursor",  # Cursor IDE private scope (ADR-0005)
     }
     return mapping.get(mcp_scope, "developer")  # Default to developer
 
@@ -100,11 +110,13 @@ def map_db_scope_to_mcp_scope(db_scope: str) -> str:
         "developer": "developer",
         "l-private": "l-private",
         "global": "global",
+        "cursor": "cursor",  # Cursor IDE scope (ADR-0005)
         "shared": "developer",  # Legacy fallback
     }
     return mapping.get(db_scope, "developer")
 
 
+@must_stay_async("callers use await")
 async def save_memory_handler(
     user_id: str,
     content: str,
@@ -148,7 +160,7 @@ async def save_memory_handler(
     """
     # GMP-68: Governance enforcement
     ctx = require_governance_context("mcp_memory.save_memory")
-    if scope != ctx.scope:
+    if scope not in ctx.allowed_scopes:
         raise HTTPException(
             status_code=403, detail=f"Scope '{scope}' not authorized for this context"
         )
@@ -202,6 +214,7 @@ async def save_memory_handler(
         ) from e
 
 
+@must_stay_async("callers use await")
 async def _save_via_main_pipeline(
     user_id: str,
     content: str,
@@ -328,6 +341,7 @@ async def _save_via_main_pipeline(
 # No direct DB fallback - ensures all memory flows through canonical pipeline
 
 
+@must_stay_async("callers use await")
 async def search_memory_handler(
     user_id: str,
     query: str,
@@ -350,10 +364,9 @@ async def search_memory_handler(
     memories from the specified project_id. Uses COALESCE for backward compatibility
     with legacy packets that don't have project_id set (defaults to 'l9').
     """
-    # GMP-JSONB-GOV-FIX: Default project_id from env var if not explicitly provided
-    # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9
+    # ADR-0098: project_id from centralized config_constants (single source of truth)
     if project_id is None:
-        project_id = os.getenv("L9_PROJECT_ID", "l9")
+        project_id = get_default_project_id()
 
     ctx = require_governance_context("mcp_memory.search_memory")
     if project_id != ctx.project_id:
@@ -377,8 +390,9 @@ async def search_memory_handler(
 
         # Map MCP scopes to DB scopes
         # Also include 'shared' for backward compatibility with legacy data
+        # ADR-0098: scope defaults from config_constants
         requested_scopes = [
-            map_mcp_scope_to_db_scope(s) for s in (scopes or ["developer", "global"])
+            map_mcp_scope_to_db_scope(s) for s in (scopes or DEFAULT_SEARCH_SCOPES)
         ]
         deduped_scopes = list(dict.fromkeys(requested_scopes))
         allowed_scopes = set(ctx.allowed_scopes)
@@ -447,7 +461,7 @@ async def search_memory_handler(
         AND 1 - (sm.vector <=> $1::vector) >= $2
         ORDER BY similarity DESC
         LIMIT $3;
-        """
+        """  # noqa: S608 — internal SQL clauses, user values parameterized
 
         rows = await fetch_all(search_query, *params)
 
@@ -540,6 +554,7 @@ def _get_caller_from_request(request: Request) -> CallerIdentity:
 
 
 @router.post("/save")
+@must_stay_async("callers use await")
 async def save_memory_route(
     req: dict[str, Any],
     request: Request,
@@ -560,22 +575,16 @@ async def save_memory_route(
             detail="Cursor cannot write to l-private scope. Only L-CTO can write private memories.",
         )
 
-    # GMP-70: Build and set governance context for RLS-enabled memory operations
+    # GMP-70 + ADR-0098: Governance context from centralized config_constants
     rls = get_rls_config()
-    scope = os.getenv("L9_MEMORY_SCOPE", "developer")
-    project_id = os.getenv("L9_PROJECT_ID", "l9-default")
-
-    # L gets all scopes, C gets developer + global only (no l-private)
-    allowed_scopes = (
-        ["developer", "global", "l-private"]
-        if caller.caller_id == "L"
-        else ["developer", "global"]
-    )
+    project_id = get_default_project_id()
+    allowed_scopes = get_allowed_scopes_for_caller(caller.caller_id)
+    caller_scope = get_default_scope_for_caller(caller.caller_id)
 
     gov_ctx = build_governance_context(
         caller_id=caller.caller_id,
         role="end_user",
-        scope=scope,
+        scope=caller_scope,
         project_id=project_id,
         allowed_scopes=allowed_scopes,
         tenant_id=rls.tenant_uuid,
@@ -605,6 +614,7 @@ async def save_memory_route(
 
 
 @router.post("/search")
+@must_stay_async("callers use await")
 async def search_memory_route(
     req: dict[str, Any],
     request: Request,
@@ -616,28 +626,22 @@ async def search_memory_route(
     """
     caller = _get_caller_from_request(request)
 
-    # Filter scopes based on caller - Cursor cannot see l-private
-    requested_scopes = req.get("scopes", ["developer", "global"])
+    # ADR-0098: scope defaults from config_constants
+    requested_scopes = req.get("scopes", DEFAULT_SEARCH_SCOPES)
     if caller.caller_id == "C":
         # Remove l-private from requested scopes for Cursor
         requested_scopes = [s for s in requested_scopes if s != "l-private"]
 
-    # GMP-70: Build and set governance context for RLS-enabled memory operations
+    # GMP-70 + ADR-0098: Governance context from centralized config_constants
     rls = get_rls_config()
-    scope = os.getenv("L9_MEMORY_SCOPE", "developer")
-    project_id = os.getenv("L9_PROJECT_ID", "l9-default")
-
-    # L gets all scopes, C gets developer + global only (no l-private)
-    allowed_scopes = (
-        ["developer", "global", "l-private"]
-        if caller.caller_id == "L"
-        else ["developer", "global"]
-    )
+    project_id = get_default_project_id()
+    allowed_scopes = get_allowed_scopes_for_caller(caller.caller_id)
+    caller_scope = get_default_scope_for_caller(caller.caller_id)
 
     gov_ctx = build_governance_context(
         caller_id=caller.caller_id,
         role="end_user",
-        scope=scope,
+        scope=caller_scope,
         project_id=project_id,
         allowed_scopes=allowed_scopes,
         tenant_id=rls.tenant_uuid,
@@ -667,6 +671,7 @@ async def search_memory_route(
 
 
 @router.get("/stats")
+@must_stay_async("callers use await")
 async def get_memory_stats(
     user_id: str | None = Query(None), duration: str = Query("all")
 ) -> dict[str, Any]:
@@ -692,7 +697,8 @@ async def get_memory_stats(
         avg_importance = 0.0
 
         if duration in ["all", "short"]:
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: user_filter is internal SQL clause, user values parameterized  # noqa: ADR-0087
+            query = f"""
             SELECT COUNT(*) as cnt
             FROM packet_store
             WHERE packet_type LIKE 'memory.%'
@@ -700,12 +706,13 @@ async def get_memory_stats(
             AND ttl > CURRENT_TIMESTAMP
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '24 hours'
             {user_filter}
-            """
+            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
             r = await fetch_one(query, *params)
             short_count = r["cnt"] if r else 0
 
         if duration in ["all", "medium"]:
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: user_filter is internal SQL clause, user values parameterized  # noqa: ADR-0087
+            query = f"""
             SELECT COUNT(*) as cnt
             FROM packet_store
             WHERE packet_type LIKE 'memory.%'
@@ -714,7 +721,7 @@ async def get_memory_stats(
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '7 days'
             AND ttl >= CURRENT_TIMESTAMP + INTERVAL '24 hours'
             {user_filter}
-            """
+            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
             r = await fetch_one(query, *params)
             medium_count = r["cnt"] if r else 0
 
@@ -729,7 +736,7 @@ async def get_memory_stats(
             WHERE packet_type LIKE 'memory.%'
             AND (ttl IS NULL OR ttl > CURRENT_TIMESTAMP + INTERVAL '7 days')
             {user_filter}
-            """
+            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
             r = await fetch_one(query, *params)
             if r:
                 long_count = r["cnt"] if r else 0
@@ -798,6 +805,7 @@ async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def compound_similar_memories(
     user_id: str, threshold: float = 0.92
 ) -> dict[str, Any]:
@@ -938,6 +946,7 @@ async def compound_similar_memories(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
     """
     Apply importance decay to unused memories in unified substrate.
@@ -963,7 +972,8 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
 
         if not dry_run and affected > 0:
             # Apply decay: importance *= decay_factor^(days_since_access)
-            await execute(f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: decay_factor is a float from config, not user input  # noqa: ADR-0087
+            await execute(f"""
                 UPDATE packet_store
                 SET importance_score = importance_score * POWER(
                     {decay_factor},
@@ -972,7 +982,7 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
                 WHERE packet_type LIKE 'memory.%'
                 AND (last_accessed IS NULL OR last_accessed < NOW() - INTERVAL '1 day')
                 AND importance_score > 0.01
-                """)
+                """)  # noqa: S608 — decay_factor is a float from config, not user input
             logger.info(f"Applied decay to {affected} memories")
 
         return {
@@ -1024,6 +1034,7 @@ async def cleanup_task():
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def get_context_injection(
     task_description: str,
     user_id: str,
@@ -1047,10 +1058,8 @@ async def get_context_injection(
     """
     start_time = time.time()
 
-    # Default scopes if not restricted
-    search_scopes = (
-        allowed_scopes if allowed_scopes else ["developer", "global", "l-private"]
-    )
+    # Default scopes if not restricted (ADR-0098)
+    search_scopes = allowed_scopes if allowed_scopes else ALLOWED_SCOPES_L
 
     try:
         # 1. Get semantically relevant memories
@@ -1128,6 +1137,7 @@ async def get_context_injection(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def extract_session_learnings(
     user_id: str,
     session_id: str,
@@ -1235,6 +1245,7 @@ async def extract_session_learnings(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def get_proactive_suggestions(
     current_context: str,
     user_id: str,
@@ -1250,10 +1261,8 @@ async def get_proactive_suggestions(
     """
     start_time = time.time()
 
-    # Default scopes if not restricted
-    search_scopes = (
-        allowed_scopes if allowed_scopes else ["developer", "global", "l-private"]
-    )
+    # Default scopes if not restricted (ADR-0098)
+    search_scopes = allowed_scopes if allowed_scopes else ALLOWED_SCOPES_L
 
     try:
         suggestions = []
@@ -1321,6 +1330,7 @@ async def get_proactive_suggestions(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def query_temporal(
     user_id: str,
     since: str | None = None,
@@ -1390,7 +1400,7 @@ async def query_temporal(
             FROM packet_store ps
             WHERE {where_clause}
             ORDER BY ps.timestamp DESC
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
 
             # Count created vs updated (updated = has last_accessed != timestamp)
@@ -1413,7 +1423,7 @@ async def query_temporal(
             FROM packet_store ps
             WHERE {where_clause}
             ORDER BY ps.timestamp ASC
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
             created_count = len(memories)
             updated_count = 0
@@ -1432,7 +1442,7 @@ async def query_temporal(
             AND ps.last_accessed IS NOT NULL
             AND ps.last_accessed > ps.timestamp
             ORDER BY ps.last_accessed DESC
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
             created_count = 0
             updated_count = len(memories)
@@ -1479,6 +1489,7 @@ async def query_temporal(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def save_memory_with_confidence(
     user_id: str,
     content: str,

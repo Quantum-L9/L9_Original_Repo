@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -83,6 +83,9 @@ memory/
 ├── __init__.py
 ├── active_encoder.py
 ├── agent_persistence.py
+├── archive/__init__.py
+├── archive/enrichment_dag.py
+├── archive/insight_extraction.py
 ├── audit_utils.py
 ├── blob_store.py
 ├── checkpoint/__init__.py
@@ -91,11 +94,8 @@ memory/
 ├── checkpoint_manager.py
 ├── checkpoint_metrics.py
 ├── checkpoint_validator.py
-├── consolidation.py
-├── context_builder.py
-├── cross_encoder_reranker.py
-├── cypher_templates.py
-└── ... (65 more files)
+├── chunk_view.py
+└── ... (86 more files)
 ```
 
 | File | Purpose |
@@ -170,29 +170,33 @@ class CrossEncoderReranker:
 
 **Lines:** 137-337 in `cross_encoder_reranker.py`
 
-### `warming_models.py` — GapSeverity
+### `query_rewriter.py` — RewriteResult
 
 ```python
-class GapSeverity:
-    """Enumeration of knowledge gap severity levels."""
+class RewriteResult:
+    """Output of a query rewrite operation."""
 
     # Key methods:
 
 ```
 
-**Lines:** 51-57 in `warming_models.py`
+**Lines:** 30-36 in `query_rewriter.py`
 
-### `warming_models.py` — KnowledgeGap
+### `query_rewriter.py` — LLMClient
 
 ```python
-class KnowledgeGap:
-    """Represents a detected knowledge gap with metadata for prioritization."""
+class LLMClient:
+    """Protocol for LLM completion calls."""
 
     # Key methods:
 
+    async def complete(self, ...) -> str: ...
+
 ```
 
-**Lines:** 61-72 in `warming_models.py`
+**Public Methods:** `complete`
+
+**Lines:** 44-54 in `query_rewriter.py`
 
 
 ---
@@ -207,9 +211,9 @@ The following data models define the contracts for this subsystem:
 
 ### Exported Symbols (`__all__`)
 
-`ACTIVE_CHECKPOINTS`, `ActionProposal`, `ActiveMemoryEncoder`, `AgentConfigExtractor`, `AlignmentReport`, `AttentionConfig`, `AuditLoggingHook`, `AuditReport`, `CHECKPOINT_CORRUPTION_DETECTED`, `CHECKPOINT_CREATE_LATENCY`
+`ACTIVE_CHECKPOINTS`, `ActionProposal`, `ActiveMemoryEncoder`, `AdaptiveBatcher`, `AgentConfigExtractor`, `AlignmentReport`, `AttentionConfig`, `AuditLoggingHook`, `AuditReport`, `CHECKPOINT_CORRUPTION_DETECTED`
 
-*...and 209 more*
+*...and 282 more*
 
 ### Module Constants
 
@@ -217,21 +221,21 @@ The following data models define the contracts for this subsystem:
 |----------|-------|------|
 | `DEFAULT_CONFIG` | `CrossEncoderConfig()` | 97 |
 | `MODEL_PRESETS` | `{'fast': 'cross-encoder/ms-marco-MiniLM-...` | 100 |
-| `CHECKPOINT_CREATE_LATENCY` | `Histogram('l9_checkpoint_create_latency_...` | 97 |
-| `CHECKPOINT_RESTORE_LATENCY` | `Histogram('l9_checkpoint_restore_latency...` | 104 |
-| `CHECKPOINT_VALIDATE_LATENCY` | `Histogram('l9_checkpoint_validate_latenc...` | 111 |
-| `CHECKPOINT_CREATE_TOTAL` | `Counter('l9_checkpoint_create_total', 'T...` | 119 |
-| `CHECKPOINT_RESTORE_TOTAL` | `Counter('l9_checkpoint_restore_total', '...` | 125 |
-| `CHECKPOINT_DELETE_TOTAL` | `Counter('l9_checkpoint_delete_total', 'T...` | 131 |
+| `CHECKPOINT_CREATE_LATENCY` | `Histogram('l9_checkpoint_create_latency_...` | 126 |
+| `CHECKPOINT_RESTORE_LATENCY` | `Histogram('l9_checkpoint_restore_latency...` | 133 |
+| `CHECKPOINT_VALIDATE_LATENCY` | `Histogram('l9_checkpoint_validate_latenc...` | 140 |
+| `CHECKPOINT_CREATE_TOTAL` | `Counter('l9_checkpoint_create_total', 'T...` | 148 |
+| `CHECKPOINT_RESTORE_TOTAL` | `Counter('l9_checkpoint_restore_total', '...` | 154 |
+| `CHECKPOINT_DELETE_TOTAL` | `Counter('l9_checkpoint_delete_total', 'T...` | 160 |
 
-*...and 38 more constants*
+*...and 52 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class MemoryRequest(BaseModel):
     """Request model for memory operations."""
@@ -348,21 +352,21 @@ Check if cross-encoder re-ranking is available.
 - **Async:** No
 - **Returns:** `bool`
 
+#### `async def retrieve_multiquery(retriever, queries) -> MultiQueryResult`
+
+Execute multiple queries against a single retriever and merge results.
+
+- **File:** `retrieval_multiquery.py:76`
+- **Async:** Yes
+- **Returns:** `MultiQueryResult`
+
 #### `async def smoke_test() -> dict[str, any]`
 
 Run smoke test to verify memory system.
 
-- **File:** `smoke_test.py:48`
+- **File:** `smoke_test.py:50`
 - **Async:** Yes
 - **Returns:** `dict[str, any]`
-
-#### `async def main() -> None`
-
-Main entrypoint for smoke test.
-
-- **File:** `smoke_test.py:136`
-- **Async:** Yes
-- **Returns:** `None`
 
 
 ### Usage Example
@@ -406,7 +410,7 @@ Memory operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "memory",
   "message": "Operation completed",

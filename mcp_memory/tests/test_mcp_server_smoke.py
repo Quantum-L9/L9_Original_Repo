@@ -11,6 +11,8 @@ import pytest
 from fastapi.testclient import TestClient
 from src.main import app
 
+from core.decorators import must_stay_async
+
 
 @pytest.fixture
 def client():
@@ -75,6 +77,7 @@ def test_mcp_tools_endpoint(client, mock_env):
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_mcp_call_search_memory(client, mock_env):
     """Test /mcp/call endpoint with search_memory tool."""
     with (
@@ -117,6 +120,7 @@ async def test_mcp_call_search_memory(client, mock_env):
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_mcp_call_save_memory(client, mock_env):
     """Test /mcp/call endpoint with save_memory tool."""
     with (
@@ -168,6 +172,7 @@ async def test_mcp_call_save_memory(client, mock_env):
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_mcp_call_context_injection(client, mock_env):
     """Test /mcp/call endpoint with get_context_injection tool."""
     with (

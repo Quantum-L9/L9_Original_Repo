@@ -1,0 +1,518 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Domain Tensor Bridge Extraction Glue"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-02T04:36:44Z"
+# updated_at: "2026-01-02T16:11:12Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "domain_tensor_bridge_extraction_glue"
+# type: "service"
+# status: "active"
+# ============================================================================
+
+# Domain-Tensor Bridge Extraction Glue Layer v6.0
+# Maps example-L9_Tensor_MainAgent_Schema_v6.yaml to code generation patterns
+# Source: docs/Roadmap-Upgrades/Factory Deployment Strategy (YAML->Code)/example-L9_Tensor_MainAgent_Schema_v6.yaml
+
+extraction_metadata:
+  agent_id: domain_tensor_bridge
+  agent_name: "Domain-Tensor Bridge"
+  version: 6.0.0
+  created: "2026-01-02T03:35:00Z"
+  schema_source: "docs/Roadmap-Upgrades/Factory Deployment Strategy (YAML->Code)/example-L9_Tensor_MainAgent_Schema_v6.yaml"
+  extraction_root: "codegen/extractions/domain_tensor_bridge_v6_20260102"
+
+schema_to_code:
+  
+  # ============================================================================
+  # MAIN ORCHESTRATION (3 modules)
+  # ============================================================================
+  
+  agent_controller:
+    target: domain_tensor_bridge/agent_controller.py
+    source_section: "cursorinstructions.generatefiles[0]"
+    purpose: "Main entry point, packet dispatcher"
+    requires: [PacketEnvelope, asyncio, structlog]
+    layer: operations
+    domain: agent_orchestration
+    governance_level: critical
+    functions:
+      - process_packet:
+          signature: "async def process_packet(packet: PacketEnvelope) -> PacketEnvelope"
+          docstring: "Process incoming domain packet through full pipeline"
+      - dispatch_to_handler:
+          signature: "async def dispatch_to_handler(packet: PacketEnvelope, handler_type: str) -> Any"
+          docstring: "Dispatch packet to appropriate handler based on type"
+  
+  reasoning_engine:
+    target: domain_tensor_bridge/reasoning_engine.py
+    source_section: "reasoningengine"
+    purpose: "Multi-modal reasoning pipeline"
+    requires: [structlog, httpx, PacketEnvelope]
+    layer: intelligence
+    domain: reasoning
+    governance_level: high
+    functions:
+      - execute_reasoning:
+          signature: "async def execute_reasoning(context: dict, modes: List[str]) -> ReasoningResult"
+      - apply_causal_reasoning:
+          signature: "async def apply_causal_reasoning(context: dict) -> dict"
+      - apply_analogical_reasoning:
+          signature: "async def apply_analogical_reasoning(context: dict) -> dict"
+  
+  decision_synthesizer:
+    target: domain_tensor_bridge/decision_synthesizer.py
+    source_section: "reasoningpipeline.stage_4"
+    purpose: "Combine reasoning modes into decision"
+    requires: [structlog, pydantic]
+    layer: intelligence
+    domain: decision_making
+    governance_level: high
+    functions:
+      - synthesize_decision:
+          signature: "async def synthesize_decision(reasoning_outputs: List[dict]) -> Decision"
+
+  # ============================================================================
+  # PACKET HANDLING (4 modules)
+  # ============================================================================
+  
+  packet_router:
+    target: domain_tensor_bridge/packet_router.py
+    source_section: "packetrouting"
+    purpose: "Route PacketEnvelopes to handlers"
+    requires: [PacketEnvelope, structlog]
+    layer: operations
+    domain: packet_routing
+    governance_level: high
+    functions:
+      - route_packet:
+          signature: "async def route_packet(packet: PacketEnvelope) -> str"
+      - get_handler_for_type:
+          signature: "def get_handler_for_type(packet_type: str) -> Callable"
+  
+  packet_validator:
+    target: domain_tensor_bridge/packet_validator.py
+    source_section: "reasoningpipeline.stage_1"
+    purpose: "Validate packet structure & fields"
+    requires: [pydantic, PacketEnvelope]
+    layer: security
+    domain: validation
+    governance_level: high
+    functions:
+      - validate_packet:
+          signature: "def validate_packet(packet: PacketEnvelope) -> ValidationResult"
+  
+  domain_packet_handler:
+    target: domain_tensor_bridge/domain_packet_handler.py
+    source_section: "packetrouting.inbound"
+    purpose: "Handle domain-specific packet types"
+    requires: [PacketEnvelope, structlog]
+    layer: operations
+    domain: packet_handling
+    governance_level: medium
+    functions:
+      - handle_plastos_packet:
+          signature: "async def handle_plastos_packet(packet: PacketEnvelope) -> PacketEnvelope"
+      - handle_mortgageos_packet:
+          signature: "async def handle_mortgageos_packet(packet: PacketEnvelope) -> PacketEnvelope"
+  
+  packet_formatter:
+    target: domain_tensor_bridge/packet_formatter.py
+    source_section: "packetrouting.outbound"
+    purpose: "Format responses for domains"
+    requires: [PacketEnvelope, pydantic]
+    layer: operations
+    domain: packet_formatting
+    governance_level: medium
+    functions:
+      - format_for_domain:
+          signature: "def format_for_domain(result: dict, domain: str) -> PacketEnvelope"
+
+  # ============================================================================
+  # CONTEXT ENRICHMENT (3 modules)
+  # ============================================================================
+  
+  context_enricher:
+    target: domain_tensor_bridge/context_enricher.py
+    source_section: "reasoningpipeline.stage_2"
+    purpose: "Query world model, enrich context"
+    requires: [httpx, structlog]
+    layer: intelligence
+    domain: context_enrichment
+    governance_level: high
+    functions:
+      - enrich_context:
+          signature: "async def enrich_context(packet: PacketEnvelope) -> EnrichedContext"
+  
+  world_model_bridge:
+    target: domain_tensor_bridge/world_model_bridge.py
+    source_section: "worldmodelintegration"
+    purpose: "Interface to world model layer"
+    requires: [httpx, structlog]
+    layer: intelligence
+    domain: world_model
+    governance_level: high
+    functions:
+      - query_causal_factors:
+          signature: "async def query_causal_factors(entity_id: str) -> List[CausalFactor]"
+      - query_temporal_patterns:
+          signature: "async def query_temporal_patterns(entity_id: str, window_days: int) -> List[Pattern]"
+  
+  domain_context_builder:
+    target: domain_tensor_bridge/domain_context_builder.py
+    source_section: "reasoningpipeline.stage_2"
+    purpose: "Build domain-specific context"
+    requires: [pydantic]
+    layer: operations
+    domain: context_building
+    governance_level: medium
+    functions:
+      - build_domain_context:
+          signature: "def build_domain_context(packet: PacketEnvelope, domain: str) -> DomainContext"
+
+  # ============================================================================
+  # TENSOR COORDINATION (4 modules)
+  # ============================================================================
+  
+  tensor_coordinator:
+    target: domain_tensor_bridge/tensor_coordinator.py
+    source_section: "reasoningpipeline.stage_3"
+    purpose: "Batch, call, collect tensor results"
+    requires: [httpx, structlog, asyncio]
+    layer: intelligence
+    domain: tensor_coordination
+    governance_level: high
+    functions:
+      - coordinate_tensor_calls:
+          signature: "async def coordinate_tensor_calls(entities: List[str]) -> List[TensorResult]"
+  
+  tensoraios_bridge:
+    target: domain_tensor_bridge/tensoraios_bridge.py
+    source_section: "integration.connectto[1]"
+    purpose: "Interface to tensor layer"
+    requires: [httpx, structlog]
+    layer: intelligence
+    domain: tensor_interface
+    governance_level: high
+    functions:
+      - call_link_prediction:
+          signature: "async def call_link_prediction(source: str, target: str) -> float"
+      - call_embedding_similarity:
+          signature: "async def call_embedding_similarity(entity_a: str, entity_b: str) -> float"
+  
+  embedding_processor:
+    target: domain_tensor_bridge/embedding_processor.py
+    source_section: "reasoningpipeline.stage_3"
+    purpose: "Process embeddings from tensor layer"
+    requires: [numpy, pydantic]
+    layer: intelligence
+    domain: embedding_processing
+    governance_level: medium
+    functions:
+      - process_embeddings:
+          signature: "def process_embeddings(raw_embeddings: List[float]) -> ProcessedEmbedding"
+  
+  anomaly_handler:
+    target: domain_tensor_bridge/anomaly_handler.py
+    source_section: "reasoningpipeline.stage_3"
+    purpose: "Handle anomaly flags from tensor layer"
+    requires: [structlog, pydantic]
+    layer: security
+    domain: anomaly_detection
+    governance_level: high
+    functions:
+      - handle_anomaly:
+          signature: "async def handle_anomaly(anomaly: AnomalyFlag) -> AnomalyResponse"
+
+  # ============================================================================
+  # MULTI-MODAL REASONING (4 modules)
+  # ============================================================================
+  
+  symbolic_reasoner:
+    target: domain_tensor_bridge/symbolic_reasoner.py
+    source_section: "reasoningengine.strategymodes[0]"
+    purpose: "Apply domain rules"
+    requires: [pydantic, structlog]
+    layer: intelligence
+    domain: symbolic_reasoning
+    governance_level: medium
+    functions:
+      - apply_domain_rules:
+          signature: "def apply_domain_rules(context: dict, domain: str) -> RuleResult"
+  
+  causal_reasoner:
+    target: domain_tensor_bridge/causal_reasoner.py
+    source_section: "reasoningengine.secondarymodels[0]"
+    purpose: "Apply world model causal logic"
+    requires: [structlog, httpx]
+    layer: intelligence
+    domain: causal_reasoning
+    governance_level: high
+    functions:
+      - apply_causal_logic:
+          signature: "async def apply_causal_logic(context: dict) -> CausalResult"
+  
+  analogical_reasoner:
+    target: domain_tensor_bridge/analogical_reasoner.py
+    source_section: "reasoningengine.secondarymodels[1]"
+    purpose: "Find patterns across domains"
+    requires: [structlog, httpx]
+    layer: intelligence
+    domain: analogical_reasoning
+    governance_level: medium
+    functions:
+      - find_analogies:
+          signature: "async def find_analogies(context: dict) -> List[Analogy]"
+  
+  reflective_auditor:
+    target: domain_tensor_bridge/reflective_auditor.py
+    source_section: "reasoningengine.secondarymodels[3]"
+    purpose: "Self-critique reasoning"
+    requires: [structlog, pydantic]
+    layer: intelligence
+    domain: reflective_reasoning
+    governance_level: high
+    functions:
+      - audit_reasoning:
+          signature: "def audit_reasoning(decision: Decision) -> AuditResult"
+
+  # ============================================================================
+  # GOVERNANCE & ESCALATION (3 modules)
+  # ============================================================================
+  
+  governance_bridge:
+    target: domain_tensor_bridge/governance_bridge.py
+    source_section: "governance"
+    purpose: "Escalate decisions, respect overrides"
+    requires: [L9.core.governance, L9.governance.approvals, structlog]
+    layer: security
+    domain: governance
+    governance_level: critical
+    imports_expected:
+      - "from l9.core.governance import Igor, EscalationLevel"
+      - "from l9.governance.approvals import ApprovalService"
+    functions:
+      - check_governance:
+          signature: "async def check_governance(decision: Decision) -> GovernanceResult"
+      - escalate_to_anchor:
+          signature: "async def escalate_to_anchor(decision: Decision, reason: str) -> EscalationResult"
+  
+  compliance_checker:
+    target: domain_tensor_bridge/compliance_checker.py
+    source_section: "governance.complianceauditor"
+    purpose: "Verify compliance with rules"
+    requires: [pydantic, structlog]
+    layer: security
+    domain: compliance
+    governance_level: critical
+    functions:
+      - check_compliance:
+          signature: "def check_compliance(decision: Decision, rules: List[Rule]) -> ComplianceResult"
+  
+  escalation_handler:
+    target: domain_tensor_bridge/escalation_handler.py
+    source_section: "governance.escalationpolicy"
+    purpose: "Handle escalation logic"
+    requires: [structlog, httpx]
+    layer: security
+    domain: escalation
+    governance_level: critical
+    functions:
+      - handle_escalation:
+          signature: "async def handle_escalation(trigger: EscalationTrigger) -> EscalationResult"
+
+  # ============================================================================
+  # MEMORY MANAGEMENT (1 module)
+  # ============================================================================
+  
+  memory_bridge:
+    target: domain_tensor_bridge/memory_bridge.py
+    source_section: "memorytopology"
+    purpose: "Access all memory layers (Redis, Postgres, Neo4j, HyperGraphDB)"
+    requires: [L9.memory.substrate_service, structlog, httpx]
+    layer: foundation
+    domain: memory
+    governance_level: critical
+    imports_expected:
+      - "from l9.memory.substrate_service import MemorySubstrateService"
+      - "import os  # For env-based DSNs"
+    functions:
+      - get_working_memory:
+          signature: "async def get_working_memory(key: str) -> Optional[dict]"
+      - set_working_memory:
+          signature: "async def set_working_memory(key: str, value: dict, ttl_seconds: int = 300) -> bool"
+      - query_episodic_memory:
+          signature: "async def query_episodic_memory(filters: dict) -> List[EpisodicEvent]"
+      - query_semantic_graph:
+          signature: "async def query_semantic_graph(query: str) -> List[Node]"
+
+# ============================================================================
+# DOCUMENTATION MAPPING
+# ============================================================================
+
+documentation:
+  readme:
+    target: domain_tensor_bridge/README.md
+    source_section: "description"
+    purpose: "Architecture overview"
+  
+  architecture:
+    target: domain_tensor_bridge/docs/ARCHITECTURE.md
+    source_section: "integration + memorytopology"
+    purpose: "Detailed design"
+  
+  packet_spec:
+    target: domain_tensor_bridge/docs/PACKET_SPEC.md
+    source_section: "packetrouting"
+    purpose: "PacketEnvelope format"
+  
+  reasoning_pipeline:
+    target: domain_tensor_bridge/docs/REASONING_PIPELINE.md
+    source_section: "reasoningpipeline"
+    purpose: "Step-by-step reasoning"
+  
+  config:
+    target: domain_tensor_bridge/docs/CONFIG.md
+    source_section: "learningsystem"
+    purpose: "Configuration"
+  
+  api_spec:
+    target: domain_tensor_bridge/docs/API_SPEC.md
+    source_section: "deployment.endpoints"
+    purpose: "REST/gRPC endpoints"
+  
+  integration:
+    target: domain_tensor_bridge/docs/INTEGRATION.md
+    source_section: "integration"
+    purpose: "How to register domain agents"
+  
+  autonomy_rules:
+    target: domain_tensor_bridge/docs/AUTONOMYRULES.md
+    source_section: "governance"
+    purpose: "Autonomy & escalation"
+  
+  deployment:
+    target: domain_tensor_bridge/docs/DEPLOYMENT.md
+    source_section: "deployment"
+    purpose: "Deployment guide"
+
+# ============================================================================
+# TEST MAPPING
+# ============================================================================
+
+tests:
+  test_bridge_controller:
+    target: tests/domain_tensor_bridge/test_bridge_controller.py
+    tests_module: agent_controller
+    coverage_target: 85
+    cases:
+      - happy_path_packet_dispatch
+      - error_handling_invalid_packet
+      - routing_decision_verification
+  
+  test_reasoning_engine:
+    target: tests/domain_tensor_bridge/test_reasoning_engine.py
+    tests_module: reasoning_engine
+    coverage_target: 85
+    cases:
+      - reasoning_modes_selection
+      - confidence_thresholds
+      - error_paths
+  
+  test_governance_integration:
+    target: tests/domain_tensor_bridge/test_governance_integration.py
+    tests_module: governance_bridge
+    coverage_target: 90
+    cases:
+      - escalation_triggers
+      - overrides
+      - audit_logging
+  
+  test_memory_integration:
+    target: tests/domain_tensor_bridge/test_memory_integration.py
+    tests_module: memory_bridge
+    coverage_target: 85
+    cases:
+      - redis_read_write
+      - postgres_query
+      - neo4j_query
+      - hypergraphdb_query
+  
+  test_api_surfaces:
+    target: tests/domain_tensor_bridge/test_api_surfaces.py
+    tests_module: agent_controller
+    coverage_target: 80
+    cases:
+      - process_packet_endpoint
+      - status_endpoint
+  
+  test_packet_routing:
+    target: tests/domain_tensor_bridge/test_packet_routing.py
+    tests_module: packet_router
+    coverage_target: 85
+    cases:
+      - route_by_type
+      - route_by_domain
+  
+  test_tensor_coordination:
+    target: tests/domain_tensor_bridge/test_tensor_coordination.py
+    tests_module: tensor_coordinator
+    coverage_target: 80
+    cases:
+      - batch_tensor_calls
+      - timeout_handling
+  
+  test_context_enrichment:
+    target: tests/domain_tensor_bridge/test_context_enrichment.py
+    tests_module: context_enricher
+    coverage_target: 80
+    cases:
+      - world_model_query
+      - context_building
+
+# ============================================================================
+# ENFORCEMENT RULES
+# ============================================================================
+
+enforcement:
+  security:
+    - rule: "No hardcoded credentials"
+    - rule: "All external calls use httpx with timeout"
+    - rule: "All expressions validated before processing"
+  
+  memory:
+    - rule: "All Redis operations go through memory_bridge"
+    - rule: "All Postgres operations use env-based DSN"
+    - rule: "All Neo4j operations use connection pool"
+  
+  governance:
+    - rule: "All critical operations checked against governance policy"
+    - rule: "Igor/Compliance anchors must be reachable"
+    - rule: "Escalation triggers respected"
+  
+  testing:
+    - rule: "Coverage >= 85%, pass rate >= 95%"
+
+# ============================================================================
+# QUALITY GATES
+# ============================================================================
+
+quality_gates:
+  - gate: "No TODOs in generated code"
+  - gate: "All imports resolvable"
+  - gate: "All tests passing >= 95%"
+  - gate: "Code coverage >= 85%"
+  - gate: "All governance anchors reachable"
+  - gate: "No circular imports"
+  - gate: "Three-block system: Header Meta + Footer Meta + DORA Block"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "code-generation", "configuration", "foundation", "model-config", "pipeline", "redis-config"]
+# keywords: ["bridge", "documentation", "domain", "enforcement", "extraction", "extraction_metadata"]
+# last_modified: "2026-01-02T16:11:12Z"
+# ============================================================================

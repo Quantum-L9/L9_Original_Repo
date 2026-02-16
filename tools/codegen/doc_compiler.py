@@ -46,7 +46,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import structlog
 import yaml
+
+logger = structlog.get_logger(__name__)
 
 
 @dataclass
@@ -425,15 +428,15 @@ class L9Compiler:
             # Classify the document
             schema = self.classifier.classify(text)
             if not schema:
-                print(f"⚠️  Could not classify: {doc_path.name}")
+                logger.info("⚠️  could not classify: {doc_path.name}")
                 return None
 
-            print(f"📄 Processing {doc_path.name} as {schema.schema_id}")
+            logger.info("📄 processing {doc_path.name} as {schema.schema_id}")
 
             # Extract structured data
             extractor = self.extractors.get(schema.schema_id)
             if not extractor:
-                print(f"⚠️  No extractor for schema: {schema.schema_id}")
+                logger.info("⚠️  no extractor for schema: {schema.schema_id}")
                 return None
 
             data = extractor.extract(text, schema)
@@ -455,17 +458,19 @@ class L9Compiler:
 
             # Write YAML (never overwrite existing)
             if output_path.exists():
-                print(f"⏭️  Skipping (exists): {output_path}")
+                logger.info(
+                    "⏭️  skipping (exists): output path", output_path=output_path
+                )
                 return None
 
             with open(output_path, "w") as f:
                 yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False)
 
-            print(f"✅ Created: {output_path}")
+            logger.info("✅ created: output path", output_path=output_path)
             return output_path
 
         except Exception as e:
-            print(f"❌ Error processing {doc_path.name}: {e}")
+            logger.error("❌ error processing {doc path.name}: e", e=e)
             return None
 
     def _hash_file(self, path: Path) -> str:
@@ -479,15 +484,15 @@ class L9Compiler:
 
     def compile_directory(self, input_dir: Path, output_dir: Path):
         """Compile all documents in a directory."""
-        print("\n🔧 L9 Document Compiler")
-        print(f"📂 Input:  {input_dir}")
-        print(f"📂 Output: {output_dir}\n")
+        logger.info("\n🔧 l9 document compiler")
+        logger.info("📂 input:  input dir", input_dir=input_dir)
+        logger.info("📂 output: output dir\n", output_dir=output_dir)
 
         # Find all markdown and text files
         files = list(input_dir.glob("*.md")) + list(input_dir.glob("*.txt"))
 
         if not files:
-            print("⚠️  No documents found to compile")
+            logger.info("⚠️  no documents found to compile")
             return
 
         compiled = []
@@ -496,21 +501,23 @@ class L9Compiler:
             if result:
                 compiled.append(result)
 
-        print(f"\n✨ Compilation complete: {len(compiled)} artifacts created")
+        logger.info("\n✨ compilation complete: {len(compiled)} artifacts created")
 
 
 def main():
     """Main entry point."""
     if len(sys.argv) != 3:
-        print("Usage: python l9_doc_compiler.py <input_dir> <output_dir>")
-        print("Example: python l9_doc_compiler.py artifacts/raw artifacts/compiled")
+        logger.info("usage: python l9_doc_compiler.py <input_dir> <output_dir>")
+        logger.info(
+            "example: python l9_doc_compiler.py artifacts/raw artifacts/compiled"
+        )
         sys.exit(1)
 
     input_dir = Path(sys.argv[1])
     output_dir = Path(sys.argv[2])
 
     if not input_dir.exists():
-        print(f"❌ Input directory does not exist: {input_dir}")
+        logger.info("❌ input directory does not exist: input dir", input_dir=input_dir)
         sys.exit(1)
 
     output_dir.mkdir(parents=True, exist_ok=True)

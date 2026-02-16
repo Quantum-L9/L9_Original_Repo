@@ -10,6 +10,8 @@ Version: 1.0.0 (GMP-11)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Intent Extractor",
@@ -37,7 +39,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -83,6 +85,7 @@ Respond with JSON only:
 Be conservative with confidence. If unclear, use confidence < 0.7."""
 
 
+@must_stay_async("callers use await")
 async def extract_intent(
     nlp_prompt: NLPPrompt,
     openai_client: AsyncOpenAI | None = None,
@@ -218,6 +221,7 @@ def extract_intent_sync(
         return _rule_based_intent(text, nlp_prompt.raw_text)
 
 
+@must_stay_async("callers use await")
 async def confirm_intent(
     intent: IntentModel,
     user_context: dict[str, Any],
@@ -245,7 +249,7 @@ async def confirm_intent(
             command_id=intent.id,
             confirmed_by="system",
             reason="Low-risk command, no confirmation required",
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
     # Log confirmation request
@@ -286,7 +290,7 @@ async def confirm_intent(
         command_id=command.id,
         confirmed_by="pending",
         reason=f"Awaiting Igor confirmation: {action_description}",
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
     )
 
 

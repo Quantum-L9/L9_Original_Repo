@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -122,13 +122,13 @@ api/
 
 ```python
 class CallerIdentity:
-    """No description"""
+    """Represents the identity of a caller in the authentication system, including their scope and source information."""
 
     # Key methods:
 
 ```
 
-**Lines:** 49-53 in `auth.py`
+**Lines:** 51-71 in `auth.py`
 
 ### `server.py` — KernelReloadRequest
 
@@ -140,7 +140,7 @@ class KernelReloadRequest:
 
 ```
 
-**Lines:** 3051-3054 in `server.py`
+**Lines:** 3103-3106 in `server.py`
 
 ### `server.py` — KernelReloadResponse
 
@@ -152,31 +152,31 @@ class KernelReloadResponse:
 
 ```
 
-**Lines:** 3057-3064 in `server.py`
+**Lines:** 3109-3116 in `server.py`
 
 ### `server.py` — ChatRequest
 
 ```python
 class ChatRequest:
-    """No description"""
+    """Represents a chat request message for the L9 Secure AI OS API."""
 
     # Key methods:
 
 ```
 
-**Lines:** 3287-3289 in `server.py`
+**Lines:** 3435-3451 in `server.py`
 
 ### `server.py` — ChatResponse
 
 ```python
 class ChatResponse:
-    """No description"""
+    """Represents a chat response message in the L9 AI OS API."""
 
     # Key methods:
 
 ```
 
-**Lines:** 3292-3293 in `server.py`
+**Lines:** 3454-3462 in `server.py`
 
 
 ---
@@ -187,7 +187,7 @@ The following data models define the contracts for this subsystem:
 
 - **`KernelReloadRequest`** — Request body for kernel reload.
 - **`KernelReloadResponse`** — Response from kernel reload.
-- **`ChatRequest`** — Data model
+- **`ChatRequest`** — Represents a chat request message for the L9 Secure AI OS API.
 
 ### Exported Symbols (`__all__`)
 
@@ -199,14 +199,14 @@ The following data models define the contracts for this subsystem:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `EXECUTOR_API_KEY_L` | `os.environ.get('L9_EXECUTOR_API_KEY_L')` | 42 |
-| `EXECUTOR_API_KEY_C` | `os.environ.get('L9_EXECUTOR_API_KEY_C') ...` | 43 |
+| `EXECUTOR_API_KEY_L` | `os.environ.get('L9_EXECUTOR_API_KEY_L')` | 44 |
+| `EXECUTOR_API_KEY_C` | `os.environ.get('L9_EXECUTOR_API_KEY_C') ...` | 45 |
 | `MEMORY_DSN` | `os.getenv('MEMORY_DSN', os.getenv('DATAB...` | 31 |
-| `L9_NEW_AGENT_INIT` | `settings.l9_new_agent_init` | 378 |
-| `L9_STAGE3_MODULES` | `settings.l9_stage3_modules` | 379 |
-| `L9_GRAPH_AGENT_STATE` | `settings.l9_graph_agent_state` | 380 |
-| `L9_OBSERVABILITY` | `settings.l9_observability` | 406 |
-| `LOCAL_DEV` | `settings.local_dev` | 513 |
+| `L9_NEW_AGENT_INIT` | `settings.l9_new_agent_init` | 353 |
+| `L9_STAGE3_MODULES` | `settings.l9_stage3_modules` | 354 |
+| `L9_GRAPH_AGENT_STATE` | `settings.l9_graph_agent_state` | 355 |
+| `L9_OBSERVABILITY` | `settings.l9_observability` | 381 |
+| `LOCAL_DEV` | `settings.local_dev` | 489 |
 
 *...and 35 more constants*
 
@@ -215,7 +215,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class ApiRequest(BaseModel):
     """Request model for api operations."""
@@ -312,7 +312,7 @@ API_ENABLED=true
 
 Verify API key and return caller identity.
 
-- **File:** `auth.py:56`
+- **File:** `auth.py:74`
 - **Async:** No
 - **Returns:** `CallerIdentity`
 
@@ -320,7 +320,7 @@ Verify API key and return caller identity.
 
 Verify API key with rate limiting protection.
 
-- **File:** `auth.py:88`
+- **File:** `auth.py:107`
 - **Async:** Yes
 - **Returns:** `CallerIdentity`
 
@@ -389,7 +389,7 @@ Api operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "api",
   "message": "Operation completed",

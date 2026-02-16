@@ -19,6 +19,18 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
+
+
+def _close_coroutine_mock(coro):
+    """Mock for asyncio.create_task that properly closes the coroutine.
+
+    Prevents 'coroutine was never awaited' RuntimeWarning in tests
+    that patch asyncio.create_task.
+    """
+    coro.close()
+    return MagicMock()  # Return a mock Task object
+
 
 class TestSanitizeArguments:
     """Tests for _sanitize_arguments helper."""
@@ -27,11 +39,11 @@ class TestSanitizeArguments:
         """Contract: Password fields are redacted."""
         from memory.tool_audit import _sanitize_arguments
 
-        args = {"username": "user", "password": "secret123"}
+        args = {"username": "user", "password": "secret123"}  # noqa: S105 — test fixture
         result = _sanitize_arguments(args)
 
         assert result["username"] == "user"
-        assert result["password"] == "[REDACTED]"
+        assert result["password"] == "[REDACTED]"  # noqa: S105 — test fixture
 
     def test_sanitize_removes_api_key(self):
         """Contract: API key fields are redacted."""
@@ -47,20 +59,20 @@ class TestSanitizeArguments:
         """Contract: Token fields are redacted."""
         from memory.tool_audit import _sanitize_arguments
 
-        args = {"auth_token": "bearer_xyz", "access_token": "abc123"}
+        args = {"auth_token": "bearer_xyz", "access_token": "abc123"}  # noqa: S105 — test fixture
         result = _sanitize_arguments(args)
 
-        assert result["auth_token"] == "[REDACTED]"
-        assert result["access_token"] == "[REDACTED]"
+        assert result["auth_token"] == "[REDACTED]"  # noqa: S105 — test fixture
+        assert result["access_token"] == "[REDACTED]"  # noqa: S105 — test fixture
 
     def test_sanitize_removes_secret(self):
         """Contract: Secret fields are redacted."""
         from memory.tool_audit import _sanitize_arguments
 
-        args = {"client_secret": "mysecret", "data": "normal"}
+        args = {"client_secret": "mysecret", "data": "normal"}  # noqa: S105 — test fixture
         result = _sanitize_arguments(args)
 
-        assert result["client_secret"] == "[REDACTED]"
+        assert result["client_secret"] == "[REDACTED]"  # noqa: S105 — test fixture
         assert result["data"] == "normal"
 
     def test_sanitize_truncates_long_strings(self):
@@ -89,7 +101,7 @@ class TestSanitizeArguments:
 
         assert result["config"]["url"] == "https://example.com"
         assert result["config"]["api_key"] == "[REDACTED]"
-        assert result["config"]["nested"]["password"] == "[REDACTED]"
+        assert result["config"]["nested"]["password"] == "[REDACTED]"  # noqa: S105 — test fixture
 
     def test_sanitize_preserves_normal_values(self):
         """Contract: Non-sensitive values are preserved."""
@@ -119,9 +131,9 @@ class TestSanitizeArguments:
         }
         result = _sanitize_arguments(args)
 
-        assert result["PASSWORD"] == "[REDACTED]"
+        assert result["PASSWORD"] == "[REDACTED]"  # noqa: S105 — test fixture
         assert result["ApiKey"] == "[REDACTED]"
-        assert result["Secret_Value"] == "[REDACTED]"
+        assert result["Secret_Value"] == "[REDACTED]"  # noqa: S105 — test fixture
 
     def test_sanitize_empty_dict(self):
         """Contract: Empty dict returns empty dict."""
@@ -157,7 +169,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ) as mock_create_task,
             patch("memory.tool_audit.record_tool_invocation") as mock_record,
         ):
             await log_tool_invocation(
@@ -188,7 +203,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ) as mock_create_task,
             patch("memory.tool_audit.record_tool_invocation") as mock_record,
         ):
             await log_tool_invocation(
@@ -216,7 +234,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task"),
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ),
             patch("memory.tool_audit.record_tool_invocation") as mock_record,
         ):
             await log_tool_invocation(
@@ -241,7 +262,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task"),
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ),
             patch("memory.tool_audit.record_tool_invocation") as mock_record,
         ):
             await log_tool_invocation(
@@ -284,7 +308,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ) as mock_create_task,
             patch("memory.tool_audit.record_tool_invocation"),
         ):
             await log_tool_invocation(
@@ -305,7 +332,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task"),
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ),
             patch("memory.tool_audit.record_tool_invocation"),
         ):
             await log_tool_invocation(
@@ -324,7 +354,10 @@ class TestLogToolInvocation:
         long_error = "Error: " + "x" * 1000
 
         with (
-            patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ) as mock_create_task,
             patch("memory.tool_audit.record_tool_invocation"),
         ):
             await log_tool_invocation(
@@ -347,7 +380,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task"),
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ),
             patch("memory.tool_audit.record_tool_invocation") as mock_record,
         ):
             await log_tool_invocation(
@@ -368,6 +404,7 @@ class TestIngestAuditPacket:
     """Tests for _ingest_audit_packet background task."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ingest_audit_packet_success(self):
         """Contract: Successful ingestion completes silently."""
         from core.schemas import PacketEnvelopeIn
@@ -396,6 +433,7 @@ class TestIngestAuditPacket:
             mock_ingest.assert_called_once()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ingest_audit_packet_handles_error(self):
         """Contract: Ingestion errors are logged but don't raise."""
         from core.schemas import PacketEnvelopeIn
@@ -421,6 +459,7 @@ class TestIngestAuditPacket:
             await _ingest_audit_packet(packet)
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ingest_audit_packet_logs_partial_failure(self):
         """Contract: Partial ingestion status is logged."""
         from core.schemas import PacketEnvelopeIn
@@ -464,15 +503,12 @@ class TestToolAuditTTL:
         from memory.tool_audit import log_tool_invocation
 
         call_id = uuid4()
-        captured_packet = None
-
-        async def capture_task(coro):
-            nonlocal captured_packet
-            # Extract the packet from the coroutine
-            pass
 
         with (
-            patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ) as mock_create_task,
             patch("memory.tool_audit.record_tool_invocation"),
         ):
             await log_tool_invocation(

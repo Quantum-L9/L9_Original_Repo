@@ -17,6 +17,8 @@ Features:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "THE CHOKE POINT",
@@ -53,13 +55,10 @@ import hashlib
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import Any, Protocol
 
 import structlog
 import yaml
-
-if TYPE_CHECKING:
-    pass
 
 logger = structlog.get_logger(__name__)
 
@@ -576,6 +575,7 @@ async def _bootstrap_memory(agent: Any) -> None:
         # Don't fail kernel loading - memory is enhancement, not requirement
 
 
+@must_stay_async("callers use await")
 async def _sync_kernels_to_graph(agent: Any, kernel_paths: list[str]) -> None:
     """
     Sync loaded kernels to Neo4j graph for influence tracking.

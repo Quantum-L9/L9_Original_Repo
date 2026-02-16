@@ -8,6 +8,8 @@ Async-compatible for L9 architecture.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Cursor Retrieval Kernel",
@@ -87,6 +89,7 @@ class CursorRetrievalKernel:
         """No-op logger for when no logger is provided."""
         pass
 
+    @must_stay_async("callers use await")
     async def retrieve_context(
         self,
         repo_id: str,

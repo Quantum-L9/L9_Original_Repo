@@ -37,7 +37,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Literal
 from uuid import UUID, uuid4
 
@@ -45,6 +45,7 @@ import structlog
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, Field
 
+from core.config_constants import DEFAULT_SEARCH_SCOPES
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -161,7 +162,7 @@ class CursorPlanningNode:
         # Create reasoning block
         reasoning_block = {
             "step_id": str(uuid4()),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "reasoning_type": "planning",
             "content": f"Planning task: {refined_task}",
             "confidence": 0.8,
@@ -261,6 +262,7 @@ class CursorMemorySearchNode:
         """
         self._gateway = memory_gateway
 
+    @must_stay_async("callers use await")
     async def __call__(self, state: CursorAgentState) -> CursorAgentState:
         """
         Execute memory search node.
@@ -280,10 +282,10 @@ class CursorMemorySearchNode:
             return state
 
         try:
-            # Search memory (scope: developer, global)
+            # ADR-0098: search scopes from config_constants
             hits = await self._gateway.search_memory(
                 query=query,
-                scope=["developer", "global"],
+                scope=DEFAULT_SEARCH_SCOPES,
                 project_id=state.project_id or "default",
                 limit=10,
             )
@@ -325,6 +327,7 @@ class CursorErrorRecoveryNode:
         """
         self._gateway = memory_gateway
 
+    @must_stay_async("callers use await")
     async def __call__(self, state: CursorAgentState) -> CursorAgentState:
         """
         Execute error recovery node.
@@ -356,7 +359,7 @@ class CursorErrorRecoveryNode:
                 query = f"fix {error_type} {error_msg[:50]}"
                 hits = await self._gateway.search_memory(
                     query=query,
-                    scope=["developer", "global"],
+                    scope=DEFAULT_SEARCH_SCOPES,
                     project_id=state.project_id or "default",
                     limit=5,
                 )
@@ -371,7 +374,7 @@ class CursorErrorRecoveryNode:
         # Add reasoning block
         reasoning_block = {
             "step_id": str(uuid4()),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "reasoning_type": "error_recovery",
             "content": f"Recovery suggestions: {', '.join(recovery_suggestions)}",
             "confidence": 0.7,
@@ -401,6 +404,7 @@ class CursorDecisionGateNode:
         """
         self._approval_gate = approval_gate
 
+    @must_stay_async("callers use await")
     async def __call__(self, state: CursorAgentState) -> CursorAgentState:
         """
         Execute decision gate node.

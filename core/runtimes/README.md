@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -83,7 +83,7 @@ core/runtimes/
 |------|---------|
 | `__init__.py` | Core module (PROTECTED) |
 | `react_runtime.py` | Single step in ReAct loop. |
-| `react_runtime.py` | ReAct (Reason + Act) runtime for agent task execut |
+| `react_runtime.py` | Initializes the ReAct runtime for agent task execu |
 
 ### Naming Conventions
 
@@ -110,13 +110,13 @@ class ReActStep:
 
 **Public Methods:** `__init__`
 
-**Lines:** 44-58 in `react_runtime.py`
+**Lines:** 46-69 in `react_runtime.py`
 
 ### `react_runtime.py` — ReActRuntime
 
 ```python
 class ReActRuntime:
-    """ReAct (Reason + Act) runtime for agent task execution."""
+    """Initializes the ReAct runtime for agent task execution using the Think → Act → Observe pattern."""
 
     # Key methods:
 
@@ -132,7 +132,7 @@ class ReActRuntime:
 
 **Public Methods:** `__init__`, `execute_task`, `_build_thought_context`, `_duration_ms`
 
-**Lines:** 61-207 in `react_runtime.py`
+**Lines:** 72-243 in `react_runtime.py`
 
 
 ---
@@ -149,7 +149,7 @@ class ReActRuntime:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreRuntimesRequest(BaseModel):
     """Request model for core_runtimes operations."""
@@ -241,7 +241,7 @@ CORE_RUNTIMES_ENABLED=true
 
 Factory function to create ReAct runtime.
 
-- **File:** `react_runtime.py:210`
+- **File:** `react_runtime.py:246`
 - **Async:** No
 - **Returns:** `ReActRuntime`
 
@@ -275,7 +275,7 @@ Core Runtimes operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.runtimes",
   "message": "Operation completed",

@@ -24,6 +24,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -125,6 +127,7 @@ class VersionedSnapshotService:
         """Get Redis key for snapshot data."""
         return f"snapshot_data:{agent_id}"
 
+    @must_stay_async("callers use await")
     async def _get_or_create_lock(self, agent_id: str) -> asyncio.Lock:
         """Get or create a lock for an agent's version updates."""
         if agent_id not in self._version_locks:
@@ -169,6 +172,7 @@ class VersionedSnapshotService:
             # Return empty snapshot on error
             return MemorySnapshot(agent_id=agent_id, version=0, data={})
 
+    @must_stay_async("callers use await")
     async def commit_snapshot(
         self, snapshot: MemorySnapshot, force: bool = False
     ) -> bool:

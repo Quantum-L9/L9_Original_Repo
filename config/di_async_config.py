@@ -25,6 +25,8 @@ Usage:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Di Async Config",
@@ -50,12 +52,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any
 
+import structlog
+
 if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
     from fastapi import FastAPI
 
 logger = structlog.get_logger(__name__)
@@ -256,6 +260,7 @@ class AsyncDIContainer:
             logger.error(f"Failed to initialize async DI container: {e}")
             raise
 
+    @must_stay_async("callers use await")
     async def shutdown(self) -> None:
         """
         Shutdown all async resources gracefully.

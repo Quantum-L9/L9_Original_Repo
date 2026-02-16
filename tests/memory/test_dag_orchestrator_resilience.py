@@ -13,6 +13,7 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelopeIn, PacketWriteResult
 from memory.dead_letter import DeadLetterEntry, DeadLetterQueue
 from memory.substrate_dag_wrapper import RetryPolicy, SubstrateDagOrchestrator
@@ -84,6 +85,7 @@ class TestRetryBehavior:
         assert mock_dag.run.call_count == 1
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_retry_succeeds_on_second_attempt(self):
         """First call fails, second succeeds."""
         mock_dag = Mock()
@@ -449,6 +451,7 @@ class TestDeadLetterQueueUnit:
         assert result is False
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_peek_returns_entries(self):
         """Peek returns list of DeadLetterEntry objects."""
         mock_redis = Mock()
@@ -479,6 +482,7 @@ class TestDeadLetterQueueUnit:
         assert entries[0].attempts == 3
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_get_entry_by_id(self):
         """Get specific entry by ID."""
         mock_redis = Mock()
@@ -528,6 +532,7 @@ class TestCombinedResilience:
     """Test all resilience features working together."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_full_resilience_flow_success(self):
         """Success flow with all features enabled."""
         mock_dag = Mock()
@@ -558,6 +563,7 @@ class TestCombinedResilience:
         mock_dlq.enqueue.assert_not_called()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_full_resilience_flow_failure(self):
         """Failure flow with all features enabled."""
         mock_dag = Mock()

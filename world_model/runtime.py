@@ -60,9 +60,8 @@ import asyncio
 import fnmatch
 import os
 import re
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -76,6 +75,8 @@ from world_model.registry import WorldModelRegistry
 from world_model.state import Entity, Relation, WorldModelState
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from memory.substrate_service import MemorySubstrateService
     from simulation.simulation_engine import SimulationEngine
     from world_model.causal_mapper import CausalMapper
@@ -231,6 +232,7 @@ class MemorySubstratePacketSource(PacketSource):
                 "(tenant_id, org_id, user_id)."
             )
 
+    @must_stay_async("callers use await")
     async def fetch_packets(
         self,
         packet_types: frozenset[str] | None = None,
@@ -298,7 +300,7 @@ class UpdateRecord:
     target_id: str = ""
     old_value: dict[str, Any] | None = None
     new_value: dict[str, Any] | None = None
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     source: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -477,6 +479,7 @@ class WorldModelRuntime:
     # Seed Library Loading
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def load_seed_library(
         self,
         seed_dir: str | None = None,
@@ -641,8 +644,8 @@ class WorldModelRuntime:
     async def _load_reflection_seeds(self, seed_dir: str | None) -> int:
         """Load reflection memory seeds if available."""
         if not seed_dir:
-            # Use default seed directory
-            seed_path = Path(__file__).parent.parent / "seed"
+            # Use default seed directory (relative to world_model module)
+            seed_path = Path(__file__).parent / "seed"
         else:
             seed_path = Path(seed_dir)
 
@@ -667,13 +670,27 @@ class WorldModelRuntime:
 
             reflections_loaded = 0
 
+            from world_model.reflection_memory import ReflectionPriority, ReflectionType
+
             # Load reflections
             for reflection_data in data.get("reflections", []):
+                reflection_type_str = reflection_data.get("type", "lesson")
+                try:
+                    reflection_type = ReflectionType(reflection_type_str)
+                except ValueError:
+                    reflection_type = ReflectionType.LESSON
+
+                priority_str = reflection_data.get("priority", "medium")
+                try:
+                    priority = ReflectionPriority(priority_str)
+                except ValueError:
+                    priority = ReflectionPriority.MEDIUM
+
                 self._reflection_memory.add_reflection(
                     content=reflection_data.get("content", ""),
-                    reflection_type=reflection_data.get("type", "lesson"),
+                    reflection_type=reflection_type,
                     context=reflection_data.get("context", ""),
-                    priority=reflection_data.get("priority", "medium"),
+                    priority=priority,
                     confidence=reflection_data.get("confidence", 0.8),
                     source="seed_file",
                     tags=reflection_data.get("tags", []),
@@ -749,6 +766,7 @@ class WorldModelRuntime:
     # Building
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def build_from_specs(
         self,
         specs: list[dict[str, Any]],
@@ -858,6 +876,7 @@ class WorldModelRuntime:
     # Update from Packet
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def update_from_packet(
         self,
         packet: dict[str, Any],
@@ -1197,6 +1216,7 @@ class WorldModelRuntime:
     # Simulation
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def simulate(
         self,
         variant: SimulationVariant | dict[str, Any],
@@ -1506,6 +1526,7 @@ class WorldModelRuntime:
     # Updates (Basic)
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def apply_update(
         self,
         update_type: str,
@@ -1606,9 +1627,8 @@ class WorldModelRuntime:
                 logger.error(f"Update failed: {e}")
                 self._stats.errors_encountered += 1
                 return {"success": False, "error": str(e)}
-
-        self._mode = RuntimeMode.RUNNING
-        return None
+            finally:
+                self._mode = RuntimeMode.RUNNING
 
     def _record_update(self, record: UpdateRecord) -> None:
         """Record an update in history."""
@@ -1763,6 +1783,7 @@ class WorldModelRuntime:
     # Event Loop API
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def run_once(self) -> dict[str, Any]:
         """
         Execute a single iteration of the runtime loop.
@@ -1841,6 +1862,7 @@ class WorldModelRuntime:
             "duration_ms": duration_ms,
         }
 
+    @must_stay_async("callers use await")
     async def run_forever(
         self,
         on_iteration: Callable[[dict[str, Any]], None] | None = None,
@@ -1922,6 +1944,7 @@ class WorldModelRuntime:
                 f"{self._packets_processed_total} packets processed"
             )
 
+    @must_stay_async("callers use await")
     async def stop(self, timeout: float | None = None) -> None:
         """
         Stop the runtime loop gracefully.
@@ -1982,6 +2005,7 @@ class WorldModelRuntime:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def create_runtime_with_substrate(
     substrate_service: MemorySubstrateService,
     engine: WorldModelEngine | None = None,

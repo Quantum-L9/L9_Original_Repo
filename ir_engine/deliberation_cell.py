@@ -12,6 +12,8 @@ Implements a produce-critique-revise loop:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Deliberation Cell",
@@ -35,7 +37,7 @@ __dora_meta__ = {
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -68,7 +70,7 @@ class DeliberationRound:
     critique: dict[str, Any]
     revisions_made: list[str]
     consensus_reached: bool
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -207,6 +209,7 @@ class DeliberationCell:
     # Main Deliberation
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def deliberate(
         self,
         task: str,
@@ -225,7 +228,7 @@ class DeliberationCell:
             DeliberationResult with final graph
         """
         session_id = uuid4()
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         logger.info(f"Starting deliberation session {session_id}")
 
@@ -289,9 +292,7 @@ class DeliberationCell:
         if validation.valid:
             current_graph.set_status(IRStatus.VALIDATED)
 
-        duration_ms = int(
-            (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-        )
+        duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
         result = DeliberationResult(
             session_id=session_id,
@@ -311,6 +312,7 @@ class DeliberationCell:
 
         return result
 
+    @must_stay_async("callers use await")
     async def _run_producer(
         self,
         graph: IRGraph,
@@ -358,6 +360,7 @@ class DeliberationCell:
                 "reasoning": str(e),
             }
 
+    @must_stay_async("callers use await")
     async def _run_critic(
         self,
         graph: IRGraph,

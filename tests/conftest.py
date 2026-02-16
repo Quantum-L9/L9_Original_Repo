@@ -11,6 +11,8 @@ from pathlib import Path
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Add project root and tests directory to path
 PROJECT_ROOT = Path(__file__).parent.parent
 TESTS_ROOT = Path(__file__).parent
@@ -89,6 +91,7 @@ def adapter(memory_adapter) -> MockMemoryAdapter:
 
 
 @pytest.fixture
+@must_stay_async("callers use await")
 async def async_redis():
     """Async Redis mock with in-memory store."""
 
@@ -96,12 +99,15 @@ async def async_redis():
         def __init__(self):
             self.store = {}  # Instance-level to prevent test pollution
 
+        @must_stay_async("callers use await")
         async def get(self, k):
             return self.store.get(k)
 
+        @must_stay_async("callers use await")
         async def set(self, k, v):
             self.store[k] = v
 
+        @must_stay_async("callers use await")
         async def incr(self, k):
             self.store[k] = self.store.get(k, 0) + 1
             return self.store[k]
@@ -127,6 +133,7 @@ def async_postgres_cursor():
 
 
 @pytest.fixture
+@must_stay_async("callers use await")
 async def async_memory_adapter():
     """Async memory adapter with blob storage and packet management."""
 
@@ -136,20 +143,24 @@ async def async_memory_adapter():
             self.packets = {}  # Instance-level
             self.idx = 0  # Instance-level
 
+        @must_stay_async("callers use await")
         async def store_blob(self, content):
             k = f"blob-{len(self.blobs)}"
             self.blobs[k] = content
             return k
 
+        @must_stay_async("callers use await")
         async def ingest(self, data):
             self.idx += 1
             pid = f"p{self.idx}"
             self.packets[pid] = data
             return {"packet_id": pid, **data}
 
+        @must_stay_async("callers use await")
         async def retrieve(self, pid):
             return self.packets.get(pid)
 
+        @must_stay_async("callers use await")
         async def run_pruning(self):
             # Simulate pruning to 20000 vectors
             return {"active_vectors": 20000}
@@ -169,6 +180,7 @@ def world_model() -> MockWorldModel:
 
 
 @pytest.fixture
+@must_stay_async("callers use await")
 async def async_world_model():
     """Async world model mock with node/edge graph operations."""
 
@@ -177,17 +189,21 @@ async def async_world_model():
             self.nodes = {}  # Instance-level
             self.edges = []  # Instance-level
 
+        @must_stay_async("callers use await")
         async def create_node(self, t, data):
             nid = len(self.nodes)
             self.nodes[nid] = {"type": t, **data}
             return nid
 
+        @must_stay_async("callers use await")
         async def get_node(self, nid):
             return self.nodes.get(nid)
 
+        @must_stay_async("callers use await")
         async def link(self, a, b, rel):
             self.edges.append((a, b, rel))
 
+        @must_stay_async("callers use await")
         async def get_edges(self, nid):
             return [
                 {"type": rel, "src": a, "dst": b}
@@ -305,7 +321,7 @@ import hashlib
 import hmac
 import time
 
-SLACK_TEST_SIGNING_SECRET = "test_slack_signing_secret_123"
+SLACK_TEST_SIGNING_SECRET = "test_slack_signing_secret_123"  # noqa: S105 — test fixture
 SLACK_TEST_CHANNEL_ID = "C12345678"
 SLACK_TEST_USER_ID = "U12345678"
 SLACK_TEST_TEAM_ID = "T12345678"

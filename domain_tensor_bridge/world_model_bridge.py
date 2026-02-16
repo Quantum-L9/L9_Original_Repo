@@ -50,6 +50,8 @@ from dataclasses import dataclass
 import httpx
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -80,11 +82,13 @@ class WorldModelBridge:
         self.world_model_url = world_model_url
         self._client: httpx.AsyncClient = None
 
+    @must_stay_async("callers use await")
     async def initialize(self) -> None:
         """Initialize HTTP client."""
         self._client = httpx.AsyncClient(timeout=30.0)
         logger.info("world_model_bridge_initialized")
 
+    @must_stay_async("callers use await")
     async def query_causal_factors(self, entity_id: str) -> list[CausalFactor]:
         """Query causal factors for entity."""
         logger.debug("query_causal_factors", entity_id=entity_id)
@@ -99,6 +103,7 @@ class WorldModelBridge:
             )
         ]
 
+    @must_stay_async("callers use await")
     async def query_temporal_patterns(
         self, entity_id: str, window_days: int = 30
     ) -> list[Pattern]:

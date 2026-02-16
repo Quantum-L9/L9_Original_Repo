@@ -16,12 +16,12 @@
 
 ### Orientation
 
-| Question | Answer |
-|----------|--------|
-| **What does it do?** | Track motif activations, rank plans multimodally, bind tensor responses to motif metadata |
-| **Where does it sit?** | Standalone `motifs/` package — reasoning acceleration layer |
-| **Who calls it?** | **NOBODY** — orphaned module with zero external imports |
-| **What does it depend on?** | `structlog`, internal cross-references within motifs/ |
+| Question                    | Answer                                                                                    |
+| --------------------------- | ----------------------------------------------------------------------------------------- |
+| **What does it do?**        | Track motif activations, rank plans multimodally, bind tensor responses to motif metadata |
+| **Where does it sit?**      | Standalone `motifs/` package — reasoning acceleration layer                               |
+| **Who calls it?**           | **NOBODY** — orphaned module with zero external imports                                   |
+| **What does it depend on?** | `structlog`, internal cross-references within motifs/                                     |
 
 ---
 
@@ -36,11 +36,13 @@ motifs/
 ```
 
 **Missing Files (referenced in `__init__.py`):**
+
 - `cross_domain_motif_classifier.py` ❌
 - `reasoning_governor.py` ❌
 - `self_healing_plan_synthesizer.py` ❌
 
 **Flow Trace:**
+
 ```
 Packet → MotifFeedbackGraph.record_event()
            ↓
@@ -53,46 +55,49 @@ Packet → MotifFeedbackGraph.record_event()
 
 **Hotspots:**
 
-| File | Why Hot |
-|------|---------|
-| `__init__.py:17-22` | Imports 3 non-existent modules — **IMPORT FAILURE** |
-| `motif_feedback_graph.py:30` | `datetime.utcnow()` deprecated |
-| `tensor_motif_linker.py:140` | `datetime.utcnow()` deprecated |
+| File                         | Why Hot                                             |
+| ---------------------------- | --------------------------------------------------- |
+| `__init__.py:17-22`          | Imports 3 non-existent modules — **IMPORT FAILURE** |
+| `motif_feedback_graph.py:30` | `datetime.utcnow()` deprecated                      |
+| `tensor_motif_linker.py:140` | `datetime.utcnow()` deprecated                      |
 
 ---
 
 ### Compliance & Health (L9 Canon)
 
 #### STRUCTURAL
-| Check | Status | Notes |
-|-------|--------|-------|
-| Correct layer placement | ✅ | Standalone motifs/ package |
-| No bootstrap in runtime | ✅ | Clean |
-| No lifecycle mutation | ✅ | Clean |
-| `__init__.py` exports | ❌ | **BROKEN** — imports missing files |
+
+| Check                   | Status | Notes                              |
+| ----------------------- | ------ | ---------------------------------- |
+| Correct layer placement | ✅     | Standalone motifs/ package         |
+| No bootstrap in runtime | ✅     | Clean                              |
+| No lifecycle mutation   | ✅     | Clean                              |
+| `__init__.py` exports   | ❌     | **BROKEN** — imports missing files |
 
 #### ASYNC
-| Check | Status | Notes |
-|-------|--------|-------|
-| Async I/O correctness | ✅ | All I/O methods are async |
-| No sync leakage | ✅ | Clean |
-| Proper timeouts | ⚠️ | No external calls, N/A |
+
+| Check                 | Status | Notes                     |
+| --------------------- | ------ | ------------------------- |
+| Async I/O correctness | ✅     | All I/O methods are async |
+| No sync leakage       | ✅     | Clean                     |
+| Proper timeouts       | ⚠️     | No external calls, N/A    |
 
 #### QUALITY
-| Check | Status | Notes |
-|-------|--------|-------|
-| Logging (no print) | ✅ | Uses structlog throughout |
-| Error handling | ✅ | Try/except in rank_plans |
-| Types | ✅ | Full type hints |
-| Tests exist | ❌ | **ZERO test coverage** |
+
+| Check              | Status | Notes                     |
+| ------------------ | ------ | ------------------------- |
+| Logging (no print) | ✅     | Uses structlog throughout |
+| Error handling     | ✅     | Try/except in rank_plans  |
+| Types              | ✅     | Full type hints           |
+| Tests exist        | ❌     | **ZERO test coverage**    |
 
 #### ANTI-PATTERNS
 
-| Pattern | Severity | Location |
-|---------|----------|----------|
-| `datetime.utcnow()` deprecated | MEDIUM | `motif_feedback_graph.py:30`, `tensor_motif_linker.py:140` |
-| Missing module imports | **CRITICAL** | `__init__.py:17-22` |
-| Orphaned code (no consumers) | MEDIUM | Entire module |
+| Pattern                        | Severity     | Location                                                   |
+| ------------------------------ | ------------ | ---------------------------------------------------------- |
+| `datetime.utcnow()` deprecated | MEDIUM       | `motif_feedback_graph.py:30`, `tensor_motif_linker.py:140` |
+| Missing module imports         | **CRITICAL** | `__init__.py:17-22`                                        |
+| Orphaned code (no consumers)   | MEDIUM       | Entire module                                              |
 
 ---
 

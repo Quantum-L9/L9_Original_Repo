@@ -1,412 +1,376 @@
-# MCP Memory Integration - Official Configuration
+# MCP Memory — Agent Integration Guide
 
-**Status:** ✅ **PRODUCTION** - Verified E2E 2026-01-12
-**Purpose:** Single source of truth for MCP Memory wiring between Cursor IDE and L9 VPS
-
----
-
-## Architecture Summary
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Cursor IDE (MacBook)                                       │
-│  └─ MCP Client → HTTPS → Cloudflare → VPS                  │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ HTTPS (no SSH tunnel!)
-┌──────────────────────▼──────────────────────────────────────┐
-│  Cloudflare (Proxy)                                         │
-│  └─ l9.quantumaipartners.com → 157.180.73.53               │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ Port 443
-┌──────────────────────▼──────────────────────────────────────┐
-│  VPS (157.180.73.53)                                        │
-│  ├─ Caddy (reverse proxy)                                   │
-│  │   └─ :443, :9001 → 127.0.0.1:8000                        │
-│  ├─ l9-api (Docker, port 8000)                              │
-│  │   ├─ /mcp/tools, /mcp/call (MCP endpoints)              │
-│  │   ├─ /api/v1/memory/* (Memory API)                       │
-│  │   └─ MemorySubstrateService (full DAG pipeline)          │
-│  └─ PostgreSQL + pgvector (l9memory database)              │
-│       ├─ packet_store (event log)                           │
-│       └─ memory_embeddings (vector store)                   │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Key Points:**
-- **Unified architecture** — MCP endpoints live inside `l9-api` (no separate service)
-- **Port 8000** — All traffic routes to `l9-api` Docker container
-- **Port 9001** — Alternate HTTPS front door (IP-based), also routes to 8000
-- **No port 9002** — Deprecated, never deployed
+**Status:** ✅ **PRODUCTION** — Verified E2E 2026-02-13
+**Audience:** AI agents (Cursor IDE, Emma, future agents) — not humans
+**Server:** C1 Hetzner (46.62.243.82)
 
 ---
 
-## Official Configuration (Locked)
+## Architecture
 
-### Cursor MCP Config
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Agent (Cursor IDE / Emma / Future Agent)                    │
+│  └─ HTTP POST → http://46.62.243.82:9002/mcp/call           │
+│     Header: Authorization: Bearer <MCP_API_KEY_C>            │
+└──────────────────────┬───────────────────────────────────────┘
+                       │ Port 9002 (direct, no proxy)
+┌──────────────────────▼───────────────────────────────────────┐
+│  C1 VPS (46.62.243.82)                                       │
+│  ├─ l9-mcp-memory (Docker, port 9002) ← HIT THIS DIRECTLY   │
+│  │   ├─ /health              Health check (no auth)          │
+│  │   ├─ /mcp/tools           List tools (auth required)      │
+│  │   └─ /mcp/call            Execute tool (auth required)    │
+│  │                                                           │
+│  ├─ PostgreSQL (port 30432)                                  │
+│  │   ├─ packet_store         Canonical event log             │
+│  │   ├─ semantic_memory      Vector embeddings (pgvector)    │
+│  │   ├─ knowledge_facts      Extracted facts                 │
+│  │   ├─ reasoning_traces     Reasoning audit trail           │
+│  │   ├─ agent_memory_events  Agent event log                 │
+│  │   └─ graph_checkpoints    Graph state snapshots           │
+│  │                                                           │
+│  ├─ Neo4j (port 30474)       Knowledge graph (optional)      │
+│  └─ Redis (port 30379)       Session cache                   │
+└──────────────────────────────────────────────────────────────┘
+```
 
-**File:** `~/.cursor/mcp.json` (on MacBook)
+**Direct connection to port 9002.** No nginx, no Caddy, no reverse proxy. The MCP memory server binds to `0.0.0.0:9002` inside Docker and is published on the host.
+
+---
+
+## Endpoints
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `http://46.62.243.82:9002/health` | GET | None | Health check |
+| `http://46.62.243.82:9002/mcp/tools` | GET | Bearer | List available tools |
+| `http://46.62.243.82:9002/mcp/call` | POST | Bearer | Execute any MCP tool |
+
+All tool calls go through `/mcp/call` with this payload shape:
 
 ```json
 {
-  "mcpServers": {
-    "l9-memory": {
-      "command": "node",
-      "args": ["/path/to/mcp-http-bridge.js"],
-      "env": {
-        "MCPSERVERURL": "https://157.180.73.53:9001",
-        "MCPAPIKEYC": "YOUR_MCP_API_KEY_C_VALUE"
-      }
-    }
+  "tool_name": "<tool_name>",
+  "arguments": { ... }
+}
+```
+
+Response shape:
+
+```json
+{
+  "status": "success",
+  "result": { ... },
+  "caller": "C"
+}
+```
+
+---
+
+## Authentication & Caller Identity
+
+| Caller | API Key Env Var | caller_id | creator | source | Default scope |
+|--------|-----------------|-----------|---------|--------|---------------|
+| **L** (L-CTO kernel) | `MCP_API_KEY_L` | `"L"` | `"L-CTO"` | `"l9-kernel"` | `"developer"` |
+| **C** (Cursor IDE) | `MCP_API_KEY_C` | `"C"` | `"Cursor-IDE"` | `"cursor"` | `"cursor"` |
+
+The server determines caller identity from the API key. `creator` and `source` are enforced server-side — agents cannot override them.
+
+**Auth header format:**
+```
+Authorization: Bearer <your_api_key>
+```
+
+---
+
+## Scopes & RLS
+
+Every memory has a `scope` that controls visibility via PostgreSQL Row-Level Security.
+
+| Scope | Who can read | Who can write | Use case |
+|-------|-------------|---------------|----------|
+| `cursor` | Cursor IDE, platform_admin | Cursor IDE | Cursor session context, lessons, preferences |
+| `developer` | All callers | All callers | Shared development knowledge |
+| `global` | All callers | All callers | Cross-project shared knowledge |
+| `agent` | All callers | All callers | Agent-generated memories (Emma, etc.) |
+| `l-private` | L-CTO, platform_admin | L-CTO | L-CTO private reasoning |
+
+### Scope rules per caller
+
+| Caller | Allowed scopes | Default write scope |
+|--------|---------------|-------------------|
+| **L** | `developer`, `global`, `l-private`, `cursor` | `developer` |
+| **C** | `cursor`, `developer`, `global` | `cursor` |
+| **Future agents (Emma, etc.)** | `agent`, `developer`, `global` | `agent` |
+
+### RLS enforcement
+
+- `role="end_user"` — default for all callers; can read/write `developer`, `global`, `agent`
+- `role="cursor"` — set by cursor_memory_kernel; additionally can read/write `cursor` scope
+- `role="l9_system"` — additionally can read/write `l-private` scope
+- `role="platform_admin"` — full access to all scopes
+
+RLS is enforced at the PostgreSQL level. Even if application code has a bug, the database will reject unauthorized scope access.
+
+---
+
+## Core Tools
+
+### save_memory
+
+Write a memory to the full DAG pipeline (6 tables).
+
+```json
+{
+  "tool_name": "save_memory",
+  "arguments": {
+    "content": "The actual memory content to store",
+    "kind": "lesson",
+    "scope": "cursor",
+    "duration": "long",
+    "user_id": "l9-shared",
+    "tags": ["optional", "tags"],
+    "importance": 1.0
   }
 }
 ```
 
-**OR** if using HTTP client directly:
+**Required:** `content`, `kind`, `duration`, `user_id`
+**Optional:** `scope` (defaults to caller's default), `tags`, `importance` (0.0-1.0)
+
+**Valid `kind` values:** `preference`, `lesson`, `pattern`, `decision`, `error`, `success`, `context`, `insight`, `observation`
+
+**Valid `duration` values:** `short` (24h TTL), `medium` (7d TTL), `long` (no expiry)
+
+**Response includes:**
+```json
+{
+  "packet_id": "uuid",
+  "scope": "cursor",
+  "written_tables": ["packet_store", "agent_memory_events", "reasoning_traces", "semantic_memory", "knowledge_facts", "graph_checkpoints"],
+  "pipeline": "main_dag",
+  "ingest_time_ms": 645.3
+}
+```
+
+### search_memory
+
+Semantic similarity search across memories.
 
 ```json
 {
-  "mcpServers": {
-    "l9-memory": {
-      "type": "http",
-      "url": "https://157.180.73.53:9001",
-      "headers": {
-        "Authorization": "Bearer YOUR_MCP_API_KEY_C_VALUE"
-      }
-    }
+  "tool_name": "search_memory",
+  "arguments": {
+    "query": "what I'm looking for",
+    "user_id": "l9-shared",
+    "scopes": ["cursor", "developer", "global"],
+    "top_k": 5,
+    "threshold": 0.0,
+    "duration": "all"
   }
 }
 ```
 
-### Environment Variables
+**Required:** `query`, `user_id`
+**Optional:** `scopes` (defaults to caller's allowed scopes), `top_k` (default 5), `threshold` (0.0-1.0, default 0.7), `duration`, `kinds` (filter by kind)
 
-**VPS (`/opt/l9/.env`):**
-```bash
-# MCP API Keys
-MCP_API_KEY_C=your-cursor-api-key-here    # ✅ Cursor IDE key
-MCP_API_KEY_L=your-l-cto-api-key-here     # L-CTO key (optional)
-
-# Database
-MEMORY_DSN=postgresql://postgres:password@127.0.0.1:5432/l9memory
-
-# OpenAI (for embeddings)
-OPENAI_API_KEY=sk-...
-
-# Enable MCP Memory
-MCPMEMORYENABLED=true
-```
-
-**MacBook (local `.env` for `cursor_memory_client.py`):**
-```bash
-# MCP Server URL (use IP:9001 or domain)
-L9_API_URL=https://157.180.73.53:9001
-# OR: L9_API_URL=https://l9.quantumaipartners.com
-
-# API Key (same as MCP_API_KEY_C from VPS)
-L9_EXECUTOR_API_KEY=your-cursor-api-key-here
-```
-
----
-
-## Verified Endpoints
-
-| Endpoint | Method | Description | Auth |
-|----------|--------|-------------|------|
-| `https://157.180.73.53:9001/mcp/tools` | GET | List MCP tools | Bearer token |
-| `https://157.180.73.53:9001/mcp/call` | POST | Execute MCP tool | Bearer token |
-| `https://157.180.73.53:9001/health` | GET | Health check | None |
-| `https://l9.quantumaipartners.com/mcp/tools` | GET | List MCP tools (domain) | Bearer token |
-
-**Test Command:**
-```bash
-curl -ks -H "Authorization: Bearer $MCP_API_KEY_C" \
-  https://157.180.73.53:9001/mcp/tools | jq .
-```
-
----
-
-## Caddy Configuration
-
-**File:** `/etc/caddy/Caddyfile` (on VPS)
-
-```caddyfile
-# L9 Main API (domain-based)
-l9.quantumaipartners.com {
-    encode gzip
-    reverse_proxy 127.0.0.1:8000
-}
-
-# Cursor MCP endpoint (IP:9001 - alternate HTTPS front door)
-# Routes ALL traffic to unified l9-api (8000)
-157.180.73.53:9001 {
-    encode gzip
-    reverse_proxy 127.0.0.1:8000
+**Response:**
+```json
+{
+  "results": [
+    {
+      "packet_id": "uuid",
+      "content": "...",
+      "kind": "lesson",
+      "scope": "cursor",
+      "similarity": 0.57,
+      "importance": 0.5,
+      "tags": [],
+      "created_at": "2026-02-13T22:16:41Z"
+    }
+  ],
+  "query_embedding_time_ms": 204.7,
+  "search_time_ms": 3.6,
+  "total_results": 1
 }
 ```
 
-**Key Points:**
-- ✅ **No `/mcp/*` special routing** — All traffic goes to 8000
-- ✅ **No port 9002** — Deprecated, never used
-- ✅ **Unified backend** — Single `l9-api` container handles everything
+### get_context
+
+Proactive context injection — retrieves relevant memories + recent activity for a task.
+
+```json
+{
+  "tool_name": "get_context",
+  "arguments": {
+    "task_description": "Working on RLS scope alignment",
+    "user_id": "l9-shared",
+    "scopes": ["cursor", "developer", "global"],
+    "top_k": 5
+  }
+}
+```
+
+### Other tools
+
+| Tool | Purpose |
+|------|---------|
+| `get_memory_stats` | Memory counts by duration/kind |
+| `delete_expired_memories` | Clean up TTL-expired memories |
+| `compound_memories` | Merge highly similar memories |
+| `apply_decay` | Apply importance decay to old memories |
+| `extract_session_learnings` | Extract and store session lessons/decisions/errors |
+| `get_proactive_suggestions` | Get suggestions based on current context |
+| `query_temporal` | Query memories by time range |
+| `save_memory_with_confidence` | Save with explicit confidence scoring |
+| `graph_query` | Neo4j Cypher query |
+| `graph_get_entity` | Get entity from knowledge graph |
+| `graph_get_context` | Get graph context for entity |
+| `graph_create_event` | Create temporal event in graph |
+| `graph_get_event_timeline` | Get event timeline |
+| `graph_get_event_sequence` | Get event sequence |
+| `graph_get_temporal_events` | Get events in time range |
+| `cache_get` | Get Redis cache value |
+| `cache_set` | Set Redis cache value |
+| `cache_get_session_context` | Get session context from cache |
+| `cache_delete` | Delete Redis cache key |
+| `cache_keys` | List Redis cache keys by pattern |
+
+---
+
+## Agent Configuration
+
+### Cursor IDE (caller C)
+
+**Environment variables (MacBook `~/.zshrc` or project `.env`):**
+```bash
+MCP_API_KEY_C=<your-cursor-api-key>       # From VPS /opt/l9/.env
+L9_EXECUTOR_API_KEY=<same-key>            # Legacy alias, same value
+MCP_URL=http://46.62.243.82/memory        # Only if using nginx path (not recommended)
+```
+
+**CLI client:**
+```bash
+# Write (defaults to scope=cursor)
+python3 agents/cursor/cursor_memory_client.py write "content" --kind lesson --scope cursor
+
+# Search (searches cursor + developer + global)
+python3 agents/cursor/cursor_memory_client.py search "query" --limit 5
+
+# Health check
+python3 agents/cursor/cursor_memory_client.py health
+```
+
+Note: The CLI client (`cursor_memory_client.py`) currently routes through nginx on port 80 (`http://46.62.243.82/memory/mcp/call`). For direct access, set `MCP_URL=http://46.62.243.82:9002`.
+
+### Future agents (Emma, Research, etc.)
+
+New agents should:
+
+1. **Get an API key** — Add a new key to VPS `/opt/l9/.env` (e.g., `MCP_API_KEY_EMMA`)
+2. **Register in `verify_api_key`** — Add key check in `mcp_memory/src/main.py`
+3. **Use `role="end_user"`** — Standard role, access to `developer`, `global`, `agent` scopes
+4. **Default to `scope="agent"`** — Agent-generated memories go in `agent` scope
+5. **Hit port 9002 directly** — `http://46.62.243.82:9002/mcp/call`
+
+**Example call from any HTTP client:**
+```bash
+curl -X POST http://46.62.243.82:9002/mcp/call \
+  -H "Authorization: Bearer $MCP_API_KEY_EMMA" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tool_name": "save_memory",
+    "arguments": {
+      "content": "User prefers morning meeting summaries",
+      "kind": "preference",
+      "scope": "agent",
+      "duration": "long",
+      "user_id": "l9-shared"
+    }
+  }'
+```
 
 ---
 
 ## Pipeline Verification
 
-When MCP memory saves work correctly, you should see:
+A successful `save_memory` writes to 6 tables in one atomic DAG pass:
 
-1. **Response includes `"pipeline": "main_dag"`**
-   ```json
-   {
-     "packet_id": "...",
-     "pipeline": "main_dag",
-     "written_tables": [
-       "packet_store",
-       "memory_embeddings",
-       "knowledge_facts",
-       "reasoning_traces"
-     ]
-   }
-   ```
+| Table | What's stored |
+|-------|--------------|
+| `packet_store` | Canonical event (PacketEnvelope JSONB) |
+| `semantic_memory` | Vector embedding (1536-dim, pgvector) |
+| `knowledge_facts` | Extracted facts (if applicable) |
+| `reasoning_traces` | Reasoning audit trail |
+| `agent_memory_events` | Agent event log entry |
+| `graph_checkpoints` | Graph state snapshot |
 
-2. **Database verification:**
-   - `packet_store` table has entry
-   - `memory_embeddings` table has vector
-   - `knowledge_facts` table has extracted facts (if applicable)
-   - `reasoning_traces` table has trace (if applicable)
+**Verify with:**
+```bash
+# Check packet exists
+SELECT packet_id, scope, packet_type FROM packet_store WHERE scope = 'cursor' ORDER BY timestamp DESC LIMIT 3;
 
-3. **Search works:**
-   ```bash
-   # Save memory
-   curl -X POST https://157.180.73.53:9001/mcp/call \
-     -H "Authorization: Bearer $MCP_API_KEY_C" \
-     -H "Content-Type: application/json" \
-     -d '{"tool_name": "save_memory", "arguments": {"content": "Test", "kind": "preference"}}'
+# Check embedding exists
+SELECT embedding_id, scope FROM semantic_memory WHERE scope = 'cursor' ORDER BY created_at DESC LIMIT 3;
+```
 
-   # Search for it (wait 2-5 seconds for embedding)
-   curl -X POST https://157.180.73.53:9001/mcp/call \
-     -H "Authorization: Bearer $MCP_API_KEY_C" \
-     -H "Content-Type: application/json" \
-     -d '{"tool_name": "search_memory", "arguments": {"query": "Test", "top_k": 5}}'
-   ```
+---
+
+## Rate Limiting
+
+| Limit | Value |
+|-------|-------|
+| Requests per minute per IP | 60 |
+| Failed auth attempts before block | 5 |
+| Block duration after failed auth | 5 minutes |
+
+Rate limiting is in-memory per IP. If blocked, wait for the window to expire.
 
 ---
 
 ## Troubleshooting
 
-### HTTP 502 Bad Gateway
+### 403: Scope not authorized
 
-**Cause:** Caddy routing to wrong port (e.g., 9002)
+**Cause:** Requesting a scope not in caller's `allowed_scopes`.
+
+**Fix:** Use only your allowed scopes. Cursor uses `cursor`, `developer`, `global`. Agents use `agent`, `developer`, `global`.
+
+### 403: project_id must be derived from governance context
+
+**Cause:** `project_id` mismatch between governance context and search handler.
+
+**Fix:** Don't pass `project_id` in arguments — it's derived from `L9_PROJECT_ID` env var on the server (defaults to `l9-default`).
+
+### 500: Internal Server Error
+
+**Check logs:**
+```bash
+ssh c1 'docker logs --tail 50 l9-l9-mcp-memory-1 2>&1 | grep -i error'
+```
+
+### Empty search results
+
+**Possible causes:**
+1. Embedding not yet generated (wait 1-2 seconds after write)
+2. Threshold too high (try `threshold: 0.0`)
+3. Scope mismatch (search scopes must include the scope the memory was written to)
+4. RLS blocking (check `app.role` matches the scope's access policy)
+
+### Connection refused on port 9002
 
 **Fix:**
 ```bash
-# Check Caddyfile
-grep 9002 /etc/caddy/Caddyfile
-
-# If found, remove 9002 references
-sudo sed -i 's|127.0.0.1:9002|127.0.0.1:8000|g' /etc/caddy/Caddyfile
-sudo systemctl reload caddy
+ssh c1 'docker ps --filter name=mcp-memory'
+# If not running:
+ssh c1 'cd /opt/l9 && docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d l9-mcp-memory'
 ```
-
-### HTTP 401 Unauthorized
-
-**Cause:** Invalid or missing API key
-
-**Fix:**
-1. Verify `MCP_API_KEY_C` in VPS `.env`
-2. Verify `L9_EXECUTOR_API_KEY` in local `.env` matches
-3. Check Bearer token format: `Authorization: Bearer <key>`
-
-### HTTP 429 Rate Limit Exceeded
-
-**Cause:** Too many requests (60/minute default)
-
-**Fix:**
-- Wait 60 seconds
-- Check rate limit logs: `docker compose logs l9-api | grep rate`
-- If blocked due to failed auth: Wait 5 minutes (block expires)
-
----
-
-## Rate Limiting & Auth Blocking
-
-### Rate Limits
-
-**Per-IP Limits:**
-- **60 requests per minute** (default window)
-- Tracked in-memory per IP address
-- Resets automatically after window expires
-
-**Per-Key Limits:**
-- Same 60/minute limit applies per API key
-- `MCP_API_KEY_C` and `MCP_API_KEY_L` tracked separately
-
-### Auth Failure Blocking
-
-**Brute-Force Protection:**
-- **5 failed auth attempts** → IP blocked for 5 minutes
-- Block expires automatically
-- Tracked per IP address
-
-**What Triggers Blocking:**
-- Invalid API key
-- Missing `Authorization: Bearer` header
-- Wrong key format
-
-**Recovery:**
-1. **Fix API key** — Verify `MCP_API_KEY_C` in VPS `.env` matches local `.env`
-2. **Wait 5 minutes** — Block expires automatically
-3. **Clear Redis keys** (if Redis enabled):
-   ```bash
-   docker exec -it l9-redis redis-cli DEL "cursor:session:*:failed_auth"
-   ```
-
-### Testing Rate Limits
-
-**Tight Loop Test (from MacBook):**
-```bash
-# Test rate limiting (should see 429 after 60 requests)
-for i in {1..70}; do
-  curl -ks -H "Authorization: Bearer $MCP_API_KEY_C" \
-    https://157.180.73.53:9001/mcp/tools
-  echo "Request $i"
-  sleep 0.5
-done
-```
-
-**Expected Behavior:**
-- Requests 1-60: HTTP 200 OK
-- Request 61+: HTTP 429 Rate Limit Exceeded
-- After 60 seconds: Requests resume (200 OK)
-
-### Memory Not Found in Search
-
-**Cause:** Embedding not yet indexed
-
-**Fix:**
-- Wait 2-5 seconds after save before searching
-- Check `memory_embeddings` table: `SELECT * FROM memory_embeddings WHERE packet_id = '...'`
-
----
-
-## Governance Model
-
-| Caller | API Key | Read | Write | Delete | Creator |
-|--------|---------|------|-------|--------|---------|
-| **L** | `MCP_API_KEY_L` | All memories | All memories | All memories | `L-CTO` |
-| **C** | `MCP_API_KEY_C` | All memories | Own only | Own only | `Cursor-IDE` |
-
-**Scopes:**
-- `developer` — Shared between L and Cursor
-- `l-private` — L only (Cursor blocked from writing)
-- `global` — Cross-project shared
-
----
-
-## Related Documentation
-
-- **Quick Reference:** `mcp_memory/QUICK_REFERENCE.md`
-- **Full README:** `mcp_memory/README.md`
-- **Caddy Config:** `mcp_memory/deploy/CADDY_CONFIG.md`
-- **Governance:** `mcp_memory/memory-setup-instructions.md`
-- **E2E Test:** `mcp_memory/tests/verify_main_pipeline_e2e.py`
-
----
-
-## Neo4j Posture (Deliberate Decision)
-
-**Current Status:** Postgres-only mode (Neo4j optional)
-
-**Decision:** The system is designed to run in **Postgres-only mode** for MCP memory operations. Neo4j graph sync is available but not required for core functionality.
-
-### When Neo4j is Used
-
-Neo4j is used for:
-- **Repo structure graph** — File/class/function relationships (via `load_indexes_to_neo4j.py`)
-- **World model** — Entity/relationship graph (if enabled)
-- **Graph-based search** — Relationship traversal queries
-
-### When Neo4j is NOT Required
-
-MCP memory operations work fully without Neo4j:
-- ✅ Memory saves (via `packet_store` + `memory_embeddings`)
-- ✅ Semantic search (via pgvector)
-- ✅ Fact extraction (stored in `knowledge_facts` table)
-- ✅ Reasoning traces (stored in `reasoning_traces` table)
-
-### Enabling Neo4j (Optional)
-
-If you want to enable Neo4j on VPS:
-
-1. **Set password in `.env`:**
-   ```bash
-   NEO4J_PASSWORD=your-secure-password
-   ```
-
-2. **Start Neo4j container:**
-   ```bash
-   docker compose up -d neo4j
-   ```
-
-3. **Load repo indexes:**
-   ```bash
-   python3 tools/export_repo_indexes.py
-   python3 scripts/load_indexes_to_neo4j.py
-   ```
-
-4. **Expose world-model HTTP routes** (if needed):
-   - Add routes to `api/world_model/router.py`
-   - Register in `api/server.py`
-
-**Reference:** See `TODO-ON-VPS.md` for complete Neo4j setup instructions.
-
----
-
-## Deployment & Git Sync
-
-### Git Hygiene Protocol
-
-**Problem:** `/opt/l9` on VPS can diverge from GitHub `main` (extra commits, backup files).
-
-**Solution:** Always sync via GitHub:
-
-```bash
-# On MacBook (local)
-cd /Users/ib-mac/Projects/L9
-git add .
-git commit -m "Milestone cleanup: MCP official config"
-git push origin main
-
-# On VPS
-ssh root@157.180.73.53
-cd /opt/l9
-git fetch origin
-git reset --hard origin/main  # ⚠️ WARNING: Discards local changes
-```
-
-**Before `git reset --hard`:**
-- ✅ All changes committed and pushed from local
-- ✅ VPS `.env` backed up (if modified)
-- ✅ Any VPS-only configs documented
-
-### Keeping Docs Updated
-
-**Files to keep in sync:**
-- `docs/MCP-MEMORY-CAPSULE.md` (this file)
-- `mcp_memory/deploy/CADDY_CONFIG.md`
-- `mcp_memory/README.md`
-- `mcp_memory/QUICK_REFERENCE.md`
-
-**VPS Briefing:**
-- Update `L9-VPS-BRIEFING.md` (if exists) with unified MCP + memory setup
-- Document any VPS-specific configuration changes
 
 ---
 
 ## Change Log
 
-- **2026-01-12:** Locked official URL (`https://157.180.73.53:9001`) and key (`MCP_API_KEY_C`)
-- **2026-01-12:** Verified main pipeline integration (full DAG pipeline active)
-- **2026-01-12:** Removed port 9002 references (deprecated, never deployed)
-- **2026-01-12:** Added rate limiting & auth blocking documentation
-- **2026-01-12:** Documented Neo4j posture (Postgres-only mode decision)
-- **2026-01-12:** Added deployment & git sync protocol
+- **2026-02-13:** Rewrote for direct port 9002 access (no nginx/Caddy proxy). Added cursor scope, RLS documentation, agent onboarding guide. Updated to C1 (46.62.243.82).
+- **2026-02-13:** Added migration 0033 — cursor scope in packet_store CHECK + RLS policies for semantic_memory and knowledge_facts.
+- **2026-01-12:** Original version — locked official URL, verified main pipeline, documented rate limiting.

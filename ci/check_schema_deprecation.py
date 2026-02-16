@@ -51,7 +51,7 @@ __dora_meta__ = {
 import argparse
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import NamedTuple
 
@@ -115,10 +115,10 @@ EXCLUDE_PATTERNS = [
 ]
 
 # Sunset dates
-DEPRECATION_DATE = datetime(2026, 1, 5)
-SUNSET_WARNING_DATE = datetime(2026, 2, 20)  # Day 45
-WRITE_BLOCK_DATE = datetime(2026, 3, 22)  # Day 75
-READ_BLOCK_DATE = datetime(2026, 4, 5)  # Day 90
+DEPRECATION_DATE = datetime(2026, 1, 5, tzinfo=UTC)
+SUNSET_WARNING_DATE = datetime(2026, 2, 20, tzinfo=UTC)  # Day 45
+WRITE_BLOCK_DATE = datetime(2026, 3, 22, tzinfo=UTC)  # Day 75
+READ_BLOCK_DATE = datetime(2026, 4, 5, tzinfo=UTC)  # Day 90
 
 
 # =============================================================================
@@ -149,7 +149,7 @@ def get_current_phase() -> int:
     Phase 3: Errors for all writes
     Phase 4: Complete block (migration required)
     """
-    now = datetime.now()
+    now = datetime.now(tz=UTC)
 
     if now >= READ_BLOCK_DATE:
         return 4

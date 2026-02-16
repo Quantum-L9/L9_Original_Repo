@@ -41,10 +41,13 @@ import hashlib
 import json
 import re
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
+import structlog
 import yaml
+
+logger = structlog.get_logger(__name__)
 
 
 @dataclass
@@ -242,7 +245,7 @@ class ConceptExtractor:
             return None
 
         except Exception as e:
-            print(f"⚠️  Error reading {file_path}: {e}")
+            logger.error("⚠️  error reading file path: e", file_path=file_path, e=e)
             return None
 
     def _create_concept_from_match(
@@ -281,7 +284,7 @@ class ConceptExtractor:
                 "match_position": match.start(),
                 "match_pattern": match.re.pattern,
             },
-            created_at=datetime.now(timezone.utc).isoformat() + "Z",
+            created_at=datetime.now(UTC).isoformat() + "Z",
         )
 
     def _extract_from_headers(
@@ -330,7 +333,7 @@ class ConceptExtractor:
                         confidence=confidence,
                         extracted_content=context,
                         metadata={"source": "header"},
-                        created_at=datetime.now(timezone.utc).isoformat() + "Z",
+                        created_at=datetime.now(UTC).isoformat() + "Z",
                     )
                 )
 
@@ -367,7 +370,7 @@ class ConceptExtractor:
                         confidence=0.9,  # High confidence for structured YAML
                         extracted_content=content,
                         metadata={"source": "yaml_structure"},
-                        created_at=datetime.now(timezone.utc).isoformat() + "Z",
+                        created_at=datetime.now(UTC).isoformat() + "Z",
                     )
                 )
 
@@ -607,22 +610,22 @@ class KnowledgeHarvester:
         Returns:
             Harvest results
         """
-        print("🌾 L9 Knowledge Harvester")
-        print(f"📁 Scanning: {self.root_dir}")
+        logger.info("🌾 l9 knowledge harvester")
+        logger.info("📁 scanning: {self.root_dir}")
 
         # Scan files
         files = self.scanner.scan()
-        print(f"📄 Found {len(files)} files")
+        logger.info("📄 found {len(files)} files")
 
         # Extract concepts
         all_concepts = []
         for file_path in files:
-            print(f"  Processing: {file_path.name}...")
+            logger.info("  processing: {file_path.name}...")
             concepts = self.extractor.extract_from_file(file_path)
             all_concepts.extend(concepts)
-            print(f"    → Extracted {len(concepts)} concepts")
+            logger.info("    → extracted {len(concepts)} concepts")
 
-        print(f"\n✅ Total concepts extracted: {len(all_concepts)}")
+        logger.info("\n✅ total concepts extracted: {len(all_concepts)}")
 
         # Generate YAML specs
         yaml_specs = []
@@ -654,9 +657,9 @@ class KnowledgeHarvester:
         summary_file = self.output_dir / "HARVEST_SUMMARY.md"
         summary_file.write_text(summary)
 
-        print(f"\n📊 Summary saved to: {summary_file}")
-        print(f"📁 Concepts saved to: {concepts_dir}")
-        print(f"📁 YAML specs saved to: {yaml_dir}")
+        logger.info("\n📊 summary saved to: summary file", summary_file=summary_file)
+        logger.info("📁 concepts saved to: concepts dir", concepts_dir=concepts_dir)
+        logger.info("📁 yaml specs saved to: yaml dir", yaml_dir=yaml_dir)
 
         return {
             "total_files": len(files),
@@ -671,7 +674,7 @@ class KnowledgeHarvester:
     ) -> str:
         """Generate harvest summary report."""
         summary = "# Knowledge Harvest Summary\n\n"
-        summary += f"**Generated:** {datetime.now(timezone.utc).isoformat()}Z\n\n"
+        summary += f"**Generated:** {datetime.now(UTC).isoformat()}Z\n\n"
         summary += f"**Total Concepts Extracted:** {len(concepts)}\n\n"
 
         # Category breakdown
@@ -734,12 +737,12 @@ def main():
     harvester = KnowledgeHarvester(root_dir=args.dir, output_dir=args.output)
     result = harvester.harvest()
 
-    print("\n✨ Harvest complete!")
-    print(f"📊 Check the summary: {result['summary_file']}")
-    print("\n🎯 Next steps:")
-    print("1. Review the HARVEST_SUMMARY.md")
-    print("2. Use the QC dashboard to approve/reject concepts")
-    print("3. Generate PLAN specs for approved concepts")
+    logger.info("\n✨ harvest complete!")
+    logger.info("📊 check the summary: {result['summary_file']}")
+    logger.info("\n🎯 next steps:")
+    logger.info("1. review the harvest_summary.md")
+    logger.info("2. use the qc dashboard to approve/reject concepts")
+    logger.info("3. generate plan specs for approved concepts")
 
 
 if __name__ == "__main__":

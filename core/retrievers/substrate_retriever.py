@@ -29,13 +29,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
 
 from core.schemas import SemanticSearchRequest, SemanticSearchResult
-from memory.substrate_service import MemorySubstrateService
+
+if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
 
 
 class SubstrateRetriever(BaseRetriever):

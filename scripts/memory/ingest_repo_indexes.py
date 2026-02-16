@@ -43,9 +43,15 @@ import json
 import sys
 from pathlib import Path
 
-# Add project root to path
+# Add project root to path BEFORE importing core modules
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+
+import structlog
+
+from core.decorators import must_stay_async
+
+logger = structlog.get_logger(__name__)
 
 INDEX_DIR = PROJECT_ROOT / "reports" / "repo-index"
 HASH_CACHE_FILE = PROJECT_ROOT / "reports" / ".index_hashes.json"
@@ -105,7 +111,7 @@ def save_hash_cache(cache: dict) -> None:
         HASH_CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
         HASH_CACHE_FILE.write_text(json.dumps(cache, indent=2))
     except Exception:
-        pass
+        logger.debug("ingest_repo_indexes.hash_cache_save_failed")
 
 
 def compute_file_hash(filepath: Path) -> str:
@@ -113,7 +119,7 @@ def compute_file_hash(filepath: Path) -> str:
     if not filepath.exists():
         return ""
     content = filepath.read_bytes()
-    return hashlib.md5(content).hexdigest()
+    return hashlib.md5(content).hexdigest()  # noqa: S324 — used for change detection checksum, not security
 
 
 def has_file_changed(filepath: Path, hash_cache: dict) -> bool:
@@ -174,6 +180,7 @@ def chunk_index_file(
     return chunks
 
 
+@must_stay_async("callers use await")
 async def ingest_index(
     filename: str,
     kind: str,
@@ -185,7 +192,7 @@ async def ingest_index(
     filepath = INDEX_DIR / filename
 
     if not filepath.exists():
-        print(f"  ⚠️  {filename} not found, skipping")
+        logger.info("  ⚠️  filename not found, skipping", filename=filename)
         return 0
 
     content = filepath.read_text()
@@ -195,10 +202,14 @@ async def ingest_index(
     summary = f"L9 Repo Index: {filename}\n{description}\nTotal entries: {total_lines}"
 
     if verbose:
-        print(f"  📄 {filename}: {total_lines} lines")
+        logger.info(
+            "  📄 filename: total lines lines",
+            filename=filename,
+            total_lines=total_lines,
+        )
 
     if dry_run:
-        print(f"  [DRY RUN] Would ingest {filename}")
+        logger.info("  [dry run] would ingest filename", filename=filename)
         return 1
 
     # Use cursor_memory_client to write
@@ -207,7 +218,7 @@ async def ingest_index(
     # Write summary packet (include tags in content since --tags not supported)
     tagged_summary = f"[REPO-INDEX:{filename.replace('.txt', '')}] {summary}"
 
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
         [
             sys.executable,
             str(PROJECT_ROOT / "agents" / "cursor" / "cursor_memory_client.py"),
@@ -222,7 +233,9 @@ async def ingest_index(
     )
 
     if result.returncode != 0:
-        print(f"  ❌ Failed to write {filename}: {result.stderr}")
+        logger.error(
+            "  ❌ failed to write filename: {result.stderr}", filename=filename
+        )
         return 0
 
     # For large files, also chunk and store key sections
@@ -234,7 +247,7 @@ async def ingest_index(
             first_chunk = chunks[0]
             chunk_content = f"[REPO-INDEX:{filename.replace('.txt', '')}:chunk-1] L9 Index {filename} (part 1/{len(chunks)}):\n{first_chunk['content'][:3500]}"
 
-            subprocess.run(
+            subprocess.run(  # noqa: S603 — trusted cmd, no shell
                 [
                     sys.executable,
                     str(PROJECT_ROOT / "agents" / "cursor" / "cursor_memory_client.py"),
@@ -251,6 +264,7 @@ async def ingest_index(
     return 1
 
 
+@must_stay_async("callers use await")
 async def main():
     parser = argparse.ArgumentParser(description="Ingest repo indexes to L9 memory")
     parser.add_argument(
@@ -267,11 +281,11 @@ async def main():
     )
     args = parser.parse_args()
 
-    print("🧠 L9 Repo Index Ingestion")
-    print("=" * 50)
+    logger.info("🧠 l9 repo index ingestion")
+    logger.info("=" * 50)
 
     if args.dry_run:
-        print("🔍 DRY RUN MODE - no changes will be made\n")
+        logger.info("🔍 dry run mode - no changes will be made\n")
 
     # Load hash cache for change detection
     hash_cache = load_hash_cache()
@@ -290,7 +304,10 @@ async def main():
             if f.name not in priority_names:
                 indexes_to_process.append((f.name, "index", f"L9 index: {f.name}"))
 
-    print(f"📁 Processing {len(indexes_to_process)} index files from {INDEX_DIR}\n")
+    logger.info(
+        "📁 processing {len(indexes to process)} index files from index dir\n",
+        INDEX_DIR=INDEX_DIR,
+    )
 
     success_count = 0
     skipped_count = 0
@@ -301,7 +318,7 @@ async def main():
         # Check if file has changed
         if not args.force and not has_file_changed(filepath, hash_cache):
             if args.verbose:
-                print(f"  ⏭️  {filename}: unchanged, skipping")
+                logger.info("  ⏭️  filename: unchanged, skipping", filename=filename)
             skipped_count += 1
             new_hash_cache[filename] = hash_cache.get(filename, "")
             continue
@@ -325,16 +342,17 @@ async def main():
     if not args.dry_run:
         save_hash_cache(new_hash_cache)
 
-    print()
-    print("=" * 50)
+    logger.info("=" * 50)
     total = len(indexes_to_process)
     print(
         f"✅ Ingested: {success_count} | Skipped (unchanged): {skipped_count} | Total: {total}"
     )
 
     if not args.dry_run:
-        print("\n📍 Indexes now available in L9 memory for semantic search")
-        print("   Use: python3 agents/cursor/cursor_memory_client.py search 'class X'")
+        logger.info("\n📍 indexes now available in l9 memory for semantic search")
+        logger.info(
+            "   use: python3 agents/cursor/cursor_memory_client.py search 'class x'"
+        )
 
 
 if __name__ == "__main__":

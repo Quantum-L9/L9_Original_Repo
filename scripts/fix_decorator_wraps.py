@@ -38,7 +38,12 @@ import ast
 import re
 from pathlib import Path
 
+import structlog
+
 # Files with violations (from test output)
+
+logger = structlog.get_logger(__name__)
+
 FILES_TO_FIX = [
     "core/singleton_auto_registry.py",
     "core/auto_registry.py",
@@ -166,7 +171,9 @@ def fix_file(filepath: Path, dry_run: bool = False) -> tuple[bool, int]:
     try:
         tree = ast.parse(content)
     except SyntaxError as e:
-        print(f"  ⚠️ Syntax error at line {e.lineno}, skipping: {filepath}")
+        logger.error(
+            "  ⚠️ syntax error at line {e.lineno}, skipping: filepath", filepath=filepath
+        )
         return False, 0
 
     analyzer = DecoratorAnalyzer()
@@ -210,7 +217,9 @@ def fix_file(filepath: Path, dry_run: bool = False) -> tuple[bool, int]:
     new_content = ensure_wraps_import(new_content)
 
     if dry_run:
-        print(f"🔍 Would fix {len(analyzer.fixes_needed)} in {filepath}")
+        logger.info(
+            "🔍 would fix {len(analyzer.fixes needed)} in filepath", filepath=filepath
+        )
         for fix in analyzer.fixes_needed:
             print(
                 f"   Line {fix['inner_line']}: {fix['outer_name']}() -> {fix['inner_name']}()"
@@ -227,10 +236,10 @@ def main():
 
     dry_run = "--dry-run" in sys.argv
 
-    print("=" * 60)
-    print("Decorator @wraps Fixer")
-    print("=" * 60)
-    print(f"Mode: {'DRY RUN' if dry_run else 'LIVE'}\n")
+    logger.info("=" * 60)
+    logger.info("decorator @wraps fixer")
+    logger.info("=" * 60)
+    logger.info("mode: {'dry run' if dry_run else 'live'}\n")
 
     repo_root = Path(__file__).parent.parent
     total_fixes = 0
@@ -239,24 +248,33 @@ def main():
     for rel_path in FILES_TO_FIX:
         filepath = repo_root / rel_path
         if not filepath.exists():
-            print(f"⚠️ Not found: {rel_path}")
+            logger.info("⚠️ not found: rel path", rel_path=rel_path)
             continue
 
         changed, count = fix_file(filepath, dry_run=dry_run)
         if changed:
             if not dry_run:
-                print(f"✅ Fixed {count} in {rel_path}")
+                logger.info(
+                    "✅ fixed count in rel path", count=count, rel_path=rel_path
+                )
             total_fixes += count
             files_fixed += 1
         else:
-            print(f"✓ No fixes needed: {rel_path}")
+            logger.info("✓ no fixes needed: rel path", rel_path=rel_path)
 
-    print("\n" + "=" * 60)
-    print(f"Summary: {total_fixes} fixes in {files_fixed} files")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info(
+        "summary: total fixes fixes in files fixed files",
+        total_fixes=total_fixes,
+        files_fixed=files_fixed,
+    )
+    logger.info("=" * 60)
 
     if dry_run:
-        print("\nRun without --dry-run to apply changes.")
+        logger.info("\nrun without --dry-run to apply changes.")
+
+    if dry_run and total_fixes > 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -13,6 +13,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Simulation Router",
@@ -41,12 +43,13 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import structlog
 
-from ir_engine.ir_schema import IRGraph
+if TYPE_CHECKING:
+    from ir_engine.ir_schema import IRGraph
 
 logger = structlog.get_logger(__name__)
 
@@ -62,7 +65,7 @@ class SimulationRequest:
     parameters: dict[str, Any] = field(default_factory=dict)
     priority: int = 5  # 1-10, higher = more priority
     timeout_ms: int = 30000
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -76,7 +79,7 @@ class SimulationResult:
     metrics: dict[str, Any] = field(default_factory=dict)
     failure_modes: list[str] = field(default_factory=list)
     execution_time_ms: int = 0
-    completed_at: datetime = field(default_factory=datetime.utcnow)
+    completed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Returns a dictionary representation of the simulation result, including identifiers, success status, score, metrics, and failure modes for further processing or logging."""
@@ -189,6 +192,7 @@ class SimulationRouter:
     # Routing
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def route(self, request: SimulationRequest) -> SimulationResult:
         """
         Route a request to the simulation engine.
@@ -289,6 +293,7 @@ class SimulationRouter:
     # Multi-Candidate Operations
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def simulate_candidates(
         self,
         candidates: list[IRGraph],

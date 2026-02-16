@@ -8,15 +8,14 @@ Tests:
 - Cache invalidation
 """
 
-import asyncio
-from datetime import datetime
-
 import pytest
 
+from core.decorators import must_stay_async
 from memory.retention_refcount import PacketRefCount, ReferenceCountingService
 
 
 @pytest.fixture
+@must_stay_async("callers use await")
 async def mock_repository():
     """Mock repository for testing."""
 
@@ -29,15 +28,18 @@ async def mock_repository():
         def acquire(self):
             return self
 
+        @must_stay_async("callers use await")
         async def __aenter__(self):
             return self
 
+        @must_stay_async("callers use await")
         async def __aexit__(self, *args):
             pass
 
+        @must_stay_async("callers use await")
         async def fetchval(self, query, *args):
             # Simulate database queries
-            if "packetstore" in query and "parent_ids" in query:
+            if "packet_store" in query and "parent_ids" in query:
                 # Lineage query
                 packet_id = args[0]
                 return sum(
@@ -46,22 +48,23 @@ async def mock_repository():
                     if packet_id in p.get("parent_ids", [])
                 )
 
-            if "semanticfacts" in query:
+            if "semantic_facts" in query:
                 # Facts query
                 packet_id = args[0]
                 return sum(
                     1
                     for f in self.facts.values()
-                    if f.get("source_packet") == packet_id
+                    if f.get("source_packet_id") == packet_id
                 )
 
-            if "agentcheckpoint" in query:
+            if "graph_checkpoints" in query:
                 # Checkpoint query
                 packet_id = args[0]
                 return sum(1 for c in self.checkpoints.values() if packet_id in str(c))
 
             return 0
 
+        @must_stay_async("callers use await")
         async def execute(self, query, *args):
             # Mock UPDATE for soft expiration
             pass
@@ -102,9 +105,9 @@ async def test_compute_refcount_with_lineage(mock_repository):
 async def test_compute_refcount_with_facts(mock_repository):
     """Test refcount computation for packet with semantic facts."""
     # Setup: Add facts
-    mock_repository.facts["fact1"] = {"source_packet": "packet_with_facts"}
-    mock_repository.facts["fact2"] = {"source_packet": "packet_with_facts"}
-    mock_repository.facts["fact3"] = {"source_packet": "packet_with_facts"}
+    mock_repository.facts["fact1"] = {"source_packet_id": "packet_with_facts"}
+    mock_repository.facts["fact2"] = {"source_packet_id": "packet_with_facts"}
+    mock_repository.facts["fact3"] = {"source_packet_id": "packet_with_facts"}
 
     service = ReferenceCountingService(mock_repository)
     refcount = await service.compute_refcount("packet_with_facts")
@@ -118,8 +121,8 @@ async def test_compute_refcount_with_facts(mock_repository):
 async def test_compute_refcount_with_checkpoints(mock_repository):
     """Test refcount computation for packet in agent checkpoints."""
     # Setup: Add checkpoints
-    mock_repository.checkpoints["cp1"] = {"graphstate": "packet_in_checkpoint"}
-    mock_repository.checkpoints["cp2"] = {"graphstate": "packet_in_checkpoint"}
+    mock_repository.checkpoints["cp1"] = {"graph_state": "packet_in_checkpoint"}
+    mock_repository.checkpoints["cp2"] = {"graph_state": "packet_in_checkpoint"}
 
     service = ReferenceCountingService(mock_repository)
     refcount = await service.compute_refcount("packet_in_checkpoint")

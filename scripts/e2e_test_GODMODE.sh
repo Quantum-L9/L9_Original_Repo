@@ -5,7 +5,7 @@
 # Version: 1.0.0
 # Created: 2026-02-02
 # Purpose: Comprehensive deployment validation for L9 on C1 VPS
-# 
+#
 # USAGE:
 #   ./godmode_e2e.sh smoke           # Quick health check (~30s)
 #   ./godmode_e2e.sh full            # Complete validation (~2-3min)
@@ -106,7 +106,7 @@ log_msg() {
     timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
     local hostname
     hostname="$(hostname -s 2>/dev/null || echo 'unknown')"
-    
+
     case "$level" in
         INFO)
             echo -e "${COLOR_CYAN}[${timestamp}]${COLOR_RESET} [${hostname}] ${COLOR_BOLD}INFO${COLOR_RESET}  | ${msg}"
@@ -145,9 +145,9 @@ record_phase_result() {
     local phase_name="$1"
     local status="$2"  # "PASS" or "FAIL"
     local details="${3:-}"
-    
+
     PHASE_COUNT=$((PHASE_COUNT + 1))
-    
+
     if [[ "$status" == "PASS" ]]; then
         PHASE_PASS=$((PHASE_PASS + 1))
         PHASE_RESULTS+=("${COLOR_GREEN}[OK]${COLOR_RESET} ${phase_name} ${details}")
@@ -172,7 +172,7 @@ check_command() {
 check_port_listening() {
     local port="$1"
     local host="${2:-127.0.0.1}"
-    
+
     # Try ss first (modern), fallback to netstat
     if check_command ss; then
         ss -lnt | grep -q "${host}:${port} " && return 0
@@ -182,7 +182,7 @@ check_port_listening() {
         # Fallback: try connecting
         timeout 2 bash -c "cat < /dev/null > /dev/tcp/${host}/${port}" 2>/dev/null && return 0
     fi
-    
+
     return 1
 }
 
@@ -202,7 +202,7 @@ get_container_state() {
 
 detect_environment() {
     info "Detecting C1 VPS environment..."
-    
+
     # Detect ENV_FILE
     if [[ -z "$ENV_FILE" ]]; then
         if [[ -f "${PROJECT_ROOT}/.env" ]]; then
@@ -215,7 +215,7 @@ detect_environment() {
             fatal "No .env file found. Set ENV_FILE or place .env in project root."
         fi
     fi
-    
+
     # Detect COMPOSE_OVERLAY
     if [[ -z "$COMPOSE_OVERLAY" ]]; then
         if [[ -f "${PROJECT_ROOT}/docker-compose.prod.yml" ]]; then
@@ -229,7 +229,7 @@ detect_environment() {
             COMPOSE_OVERLAY=""
         fi
     fi
-    
+
     debug "Compose base: ${COMPOSE_BASE}"
     debug "Compose overlay: ${COMPOSE_OVERLAY:-none}"
     debug "Env file: ${ENV_FILE}"
@@ -238,13 +238,13 @@ detect_environment() {
 
 validate_required_env_vars() {
     info "Validating required environment variables..."
-    
+
     # Source the env file
     if [[ ! -f "$ENV_FILE" ]]; then
         error "Environment file not found: ${ENV_FILE}"
         return 1
     fi
-    
+
     # Required variables (per docker-compose.yml comments)
     # MCP_API_KEY (or MCP_API_KEY_L) is MANDATORY for MCP memory operations
     local required_vars=(
@@ -254,21 +254,21 @@ validate_required_env_vars() {
         "OPENAI_API_KEY"
         "L9_EXECUTOR_API_KEY"
     )
-    
+
     # Check for MCP API key (either MCP_API_KEY_L or MCP_API_KEY)
     local mcp_key_found=false
     if [[ -n "${MCP_API_KEY_L:-}" ]] || [[ -n "${MCP_API_KEY:-}" ]]; then
         mcp_key_found=true
     fi
-    
+
     local missing_vars=()
-    
+
     # Load env file
     set -a
     # shellcheck disable=SC1090
     source "$ENV_FILE"
     set +a
-    
+
     for var in "${required_vars[@]}"; do
         if [[ -z "${!var:-}" ]]; then
             missing_vars+=("$var")
@@ -277,7 +277,7 @@ validate_required_env_vars() {
             debug "Found required env var: ${var}"
         fi
     done
-    
+
     # Check MCP API key after sourcing env file
     if [[ -z "${MCP_API_KEY_L:-}" ]] && [[ -z "${MCP_API_KEY:-}" ]]; then
         missing_vars+=("MCP_API_KEY or MCP_API_KEY_L")
@@ -285,7 +285,7 @@ validate_required_env_vars() {
     else
         debug "Found MCP API key (MCP_API_KEY_L or MCP_API_KEY)"
     fi
-    
+
     if [[ ${#missing_vars[@]} -gt 0 ]]; then
         error "Missing ${#missing_vars[@]} required environment variable(s)"
         if [[ "$FLAG_ALLOW_MISSING_ENV" != "true" ]]; then
@@ -296,7 +296,7 @@ validate_required_env_vars() {
     else
         info "All required environment variables present"
     fi
-    
+
     return 0
 }
 
@@ -308,13 +308,13 @@ run_infra_checks() {
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     info "PHASE: Infrastructure Health & Wiring"
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     local phase_failed=false
-    
+
     # Check docker compose config
     info "Validating docker compose configuration..."
     pushd "$PROJECT_ROOT" > /dev/null
-    
+
     if [[ -n "$COMPOSE_OVERLAY" ]]; then
         if ! docker compose -f "$COMPOSE_BASE" -f "$COMPOSE_OVERLAY" config > /dev/null 2>&1; then
             error "Docker compose config validation failed"
@@ -330,9 +330,9 @@ run_infra_checks() {
             debug "Docker compose config valid"
         fi
     fi
-    
+
     popd > /dev/null
-    
+
     # Check container states
     info "Checking container states..."
     local required_containers=(
@@ -345,15 +345,15 @@ run_infra_checks() {
         "${COMPOSE_PROJECT_NAME}-l9-api-1"
         "${COMPOSE_PROJECT_NAME}-l9-mcp-memory-1"
     )
-    
+
     local container_stats=()
     local running_count=0
     local total_count=${#required_containers[@]}
-    
+
     for container in "${required_containers[@]}"; do
         local state
         state="$(get_container_state "$container")"
-        
+
         if [[ "$state" == "running" ]]; then
             container_stats+=("✓ ${container}")
             running_count=$((running_count + 1))
@@ -364,9 +364,9 @@ run_infra_checks() {
             phase_failed=true
         fi
     done
-    
+
     info "Containers: ${running_count}/${total_count} running"
-    
+
     # Check port bindings
     info "Checking port bindings on 127.0.0.1..."
     local required_ports=(
@@ -379,15 +379,15 @@ run_infra_checks() {
         "3000:grafana"
         "16686:jaeger-ui"
     )
-    
+
     local port_stats=()
     local listening_count=0
     local port_total=${#required_ports[@]}
-    
+
     for port_spec in "${required_ports[@]}"; do
         local port="${port_spec%%:*}"
         local service="${port_spec##*:}"
-        
+
         if check_port_listening "$port"; then
             port_stats+=("✓ ${port} (${service})")
             listening_count=$((listening_count + 1))
@@ -398,19 +398,19 @@ run_infra_checks() {
             phase_failed=true
         fi
     done
-    
+
     info "Ports: ${listening_count}/${port_total} listening"
-    
+
     # Check container health checks
     info "Checking container health status..."
     local health_stats=()
     local healthy_count=0
     local health_total=0
-    
+
     for container in "${required_containers[@]}"; do
         local health
         health="$(get_container_health "$container")"
-        
+
         if [[ "$health" == "healthy" ]]; then
             health_stats+=("✓ ${container}")
             healthy_count=$((healthy_count + 1))
@@ -423,24 +423,24 @@ run_infra_checks() {
         else
             health_stats+=("✗ ${container} (${health})")
             error "Container unhealthy: ${container} (${health})"
-            
+
             # Print logs for debugging
             if [[ "$FLAG_VERBOSE" == "true" ]]; then
                 warn "Last 20 lines of logs for ${container}:"
                 docker logs --tail=20 "$container" 2>&1 | sed 's/^/    /'
             fi
-            
+
             health_total=$((health_total + 1))
             phase_failed=true
         fi
     done
-    
+
     if [[ $health_total -gt 0 ]]; then
         info "Health checks: ${healthy_count}/${health_total} healthy"
     else
         debug "No containers with health checks configured"
     fi
-    
+
     # Record result
     if [[ "$phase_failed" == "true" ]]; then
         record_phase_result "infra" "FAIL" "(${running_count}/${total_count} containers, ${listening_count}/${port_total} ports, ${healthy_count}/${health_total} healthy)"
@@ -459,18 +459,18 @@ run_db_checks() {
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     info "PHASE: Database Substrate Connectivity"
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     local phase_failed=false
     local db_stats=()
-    
+
     # Postgres check
     info "Testing PostgreSQL connectivity..."
     local postgres_container="${COMPOSE_PROJECT_NAME}-postgres"
-    
+
     if docker exec "$postgres_container" psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-l9}" -c 'SELECT 1;' > /dev/null 2>&1; then
         db_stats+=("✓ postgres")
         debug "PostgreSQL query successful"
-        
+
         # Check for pgvector extension
         if docker exec "$postgres_container" psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-l9}" \
             -c "SELECT extname FROM pg_extension WHERE extname = 'vector';" 2>/dev/null | grep -q vector; then
@@ -483,11 +483,11 @@ run_db_checks() {
         error "PostgreSQL query failed"
         phase_failed=true
     fi
-    
+
     # Redis check
     info "Testing Redis connectivity..."
     local redis_container="${COMPOSE_PROJECT_NAME}-redis"
-    
+
     if docker exec "$redis_container" redis-cli -a "${REDIS_PASSWORD:-changeme}" PING 2>/dev/null | grep -q PONG; then
         db_stats+=("✓ redis")
         debug "Redis PING successful"
@@ -496,13 +496,13 @@ run_db_checks() {
         error "Redis PING failed"
         phase_failed=true
     fi
-    
+
     # Neo4j check
     info "Testing Neo4j connectivity..."
     if curl -fsS "http://127.0.0.1:7474" > /dev/null 2>&1; then
         db_stats+=("✓ neo4j")
         debug "Neo4j HTTP endpoint responsive"
-        
+
         # Optional: Cypher query check (requires cypher-shell or REST API)
         # Skipping for now as it requires auth header construction
     else
@@ -510,11 +510,11 @@ run_db_checks() {
         error "Neo4j HTTP endpoint unreachable"
         phase_failed=true
     fi
-    
+
     # MCP Memory server check (if running)
     info "Testing MCP Memory server..."
     local mcp_memory_url="${MCP_MEMORY_URL:-http://127.0.0.1:9002}"
-    
+
     if response=$(curl -fsS "${mcp_memory_url}/health" 2>&1); then
         db_stats+=("✓ mcp-memory")
         debug "MCP Memory server healthy"
@@ -526,7 +526,7 @@ run_db_checks() {
         warn "MCP Memory server not available at ${mcp_memory_url}"
         # Not a failure - MCP memory is optional
     fi
-    
+
     # Summary
     local success_count=0
     for stat in "${db_stats[@]}"; do
@@ -534,9 +534,9 @@ run_db_checks() {
             success_count=$((success_count + 1))
         fi
     done
-    
+
     info "Database substrates: ${success_count}/4 responsive"
-    
+
     # Record result
     if [[ "$phase_failed" == "true" ]]; then
         record_phase_result "db" "FAIL" "(postgres/redis/neo4j/mcp-memory)"
@@ -555,14 +555,14 @@ run_app_checks() {
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     info "PHASE: L9 API + Core Endpoints"
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     local phase_failed=false
     local endpoint_stats=()
     local success_count=0
-    
+
     # Health endpoints (no auth required)
     info "Testing health endpoints..."
-    
+
     local health_endpoints=(
         "/"
         "/health"
@@ -570,18 +570,18 @@ run_app_checks() {
         "/health/neo4j"
         "/health/services"
     )
-    
+
     for endpoint in "${health_endpoints[@]}"; do
         local url="${L9_API_BASE}${endpoint}"
         debug "GET ${url}"
-        
+
         if response=$(curl -fsS "$url" 2>&1); then
             # Validate JSON response
             if echo "$response" | python3 -m json.tool > /dev/null 2>&1; then
                 endpoint_stats+=("✓ GET ${endpoint}")
                 success_count=$((success_count + 1))
                 debug "Endpoint healthy: ${endpoint}"
-                
+
                 # Parse specific fields for key endpoints
                 if [[ "$endpoint" == "/health" ]]; then
                     local status
@@ -603,14 +603,14 @@ run_app_checks() {
             phase_failed=true
         fi
     done
-    
+
     # Kernel reload (authenticated)
     info "Testing kernel reload endpoint..."
     local reload_url="${L9_API_BASE}/kernels/reload"
-    
+
     if [[ -n "${L9_EXECUTOR_API_KEY:-}" ]]; then
         debug "POST ${reload_url}"
-        
+
         if curl -fsS -X POST \
             -H "Authorization: Bearer ${L9_EXECUTOR_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -628,22 +628,22 @@ run_app_checks() {
         endpoint_stats+=("⊘ POST /kernels/reload (no L9_EXECUTOR_API_KEY)")
         warn "Skipping kernel reload check (L9_EXECUTOR_API_KEY not set)"
     fi
-    
+
     # LChat endpoint (minimal payload test)
     info "Testing lchat endpoint..."
     local chat_url="${L9_API_BASE}/lchat"
-    
+
     if [[ -n "${L9_EXECUTOR_API_KEY:-}" ]]; then
         debug "POST ${chat_url}"
-        
+
         local payload='{"message":"ping","stream":false}'
-        
+
         if response=$(curl -fsS -X POST \
             -H "Authorization: Bearer ${L9_EXECUTOR_API_KEY}" \
             -H "Content-Type: application/json" \
             -d "$payload" \
             "$chat_url" 2>&1); then
-            
+
             if echo "$response" | python3 -m json.tool > /dev/null 2>&1; then
                 endpoint_stats+=("✓ POST /lchat")
                 success_count=$((success_count + 1))
@@ -665,29 +665,29 @@ run_app_checks() {
         endpoint_stats+=("⊘ POST /lchat (no L9_EXECUTOR_API_KEY)")
         warn "Skipping lchat endpoint check (L9_EXECUTOR_API_KEY not set)"
     fi
-    
+
     # MCP Memory search endpoint (on separate port 9002)
     # MANDATORY: MCP Memory is required for L9 to function
     # Uses MCP_API_KEY (or MCP_API_KEY_L/MCP_API_KEY_C) for auth
     # Governance context (RLS) is built server-side from config
     info "Testing MCP memory search endpoint..."
     local mcp_memory_search_url="${MCP_MEMORY_URL:-http://127.0.0.1:9002}/memory/search"
-    
+
     # Determine which MCP API key to use (prefer L key, fall back to generic)
     local mcp_key="${MCP_API_KEY_L:-${MCP_API_KEY:-}}"
-    
+
     if [[ -n "${mcp_key}" ]]; then
         debug "POST ${mcp_memory_search_url}"
-        
+
         # Search payload with proper schema for PacketEnvelope v2 memory search
         local memory_payload='{"query":"system health test","top_k":3,"scopes":["developer","global"]}'
-        
+
         if response=$(curl -fsS -X POST \
             -H "Authorization: Bearer ${mcp_key}" \
             -H "Content-Type: application/json" \
             -d "$memory_payload" \
             "$mcp_memory_search_url" 2>&1); then
-            
+
             # Validate response is valid JSON with expected structure
             if echo "$response" | python3 -c "
 import sys, json
@@ -717,15 +717,15 @@ print(f'MCP memory search: {len(data[\"results\"])} results, {data.get(\"search_
         error "MCP_API_KEY not set - MANDATORY for MCP memory operations"
         phase_failed=true
     fi
-    
+
     # =========================================================================
     # INTEGRATION CHECKS: Slack, Tools, Kernels
     # =========================================================================
-    
+
     # Slack integration health (GET /slack/health or check router is mounted)
     info "Testing Slack integration..."
     local slack_health_url="${L9_API_BASE}/slack/health"
-    
+
     if response=$(curl -fsS -X GET "$slack_health_url" 2>&1); then
         endpoint_stats+=("✓ GET /slack/health")
         success_count=$((success_count + 1))
@@ -743,12 +743,12 @@ print(f'MCP memory search: {len(data[\"results\"])} results, {data.get(\"search_
             # Not a hard failure - Slack may be disabled
         fi
     fi
-    
+
     # Tool Registry validation (via /tools/health or /health/services)
     info "Testing Tool Registry..."
     local tools_health_url="${L9_API_BASE}/tools/health"
     local tools_services_url="${L9_API_BASE}/health/services"
-    
+
     # Try dedicated /tools/health endpoint first
     if response=$(curl -fsS -X GET "$tools_health_url" 2>&1); then
         if echo "$response" | python3 -c "
@@ -798,16 +798,16 @@ else:
             warn "Could not verify Tool Registry"
         fi
     fi
-    
+
     # Kernel Stack verification (check kernels loaded via /kernels or /health)
     info "Testing Kernel Stack..."
     local kernels_url="${L9_API_BASE}/kernels"
-    
+
     if [[ -n "${L9_EXECUTOR_API_KEY:-}" ]]; then
         if response=$(curl -fsS -X GET \
             -H "Authorization: Bearer ${L9_EXECUTOR_API_KEY}" \
             "$kernels_url" 2>&1); then
-            
+
             if echo "$response" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
@@ -841,11 +841,11 @@ else:
         endpoint_stats+=("⊘ Kernel Stack (no API key)")
         debug "Skipping Kernel Stack check (no L9_EXECUTOR_API_KEY)"
     fi
-    
+
     # WebSocket endpoint availability (just check if upgrade is offered)
     info "Testing WebSocket endpoint availability..."
     local ws_url="${L9_API_BASE}/ws/agent"
-    
+
     # Check if WebSocket endpoint responds (will get 426 Upgrade Required or similar)
     if response=$(curl -fsS -I -X GET "$ws_url" 2>&1) || \
        response=$(curl -sS -I -X GET "$ws_url" 2>&1 | head -5); then
@@ -863,11 +863,11 @@ else:
         endpoint_stats+=("⚠ WebSocket /ws/agent (not available)")
         warn "WebSocket endpoint not responding"
     fi
-    
+
     # Summary
     local total_endpoints=$((${#health_endpoints[@]} + 7))  # health + reload + lchat + memory + slack + tools + kernels + ws
     info "API endpoints: ${success_count}/${total_endpoints} healthy"
-    
+
     # Record result
     if [[ "$phase_failed" == "true" ]]; then
         record_phase_result "app" "FAIL" "(${success_count}/${total_endpoints} endpoints)"
@@ -886,26 +886,26 @@ run_websocket_checks() {
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     info "PHASE: WebSocket Authentication"
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     if [[ "$FLAG_SKIP_WEBSOCKET" == "true" ]]; then
         warn "Skipping WebSocket checks (--skip-websocket)"
         record_phase_result "websocket" "PASS" "(skipped)"
         return 0
     fi
-    
+
     local phase_failed=false
-    
+
     # Check if websocat is available
     if ! check_command websocat; then
         warn "websocat not found, trying Python websocket client..."
-        
+
         # Try Python approach
         if ! check_command python3; then
             error "Python3 not found, cannot test WebSocket"
             record_phase_result "websocket" "FAIL" "(no client available)"
             return $EXIT_WS_ERROR
         fi
-        
+
         # Check if websockets module available
         if ! python3 -c "import websockets" 2>/dev/null; then
             warn "Python websockets module not available"
@@ -913,16 +913,16 @@ run_websocket_checks() {
             record_phase_result "websocket" "PASS" "(skipped - no deps)"
             return 0
         fi
-        
+
         # Use Python WebSocket client
         info "Testing WebSocket auth with Python client..."
-        
+
         local ws_url="${L9_API_BASE/http/ws}/ws/agent"
-        
+
         # Test with valid token
         if [[ -n "${L9_EXECUTOR_API_KEY:-}" ]]; then
             debug "Testing valid token authentication..."
-            
+
             local py_test_valid
             py_test_valid=$(python3 - <<'PYEOF'
 import asyncio
@@ -937,10 +937,10 @@ except ImportError:
 async def test_auth():
     token = os.environ.get('L9_EXECUTOR_API_KEY')
     url = os.environ.get('WS_URL')
-    
+
     if not token or not url:
         return False
-    
+
     try:
         async with websockets.connect(f"{url}?token={token}", timeout=5) as ws:
             return True
@@ -952,9 +952,9 @@ result = asyncio.run(test_auth())
 sys.exit(0 if result else 1)
 PYEOF
             )
-            
+
             local exit_code=$?
-            
+
             if [[ $exit_code -eq 0 ]]; then
                 info "✓ WebSocket auth: valid token accepted"
             elif [[ $exit_code -eq 2 ]]; then
@@ -965,13 +965,13 @@ PYEOF
                 error "✗ WebSocket auth: valid token rejected"
                 phase_failed=true
             fi
-            
+
             # Test with invalid token
             debug "Testing invalid token rejection..."
-            
+
             export L9_EXECUTOR_API_KEY="invalid-token-12345"
             export WS_URL="$ws_url"
-            
+
             local py_test_invalid
             py_test_invalid=$(python3 - <<'PYEOF'
 import asyncio
@@ -986,10 +986,10 @@ except ImportError:
 async def test_auth():
     token = os.environ.get('L9_EXECUTOR_API_KEY')
     url = os.environ.get('WS_URL')
-    
+
     if not token or not url:
         return False
-    
+
     try:
         async with websockets.connect(f"{url}?token={token}", timeout=5) as ws:
             return True  # Should NOT succeed
@@ -1004,9 +1004,9 @@ result = asyncio.run(test_auth())
 sys.exit(0 if not result else 1)  # Inverted: success = rejection
 PYEOF
             )
-            
+
             exit_code=$?
-            
+
             if [[ $exit_code -eq 0 ]]; then
                 info "✓ WebSocket auth: invalid token rejected (as expected)"
             else
@@ -1022,7 +1022,7 @@ PYEOF
         warn "websocat-based tests not yet implemented"
         # TODO: Implement websocat-based tests
     fi
-    
+
     # Record result
     if [[ "$phase_failed" == "true" ]]; then
         record_phase_result "websocket" "FAIL" "(auth validation failed)"
@@ -1041,18 +1041,18 @@ run_observability_checks() {
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     info "PHASE: Observability Stack (Prometheus/Grafana/Jaeger)"
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     local phase_failed=false
     local obs_stats=()
     local success_count=0
-    
+
     # Prometheus health
     info "Testing Prometheus..."
     if curl -fsS "http://127.0.0.1:9090/-/healthy" > /dev/null 2>&1; then
         obs_stats+=("✓ prometheus")
         success_count=$((success_count + 1))
         debug "Prometheus healthy"
-        
+
         # Optional: query status
         if response=$(curl -fsS "http://127.0.0.1:9090/api/v1/status/runtimeinfo" 2>&1); then
             if echo "$response" | python3 -m json.tool > /dev/null 2>&1; then
@@ -1064,7 +1064,7 @@ run_observability_checks() {
         error "Prometheus health check failed"
         phase_failed=true
     fi
-    
+
     # Grafana health
     info "Testing Grafana..."
     if response=$(curl -fsS "http://127.0.0.1:3000/api/health" 2>&1); then
@@ -1072,7 +1072,7 @@ run_observability_checks() {
             obs_stats+=("✓ grafana")
             success_count=$((success_count + 1))
             debug "Grafana healthy"
-            
+
             # Check database status in response
             local db_status
             db_status=$(echo "$response" | python3 -c "import sys, json; print(json.load(sys.stdin).get('database', 'unknown'))" 2>/dev/null || echo "unknown")
@@ -1088,7 +1088,7 @@ run_observability_checks() {
         error "Grafana health check failed"
         phase_failed=true
     fi
-    
+
     # Jaeger UI
     info "Testing Jaeger..."
     if curl -fsS "http://127.0.0.1:16686" 2>&1 | grep -q "Jaeger UI"; then
@@ -1100,18 +1100,18 @@ run_observability_checks() {
         error "Jaeger UI not accessible"
         phase_failed=true
     fi
-    
+
     # L9 metrics endpoint
     info "Testing L9 metrics endpoint..."
     local metrics_url="${L9_API_BASE}/metrics"
-    
+
     if response=$(curl -fsSL "$metrics_url" 2>&1); then
         # Check for Prometheus format (contains # TYPE or metric names)
         if echo "$response" | grep -qE '(# TYPE|# HELP|^[a-z_]+{)'; then
             obs_stats+=("✓ l9-metrics")
             success_count=$((success_count + 1))
             debug "L9 metrics endpoint responsive"
-            
+
             # Check for L9-specific metrics
             if echo "$response" | grep -q "l9_"; then
                 debug "L9-specific metrics found"
@@ -1126,10 +1126,10 @@ run_observability_checks() {
         obs_stats+=("⊘ l9-metrics (not available)")
         warn "L9 metrics endpoint not available (may not be enabled)"
     fi
-    
+
     # Summary
     info "Observability: ${success_count}/4 components healthy"
-    
+
     # Record result
     if [[ "$phase_failed" == "true" ]]; then
         record_phase_result "observability" "FAIL" "(prometheus/grafana/jaeger/metrics)"
@@ -1147,9 +1147,9 @@ run_observability_checks() {
 run_smoke_test() {
     info "Running SMOKE TEST (quick health check)..."
     info ""
-    
+
     local overall_failed=false
-    
+
     # Infra
     if ! run_infra_checks; then
         overall_failed=true
@@ -1157,9 +1157,9 @@ run_smoke_test() {
             return $EXIT_INFRA_ERROR
         fi
     fi
-    
+
     info ""
-    
+
     # DB
     if ! run_db_checks; then
         overall_failed=true
@@ -1167,9 +1167,9 @@ run_smoke_test() {
             return $EXIT_DB_ERROR
         fi
     fi
-    
+
     info ""
-    
+
     # App (minimal)
     if ! run_app_checks; then
         overall_failed=true
@@ -1177,20 +1177,20 @@ run_smoke_test() {
             return $EXIT_APP_ERROR
         fi
     fi
-    
+
     if [[ "$overall_failed" == "true" ]]; then
         return 1
     fi
-    
+
     return 0
 }
 
 run_full_test() {
     info "Running FULL E2E TEST (all checks)..."
     info ""
-    
+
     local overall_failed=false
-    
+
     # Infra
     if ! run_infra_checks; then
         overall_failed=true
@@ -1198,9 +1198,9 @@ run_full_test() {
             return $EXIT_INFRA_ERROR
         fi
     fi
-    
+
     info ""
-    
+
     # DB
     if ! run_db_checks; then
         overall_failed=true
@@ -1208,9 +1208,9 @@ run_full_test() {
             return $EXIT_DB_ERROR
         fi
     fi
-    
+
     info ""
-    
+
     # App
     if ! run_app_checks; then
         overall_failed=true
@@ -1218,9 +1218,9 @@ run_full_test() {
             return $EXIT_APP_ERROR
         fi
     fi
-    
+
     info ""
-    
+
     # WebSocket
     if ! run_websocket_checks; then
         overall_failed=true
@@ -1228,9 +1228,9 @@ run_full_test() {
             return $EXIT_WS_ERROR
         fi
     fi
-    
+
     info ""
-    
+
     # Observability
     if ! run_observability_checks; then
         overall_failed=true
@@ -1238,11 +1238,11 @@ run_full_test() {
             return $EXIT_OBS_ERROR
         fi
     fi
-    
+
     if [[ "$overall_failed" == "true" ]]; then
         return 1
     fi
-    
+
     return 0
 }
 
@@ -1252,26 +1252,26 @@ run_full_test() {
 
 print_summary() {
     local exit_code="$1"
-    
+
     info ""
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     info "L9 C1 GODMODE E2E SUMMARY"
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     for result in "${PHASE_RESULTS[@]}"; do
         echo -e "$result"
     done
-    
+
     info ""
     info "Phases: ${PHASE_COUNT} total, ${PHASE_PASS} passed, ${PHASE_FAIL} failed"
     info ""
-    
+
     if [[ $exit_code -eq 0 ]]; then
         echo -e "${COLOR_GREEN}${COLOR_BOLD}Overall: PASS${COLOR_RESET}"
     else
         echo -e "${COLOR_RED}${COLOR_BOLD}Overall: FAIL${COLOR_RESET}"
     fi
-    
+
     info ""
     info "Exit code: ${exit_code}"
     info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -1284,7 +1284,7 @@ print_summary() {
 parse_args() {
     local command="${1:-}"
     shift || true
-    
+
     # Parse flags
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -1328,7 +1328,7 @@ parse_args() {
                 ;;
         esac
     done
-    
+
     # Dispatch command
     case "$command" in
         smoke)
@@ -1461,7 +1461,7 @@ main() {
     info "Host: $(hostname)"
     info "Date: $(date)"
     info ""
-    
+
     parse_args "$@"
 }
 

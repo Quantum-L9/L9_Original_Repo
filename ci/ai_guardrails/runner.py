@@ -47,10 +47,9 @@ import argparse
 import json
 import re
 import sys
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 import yaml
@@ -61,6 +60,9 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from api.llm import MODEL, get_client
 from config.ai_eval_settings import get_ai_eval_settings
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

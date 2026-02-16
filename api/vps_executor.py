@@ -24,10 +24,11 @@ import subprocess
 from typing import Literal
 
 import httpx
-import requests
 import uvicorn
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
+
+from core.decorators import must_stay_async
 
 # Load from environment (required for server mode, optional for client imports)
 EXECUTOR_KEY = os.getenv("L9_EXECUTOR_API_KEY", "")
@@ -163,7 +164,7 @@ def run_shell(command: str, cwd: str = "/opt/l9") -> dict:
 
         # Use shlex.split for safer command parsing (prevents shell injection)
         cmd_args = shlex.split(command)
-        completed = subprocess.run(
+        completed = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd_args,
             shell=False,
             cwd=cwd,
@@ -200,7 +201,7 @@ def memory_health() -> dict:
         HTTPException: 502 if the memory health call fails.
     """
     try:
-        resp = requests.get(
+        resp = httpx.get(
             MEMORY_HEALTH_URL,
             headers={"Authorization": f"Bearer {EXECUTOR_KEY}"},
             timeout=10,
@@ -264,6 +265,7 @@ def agent_exec(task: CompositeTask, authorization: str = Header(...)) -> dict:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def send_mac_task(command: str, timeout: int = 30) -> dict:
     """
     Send a task to the VPS executor service.

@@ -40,7 +40,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from collections import deque
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -245,7 +245,7 @@ def audit_log(
         metadata: Optional additional metadata
     """
     entry = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "agent_id": agent_id,
         "action": action,
         "success": success,

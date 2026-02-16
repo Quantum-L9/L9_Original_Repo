@@ -34,7 +34,7 @@ __dora_meta__ = {
 
 import json
 from collections.abc import Awaitable, Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -99,6 +99,7 @@ class AuditLogger:
             )
         )
 
+    @must_stay_async("callers use await")
     async def log(
         self,
         tool_name: str,
@@ -130,7 +131,7 @@ class AuditLogger:
             RuntimeError: If audit cannot be recorded to either DB or fallback file
         """
         event = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "tool_name": tool_name,
             "agent_id": agent_id,
             "caller_id": caller_id,

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -108,7 +108,7 @@ class PacketEnvelopeIn:
 
 ```
 
-**Lines:** 74-91 in `memory_client.py`
+**Lines:** 78-95 in `memory_client.py`
 
 ### `memory_client.py` — PacketWriteResult
 
@@ -120,7 +120,7 @@ class PacketWriteResult:
 
 ```
 
-**Lines:** 94-108 in `memory_client.py`
+**Lines:** 98-112 in `memory_client.py`
 
 ### `memory_client.py` — SemanticSearchRequest
 
@@ -132,7 +132,7 @@ class SemanticSearchRequest:
 
 ```
 
-**Lines:** 111-120 in `memory_client.py`
+**Lines:** 115-124 in `memory_client.py`
 
 ### `memory_client.py` — SemanticHit
 
@@ -144,7 +144,7 @@ class SemanticHit:
 
 ```
 
-**Lines:** 123-128 in `memory_client.py`
+**Lines:** 127-132 in `memory_client.py`
 
 ### `memory_client.py` — SemanticSearchResult
 
@@ -156,7 +156,7 @@ class SemanticSearchResult:
 
 ```
 
-**Lines:** 131-135 in `memory_client.py`
+**Lines:** 135-139 in `memory_client.py`
 
 
 ---
@@ -176,11 +176,11 @@ The following data models define the contracts for this subsystem:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `VPS_MEMORY_URL` | `'http://l9-memory-api:8080'` | 61 |
-| `DOCKER_FALLBACK_URL` | `'http://l9-api:8000'` | 62 |
-| `DEFAULT_BASE_URL` | `VPS_MEMORY_URL` | 64 |
-| `DEFAULT_TIMEOUT` | `30.0` | 65 |
-| `FALLBACK_ENABLED` | `True` | 66 |
+| `VPS_MEMORY_URL` | `'http://l9-memory-api:8080'` | 65 |
+| `DOCKER_FALLBACK_URL` | `'http://l9-api:8000'` | 66 |
+| `DEFAULT_BASE_URL` | `VPS_MEMORY_URL` | 68 |
+| `DEFAULT_TIMEOUT` | `30.0` | 69 |
+| `FALLBACK_ENABLED` | `True` | 70 |
 | `DEFAULT_BASE_URL` | `'http://l9-api:8000'` | 75 |
 | `DEFAULT_TIMEOUT` | `30.0` | 76 |
 
@@ -189,7 +189,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class ClientsRequest(BaseModel):
     """Request model for clients operations."""
@@ -281,7 +281,7 @@ CLIENTS_ENABLED=true
 
 Get or create singleton MemoryClient instance.
 
-- **File:** `memory_client.py:628`
+- **File:** `memory_client.py:636`
 - **Async:** No
 - **Returns:** `MemoryClient`
 
@@ -289,7 +289,7 @@ Get or create singleton MemoryClient instance.
 
 Close the singleton memory client.
 
-- **File:** `memory_client.py:641`
+- **File:** `memory_client.py:649`
 - **Async:** Yes
 - **Returns:** `None`
 
@@ -339,7 +339,7 @@ Clients operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "clients",
   "message": "Operation completed",

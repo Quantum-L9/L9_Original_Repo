@@ -26,15 +26,18 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import logging  # noqa: ADR-0019 — stdlib logging used alongside structlog for basicConfig
 import os
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
 import structlog
+
+from core.decorators import must_stay_async
 
 try:  # pragma: no cover - import guard
     import aiohttp  # type: ignore
@@ -46,6 +49,7 @@ except ModuleNotFoundError:  # pragma: no cover - handled explicitly
     class _StubClientSession:  # pragma: no cover - runtime fallback
         """Runtime stub mimicking aiohttp.ClientSession"""
 
+        @must_stay_async("callers use await")
         async def __aenter__(self):
             """
             Performs asynchronous context management for the _StubClientSession, enabling resource handling in cloud API interactions.
@@ -74,6 +78,7 @@ except ModuleNotFoundError:  # pragma: no cover - handled explicitly
             """
             await self.close()
 
+        @must_stay_async("callers use await")
         async def close(self) -> None:
             """
             Performs cleanup of the stub client session without closing resources.
@@ -204,7 +209,9 @@ class ToThConfig:
         environment variables when not explicitly configured.
         """
         if self.api_key is None:
-            self.api_key = os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY")
+            self.api_key = os.getenv("OPENAI_API_KEY", "") or os.getenv(
+                "ANTHROPIC_API_KEY", ""
+            )
 
 
 @dataclass
@@ -241,7 +248,7 @@ class ReasoningStep:
         if self.evidence is None:  # nosemgrep: l9-singleton-requires-lock
             self.evidence = []
         if self.timestamp is None:  # nosemgrep: l9-singleton-requires-lock
-            self.timestamp = datetime.now()
+            self.timestamp = datetime.now(UTC)
 
 
 @dataclass
@@ -380,6 +387,7 @@ class CloudModelClient:
         self.session: aiohttp.ClientSession | None = None
         self.cache: dict[str, Any] = {}
 
+    @must_stay_async("callers use await")
     async def __aenter__(self) -> "CloudModelClient":
         """Enter async context and initialize HTTP session if needed.
 
@@ -412,6 +420,7 @@ class CloudModelClient:
         if self.session:
             await self.session.close()
 
+    @must_stay_async("callers use await")
     async def generate_response(
         self, prompt: str, reasoning_mode: ReasoningMode
     ) -> str:
@@ -493,6 +502,7 @@ class CloudModelClient:
             ModelProvider.ANTHROPIC,
         }
 
+    @must_stay_async("callers use await")
     async def _call_openai(self, prompt: str, reasoning_mode: ReasoningMode) -> str:
         """Call OpenAI API"""
         if not self.config.api_key:
@@ -533,6 +543,7 @@ class CloudModelClient:
             error_text = await response.text()
             raise Exception(f"OpenAI API error {response.status}: {error_text}")
 
+    @must_stay_async("callers use await")
     async def _call_anthropic(self, prompt: str, reasoning_mode: ReasoningMode) -> str:
         """Call Anthropic Claude API"""
         if not self.config.api_key:
@@ -955,6 +966,7 @@ class ProductionToThEngine:
         """Get recent reasoning history"""
         return self.reasoning_history[-limit:]
 
+    @must_stay_async("callers use await")
     async def validate_reasoning(self, result: ReasoningResult) -> dict[str, Any]:
         """Validate reasoning result quality"""
         validation = {
@@ -1044,6 +1056,7 @@ class L9ToThIntegration:
             "recommended_actions": self._extract_recommendations(result),
         }
 
+    @must_stay_async("callers use await")
     async def enhance_decision_making(
         self, decision_context: str, options: list[str]
     ) -> dict[str, Any]:
@@ -1158,6 +1171,7 @@ class L9ToThIntegration:
 
 
 # CLI Interface
+@must_stay_async("callers use await")
 async def main():
     """CLI interface for production ToTh engine"""
     import argparse
@@ -1188,18 +1202,29 @@ async def main():
     try:
         result = await engine.reason(args.query, ReasoningMode(args.mode))
 
-        print(f"Query: {result.query}")  # noqa: ADR-0019
-        print(f"Mode: {result.reasoning_mode.value}")  # noqa: ADR-0019
-        print(f"Conclusion: {result.final_conclusion}")  # noqa: ADR-0019
-        print(f"Confidence: {result.overall_confidence:.3f}")  # noqa: ADR-0019
-        print(f"Execution Time: {result.execution_time:.2f}s")  # noqa: ADR-0019
-        print(f"Steps: {len(result.steps)}")  # noqa: ADR-0019
-
+        logger.info(
+            "toth_query_result",
+            query=result.query,
+            mode=result.reasoning_mode.value,
+            conclusion=result.final_conclusion,
+            confidence=f"{result.overall_confidence:.3f}",
+            execution_time=f"{result.execution_time:.2f}s",
+            steps=len(result.steps),
+        )
         for i, step in enumerate(result.steps, 1):
-            print(f"  Step {i}: {step.conclusion}")  # noqa: ADR-0019
+            logger.debug(f"step_{i}", conclusion=step.conclusion)
+        # print(f"Query: {result.query}")  # noqa: ADR-0019
+        # print(f"Mode: {result.reasoning_mode.value}")  # noqa: ADR-0019
+        # print(f"Conclusion: {result.final_conclusion}")  # noqa: ADR-0019
+        # print(f"Confidence: {result.overall_confidence:.3f}")  # noqa: ADR-0019
+        # print(f"Execution Time: {result.execution_time:.2f}s")  # noqa: ADR-0019
+        # print(f"Steps: {len(result.steps)}")  # noqa: ADR-0019
+        # for i, step in enumerate(result.steps, 1):
+        #     print(f"  Step {i}: {step.conclusion}")  # noqa: ADR-0019
 
     except Exception as e:
-        print(f"Error: {e}")  # noqa: ADR-0019
+        logger.error("toth_query_failed", error=str(e))
+        # print(f"Error: {e}")  # noqa: ADR-0019
         return 1
 
     return 0

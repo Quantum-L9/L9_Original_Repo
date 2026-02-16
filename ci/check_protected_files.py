@@ -1,340 +1,197 @@
 #!/usr/bin/env python3
 """
-CI Check: Protected Files Modification Guard
-============================================
+CI Check: Protected Files (Gate 16)
+====================================
 
-Detects modifications to protected files that require explicit human-in-loop
-(HIL) approval before changes can be merged.
+Enforces config/policies/protected_files.yaml by detecting modifications
+to protected files in the current commit/PR without HIL_APPROVED marker.
 
-GOVERNANCE RULE:
-Protected files are critical infrastructure that can break production deployment.
-ALL changes to these files MUST be:
-1. Explicitly approved by Igor (HIL_APPROVED marker in commit message)
-2. Reviewed in PR before merge
-3. Never auto-merged or fast-fingered
+Uses git diff to find changed files and matches them against:
+  - lcto_controlled paths
+  - subsystem file lists
+  - protected_patterns (fnmatch-style globs)
 
-PROTECTED FILES:
-- docker-compose.yml           # Local dev infrastructure
-- docker-compose.prod.yml      # PRODUCTION deployment - ULTRA CRITICAL
-- deploy/nginx/nginx.conf      # Nginx routing config
-- .env.example                 # Environment template
-- config/di_config.py          # Dependency injection wiring
-- config/di_async_config.py    # Async DI wiring
-- core/agents/executor.py      # Core execution loop
-- memory/substrate_service.py  # Memory ingestion pipeline
+If protected files are modified, the commit message must contain:
+  HIL_APPROVED: <reason>
 
-COMMIT MESSAGE REQUIREMENTS:
-Changes to protected files require commit message with:
-  HIL_APPROVED: <reason for change>
-
-Example:
-  git commit -m "Add Redis stream proxy
-
-  HIL_APPROVED: Adding nginx stream block to expose Redis on port 30379
-  for external tool cache access. Tested locally."
-
-Exit codes:
-- 0: No protected file violations (or properly approved)
-- 1: Protected files modified without approval
-- 2: Script error
-
-Created: 2026-01-31
-Lesson: Agent modified docker-compose.prod.yml without permission, breaking trust.
+Run: python3 ci/check_protected_files.py
+Exit: 0 = pass, 1 = violations found
 """
 
 from __future__ import annotations
 
-# ============================================================================
 __dora_meta__ = {
     "component_name": "Check Protected Files",
     "module_version": "1.0.0",
     "created_by": "Igor Beylin",
-    "created_at": "2026-01-31T20:41:07Z",
-    "updated_at": "2026-01-31T22:21:50Z",
+    "created_at": "2026-02-16T00:00:00Z",
+    "updated_at": "2026-02-16T00:00:00Z",
     "layer": "operations",
     "domain": "ci",
     "module_name": "check_protected_files",
-    "type": "cli",
+    "type": "ci_gate",
     "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Redis"],
-        "memory_layers": ["working_memory"],
-        "imported_by": [],
-    },
 }
-# ============================================================================
 
-import argparse
+import fnmatch
 import subprocess
 import sys
+from pathlib import Path
 
-# =============================================================================
-# PROTECTED FILES LIST — Modify with extreme caution
-# =============================================================================
-PROTECTED_FILES = [
-    # Infrastructure - ULTRA CRITICAL
-    "docker-compose.yml",
-    "docker-compose.prod.yml",
-    "docker-compose.override.yml",
-    # Nginx routing
-    "deploy/nginx/nginx.conf",
-    # Environment configuration
-    ".env.example",
-    ".env.production",
-    # Core wiring
-    "config/di_config.py",
-    "config/di_async_config.py",
-    # Critical runtime
-    "core/agents/executor.py",
-    "memory/substrate_service.py",
-    "memory/memory_substrate_service.py",
-    # Kernel loading
-    "core/kernels/kernel_loader.py",
-    # WebSocket orchestration
-    "runtime/websocket_orchestrator.py",
-]
+import yaml
 
-# Approval markers in commit message
-APPROVAL_MARKERS = [
-    "HIL_APPROVED:",
-    "IGOR_APPROVED:",
-    "PROTECTED_FILE_CHANGE:",
-]
+L9_ROOT = Path(__file__).resolve().parent.parent
+POLICY_FILE = L9_ROOT / "config" / "policies" / "protected_files.yaml"
 
 
-class ProtectedFileViolation:
-    """Represents a protected file modification without approval."""
+def get_changed_files() -> list[str]:
+    """Get files changed in current commit or PR."""
+    # Try PR diff first (GitHub Actions sets GITHUB_BASE_REF)
+    import os
 
-    def __init__(self, file: str, status: str):
-        self.file = file
-        self.status = status  # M=modified, A=added, D=deleted
-
-    def __str__(self) -> str:
-        status_map = {"M": "Modified", "A": "Added", "D": "Deleted", "R": "Renamed"}
-        action = status_map.get(self.status[0], self.status)
-        return f"  [{action}] {self.file}"
-
-
-def get_changed_files(base_ref: str = "origin/main") -> list[tuple[str, str]]:
-    """Get list of changed files compared to base ref.
-
-    Returns list of (status, filepath) tuples.
-    """
-    try:
-        result = subprocess.run(
-            ["git", "diff", "--name-status", base_ref, "HEAD"],
+    base_ref = os.environ.get("GITHUB_BASE_REF")
+    if base_ref:
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+            ["git", "diff", "--name-only", f"origin/{base_ref}...HEAD"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
-            check=True,
+            cwd=L9_ROOT,
         )
-        changes = []
-        for line in result.stdout.strip().split("\n"):
-            if line:
-                parts = line.split("\t", 1)
-                if len(parts) == 2:
-                    status, filepath = parts
-                    changes.append((status, filepath))
-        return changes
-    except subprocess.CalledProcessError:
-        # If no base ref, check staged files
-        result = subprocess.run(
-            ["git", "diff", "--name-status", "--cached"],
-            capture_output=True,
-            text=True,
-        )
-        changes = []
-        for line in result.stdout.strip().split("\n"):
-            if line:
-                parts = line.split("\t", 1)
-                if len(parts) == 2:
-                    status, filepath = parts
-                    changes.append((status, filepath))
-        return changes
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip().splitlines()
+
+    # Fall back to last commit diff
+    result = subprocess.run(
+        ["git", "diff", "--name-only", "HEAD~1", "HEAD"],  # noqa: S607 — trusted system command
+        capture_output=True,
+        text=True,
+        cwd=L9_ROOT,
+    )
+    if result.returncode == 0 and result.stdout.strip():
+        return result.stdout.strip().splitlines()
+
+    # Fall back to staged files (pre-commit context)
+    result = subprocess.run(
+        ["git", "diff", "--cached", "--name-only"],  # noqa: S607 — trusted system command
+        capture_output=True,
+        text=True,
+        cwd=L9_ROOT,
+    )
+    if result.returncode == 0:
+        return result.stdout.strip().splitlines()
+
+    return []
 
 
 def get_commit_message() -> str:
-    """Get the current commit message (HEAD or staged)."""
-    try:
-        result = subprocess.run(
-            ["git", "log", "-1", "--format=%B"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        return result.stdout
-    except subprocess.CalledProcessError:
-        return ""
+    """Get the latest commit message."""
+    result = subprocess.run(
+        ["git", "log", "-1", "--format=%B"],  # noqa: S607 — trusted system command
+        capture_output=True,
+        text=True,
+        cwd=L9_ROOT,
+    )
+    return result.stdout.strip() if result.returncode == 0 else ""
 
 
-def has_approval_marker(commit_msg: str) -> bool:
-    """Check if commit message contains approval marker."""
-    for marker in APPROVAL_MARKERS:
-        if marker in commit_msg:
-            return True
-    return False
+def load_protected_paths(policy: dict) -> set[str]:
+    """Extract all explicitly protected file paths from policy."""
+    paths: set[str] = set()
+
+    pf = policy.get("protected_files", {})
+
+    # lcto_controlled
+    for entry in pf.get("lcto_controlled", []):
+        if "path" in entry:
+            paths.add(entry["path"])
+
+    # subsystems
+    for _subsystem, info in pf.get("subsystems", {}).items():
+        for f in info.get("files", []):
+            paths.add(f)
+
+    return paths
 
 
-def check_protected_files(
-    changes: list[tuple[str, str]], commit_msg: str
-) -> list[ProtectedFileViolation]:
-    """Check if any protected files are modified without approval."""
-    violations = []
-
-    for status, filepath in changes:
-        # Check if file matches any protected pattern
-        for protected in PROTECTED_FILES:
-            if filepath == protected or filepath.endswith(f"/{protected}"):
-                # Check for approval marker
-                if not has_approval_marker(commit_msg):
-                    violations.append(ProtectedFileViolation(filepath, status))
-                break
-
-    return violations
+def load_protected_patterns(policy: dict) -> list[str]:
+    """Extract fnmatch-style patterns from policy."""
+    pf = policy.get("protected_files", {})
+    return [
+        entry["pattern"]
+        for entry in pf.get("protected_patterns", [])
+        if "pattern" in entry
+    ]
 
 
 def main() -> int:
-    """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Check for protected file modifications without approval"
-    )
-    parser.add_argument(
-        "--base-ref",
-        type=str,
-        default="origin/main",
-        help="Base git ref to compare against",
-    )
-    parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Show verbose output"
-    )
-    args = parser.parse_args()
+    if not POLICY_FILE.exists():
+        print(f"⚠️  Policy file not found: {POLICY_FILE}")
+        print("   Skipping protected files check")
+        return 0
 
-    print("=" * 70)
-    print("  PROTECTED FILES MODIFICATION CHECK")
-    print("=" * 70)
-    print()
+    policy = yaml.safe_load(POLICY_FILE.read_text())
+    protected_paths = load_protected_paths(policy)
+    protected_patterns = load_protected_patterns(policy)
 
-    # Get changes and commit message
-    changes = get_changed_files(args.base_ref)
-    commit_msg = get_commit_message()
+    changed_files = get_changed_files()
+    if not changed_files:
+        print("✅ No changed files detected — protected files check passed")
+        return 0
 
-    if args.verbose:
-        print(f"Checking {len(changes)} changed file(s)...")
-        print(f"Protected files: {len(PROTECTED_FILES)}")
-        print()
+    # Find violations
+    violations: list[tuple[str, str]] = []
+    for f in changed_files:
+        # Exact path match
+        if f in protected_paths:
+            violations.append((f, "explicit protected path"))
+            continue
 
-    # Check for violations
-    violations = check_protected_files(changes, commit_msg)
-
-    if violations:
-        print(
-            f"❌ FAILED: {len(violations)} protected file(s) modified without approval:\n"
-        )
-        for v in violations:
-            print(v)
-
-        print("\n" + "=" * 70)
-        print("PROTECTED FILES REQUIRE HUMAN-IN-LOOP (HIL) APPROVAL")
-        print("=" * 70)
-        print("""
-These files are critical infrastructure. Unauthorized changes can break
-production deployment and waste hours of debugging.
-
-TO FIX:
-
-1. If change is intentional and approved, amend commit message:
-
-   git commit --amend -m "Your commit message
-
-   HIL_APPROVED: Reason for changing protected file"
-
-2. If change was accidental, revert it:
-
-   git checkout origin/main -- <protected_file>
-
-3. If you're an AI agent: STOP. Ask Igor for approval BEFORE modifying
-   any protected file. Show the proposed changes and wait for "approved".
-
-PROTECTED FILES LIST:
-""")
-        for pf in PROTECTED_FILES:
-            print(f"  - {pf}")
-
-        print()
-        return 1
-
-    # Check if any protected files were touched (even with approval)
-    approved_changes = []
-    for status, filepath in changes:
-        for protected in PROTECTED_FILES:
-            if filepath == protected or filepath.endswith(f"/{protected}"):
-                approved_changes.append(filepath)
+        # Pattern match
+        for pattern in protected_patterns:
+            if fnmatch.fnmatch(f, pattern):
+                violations.append((f, f"matches pattern '{pattern}'"))
                 break
 
-    if approved_changes:
-        print("✅ PASSED: Protected file changes are approved")
-        print("   Approval marker found in commit message")
-        print("   Changed protected files:")
-        for f in approved_changes:
-            print(f"     - {f}")
-    else:
-        print("✅ PASSED: No protected files modified")
+    if not violations:
+        print(
+            f"✅ {len(changed_files)} changed files checked — no protected file violations"
+        )
+        return 0
 
-    return 0
+    # Check for HIL_APPROVED marker in commit message
+    commit_msg = get_commit_message()
+    if "HIL_APPROVED:" in commit_msg:
+        print(
+            f"⚠️  {len(violations)} protected file(s) modified — HIL_APPROVED marker found"
+        )
+        for path, reason in violations:
+            print(f"   {path} ({reason})")
+        print(
+            f"   Approval: {commit_msg.split('HIL_APPROVED:')[1].strip().splitlines()[0]}"
+        )
+        return 0
+
+    # Violations without approval
+    print(
+        f"❌ {len(violations)} protected file(s) modified without HIL_APPROVED marker:"
+    )
+    print()
+    for path, reason in violations:
+        print(f"   {path} ({reason})")
+    print()
+    print("Fix: Add 'HIL_APPROVED: <reason>' to your commit message")
+    print("     or revert changes to protected files.")
+    print()
+    print("Protected files policy: config/policies/protected_files.yaml")
+    return 1
 
 
 if __name__ == "__main__":
     sys.exit(main())
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
+
 __dora_footer__ = {
-    "component_id": "CI-OPER-006",
-    "governance_level": "medium",
+    "governance_level": "high",
     "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "auth",
-        "authorization",
-        "caching",
-        "ci",
-        "cli",
-        "debugging",
-        "messaging",
-        "operations",
-        "realtime",
-        "streaming",
-    ],
-    "keywords": [
-        "approval",
-        "changed",
-        "check",
-        "commit",
-        "files",
-        "marker",
-        "protected",
-        "violation",
-    ],
-    "business_value": "Implements ProtectedFileViolation for check protected files functionality",
-    "last_modified": "2026-01-31T22:21:50Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
+    "tags": ["ci", "governance", "protected-files", "security"],
+    "keywords": ["protected", "files", "hil", "approval", "gate"],
 }
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

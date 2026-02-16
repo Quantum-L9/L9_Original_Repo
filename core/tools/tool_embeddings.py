@@ -114,9 +114,11 @@ async def _get_db_pool(repository: SubstrateRepository | None = None):
             return repository._pool
 
         # Fall back to singleton access
-        from memory.substrate_repository import get_repository
+        # Use runtime import to avoid circular dependency
+        import importlib
 
-        repo = get_repository()
+        module = importlib.import_module("memory.substrate_repository")
+        repo = module.get_repository()
 
         if repo._pool is None:
             await repo.connect()
@@ -156,6 +158,7 @@ async def embed_tool_description(description: str) -> list[float] | None:
         raise
 
 
+@must_stay_async("callers use await")
 async def store_tool_embedding(
     tool_name: str,
     description: str,
@@ -214,6 +217,7 @@ async def store_tool_embedding(
         raise
 
 
+@must_stay_async("callers use await")
 async def find_relevant_tools(
     query: str,
     top_k: int = 5,
@@ -263,7 +267,7 @@ async def find_relevant_tools(
                 {exclude_clause}
                 ORDER BY embedding <=> $1
                 LIMIT $2
-                """,
+                """,  # noqa: S608 — exclude_clause is internal SQL, user values parameterized
                 *params,
             )
 
@@ -290,6 +294,7 @@ async def find_relevant_tools(
         raise
 
 
+@must_stay_async("callers use await")
 async def find_tools_keyword(
     query: str,
     top_k: int = 10,
@@ -358,6 +363,7 @@ async def find_tools_keyword(
         return []  # Graceful fallback
 
 
+@must_stay_async("callers use await")
 async def find_tools_hybrid(
     query: str,
     top_k: int = 5,
@@ -439,6 +445,7 @@ async def find_tools_hybrid(
     return results
 
 
+@must_stay_async("callers use await")
 async def sync_all_tool_embeddings(
     repository: SubstrateRepository | None = None,
 ) -> int:
@@ -455,7 +462,12 @@ async def sync_all_tool_embeddings(
         Number of tools synced
     """
     try:
-        from core.tools.tool_graph import L9_TOOLS, L_INTERNAL_TOOLS
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        L9_TOOLS = module.L9_TOOLS
+        L_INTERNAL_TOOLS = module.L_INTERNAL_TOOLS
 
         all_tools = L_INTERNAL_TOOLS + L9_TOOLS
         count = 0

@@ -48,16 +48,16 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime, timezone
-from typing import Any, TypedDict
+import os
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, TypedDict
 from uuid import UUID, uuid4
 
 import structlog
-from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, StateGraph
 
 from core.decorators import must_stay_async
-from core.schemas import PacketEnvelope, PacketWriteResult
+from core.schemas import PacketEnvelope, PacketMetadata, PacketWriteResult
 from memory.graph_client import get_neo4j_client
 from memory.substrate_models import (
     EnrichmentResult,
@@ -65,6 +65,9 @@ from memory.substrate_models import (
     KnowledgeFact,
     StructuredReasoningBlock,
 )
+
+if TYPE_CHECKING:
+    from langchain_core.runnables import RunnableConfig
 
 logger = structlog.get_logger(__name__)
 
@@ -209,21 +212,18 @@ async def intake_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
-    Entry node: validates, governs, audits, and normalizes the PacketEnvelope.
+    Entry node: validates and normalizes the PacketEnvelope.
 
-    Responsibilities (canonical intake — replaces legacy IngestionPipeline):
+    Responsibilities (GMP-SDAG Option A — service layer authoritative):
     - Validates required fields (packet_type, payload)
-    - Enforces governance context (GMP-70: fail-closed)
-    - Runs audit preparation (injection marker detection)
     - Ensures packet_id and timestamp are set
     - Checks for duplicate packets (prevents reprocessing)
     - Prepares state for downstream processing
+
+    NOTE: Governance enforcement and audit preparation are handled by
+    substrate_service.write_packet() BEFORE the DAG runs. This node
+    receives already-governed, already-audited envelopes.
     """
-    from memory.audit_utils import prepare_packet_for_ingest
-    from memory.governance_gate import (
-        enforce_packet_governance,
-        require_governance_context,
-    )
 
     repository = _get_config_dependency(config, "repository")
     logger.debug("intake_node: Processing packet")
@@ -244,58 +244,20 @@ async def intake_node(
     if not envelope.get("packet_id"):
         envelope["packet_id"] = str(uuid4())
     if not envelope.get("timestamp"):
-        envelope["timestamp"] = datetime.now(timezone.utc).isoformat()
+        envelope["timestamp"] = datetime.now(UTC).isoformat()
     if not envelope.get("metadata"):
         envelope["metadata"] = {
             "schema_version": "1.0.0",
             "reasoning_mode": None,
             "agent": None,
-            "domain": "plastic_brokerage",
+            "domain": "l9",
         }
 
-    # --- Governance Enforcement (GMP-70: fail-closed) ---
-    try:
-        ctx = require_governance_context("substrate_dag.intake_node")
-        from core.schemas import PacketEnvelopeIn
-
-        packet_in = PacketEnvelopeIn(**{
-            k: v for k, v in envelope.items()
-            if k in PacketEnvelopeIn.model_fields
-        })
-        packet_in = enforce_packet_governance(packet_in, ctx)
-        envelope = packet_in.to_envelope().model_dump(mode="json")
-    except Exception as e:
-        logger.warning(
-            "intake_node: Governance enforcement failed, continuing with original",
-            error=str(e),
-        )
-
-    # --- Audit Preparation (injection marker detection) ---
-    try:
-        from core.schemas import PacketEnvelopeIn
-
-        packet_in_for_audit = PacketEnvelopeIn(**{
-            k: v for k, v in envelope.items()
-            if k in PacketEnvelopeIn.model_fields
-        })
-        audited_packet, audit_report = prepare_packet_for_ingest(packet_in_for_audit)
-
-        if audit_report.has_security_concerns:
-            logger.warning(
-                "intake_node: Injection markers detected",
-                packet_id=envelope.get("packet_id"),
-                concern_count=audit_report.concern_count,
-            )
-            # Flag in metadata so semantic_embed_node can skip
-            metadata = envelope.get("metadata", {})
-            if isinstance(metadata, dict):
-                metadata["_security_skip_embed"] = True
-                envelope["metadata"] = metadata
-    except Exception as e:
-        logger.warning(
-            "intake_node: Audit preparation failed, continuing",
-            error=str(e),
-        )
+    # --- Governance & Audit: HANDLED BY substrate_service.write_packet() ---
+    # Option A (GMP-SDAG): Service layer is authoritative for governance enforcement,
+    # audit preparation, and packet validation. intake_node only handles structural
+    # defaults and duplicate detection. This avoids double-governance and eliminates
+    # the soft-fail security gap that existed when governance was in this node.
 
     # --- Duplicate Detection ---
     packet_id = envelope.get("packet_id")
@@ -319,8 +281,6 @@ async def intake_node(
     logger.debug(
         "intake_node: Processed packet",
         packet_id=envelope.get("packet_id"),
-        has_governance=True,
-        has_audit=True,
     )
 
     return {**state, "envelope": envelope, "errors": errors}
@@ -357,7 +317,7 @@ async def reasoning_node(
     reasoning_block = {
         "block_id": str(uuid4()),
         "packet_id": packet_id,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         # Feature extraction (simplified - would be LLM-powered in production)
         "extracted_features": {
             "packet_type": packet_type,
@@ -394,9 +354,11 @@ async def reasoning_node(
 
     # Add reasoning trace write op if significant reasoning occurred
     if packet_type in ("reasoning_trace", "inference", "decision"):
-        reasoning_block["memory_write_ops"].append(
-            {"table": "reasoning_traces", "operation": "insert"}
-        )
+        write_ops = reasoning_block["memory_write_ops"]
+        if isinstance(write_ops, list):
+            write_ops.append(
+                {"table": "reasoning_traces", "operation": "insert"}
+            )
 
     logger.debug(f"reasoning_node: Generated block {reasoning_block['block_id']}")
 
@@ -406,6 +368,7 @@ async def reasoning_node(
     }
 
 
+@must_stay_async("callers use await")
 async def memory_write_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -433,13 +396,11 @@ async def memory_write_node(
     # Repository will be injected at runtime
     if repository is None:
         logger.warning("memory_write_node: No repository provided, skipping DB writes")
-        # Still mark what would have been written
-        written_tables.extend(["packet_store", "agent_memory_events"])
-        if reasoning_block:
-            written_tables.append("reasoning_traces")
+        errors.append("memory_write_node: No repository — DB writes skipped")
         return {
             **state,
             "written_tables": written_tables,
+            "errors": errors,
         }
 
     try:
@@ -514,7 +475,7 @@ async def graph_sync_node(
 
         packet_id = envelope.get("packet_id", str(uuid4()))
         packet_type = envelope.get("packet_type", "unknown")
-        timestamp = envelope.get("timestamp", datetime.now(timezone.utc).isoformat())
+        timestamp = envelope.get("timestamp", datetime.now(UTC).isoformat())
         metadata = envelope.get("metadata", {})
         agent_id = metadata.get("agent") if metadata else None
         thread_id = (
@@ -588,6 +549,7 @@ async def graph_sync_node(
     }
 
 
+@must_stay_async("callers use await")
 async def semantic_embed_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -641,10 +603,13 @@ async def semantic_embed_node(
     try:
         agent_id = metadata.get("agent") if isinstance(metadata, dict) else None
         scope = (
-            (metadata.get("db_scope") or metadata.get("scope") or "shared")
+            (metadata.get("db_scope") or metadata.get("scope") or "cursor")
             if isinstance(metadata, dict)
-            else "shared"
+            else "cursor"  # Default to valid DB scope
         )
+
+        # Include tags in payload for tag-aware retrieval (filter/boost)
+        envelope_tags = envelope.get("tags") or []
 
         embedding_id = await semantic_service.embed_and_store(
             text=text_to_embed,
@@ -652,6 +617,7 @@ async def semantic_embed_node(
                 "packet_id": envelope.get("packet_id"),
                 "packet_type": envelope.get("packet_type", ""),
                 "source_payload": payload,
+                "tags": envelope_tags,
             },
             agent_id=agent_id,
             scope=scope,
@@ -675,6 +641,7 @@ async def semantic_embed_node(
     }
 
 
+@must_stay_async("callers use await")
 async def checkpoint_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -709,7 +676,7 @@ async def checkpoint_node(
                 "packet_type": envelope.get("packet_type"),
                 "written_tables": written_tables,
                 "errors": errors,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
         written_tables.append("graph_checkpoints")
@@ -786,7 +753,7 @@ async def extract_insights_node(
             "object": object_value,
             "confidence": 0.8,
             "source_packet": source_packet_str,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
         facts.append(fact)
 
@@ -859,17 +826,22 @@ async def extract_insights_node(
                 "insight_type": "entity_extraction",
                 "content": f"Extracted {len(extracted_entities)} entities: {', '.join(entity_names[:5])}{'...' if len(entity_names) > 5 else ''}",
                 "entities": entity_names,
-                "confidence": max(e.confidence for e in extracted_entities) if extracted_entities else 0.5,
+                "confidence": max(e.confidence for e in extracted_entities)
+                if extracted_entities
+                else 0.5,
                 "source_packet": packet_id,
                 "facts": [],
                 "trigger_world_model": any(
-                    e.entity_type in ("agent", "gmp_reference") for e in extracted_entities
+                    e.entity_type in ("agent", "gmp_reference")
+                    for e in extracted_entities
                 ),
             }
             insights.append(entity_insight)
 
             # Also emit entity-level facts for knowledge graph
-            source_packet_str = str(packet_id) if isinstance(packet_id, UUID) else packet_id
+            source_packet_str = (
+                str(packet_id) if isinstance(packet_id, UUID) else packet_id
+            )
             for entity in extracted_entities[:20]:
                 entity_fact = {
                     "fact_id": str(uuid4()),
@@ -878,7 +850,7 @@ async def extract_insights_node(
                     "object": entity.entity_id,
                     "confidence": entity.confidence,
                     "source_packet": source_packet_str,
-                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "created_at": datetime.now(UTC).isoformat(),
                 }
                 facts.append(entity_fact)
 
@@ -903,18 +875,20 @@ async def extract_insights_node(
     }
 
 
+@must_stay_async("callers use await")
 async def store_insights_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
     Store extracted insights and facts to database (v2.1.0 - GMP-67).
 
-    Persists:
-    - KnowledgeFacts to knowledge_facts table via UPSERT (idempotent)
-    - Insights as specialized packets (future)
+    Persists two distinct data types to their correct tables:
+    - **Facts** → knowledge_facts table via UPSERT (SPO triples, idempotent)
+    - **Insights** → packet_store table as insight packets (native shape preserved)
 
-    Uses repository.insert_knowledge_fact() which performs ON CONFLICT UPSERT,
-    ensuring same packet enriched multiple times doesn't create duplicate facts.
+    Facts use subject/predicate/object structure for graph queries.
+    Insights keep their native schema (type, content, entities, confidence)
+    and are stored as packets with packet_type matching the insight type.
     """
     from uuid import UUID
 
@@ -926,7 +900,7 @@ async def store_insights_node(
     errors = list(state.get("errors", []))
     written_tables = list(state.get("written_tables", []))
 
-    # Get packet_id from envelope for linking facts to source packet
+    # Get packet_id from envelope for linking facts/insights to source packet
     envelope = state.get("envelope", {})
     packet_id_raw = envelope.get("packet_id")
     # Handle both UUID object and string cases
@@ -938,6 +912,24 @@ async def store_insights_node(
     else:
         packet_id = None
 
+    # GMP-FIX: Get project_id and scope from source envelope metadata for insight packets
+    # This ensures insight packets inherit project_id and scope from their source packet
+    # to satisfy the packet_store_project_id_not_null constraint and scope isolation
+    source_metadata = envelope.get("metadata", {})
+    if isinstance(source_metadata, dict):
+        source_project_id = source_metadata.get("project_id", "l9")
+        source_scope = (
+            source_metadata.get("scope") or source_metadata.get("db_scope") or "cursor"
+        )
+    else:
+        # Handle PacketMetadata object
+        source_project_id = getattr(source_metadata, "project_id", None) or "l9"
+        source_scope = (
+            getattr(source_metadata, "scope", None)
+            or getattr(source_metadata, "db_scope", None)
+            or "cursor"
+        )
+
     if not insights and not facts:
         logger.debug("store_insights_node: No insights or facts to store")
         return state
@@ -946,8 +938,10 @@ async def store_insights_node(
         logger.warning("store_insights_node: No repository, skipping persistence")
         return state
 
+    # -----------------------------------------------------------------
+    # 1. Store facts → knowledge_facts table (SPO triples)
+    # -----------------------------------------------------------------
     try:
-        # Store facts via UPSERT (idempotent)
         facts_inserted = 0
         for fact in facts:
             # Handle both dict and KnowledgeFact objects
@@ -990,18 +984,77 @@ async def store_insights_node(
                 object_value=object_value,
                 confidence=confidence,
                 source_packet=source_packet,
+                scope=source_scope,  # Inherit scope from source packet
             )
             facts_inserted += 1
 
         if facts_inserted > 0:
             written_tables.append("knowledge_facts")
             logger.debug(
-                f"store_insights_node: Upserted {facts_inserted} facts for packet {packet_id}"
+                "store_insights_node.facts_stored",
+                count=facts_inserted,
+                source_packet=str(packet_id),
             )
 
     except Exception as e:
-        logger.error(f"store_insights_node: Failed to store: {e}")
-        errors.append(f"store_insights_node error: {e!s}")
+        logger.error("store_insights_node.facts_failed", error=str(e))
+        errors.append(f"store_insights_node facts error: {e!s}")
+
+    # -----------------------------------------------------------------
+    # 2. Store insights → packet_store as insight packets (native shape)
+    #    Each insight becomes its own packet, linked to the source packet
+    #    via metadata.source_packet_id. This preserves the insight's native
+    #    schema (type, content, entities, domains, patterns, confidence)
+    #    without forcing it into SPO triple format.
+    # -----------------------------------------------------------------
+    try:
+        insights_inserted = 0
+        for insight in insights:
+            if isinstance(insight, dict):
+                insight_type = insight.get("type", "insight")
+                confidence = insight.get("confidence", 0.7)
+                payload = dict(insight)  # preserve full native shape
+            else:
+                # ExtractedInsight model
+                insight_type = getattr(insight, "insight_type", "insight")
+                confidence = getattr(insight, "confidence", 0.7)
+                payload = {
+                    "insight_type": insight_type,
+                    "content": getattr(insight, "content", ""),
+                    "entities": getattr(insight, "entities", []),
+                    "confidence": confidence,
+                    "trigger_world_model": getattr(
+                        insight, "trigger_world_model", False
+                    ),
+                }
+
+            # Build a proper PacketEnvelope for the insight
+            # GMP-FIX: Include project_id in metadata to satisfy DB constraint
+            insight_envelope = PacketEnvelope(
+                packet_type=insight_type,
+                payload=payload,
+                metadata=PacketMetadata(
+                    schema_version="1.1.0",
+                    agent="store_insights_node",
+                    source_packet_id=str(packet_id) if packet_id else None,
+                    project_id=source_project_id,  # Inherit from source packet
+                ),
+            )
+
+            await repository.insert_packet(insight_envelope)
+            insights_inserted += 1
+
+        if insights_inserted > 0:
+            written_tables.append("packet_store")
+            logger.debug(
+                "store_insights_node.insights_stored",
+                count=insights_inserted,
+                source_packet=str(packet_id),
+            )
+
+    except Exception as e:
+        logger.error("store_insights_node.insights_failed", error=str(e))
+        errors.append(f"store_insights_node insights error: {e!s}")
 
     return {
         **state,
@@ -1010,6 +1063,7 @@ async def store_insights_node(
     }
 
 
+@must_stay_async("callers use await")
 async def world_model_trigger_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -1159,6 +1213,72 @@ def route_after_memory_write(state: SubstrateGraphState) -> str:
 
 
 # =============================================================================
+# DTB: Analogical Enrichment Node (feature-flagged via L9_ENABLE_DTB_MEMORY)
+# =============================================================================
+
+_DTB_MEMORY_ENABLED = os.getenv("L9_ENABLE_DTB_MEMORY", "false").lower() == "true"
+
+
+async def analogical_enrichment_node(
+    state: SubstrateGraphState, config: RunnableConfig = None
+) -> SubstrateGraphState:
+    """
+    Optional DTB node: find cross-domain analogies for the incoming packet.
+
+    Stores any discovered analogies as additional insights in the state.
+    This node is additive only — it never modifies the original packet.
+    Failures are non-fatal and logged.
+    """
+    if not _DTB_MEMORY_ENABLED:
+        return state
+
+    try:
+        from domain_tensor_bridge.analogical_reasoner import AnalogicalReasoner
+
+        envelope = state.get("envelope", {})
+        packet_type = envelope.get("packet_type", "unknown")
+        payload = envelope.get("payload", "")
+
+        reasoner = AnalogicalReasoner()
+        context = {
+            "domain": packet_type,
+            "content": payload[:500]
+            if isinstance(payload, str)
+            else str(payload)[:500],
+        }
+        analogies = await reasoner.find_analogies(context)
+
+        if analogies:
+            # Store analogies as insights (their native shape).
+            # store_insights_node persists these as packet_type="analogical_insight"
+            # packets in packet_store — NOT as knowledge_facts SPO triples.
+            existing_insights = list(state.get("insights", []))
+            for a in analogies:
+                existing_insights.append(
+                    {
+                        "type": "analogical_insight",
+                        "source_domain": a.source_domain,
+                        "target_domain": a.target_domain,
+                        "pattern": a.pattern,
+                        "confidence": a.confidence,
+                    }
+                )
+            state["insights"] = existing_insights
+
+            logger.info(
+                "substrate_dag.dtb_analogical_enrichment",
+                packet_type=packet_type,
+                analogies_found=len(analogies),
+            )
+    except ImportError:
+        pass  # DTB not installed
+    except Exception as e:
+        logger.debug("substrate_dag.dtb_analogical_enrichment_failed", error=str(e))
+
+    return state
+
+
+# =============================================================================
 # Graph Builder
 # =============================================================================
 
@@ -1184,6 +1304,8 @@ def build_substrate_graph() -> StateGraph:
 
     # Add nodes
     graph.add_node("intake_node", intake_node)
+    if _DTB_MEMORY_ENABLED:
+        graph.add_node("analogical_enrichment_node", analogical_enrichment_node)
     graph.add_node("reasoning_node", reasoning_node)
     graph.add_node("memory_write_node", memory_write_node)
     graph.add_node("graph_sync_node", graph_sync_node)  # GMP-NEO4J-DAG: Neo4j sync
@@ -1195,7 +1317,11 @@ def build_substrate_graph() -> StateGraph:
 
     # Linear edges (entry through memory_write, then graph_sync)
     graph.set_entry_point("intake_node")
-    graph.add_edge("intake_node", "reasoning_node")
+    if _DTB_MEMORY_ENABLED:
+        graph.add_edge("intake_node", "analogical_enrichment_node")
+        graph.add_edge("analogical_enrichment_node", "reasoning_node")
+    else:
+        graph.add_edge("intake_node", "reasoning_node")
     graph.add_edge("reasoning_node", "memory_write_node")
     graph.add_edge("memory_write_node", "graph_sync_node")  # GMP-NEO4J-DAG: Neo4j sync
 
@@ -1278,6 +1404,7 @@ class SubstrateDAG:
         self._graph = build_substrate_graph()
         self._enrichment_graph = build_enrichment_graph()
 
+    @must_stay_async("callers use await")
     async def run(self, envelope: PacketEnvelope) -> PacketWriteResult:
         """
         Run the substrate DAG using native LangGraph execution.
@@ -1364,6 +1491,7 @@ class SubstrateDAG:
             status="ok",
         )
 
+    @must_stay_async("callers use await")
     async def enrich(
         self,
         envelope: PacketEnvelope,

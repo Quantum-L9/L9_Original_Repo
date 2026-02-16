@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -126,7 +126,7 @@ class WSBridgeConfig:
 
 **Public Methods:** `__init__`
 
-**Lines:** 233-253 in `ws_bridge.py`
+**Lines:** 236-264 in `ws_bridge.py`
 
 ### `ws_bridge.py` — WSEventRouter
 
@@ -146,7 +146,7 @@ class WSEventRouter:
 
 **Public Methods:** `__init__`, `register_handler`, `route`
 
-**Lines:** 256-278 in `ws_bridge.py`
+**Lines:** 267-299 in `ws_bridge.py`
 
 ### `validator.py` — ValidationResult
 
@@ -164,7 +164,7 @@ class ValidationResult:
 
 **Public Methods:** `__init__`, `to_dict`
 
-**Lines:** 50-77 in `validator.py`
+**Lines:** 50-89 in `validator.py`
 
 ### `validator.py` — Validator
 
@@ -188,7 +188,7 @@ class Validator:
 
 **Public Methods:** `__init__`, `_get_registry`, `process`, `validate_tool`, `_assess_safety_level`
 
-**Lines:** 80-248 in `validator.py`
+**Lines:** 92-261 in `validator.py`
 
 ### `interface.py` — ToolSafetyLevel
 
@@ -239,7 +239,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class OrchestratorsRequest(BaseModel):
     """Request model for orchestrators operations."""
@@ -337,7 +337,7 @@ Decorator to register an orchestrator class for auto-discovery.
 
 Automatically discover all orchestrators in the specified package.
 
-- **File:** `orchestrator_registry.py:117`
+- **File:** `orchestrator_registry.py:127`
 - **Async:** No
 - **Returns:** `int`
 
@@ -345,7 +345,7 @@ Automatically discover all orchestrators in the specified package.
 
 Get all registered orchestrator classes as a dictionary.
 
-- **File:** `orchestrator_registry.py:133`
+- **File:** `orchestrator_registry.py:143`
 - **Async:** No
 - **Returns:** `dict[str, type]`
 
@@ -353,7 +353,7 @@ Get all registered orchestrator classes as a dictionary.
 
 Get all orchestrator classes in a specific domain.
 
-- **File:** `orchestrator_registry.py:160`
+- **File:** `orchestrator_registry.py:170`
 - **Async:** No
 - **Returns:** `dict[str, type]`
 
@@ -361,7 +361,7 @@ Get all orchestrator classes in a specific domain.
 
 Get all orchestrator classes in a specific category.
 
-- **File:** `orchestrator_registry.py:185`
+- **File:** `orchestrator_registry.py:195`
 - **Async:** No
 - **Returns:** `dict[str, type]`
 
@@ -395,7 +395,7 @@ Orchestrators operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "orchestrators",
   "message": "Operation completed",

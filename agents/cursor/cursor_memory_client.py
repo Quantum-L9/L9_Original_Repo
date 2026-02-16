@@ -103,12 +103,22 @@ import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
+import structlog
+
 # =============================================================================
 # Schema Version (PacketEnvelope v2.0.0)
 # =============================================================================
 
+
+logger = structlog.get_logger(__name__)
+
 SCHEMA_VERSION = "2.0.0"
 SUPPORTED_VERSIONS = ["1.0.0", "1.0.1", "1.1.0", "1.1.1", "2.0.0"]
+
+# ADR-0098: DRY — Cursor default scopes defined once, used everywhere.
+# Canonical source: core.config_constants.ALLOWED_SCOPES_CURSOR
+# Duplicated here because this client runs standalone (outside L9 sys.path).
+_DEFAULT_SCOPES: list[str] = ["cursor", "developer", "global"]
 
 # =============================================================================
 # Session UUID - Date-based (same for entire day)
@@ -202,10 +212,10 @@ def mcp_call_tool(tool_name: str, arguments: dict) -> dict:
     }
 
     body = json.dumps(payload).encode()
-    req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+    req = urllib.request.Request(url, data=body, headers=headers, method="POST")  # noqa: S310 — URL from trusted config
 
     try:
-        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:
+        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:  # noqa: S310 — URL from trusted config
             result = json.loads(response.read().decode())
             # MCP server returns {"status": "success", "result": {...}, "caller": "C"}
             if result.get("status") == "success":
@@ -247,10 +257,10 @@ def api_request(method: str, path: str, data: dict | None = None) -> dict:
     }
 
     body = json.dumps(data).encode() if data else None
-    req = urllib.request.Request(url, data=body, headers=headers, method=method)
+    req = urllib.request.Request(url, data=body, headers=headers, method=method)  # noqa: S310 — URL from trusted config
 
     try:
-        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:
+        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:  # noqa: S310 — URL from trusted config
             return json.loads(response.read().decode())
     except urllib.error.HTTPError as e:
         return {"error": f"HTTP {e.code}", "detail": e.read().decode()}
@@ -272,7 +282,7 @@ def cmd_stats():
             "duration": "all",
         },
     )
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_health():
@@ -319,10 +329,10 @@ def cmd_health():
     # TEST 2: Direct API Health (FALLBACK)
     url = f"{L9_API_URL}/health"
     headers = {"Content-Type": "application/json"}
-    req = urllib.request.Request(url, headers=headers, method="GET")
+    req = urllib.request.Request(url, headers=headers, method="GET")  # noqa: S310 — URL from trusted config
 
     try:
-        with urllib.request.urlopen(req, timeout=10, context=ssl_context) as response:
+        with urllib.request.urlopen(req, timeout=10, context=ssl_context) as response:  # noqa: S310 — URL from trusted config
             api_result = json.loads(response.read().decode())
             results["api_health"] = {
                 "status": "healthy",
@@ -352,7 +362,7 @@ def cmd_health():
             "❌ Both MCP and API unhealthy - no memory operations available"
         )
 
-    print(json.dumps(results, indent=2))
+    logger.info("output", value=json.dumps(results, indent=2))
 
 
 def cmd_search(
@@ -373,9 +383,10 @@ def cmd_search(
             "query": query,
             "user_id": "l9-shared",  # Shared user_id for L + C
             "scopes": [
+                "cursor",
                 "developer",
                 "global",
-            ],  # Cursor can read developer + global (not l-private)
+            ],  # Cursor reads cursor + developer + global (not l-private)
             "top_k": limit * 2,  # Fetch extra for filtering
             "threshold": min_confidence,
             "duration": "all",
@@ -413,14 +424,28 @@ def cmd_search(
     )
 
 
-def cmd_write(content: str, kind: str = "note", thread_id: str | None = None):
+def cmd_write(
+    content: str,
+    kind: str = "note",
+    thread_id: str | None = None,
+    scope: str = "cursor",
+    tags: list[str] | None = None,
+):
     """
     Write to memory via MCP using PacketEnvelope v2.0 schema.
 
     Uses daily session UUID if no thread_id provided.
+    Cursor IDE writes default to scope='cursor' per RLS design (ADR-0005).
+
+    Agents MUST add tags and keywords to every memory write for best retrieval.
+    Pass domain/topic/keyword tags (e.g. ["lesson", "cursor", "structlog", "error_handling"]).
+    If tags are omitted, a single kind-based tag is used as fallback.
     """
     # Use daily session ID if not explicitly provided
     session_id = thread_id or get_daily_session_id()
+
+    # Require tags for retrieval quality: use caller tags or fallback to kind
+    tag_list = list(tags) if tags else [f"kind:{kind}"]
 
     # Map kind to MCP duration (default: long for durability)
     kind_to_duration = {
@@ -433,9 +458,6 @@ def cmd_write(content: str, kind: str = "note", thread_id: str | None = None):
     }
     duration = kind_to_duration.get(kind, "long")
 
-    # Map kind to MCP scope (Cursor writes to developer scope only)
-    scope = "developer"  # Cursor cannot write to l-private
-
     # Call MCP save_memory tool
     result = mcp_call_tool(
         "save_memory",
@@ -445,7 +467,7 @@ def cmd_write(content: str, kind: str = "note", thread_id: str | None = None):
             "scope": scope,
             "duration": duration,
             "user_id": "l9-shared",  # Shared user_id for L + C
-            "tags": [],  # Optional tags
+            "tags": tag_list,
             "importance": 1.0,  # Default importance
         },
     )
@@ -454,7 +476,7 @@ def cmd_write(content: str, kind: str = "note", thread_id: str | None = None):
     result["_session_id"] = session_id
     result["_schema_version"] = SCHEMA_VERSION
 
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_session():
@@ -503,7 +525,7 @@ def cmd_mcp_test():
         {
             "content": test_content,
             "kind": "note",
-            "scope": "developer",
+            "scope": "cursor",
             "duration": "short",  # Short-lived test packet
             "user_id": "l9-shared",
             "tags": ["mcp_test", test_id],
@@ -519,7 +541,7 @@ def cmd_mcp_test():
         }
         results["overall"] = "failed"
         results["message"] = f"❌ MCP WRITE FAILED: {write_result.get('error')}"
-        print(json.dumps(results, indent=2))
+        logger.info("output", value=json.dumps(results, indent=2))
         return
     results["steps"]["write"] = {
         "status": "success",
@@ -534,7 +556,7 @@ def cmd_mcp_test():
         {
             "query": test_id,  # Search by unique test ID
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 5,
             "threshold": 0.0,
             "duration": "all",
@@ -574,7 +596,7 @@ def cmd_mcp_test():
                 "⚠️ MCP WRITE OK but test packet not found in search (may need indexing time)"
             )
 
-    print(json.dumps(results, indent=2))
+    logger.info("output", value=json.dumps(results, indent=2))
 
 
 def cmd_session_close():
@@ -595,7 +617,7 @@ def cmd_session_close():
         {
             "query": f"session {today}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 50,
             "threshold": 0.0,
             "duration": "all",
@@ -626,7 +648,7 @@ def cmd_session_close():
         {
             "content": summary,
             "kind": "context",  # Session anchor is context
-            "scope": "developer",
+            "scope": "cursor",
             "duration": "long",  # Session anchors persist
             "user_id": "l9-shared",
             "tags": ["session_anchor", f"session_{today}"],
@@ -645,7 +667,7 @@ def cmd_session_close():
         "memory_id": result.get("memory_id"),
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_session_resume(task_description: str | None = None):
@@ -667,7 +689,7 @@ def cmd_session_resume(task_description: str | None = None):
         {
             "query": query,
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 5,
             "threshold": 0.0,
             "duration": "all",
@@ -698,7 +720,7 @@ def cmd_session_resume(task_description: str | None = None):
         {
             "query": "Igor preferences patterns",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["preference"],
             "top_k": 3,
             "threshold": 0.0,
@@ -718,7 +740,7 @@ def cmd_session_resume(task_description: str | None = None):
         {
             "query": "lessons errors cursor",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["lesson"],
             "top_k": 3,
             "threshold": 0.0,
@@ -744,7 +766,7 @@ def cmd_session_resume(task_description: str | None = None):
         "message": f"🔄 Session resumed. Loaded {len(session_context)} context items, {len(preferences)} preferences, {len(lessons)} lessons.",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_resume_for(task: str):
@@ -772,7 +794,7 @@ def cmd_warn(task_description: str):
         {
             "query": f"error mistake {task_description}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["error", "lesson"],
             "top_k": 5,
             "threshold": 0.0,
@@ -786,7 +808,7 @@ def cmd_warn(task_description: str):
         {
             "query": f"lesson warning {task_description}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["lesson"],
             "top_k": 5,
             "threshold": 0.0,
@@ -800,7 +822,7 @@ def cmd_warn(task_description: str):
         {
             "query": f"violation critical {task_description}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 3,
             "threshold": 0.0,
             "duration": "all",
@@ -868,7 +890,7 @@ def cmd_warn(task_description: str):
         "message": f"🛡️ Found {len(warnings)} relevant warnings/lessons for: {task_description}",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_inject(task_description: str | None = None, layers: str = "all"):
@@ -899,7 +921,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
         {
             "query": "Igor preferences patterns coding style",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["preference"],
             "top_k": 5,
             "threshold": 0.0,
@@ -917,7 +939,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
         {
             "query": f"lessons errors cursor {task_description or ''}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["lesson"],
             "top_k": 5,
             "threshold": 0.0,
@@ -936,7 +958,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
             {
                 "query": task_description,
                 "user_id": "l9-shared",
-                "scopes": ["developer", "global"],
+                "scopes": _DEFAULT_SCOPES,
                 "top_k": 5,
                 "threshold": 0.0,
                 "duration": "all",
@@ -954,7 +976,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
         {
             "query": f"session {today} recent work",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 3,
             "threshold": 0.0,
             "duration": "all",
@@ -972,7 +994,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
             {
                 "query": f"error mistake warning {task_description}",
                 "user_id": "l9-shared",
-                "scopes": ["developer", "global"],
+                "scopes": _DEFAULT_SCOPES,
                 "kinds": ["error", "lesson"],
                 "top_k": 3,
                 "threshold": 0.0,
@@ -1000,7 +1022,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
         "message": f"🧠 Injected {total_items} context items across 5 layers",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_temporal(query: str, since: str = "24h", until: str | None = None):
@@ -1026,7 +1048,7 @@ def cmd_temporal(query: str, since: str = "24h", until: str | None = None):
         {
             "query": f"{query} {time_desc}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 15,
             "threshold": 0.0,
             "duration": "all",
@@ -1043,7 +1065,7 @@ def cmd_temporal(query: str, since: str = "24h", until: str | None = None):
         "message": f"🕐 Found {len(memories)} results for '{query}' in {since} window",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_fix_error(error_message: str):
@@ -1061,7 +1083,7 @@ def cmd_fix_error(error_message: str):
         {
             "query": f"error fix solution {error_message}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["error", "lesson"],
             "top_k": 10,
             "threshold": 0.0,
@@ -1075,7 +1097,7 @@ def cmd_fix_error(error_message: str):
         {
             "query": f"lesson {error_message}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["lesson"],
             "top_k": 5,
             "threshold": 0.0,
@@ -1124,7 +1146,7 @@ def cmd_fix_error(error_message: str):
         "message": f"🔍 Found {len(fixes)} potential fixes for: {error_message[:50]}...",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_suggest(context: str | None = None):
@@ -1143,7 +1165,7 @@ def cmd_suggest(context: str | None = None):
             {
                 "query": f"pattern workflow next step {context}",
                 "user_id": "l9-shared",
-                "scopes": ["developer", "global"],
+                "scopes": _DEFAULT_SCOPES,
                 "top_k": 10,
                 "threshold": 0.0,
                 "duration": "all",
@@ -1156,7 +1178,7 @@ def cmd_suggest(context: str | None = None):
             {
                 "query": "recent session TODO next step workflow",
                 "user_id": "l9-shared",
-                "scopes": ["developer", "global"],
+                "scopes": _DEFAULT_SCOPES,
                 "top_k": 10,
                 "threshold": 0.0,
                 "duration": "all",
@@ -1186,7 +1208,7 @@ def cmd_suggest(context: str | None = None):
         "message": f"💡 Generated {len(suggestions)} suggestions",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_dedupe_check(content: str):
@@ -1204,7 +1226,7 @@ def cmd_dedupe_check(content: str):
         {
             "query": content,
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 5,
             "threshold": 0.5,  # High similarity threshold
             "duration": "all",
@@ -1242,7 +1264,7 @@ def cmd_dedupe_check(content: str):
         "message": f"{'⚠️ Duplicate detected' if is_duplicate else '✅ Content is unique'}",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_session_diff():
@@ -1261,7 +1283,7 @@ def cmd_session_diff():
         {
             "query": f"session {today}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 20,
             "threshold": 0.0,
             "duration": "all",
@@ -1274,7 +1296,7 @@ def cmd_session_diff():
         {
             "query": "session_anchor previous session",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 10,
             "threshold": 0.0,
             "duration": "all",
@@ -1309,7 +1331,7 @@ def cmd_session_diff():
         "message": f"📊 Session diff: {len(new_topics)} new topics, {len(continued_topics)} continued",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 # =============================================================================
@@ -1321,7 +1343,7 @@ def cmd_session_diff():
 def cmd_graph_health():
     """Check Neo4j graph health via REST API (FALLBACK - no MCP tool)."""
     result = api_request("GET", "/api/v1/memory/graph/health")
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_graph_context(domain: str, limit: int = 10):
@@ -1332,7 +1354,7 @@ def cmd_graph_context(domain: str, limit: int = 10):
            python cursor_memory_client.py graph-context agents --limit 20
     """
     result = api_request("GET", f"/api/v1/memory/graph/context/{domain}?limit={limit}")
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_graph_query(query: str, params: str | None = None):
@@ -1347,11 +1369,13 @@ def cmd_graph_query(query: str, params: str | None = None):
         try:
             data["parameters"] = json.loads(params)
         except json.JSONDecodeError:
-            print(json.dumps({"error": f"Invalid JSON params: {params}"}))
+            logger.error(
+                "output", value=json.dumps({"error": f"Invalid JSON params: {params}"})
+            )
             return
 
     result = api_request("POST", "/api/v1/memory/graph/query", data)
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_graph_entity(entity_type: str, entity_id: str):
@@ -1363,7 +1387,7 @@ def cmd_graph_entity(entity_type: str, entity_id: str):
     result = api_request(
         "GET", f"/api/v1/memory/graph/entity/{entity_type}/{entity_id}"
     )
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_graph_relationships(entity_type: str, entity_id: str, direction: str = "both"):
@@ -1377,7 +1401,7 @@ def cmd_graph_relationships(entity_type: str, entity_id: str, direction: str = "
         "GET",
         f"/api/v1/memory/graph/relationships/{entity_type}/{entity_id}?direction={direction}",
     )
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 # =============================================================================
@@ -1389,7 +1413,7 @@ def cmd_graph_relationships(entity_type: str, entity_id: str, direction: str = "
 def cmd_cache_health():
     """Check Redis cache health via REST API (FALLBACK - no MCP tool)."""
     result = api_request("GET", "/api/v1/memory/cache/health")
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_cache_get(key: str):
@@ -1399,7 +1423,7 @@ def cmd_cache_get(key: str):
     Usage: python cursor_memory_client.py cache-get mykey
     """
     result = api_request("GET", f"/api/v1/memory/cache/get/{key}")
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_cache_set(key: str, value: str, ttl: int | None = None):
@@ -1414,7 +1438,7 @@ def cmd_cache_set(key: str, value: str, ttl: int | None = None):
         data["ttl"] = ttl
 
     result = api_request("POST", "/api/v1/memory/cache/set", data)
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_cache_session_context(session_id: str | None = None):
@@ -1428,7 +1452,7 @@ def cmd_cache_session_context(session_id: str | None = None):
     result = api_request("GET", f"/api/v1/memory/cache/session/context/{sid}")
 
     output = {"session_id": sid, "from_cache": True, **result}
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_cache_set_session_context(context_json: str):
@@ -1442,7 +1466,9 @@ def cmd_cache_set_session_context(context_json: str):
     try:
         context = json.loads(context_json)
     except json.JSONDecodeError:
-        print(json.dumps({"error": f"Invalid JSON: {context_json}"}))
+        logger.error(
+            "output", value=json.dumps({"error": f"Invalid JSON: {context_json}"})
+        )
         return
 
     data = {
@@ -1452,7 +1478,7 @@ def cmd_cache_set_session_context(context_json: str):
     }
 
     result = api_request("POST", "/api/v1/memory/cache/session/context", data)
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_cache_list_sessions():
@@ -1462,7 +1488,7 @@ def cmd_cache_list_sessions():
     Usage: python cursor_memory_client.py cache-sessions
     """
     result = api_request("GET", "/api/v1/memory/cache/session/list")
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 # =============================================================================
@@ -1530,6 +1556,16 @@ def main():
         "--thread",
         default=None,
         help="Override thread UUID (default: daily session ID)",
+    )
+    write_parser.add_argument(
+        "--scope",
+        default="cursor",
+        help="Memory scope (cursor, developer, global). Default: cursor",
+    )
+    write_parser.add_argument(
+        "--tags",
+        default="",
+        help="Comma-separated tags and keywords (required for best retrieval; e.g. lesson,cursor,structlog)",
     )
 
     # session-close
@@ -1676,7 +1712,10 @@ def main():
     elif args.command == "search":
         cmd_search(args.query, args.limit, args.min_confidence, args.sort)
     elif args.command == "write":
-        cmd_write(args.content, args.kind, args.thread)
+        tags_list = [t.strip() for t in (args.tags or "").split(",") if t.strip()]
+        cmd_write(
+            args.content, args.kind, args.thread, args.scope, tags=tags_list or None
+        )
     elif args.command == "session-close":
         cmd_session_close()
     elif args.command == "session-resume":

@@ -6,6 +6,8 @@ Summarizes all steps, artifacts, and results.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Report",
@@ -28,7 +30,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 
@@ -37,6 +39,7 @@ from workflows.state import StepResult, WorkflowState
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def report_node(state: WorkflowState) -> dict:
     """
     Generate final workflow report.
@@ -77,7 +80,7 @@ async def report_node(state: WorkflowState) -> dict:
         "",
         f"ID:        {workflow_id}",
         f"Started:   {started_at}",
-        f"Completed: {datetime.now().isoformat()}",
+        f"Completed: {datetime.now(tz=UTC).isoformat()}",
         f"Status:    {'✅ SUCCESS' if validation_passed and not error else '❌ FAILED'}",
         "",
     ]
@@ -157,7 +160,7 @@ async def report_node(state: WorkflowState) -> dict:
             "total_duration_ms": total_duration,
             "validation_passed": validation_passed,
         },
-        timestamp=datetime.now().isoformat(),
+        timestamp=datetime.now(tz=UTC).isoformat(),
     )
 
     logger.info(

@@ -48,27 +48,29 @@ __dora_meta__ = {
 import asyncio
 import contextlib
 import json
-import structlog
 import os
 import platform
 import signal
 import socket
 import sys
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
 
 from core.decorators import must_stay_async
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from websockets.client import WebSocketClientProtocol
+
 logger = structlog.get_logger(__name__)
 
 try:
     import websockets
-    from websockets.client import WebSocketClientProtocol
     from websockets.exceptions import ConnectionClosedError, ConnectionClosedOK
 except ImportError:
     logger.error(
@@ -185,7 +187,7 @@ def create_heartbeat(
             "load_avg": load_avg,
             "memory_usage_mb": memory_usage_mb,
             "cpu_percent": cpu_percent,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         },
     }
 
@@ -209,7 +211,7 @@ def create_task_result(
             "status": status,
             "result": output,
             "error": error,
-            "completed_at": datetime.now(timezone.utc).isoformat(),
+            "completed_at": datetime.now(UTC).isoformat(),
         },
     }
 
@@ -231,7 +233,7 @@ def create_error_event(
             "message": message,
             "details": details or {},
             "recoverable": recoverable,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         },
     }
 
@@ -262,6 +264,7 @@ class TaskExecutor:
         """Number of currently running tasks."""
         return len(self._running_tasks)
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         task_id: str,
@@ -386,7 +389,7 @@ class TaskExecutor:
             logger.warning("LocalAPI not available, using subprocess fallback")
             try:
                 cmd_parts = shlex.split(command)
-                result = subprocess.run(
+                result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
                     cmd_parts,
                     cwd=cwd,
                     capture_output=True,
@@ -418,6 +421,7 @@ class TaskExecutor:
             logger.error(f"Shell execution error: {e}")
             return {"status": "error", "error": str(e), "output": "", "exit_code": -1}
 
+    @must_stay_async("callers use await")
     async def _execute_browser(self, payload: dict[str, Any]) -> dict[str, Any]:
         """
         Execute browser automation via Playwright.
@@ -565,13 +569,13 @@ class TaskExecutor:
             temp_path = f.name
 
         try:
-            result = subprocess.run(
-                ["python3", temp_path],
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                ["python3", temp_path],  # noqa: S607 — trusted system command
                 capture_output=True,
                 text=True,
                 timeout=timeout,
-                env={"PATH": "/usr/bin:/bin", "HOME": "/tmp"},  # Minimal env
-                cwd="/tmp",
+                env={"PATH": "/usr/bin:/bin", "HOME": "/tmp"},  # noqa: S108 — intentional minimal sandbox env
+                cwd="/tmp",  # noqa: S108 — intentional sandbox working directory
             )
             return {
                 "status": "completed" if result.returncode == 0 else "failed",
@@ -645,6 +649,7 @@ class MacAgentClient:
     # Public API
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def run(self) -> None:
         """
         Run the agent client with automatic reconnection.
@@ -1041,17 +1046,20 @@ class MacAgentClient:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def main():
     """Run the Mac Agent client."""
     # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
+    import logging as _logging
+
+    _logging.basicConfig(
+        level=_logging.INFO,
         format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     # Reduce noise from websockets library
-    structlog.get_logger("websockets").setLevel(logging.WARNING)
+    structlog.get_logger("websockets").setLevel(_logging.WARNING)
 
     # Load config and run
     config = AgentConfig.from_env()

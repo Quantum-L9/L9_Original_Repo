@@ -8,6 +8,8 @@ structlog for structured logging, and Python 3.12 async/await syntax.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Error Handling Protocols",
@@ -32,10 +34,11 @@ __dora_meta__ = {
 import asyncio
 import dataclasses
 import enum
+import sys
 import traceback
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, Protocol, runtime_checkable
 
 import structlog
@@ -111,7 +114,7 @@ class ErrorContext:
     message: str = ""
     severity: ErrorSeverity = ErrorSeverity.UNKNOWN
     category: ErrorCategory = ErrorCategory.UNKNOWN
-    timestamp: datetime = dataclasses.field(default_factory=datetime.utcnow)
+    timestamp: datetime = dataclasses.field(default_factory=lambda: datetime.now(UTC))
     traceback_str: str = ""
     source_module: str = ""
     source_function: str = ""
@@ -135,6 +138,7 @@ class ErrorHandlingProtocol(Protocol):
     Enables duck typing and multiple error handler implementations.
     """
 
+    @must_stay_async("callers use await")
     async def handle_error(
         self,
         exception: Exception,
@@ -192,6 +196,7 @@ class ErrorHandlingProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def log_error(self, context: ErrorContext) -> None:
         """
         Log error with structured information for monitoring and analysis.
@@ -231,6 +236,7 @@ class StandardErrorHandler:
         self.timeout_threshold = timeout_threshold
         self.log_traceback = log_traceback
 
+    @must_stay_async("callers use await")
     async def handle_error(
         self,
         exception: Exception,
@@ -426,6 +432,7 @@ class StandardErrorHandler:
 
         return False
 
+    @must_stay_async("callers use await")
     async def log_error(self, context: ErrorContext) -> None:
         """
         Log error with structured information via structlog.
@@ -450,11 +457,12 @@ class StandardErrorHandler:
                 logger.warning("transient_error", **log_data)
 
         except Exception:
-            # Suppress logging errors to prevent recursion
-            pass
+            # Logger itself failed — write to stderr to avoid recursion
+            sys.stderr.write("error_handling.log_error_failed\n")
 
 
 @asynccontextmanager
+@must_stay_async("callers use await")
 async def with_error_handling(
     handler: ErrorHandlingProtocol,
     max_retries: int = 3,

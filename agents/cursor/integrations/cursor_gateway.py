@@ -39,7 +39,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import structlog
@@ -47,7 +47,9 @@ import structlog
 from core.decorators import must_stay_async
 from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
 from memory.governance_gate import build_governance_context, governance_context
-from memory.substrate_service import MemorySubstrateService
+
+if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 
@@ -122,6 +124,7 @@ class CursorMemoryGateway:
             project_ids=["cursor"],
         )
 
+    @must_stay_async("callers use await")
     async def write_decision(
         self,
         state: Any,  # CursorAgentState
@@ -170,6 +173,7 @@ class CursorMemoryGateway:
         logger.info("Decision written", packet_id=result.packet_id)
         return result.packet_id
 
+    @must_stay_async("callers use await")
     async def write_error(
         self,
         state: Any,  # CursorAgentState
@@ -291,6 +295,7 @@ class CursorMemoryGateway:
             # Return empty list on error (graceful degradation)
             return []
 
+    @must_stay_async("callers use await")
     async def write_checkpoint(
         self,
         thread_id: str,

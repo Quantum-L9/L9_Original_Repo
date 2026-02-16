@@ -2,8 +2,8 @@
 # Entrypoints
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -18,6 +18,12 @@
 .github/scripts/validate-readme-sections.py
   Type: Script
   Has __main__ block: Yes
+agents/codegenagent/__main__.py
+  Type: Script
+  Has __main__ block: Yes
+agents/codegenagent/extract_yaml_specs.py
+  Type: Script
+  Has __main__ block: Yes
 agents/cursor/cursor_memory_client.py
   Type: Script
   Has __main__ block: Yes
@@ -28,6 +34,9 @@ agents/cursor/cursor_neo4j_query.py
   Type: Script
   Has __main__ block: Yes
 agents/cursor/gmp_meta_learning.py
+  Type: Script
+  Has __main__ block: Yes
+agents/cursor/ingest_lessons.py
   Type: Script
   Has __main__ block: Yes
 agents/cursor/scripts/cursor_check_mistakes.py
@@ -83,6 +92,9 @@ bootstrap/__main__.py
 ci/ai_guardrails/runner.py
   Type: Script
   Has __main__ block: Yes
+ci/auto_fix_adr.py
+  Type: Script
+  Has __main__ block: Yes
 ci/check_adr_compliance.py
   Type: Script
   Has __main__ block: Yes
@@ -104,10 +116,10 @@ ci/check_memory_bypass.py
 ci/check_no_deprecated_services.py
   Type: Script
   Has __main__ block: Yes
-ci/check_packet_type_naming.py
+ci/check_noqa_placement.py
   Type: Script
   Has __main__ block: Yes
-ci/check_protected_files.py
+ci/check_packet_type_naming.py
   Type: Script
   Has __main__ block: Yes
 ci/check_report_naming.py
@@ -137,9 +149,6 @@ ci/lint_forbidden_imports.py
 ci/validate_codegen.py
   Type: Script
   Has __main__ block: Yes
-ci/validate_dora_blocks.py
-  Type: Script
-  Has __main__ block: Yes
 ci/validate_spec_v25.py
   Type: Script
   Has __main__ block: Yes
@@ -167,6 +176,9 @@ codegen/code-gen-files/validate_spec_v25.py
 codegen/codegenAgent Spec/run_codegen_superprompt.py
   Type: Script
   Has __main__ block: Yes
+codegen/codegen_agent_spec/run_codegen_superprompt.py
+  Type: Script
+  Has __main__ block: Yes
 codegen/dev_layer/am_engine/compile.py
   Type: Script
   Has __main__ block: Yes
@@ -176,13 +188,13 @@ codegen/export_repo_indexes.py
 codegen/scripts/generate_spec.py
   Type: Script
   Has __main__ block: Yes
-codegenagent/extract_yaml_specs.py
-  Type: Script
-  Has __main__ block: Yes
 config/di_async_config.py
   Type: FastAPI
   Routes (1):
     - GET /data
+core/agents/codegenagent/extract_yaml_specs.py
+  Type: Script
+  Has __main__ block: Yes
 core/bayesian/hybrid_kernel.py
   Type: Script
   Has __main__ block: Yes
@@ -196,6 +208,9 @@ core/bayesian/uncertainty.py
   Type: Script
   Has __main__ block: Yes
 core/codegen/cli.py
+  Type: Script
+  Has __main__ block: Yes
+core/codegen/wire_executor.py
   Type: Script
   Has __main__ block: Yes
 core/evaluation/eval_sets.py
@@ -330,6 +345,9 @@ scripts/benchmark_caching_and_vector.py
 scripts/benchmark_performance.py
   Type: Script
   Has __main__ block: Yes
+scripts/cga_spec_generator.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/check_n_plus_1.py
   Type: Script
   Has __main__ block: Yes
@@ -444,6 +462,12 @@ scripts/memory/seed_golden_strategies.py
 scripts/migrate_substrate_models.py
   Type: Script
   Has __main__ block: Yes
+scripts/noqa_debt_eliminator.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/perplexity_audit_agent.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/pr_review/gemini_auto_editor.py
   Type: Script
   Has __main__ block: Yes
@@ -477,10 +501,10 @@ scripts/run_pattern.py
 scripts/setup_gmail_accounts.py
   Type: Script
   Has __main__ block: Yes
-scripts/validate_gmp_report.py
+scripts/update_workflow_state.py
   Type: Script
   Has __main__ block: Yes
-scripts/workflow/generate_gmp_report.py
+scripts/validate_gmp_report.py
   Type: Script
   Has __main__ block: Yes
 scripts/workflow/update_workflow_state.py
@@ -519,6 +543,12 @@ tools/adr/docstring_injector.py
 tools/architecture_reports/main.py
   Type: Script
   Has __main__ block: Yes
+tools/bug_detection/find_config_mismatches.py
+  Type: Script
+  Has __main__ block: Yes
+tools/code_index/build_semantic_index.py
+  Type: Script
+  Has __main__ block: Yes
 tools/codegen/doc_compiler.py
   Type: Script
   Has __main__ block: Yes
@@ -540,10 +570,37 @@ tools/codegen/text_to_code.py
 tools/export_repo_indexes.py
   Type: Script
   Has __main__ block: Yes
+tools/health_dashboard/generate_dashboard.py
+  Type: Script
+  Has __main__ block: Yes
 tools/l9_cli.py
   Type: Script
   Has __main__ block: Yes
+tools/spec_validator/diff_spec_code.py
+  Type: Script
+  Has __main__ block: Yes
 tools/superpack_reports/main.py
+  Type: Script
+  Has __main__ block: Yes
+tools/type_coverage/track_mypy_progress.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/audit_package_exports.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/audit_package_wiring.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/fix_internal_only_exports.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/triage_dead_code.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/try_run.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/validate_external_code.py
   Type: Script
   Has __main__ block: Yes
 workflows/dags/gmp/executor.py

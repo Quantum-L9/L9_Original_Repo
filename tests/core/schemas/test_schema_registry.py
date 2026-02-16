@@ -12,7 +12,7 @@ Verifies:
 - Error handling for unknown versions
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
@@ -37,7 +37,7 @@ class TestVersionDetection:
             "packet_id": str(uuid4()),
             "packet_type": "event",
             "payload": {"data": "test"},
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
         version = detect_version(raw)
         assert version == "1.0.0"
@@ -98,7 +98,7 @@ class TestUpcasting:
             "packet_id": str(uuid4()),
             "packet_type": "event",
             "payload": {"original": "data"},
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         result = upcast(raw, "2.0.0")
@@ -188,7 +188,7 @@ class TestReadPacket:
             "packet_id": str(uuid4()),
             "packet_type": "event",
             "payload": {"original": "data"},
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         packet = read_packet(raw)

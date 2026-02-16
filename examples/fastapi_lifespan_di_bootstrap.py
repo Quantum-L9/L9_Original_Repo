@@ -20,6 +20,8 @@ Reference:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Fastapi Lifespan Di Bootstrap",
@@ -42,9 +44,14 @@ __dora_meta__ = {
 # ============================================================================
 
 from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING
 
 import structlog
 from fastapi import FastAPI
+
+if TYPE_CHECKING:
+    from core.di.container import DIContainer
+    from orchestrators.agent_execution.orchestrator import ExecutorComposer
 
 logger = structlog.get_logger(__name__)
 
@@ -54,6 +61,7 @@ _executor_composer: ExecutorComposer | None = None
 
 
 @asynccontextmanager
+@must_stay_async("callers use await")
 async def lifespan(app: FastAPI):
     """
     FastAPI lifespan: startup → yield → shutdown.
@@ -168,6 +176,7 @@ app = FastAPI(
 
 
 @app.get("/health")
+@must_stay_async("callers use await")
 async def health_check():
     """
     Health check endpoint.
@@ -193,6 +202,7 @@ async def health_check():
 
 
 @app.get("/executor/info")
+@must_stay_async("callers use await")
 async def get_executor_info():
     """
     Get executor configuration (debug endpoint).
@@ -229,6 +239,7 @@ async def get_executor_info():
 
 
 @app.get("/di/services")
+@must_stay_async("callers use await")
 async def list_di_services():
     """
     List all registered DI services (debug endpoint).
@@ -257,7 +268,7 @@ async def list_di_services():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")  # noqa: S104 — intentional for container binding
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

@@ -21,7 +21,7 @@ The `/pr` command was generating GMP reports manually during analysis, which:
 
 1. **Analysis is inline** — Present findings directly in chat/workspace during analysis
 2. **Reports are on-demand** — Generate formatted reports only when explicitly requested
-3. **Scripts handle formatting** — Use `scripts/workflow/generate_gmp_report.py` for consistent output
+3. **Scripts handle formatting** — Use `scripts/generate_gmp_report.py` for consistent output
 4. **Tokens are precious** — Don't write files when presenting inline suffices
 
 ### Workflow Change
@@ -51,13 +51,12 @@ The `/pr` command was generating GMP reports manually during analysis, which:
 
 ```bash
 # Generate GMP report for completed PR analysis
-python3 scripts/workflow/generate_gmp_report.py \
-  --pr 51 \
-  --title "Spring Cleaning TODO Tracking" \
-  --adopted 11 \
-  --skipped 0 \
-  --realigned 0 \
-  --notes "23 TODOs tagged with GMP-100-122"
+python3 scripts/generate_gmp_report.py \
+  --task "Spring Cleaning TODO Tracking" \
+  --tier RUNTIME_TIER \
+  --todo "T1|file.py|1-10|REPLACE|description" \
+  --validation "py_compile|✅" \
+  --summary "23 TODOs tagged with GMP-100-122"
 ```
 
 ## Consequences
@@ -77,5 +76,5 @@ python3 scripts/workflow/generate_gmp_report.py \
 ## Related
 
 - `/pr` command: `.cursor-commands/commands/pr.md`
-- Report generator: `scripts/workflow/generate_gmp_report.py`
+- Report generator: `scripts/generate_gmp_report.py`
 - Workflow state: `scripts/workflow/update_workflow_state.py`

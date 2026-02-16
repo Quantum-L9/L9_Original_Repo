@@ -1,9 +1,17 @@
 """
-L9 SDK - Canonical Entry Point for L9 AIOS
-==========================================
+L9 SDK - Internal Facade for L9 AIOS Subsystems
+=================================================
 
-The official SDK for interacting with L9 Secure AI OS.
-Provides a simplified, unified API for all L9 operations.
+An **internal convenience layer** that wraps L9's core subsystems behind a
+simplified, unified API.  It is designed as a "pull when needed" package:
+external integrators, new agents, or scripts that want one-stop access to
+tasks, memory, tools, governance, and observability can import from here
+instead of reaching into individual subsystem packages.
+
+The 16 public symbols exposed below are the facade surface.  They may show
+as "zero-reference" in triage reports because consumers adopt them on demand
+rather than being wired at startup.  This is intentional — do NOT remove
+them from ``__all__`` based on triage alone.
 
 Usage:
     from SDK import L9, get_l9
@@ -50,18 +58,36 @@ from SDK.SDK import (
     # Main SDK class (preferred)
     L9SDK,
     CheckpointsInterface,
+    # P1: Commands (ADR-0102)
+    CommandsInterface,
     ComplianceInterface,
+    # P1: Email (ADR-0102)
+    EmailInterface,
+    # P2: Evaluation (ADR-0102)
+    EvaluationInterface,
+    # P2: Factory (ADR-0102)
+    FactoryInterface,
     GovernanceInterface,
     # Legacy alias
     L9Facade,
-    # P2: Advanced interfaces (Nice to Have)
+    # P2: Advanced interfaces (ADR-0102)
     LearningInterface,
     MCPInterface,
+    # P0: Memory stack (ADR-0102)
+    MemoryCacheInterface,
+    MemoryGraphInterface,
+    MemoryInterface,
     ObservabilityInterface,
     ReasoningInterface,
-    # P1: Operational interfaces (Should Have)
+    # P1: Research (ADR-0102)
+    ResearchInterface,
+    # P2: Simulation (ADR-0102)
+    SimulationInterface,
+    # P1: Operational interfaces
     TaskQueueInterface,
-    # P0: Core interfaces (Must Have)
+    # P1: Workflow executors (ADR-0101)
+    WorkflowsInterface,
+    # P0: Core interfaces
     WorldModelInterface,
     close_l9_facade,
     close_l9_sdk,
@@ -90,31 +116,35 @@ close_l9 = close_l9_sdk
 # =============================================================================
 
 __all__ = [
-    # Main SDK (preferred names)
     "L9",
     "L9SDK",
-    "get_l9",
-    "get_l9_sdk",
-    "close_l9",
-    "close_l9_sdk",
-    # Legacy names (backwards compat)
+    "CheckpointsInterface",
+    "CommandsInterface",
+    "ComplianceInterface",
+    "EmailInterface",
+    "EvaluationInterface",
+    "FactoryInterface",
+    "GovernanceInterface",
     "L9Facade",
-    "get_l9_facade",
+    "LearningInterface",
+    "MCPInterface",
+    "MemoryCacheInterface",
+    "MemoryGraphInterface",
+    "MemoryInterface",
+    "ObservabilityInterface",
+    "ReasoningInterface",
+    "ResearchInterface",
+    "SimulationInterface",
+    "TaskQueueInterface",
+    "WorkflowsInterface",
+    "WorldModelInterface",
+    "close_l9",
     "close_l9_facade",
-    # Convenience functions
+    "close_l9_sdk",
     "execute_tool",
+    "get_l9",
+    "get_l9_facade",
+    "get_l9_sdk",
     "query_memory",
     "run_task",
-    # P0: Core interfaces
-    "WorldModelInterface",
-    "GovernanceInterface",
-    "ObservabilityInterface",
-    # P1: Operational interfaces
-    "TaskQueueInterface",
-    "CheckpointsInterface",
-    "MCPInterface",
-    # P2: Advanced interfaces
-    "LearningInterface",
-    "ComplianceInterface",
-    "ReasoningInterface",
 ]

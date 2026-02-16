@@ -10,6 +10,8 @@ Version: 1.0.0 (GMP-18)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Insight Emitter",
@@ -35,7 +37,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -51,7 +53,8 @@ class Insight(BaseModel):
     id: UUID = Field(default_factory=uuid4, description="Unique insight ID")
     event_type: str = Field(..., description="Type of event that generated insight")
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="When the insight was created"
+        default_factory=lambda: datetime.now(UTC),
+        description="When the insight was created",
     )
     entities_involved: list[str] = Field(
         default_factory=list, description="Entity IDs involved in the event"
@@ -91,6 +94,7 @@ class InsightEmitter:
         self._substrate = substrate_service
         self._pending_insights: list[Insight] = []
 
+    @must_stay_async("callers use await")
     async def _write_insight(self, insight: Insight) -> bool:
         """Write insight to memory substrate."""
         if self._substrate is None:
@@ -120,6 +124,7 @@ class InsightEmitter:
             logger.warning(f"Failed to write insight: {e}")
             return False
 
+    @must_stay_async("callers use await")
     async def on_tool_called(
         self,
         tool_name: str,
@@ -162,6 +167,7 @@ class InsightEmitter:
         await self._write_insight(insight)
         return insight
 
+    @must_stay_async("callers use await")
     async def on_approval_changed(
         self,
         task_id: str,
@@ -200,6 +206,7 @@ class InsightEmitter:
         await self._write_insight(insight)
         return insight
 
+    @must_stay_async("callers use await")
     async def on_memory_written(
         self,
         segment_name: str,
@@ -243,6 +250,7 @@ class InsightEmitter:
         await self._write_insight(insight)
         return insight
 
+    @must_stay_async("callers use await")
     async def on_kernel_updated(
         self,
         kernel_name: str,
@@ -281,6 +289,7 @@ class InsightEmitter:
         await self._write_insight(insight)
         return insight
 
+    @must_stay_async("callers use await")
     async def on_repo_pushed(
         self,
         repo_name: str,
@@ -322,6 +331,7 @@ class InsightEmitter:
         await self._write_insight(insight)
         return insight
 
+    @must_stay_async("callers use await")
     async def on_infrastructure_status_changed(
         self,
         infra_name: str,

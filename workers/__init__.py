@@ -71,11 +71,9 @@ __all__ = [
     "AnomalyResponseMonitorResponse",
     # Remediation
     "RemediationEngine",
-    "RemediationEngineRequest",
     "RemediationEngineResponse",
     # Patterns
     "ViolationPatterns",
-    "ViolationPatternsRequest",
     "ViolationPatternsResponse",
     # Violation Tracking
     "ViolationTrackerService",

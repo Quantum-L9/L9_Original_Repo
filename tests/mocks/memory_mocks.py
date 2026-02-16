@@ -7,6 +7,8 @@ Mock implementations for memory substrate testing.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Memory Mocks",
@@ -30,7 +32,7 @@ __dora_meta__ = {
 
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -81,6 +83,7 @@ class MockMemoryAdapter:
         self.blob_store = MockBlobStore()
         self.checkpoints: dict[str, dict[str, Any]] = {}
 
+    @must_stay_async("callers use await")
     async def store_blob(self, content: str | bytes) -> str:
         """
         Store large content as a blob.
@@ -93,10 +96,12 @@ class MockMemoryAdapter:
         """
         return self.blob_store.store(content)
 
+    @must_stay_async("callers use await")
     async def retrieve_blob(self, blob_id: str) -> bytes | None:
         """Retrieve blob by ID."""
         return self.blob_store.retrieve(blob_id)
 
+    @must_stay_async("callers use await")
     async def ingest(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Ingest a packet into memory.
@@ -111,7 +116,7 @@ class MockMemoryAdapter:
 
         packet = {
             "packet_id": packet_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             **data,
         }
 
@@ -156,6 +161,7 @@ class MockMemoryAdapter:
 
         return packet
 
+    @must_stay_async("callers use await")
     async def run_pruning(self) -> dict[str, Any]:
         """
         Run vector index pruning.
@@ -177,6 +183,7 @@ class MockMemoryAdapter:
             "pruned": original_count - len(self.vectors),
         }
 
+    @must_stay_async("callers use await")
     async def search(
         self,
         query: str,
@@ -203,6 +210,7 @@ class MockMemoryAdapter:
 
         return results
 
+    @must_stay_async("callers use await")
     async def save_checkpoint(self, data: dict[str, Any]) -> str:
         """
         Save a checkpoint.
@@ -216,11 +224,12 @@ class MockMemoryAdapter:
         checkpoint_id = str(uuid4())
         self.checkpoints[checkpoint_id] = {
             "id": checkpoint_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             **data,
         }
         return checkpoint_id
 
+    @must_stay_async("callers use await")
     async def load_checkpoint(self, thread_id: str) -> dict[str, Any] | None:
         """
         Load the latest checkpoint for a thread.

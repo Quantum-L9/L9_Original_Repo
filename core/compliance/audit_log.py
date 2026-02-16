@@ -18,6 +18,8 @@ Audit Types:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Audit Logger",
@@ -45,7 +47,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -70,6 +72,7 @@ class AuditLogger:
         """
         self._substrate = substrate_service
 
+    @must_stay_async("callers use await")
     async def log_command(
         self,
         command_id: str,
@@ -99,7 +102,7 @@ class AuditLogger:
         Returns:
             True if logged successfully, False otherwise
         """
-        timestamp = timestamp or datetime.now(timezone.utc).isoformat()
+        timestamp = timestamp or datetime.now(UTC).isoformat()
 
         audit_entry = {
             "audit_type": "command",
@@ -146,6 +149,7 @@ class AuditLogger:
             logger.error("Failed to write audit entry to substrate", error=str(e))
             return False
 
+    @must_stay_async("callers use await")
     async def log_approval(
         self,
         task_id: str,
@@ -167,7 +171,7 @@ class AuditLogger:
         Returns:
             True if logged successfully, False otherwise
         """
-        timestamp = timestamp or datetime.now(timezone.utc).isoformat()
+        timestamp = timestamp or datetime.now(UTC).isoformat()
 
         audit_entry = {
             "audit_type": "approval",
@@ -209,6 +213,7 @@ class AuditLogger:
             logger.error("Failed to write approval audit to substrate", error=str(e))
             return False
 
+    @must_stay_async("callers use await")
     async def log_tool_execution(
         self,
         tool_name: str,
@@ -236,9 +241,7 @@ class AuditLogger:
         Returns:
             True if logged successfully, False otherwise
         """
-        execution_timestamp = (
-            execution_timestamp or datetime.now(timezone.utc).isoformat()
-        )
+        execution_timestamp = execution_timestamp or datetime.now(UTC).isoformat()
 
         audit_entry = {
             "audit_type": "tool_execution",
@@ -282,6 +285,7 @@ class AuditLogger:
             logger.error("Failed to write tool audit to substrate", error=str(e))
             return False
 
+    @must_stay_async("callers use await")
     async def log_memory_write(
         self,
         agent_id: str,
@@ -307,7 +311,7 @@ class AuditLogger:
         Returns:
             True if logged successfully, False otherwise
         """
-        timestamp = timestamp or datetime.now(timezone.utc).isoformat()
+        timestamp = timestamp or datetime.now(UTC).isoformat()
 
         audit_entry = {
             "audit_type": "memory_write",
@@ -353,6 +357,7 @@ class AuditLogger:
             return False
 
 
+@must_stay_async("callers use await")
 async def log_command_to_audit(
     substrate_service: Any,
     command_id: str,

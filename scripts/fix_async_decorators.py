@@ -39,7 +39,12 @@ import re
 import sys
 from pathlib import Path
 
+import structlog
+
 # Directories to skip
+
+logger = structlog.get_logger(__name__)
+
 SKIP_DIRS = {
     "tests",
     "current_work",
@@ -215,7 +220,7 @@ def main():
     dry_run = "--dry-run" in sys.argv
 
     if dry_run:
-        print("=== DRY RUN MODE - No files will be modified ===\n")
+        logger.info("=== dry run mode - no files will be modified ===\n")
 
     # Find all Python files with the comment pattern
     root = Path(".")
@@ -235,9 +240,11 @@ def main():
                     if "# NOTE: Must stay async" in content:
                         files_with_comments.append(filepath)
                 except Exception:
-                    pass
+                    logger.debug(
+                        "fix_async_decorators.file_read_failed", filepath=filepath
+                    )
 
-    print(f"Found {len(files_with_comments)} files with async comments\n")
+    logger.info("found {len(files_with_comments)} files with async comments\n")
 
     # Process each file
     total_comments = 0
@@ -248,7 +255,7 @@ def main():
         result = process_file(filepath, dry_run)
 
         if result.get("error"):
-            print(f"  ✗ {filepath}: {result['error']}")
+            logger.error("  ✗ filepath: {result['error']}", filepath=filepath)
             continue
 
         if result["comments_removed"] > 0:
@@ -257,19 +264,22 @@ def main():
             if result["import_added"]:
                 total_imports += 1
 
-            print(f"  ✓ {filepath}")
+            logger.info("  ✓ filepath", filepath=filepath)
             for change in result["changes"][:3]:
-                print(f"      {change}")
+                logger.info("      change", change=change)
             if len(result["changes"]) > 3:
-                print(f"      ... and {len(result['changes']) - 3} more")
+                logger.info("      ... and {len(result['changes']) - 3} more")
 
-    print("\n=== Summary ===")
-    print(f"Comments removed: {total_comments}")
-    print(f"Decorators added: {total_decorators}")
-    print(f"Imports added: {total_imports}")
+    logger.info("\n=== summary ===")
+    logger.info("comments removed: total comments", total_comments=total_comments)
+    logger.info("decorators added: total decorators", total_decorators=total_decorators)
+    logger.info("imports added: total imports", total_imports=total_imports)
 
     if dry_run:
-        print("\n=== DRY RUN - Run without --dry-run to apply changes ===")
+        logger.info("\n=== dry run - run without --dry-run to apply changes ===")
+
+    if dry_run and total_comments > 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

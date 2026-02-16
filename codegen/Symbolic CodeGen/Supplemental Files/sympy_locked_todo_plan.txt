@@ -1,0 +1,242 @@
+# TODO PLAN (LOCKED) - SymPy Symbolic Computation Service v6.0
+## Extracted: 2026-01-02T12:52:00Z
+## Module ID: core.symbolic_computation
+## Format: Research Factory v6.0
+
+### BLOCK T1: Create module structure (3 files)
+- [T1.1] File: L9/core/symbolic_computation/__init__.py
+  Action: Create (module init, empty file)
+  Gate: File exists, is module
+
+- [T1.2] File: L9/core/symbolic_computation/config.py
+  Action: Create (Pydantic config management)
+  Expected Lines: 50-70
+  Imports: pydantic, os, pathlib
+  Gate: Must import Pydantic BaseSettings
+
+- [T1.3] File: L9/core/symbolic_computation/core/__init__.py
+  Action: Create (core submodule init, empty)
+  Gate: File exists
+
+### BLOCK T2: Core computation modules (7 files)
+- [T2.1] File: L9/core/symbolic_computation/core/expression_evaluator.py
+  Action: Create
+  Expected Lines: 250-350
+  Key Class: ExpressionEvaluator
+  Key Methods:
+    - __init__(cache_size: int, backends: dict)
+    - evaluate_expression(expr: str, variables: dict, backend: str) -> ComputationResult
+    - compile_with_lambdify(expr, variables) -> callable
+    - compile_with_autowrap(expr, variables, language) -> callable
+  Imports Required:
+    - from sympy import *
+    - from sympy.utilities.lambdify import lambdify
+    - from sympy.utilities.autowrap import autowrap
+    - from L9.core.memory_manager import RedisClient
+  Gate: All imports work, all methods present
+
+- [T2.2] File: L9/core/symbolic_computation/core/code_generator.py
+  Action: Create
+  Expected Lines: 150-200
+  Key Class: CodeGenerator
+  Key Methods:
+    - __init__()
+    - generate_code(expr, variables, language, function_name) -> CodeGenResult
+    - compile_generated(source_code, language) -> compiled_function
+  Imports Required:
+    - from sympy.utilities.codegen import codegen, Routine, Argument
+  Gate: Generated code is valid syntax
+
+- [T2.3] File: L9/core/symbolic_computation/core/optimizer.py
+  Action: Create
+  Expected Lines: 100-150
+  Key Class: Optimizer
+  Key Methods:
+    - optimize_expression(expr) -> optimized_expr
+    - apply_cse(expr) -> simplified_expr
+  Imports Required:
+    - from sympy import simplify, expand, factor
+    - from sympy.simplify.cse_main import cse
+  Gate: Output expressions match input (simplified)
+
+- [T2.4] File: L9/core/symbolic_computation/core/cache_manager.py
+  Action: Create
+  Expected Lines: 150-200
+  Key Class: CacheManager
+  Key Methods:
+    - __init__(cache_size: int, redis_client: RedisClient)
+    - cache_expression(expr: str, backend: str, result: Any) -> bool
+    - get_cached_result(expr: str, backend: str) -> Optional[Any]
+    - cache_compiled_function(expr: str, func: callable) -> bool
+  Imports Required:
+    - from functools import lru_cache
+    - from L9.core.redis_client import RedisClient
+  Gate: Redis and LRU cache working
+
+- [T2.5] File: L9/core/symbolic_computation/core/metrics.py
+  Action: Create
+  Expected Lines: 100-150
+  Key Class: MetricsCollector
+  Key Methods:
+    - __init__(postgres_client: PostgresClient)
+    - record_evaluation(expr: str, backend: str, duration_ms: float)
+    - record_compilation(expr: str, language: str, duration_ms: float)
+    - get_metrics_summary() -> dict
+  Imports Required:
+    - from datetime import datetime
+    - from L9.core.memory_manager import PostgresClient
+  Gate: Metrics stored in Postgres
+
+- [T2.6] File: L9/core/symbolic_computation/core/validator.py
+  Action: Create
+  Expected Lines: 100-150
+  Key Class: ExpressionValidator
+  Key Methods:
+    - __init__(max_length: int, allow_dangerous: bool)
+    - validate(expr: str) -> ValidationResult
+    - check_dangerous_functions(expr: str) -> List[str]
+  Imports Required:
+    - from pydantic import BaseModel, validator
+    - import re
+  Gate: Validates expression length, blocks dangerous functions
+
+- [T2.7] File: L9/core/symbolic_computation/core/models.py
+  Action: Create
+  Expected Lines: 80-120
+  Key Classes:
+    - ComputationRequest(BaseModel): expression, variables, backend
+    - CodeGenResult(BaseModel): language, source_code, function_name
+    - ComputationResult(BaseModel): result, execution_time_ms, error
+    - HealthStatus(BaseModel): status, backends_available, cache_available
+  Imports Required:
+    - from pydantic import BaseModel, Field
+    - from enum import Enum
+  Gate: All models Pydantic-valid
+
+### BLOCK T3: API layer (2 files)
+- [T3.1] File: L9/core/symbolic_computation/api/__init__.py
+  Action: Create (empty)
+  Gate: File exists
+
+- [T3.2] File: L9/core/symbolic_computation/api/routes.py
+  Action: Create
+  Expected Lines: 200-300
+  Key Routes:
+    - POST /symbolic/evaluate
+    - POST /symbolic/generate_code
+    - POST /symbolic/optimize
+    - GET /symbolic/metrics
+    - GET /symbolic/health
+  Imports Required:
+    - from fastapi import APIRouter, Request
+    - from L9.core.memory_manager import *
+    - from L9.core.governance import escalate_decision
+  Gate: All endpoints use PacketEnvelope, all have audit logging
+
+### BLOCK T4: Tools integration (1 file)
+- [T4.1] File: L9/core/symbolic_computation/tools/symbolic_tool.py
+  Action: Create
+  Expected Lines: 100-150
+  Key Class: SymPyTool(AgentTool)
+  Key Methods:
+    - __init__()
+    - evaluate(expression, variables, backend) -> result
+    - generate_code(expression, variables, language) -> code
+  Imports Required:
+    - from L9.tools.registry import AgentTool, register_tool
+    - from L9.core.symbolic_computation import SymbolicComputation
+  Gate: Registered in tool_registry and accessible from agents
+
+### BLOCK T5: Documentation (5 files)
+- [T5.1] File: docs/core/symbolic_computation/README.md
+  Action: Create
+  Expected Length: 1,500-2,000 words
+  Sections: Overview, Quick Start, Features, Installation, API Reference
+  Gate: Markdown valid, at least 5 major sections
+
+- [T5.2] File: docs/core/symbolic_computation/ARCHITECTURE.md
+  Action: Create
+  Expected Length: 1,500-2,000 words
+  Sections: System design, Components, Data flow, Integration points
+  Gate: Includes architecture diagram ASCII or description
+
+- [T5.3] File: docs/core/symbolic_computation/API_SPEC.md
+  Action: Create
+  Expected Length: 500-800 words
+  Sections: All endpoints, request/response formats, error codes
+  Gate: Every endpoint documented with examples
+
+- [T5.4] File: docs/core/symbolic_computation/PERFORMANCE_GUIDE.md
+  Action: Create
+  Expected Length: 800-1,200 words
+  Sections: Benchmarks (lambdify 10-100x, autowrap 500x), backend selection, optimization tips
+  Gate: Contains actual performance numbers
+
+- [T5.5] File: docs/core/symbolic_computation/INTEGRATION_GUIDE.md
+  Action: Create
+  Expected Length: 600-1,000 words
+  Sections: How to use from agents, tool registry wiring, memory integration
+  Gate: Step-by-step integration example included
+
+### BLOCK T6: Tests (4 files)
+- [T6.1] File: tests/core/test_expression_evaluator.py
+  Action: Create
+  Expected Lines: 200-300
+  Coverage Target: >= 85%
+  Test Classes:
+    - TestExpressionEvaluator: Happy path, errors, caching
+    - TestLambdify: Backend selection, multi-variable
+    - TestAutowrap: Code compilation, language-specific
+  Gate: pytest runs, >= 95% pass rate, >= 85% coverage
+
+- [T6.2] File: tests/core/test_code_generator.py
+  Action: Create
+  Expected Lines: 150-200
+  Test Classes:
+    - TestCodeGenerator: C code, Fortran code, Cython code
+    - TestCodeCompilation: Generated code compiles, runs correctly
+  Gate: Generated code is valid and executable
+
+- [T6.3] File: tests/core/test_validator.py
+  Action: Create
+  Expected Lines: 100-150
+  Test Classes:
+    - TestValidator: Max length enforcement, dangerous function blocking
+  Gate: All validation rules working
+
+- [T6.4] File: tests/core/test_integration.py
+  Action: Create
+  Expected Lines: 200-300
+  Integration Tests:
+    - Test Redis cache access
+    - Test Postgres metrics storage
+    - Test Neo4j expression graph
+    - Test governance escalation
+    - Test PacketEnvelope communication
+  Gate: All memory backends accessible, governance path works
+
+### BLOCK T7: Manifests & Config (2 files)
+- [T7.1] File: manifests/core/symbolic_computation_manifest.json
+  Action: Create
+  Target: Artifact list with deployment status
+  Structure: { agents: [], modules: [], files: [], version: "6.0.0" }
+  Gate: Valid JSON
+
+- [T7.2] File: deployment/symbolic_computation_config.yaml
+  Action: Create
+  Target: Shared config (memory backends, governance, logging)
+  Sections: memory_backends, governance, logging, monitoring
+  Gate: All env vars referenced
+
+### BLOCK T8: Evidence Report (1 file)
+- [T8.1] File: evidence_report.md
+  Action: Create
+  Target: Full 10-section report per meta.validation.checklist.yaml
+  Sections: [All 10 required sections]
+  Gate: All 10 sections present, signed final declaration
+
+## SUMMARY
+- Total files: 23 Python + 5 docs + 4 tests + 2 config = 34 artifacts
+- Total lines: ~3,000-3,500 (code) + ~4,000-5,000 (docs) + ~500-800 (tests)
+- Test coverage target: >= 85%
+- Test pass rate target: >= 95%

@@ -15,6 +15,8 @@ Version: 1.0.0
 import os
 from unittest.mock import MagicMock, patch
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Configuration
 # =============================================================================
@@ -90,6 +92,7 @@ class TestWebSocketAuthHelper:
         result = await verify_ws_token(mock_ws, None)
         assert result is False
 
+    @must_stay_async("callers use await")
     async def test_verify_ws_token_no_config(self):
         """Verify auth helper returns False when key not configured."""
         # Clear the env var

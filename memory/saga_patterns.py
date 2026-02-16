@@ -89,7 +89,18 @@ async def _vector_search_step(
         filtered_results = [
             r
             for r in results
-            if ((r.get("similarity") if isinstance(r, dict) else getattr(r, "similarity", None)) or (r.get("score", 0.0) if isinstance(r, dict) else getattr(r, "score", 0.0)))
+            if (
+                (
+                    r.get("similarity")
+                    if isinstance(r, dict)
+                    else getattr(r, "similarity", None)
+                )
+                or (
+                    r.get("score", 0.0)
+                    if isinstance(r, dict)
+                    else getattr(r, "score", 0.0)
+                )
+            )
             >= min_similarity
         ]
 
@@ -97,12 +108,26 @@ async def _vector_search_step(
         hits = []
         for r in filtered_results:
             hit = {
-                "packet_id": str(r.get("packet_id")) if isinstance(r, dict) and r.get("packet_id") else (str(r.packet_id) if hasattr(r, "packet_id") else None),
-                "content": (r.get("content") if isinstance(r, dict) else r.content) if (isinstance(r, dict) or hasattr(r, "content")) else str(r),
-                "similarity": (r.get("similarity") if isinstance(r, dict) else r.similarity) if (isinstance(r, dict) or hasattr(r, "similarity")) else (r.get("score", 0.0) if isinstance(r, dict) else 0.0),
-                "kind": r.get("kind") if isinstance(r, dict) else (r.kind if hasattr(r, "kind") else None),
-                "source_id": r.get("source_id") if isinstance(r, dict) else (r.source_id if hasattr(r, "source_id") else None),
-                "thread_id": r.get("thread_id") if isinstance(r, dict) else (r.thread_id if hasattr(r, "thread_id") else None),
+                "packet_id": str(r.get("packet_id"))
+                if isinstance(r, dict) and r.get("packet_id")
+                else (str(r.packet_id) if hasattr(r, "packet_id") else None),
+                "content": (r.get("content") if isinstance(r, dict) else r.content)
+                if (isinstance(r, dict) or hasattr(r, "content"))
+                else str(r),
+                "similarity": (
+                    r.get("similarity") if isinstance(r, dict) else r.similarity
+                )
+                if (isinstance(r, dict) or hasattr(r, "similarity"))
+                else (r.get("score", 0.0) if isinstance(r, dict) else 0.0),
+                "kind": r.get("kind")
+                if isinstance(r, dict)
+                else (r.kind if hasattr(r, "kind") else None),
+                "source_id": r.get("source_id")
+                if isinstance(r, dict)
+                else (r.source_id if hasattr(r, "source_id") else None),
+                "thread_id": r.get("thread_id")
+                if isinstance(r, dict)
+                else (r.thread_id if hasattr(r, "thread_id") else None),
             }
             hits.append(hit)
 
@@ -215,6 +240,7 @@ async def _extract_entities_step(
     return unique_entities
 
 
+@must_stay_async("callers use await")
 async def _graph_enrich_step(
     context: SagaContext,
     neo4j: Any = None,
@@ -329,6 +355,7 @@ async def _assemble_result_step(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def _fetch_events_step(
     context: SagaContext,
     neo4j: Any = None,
@@ -397,6 +424,7 @@ async def _fetch_events_step(
         return []
 
 
+@must_stay_async("callers use await")
 async def _trace_causal_chain_step(
     context: SagaContext,
     neo4j: Any = None,
@@ -505,6 +533,7 @@ def create_entity_enrichment_saga() -> Saga:
     Input: {"entity_ids": ["id1", "id2"], "entity_type": "User"}
     """
 
+    @must_stay_async("callers use await")
     async def lookup_entities(context: SagaContext, neo4j: Any = None, **kwargs):
         """
         Performs entity lookup within a saga context using Neo4j; returns a list of entities or an empty list if Neo4j is unavailable.
@@ -632,6 +661,7 @@ class SagaPatterns:
             "timeline_correlation": create_timeline_correlation_saga(),
         }
 
+    @must_stay_async("callers use await")
     async def fetch_and_enrich(
         self,
         query: str,
@@ -745,6 +775,7 @@ async def get_saga_patterns(
     return _patterns
 
 
+@must_stay_async("callers use await")
 async def fetch_and_enrich(
     query: str,
     postgres_pool: Any | None = None,

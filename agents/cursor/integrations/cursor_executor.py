@@ -10,6 +10,8 @@ Updated to use MemorySubstrateService directly (removed SubstrateDagOrchestrator
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Cursor Executor",
@@ -31,17 +33,19 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
 from pydantic import BaseModel, Field
 
-from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
 from agents.cursor.integrations.cursor_langgraph import CursorAgentState
-from core.governance.approval_manager import ApprovalManager
-from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
-from memory.substrate_service import MemorySubstrateService
+
+if TYPE_CHECKING:
+    from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
+    from core.governance.approval_manager import ApprovalManager
+    from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 
@@ -116,6 +120,7 @@ class CursorExecutor:
         self._approval_manager = approval_manager
         logger.info("CursorExecutor initialized")
 
+    @must_stay_async("callers use await")
     async def run_task(self, task: CursorTaskSpec) -> CursorResult:
         """
         Run a Cursor task through LangGraph.

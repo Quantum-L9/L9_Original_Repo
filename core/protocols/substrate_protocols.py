@@ -18,6 +18,8 @@ Status: active
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Substrate Protocols",
@@ -43,8 +45,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Protocol, runtime_checkable
-from uuid import UUID
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 @runtime_checkable
@@ -64,14 +68,17 @@ class SubstrateRepositoryProtocol(Protocol):
     - tests.mocks.MockSubstrateRepository (testing)
     """
 
+    @must_stay_async("callers use await")
     async def connect(self) -> None:
         """Establish database connection pool."""
         ...
 
+    @must_stay_async("callers use await")
     async def disconnect(self) -> None:
         """Close database connection pool gracefully."""
         ...
 
+    @must_stay_async("callers use await")
     async def health_check(self) -> dict[str, Any]:
         """
         Check repository health status.
@@ -81,6 +88,7 @@ class SubstrateRepositoryProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def write_packet(self, envelope: Any) -> Any:
         """
         Write packet envelope to substrate.
@@ -93,6 +101,7 @@ class SubstrateRepositoryProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def get_packet(self, packet_id: UUID) -> Any | None:
         """
         Retrieve packet by ID.
@@ -105,6 +114,7 @@ class SubstrateRepositoryProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def search_packets_by_thread(
         self,
         thread_id: UUID,
@@ -124,6 +134,7 @@ class SubstrateRepositoryProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def acquire(self) -> Any:
         """
         Acquire database connection from pool.
@@ -133,6 +144,7 @@ class SubstrateRepositoryProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def transaction(
         self,
         tenant_id: str,
@@ -181,6 +193,7 @@ class EmbeddingProviderProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def embed_text(self, text: str) -> list[float]:
         """
         Generate embedding for single text.
@@ -193,6 +206,7 @@ class EmbeddingProviderProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """
         Generate embeddings for batch of texts.
@@ -221,6 +235,7 @@ class SemanticServiceProtocol(Protocol):
     - memory.substrate_semantic.SemanticService (production)
     """
 
+    @must_stay_async("callers use await")
     async def search(
         self,
         query: str,
@@ -240,6 +255,7 @@ class SemanticServiceProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def embed_and_store(
         self,
         text: str,
@@ -275,6 +291,7 @@ class DAGProtocol(Protocol):
     - memory.substrate_dag.SubstrateDAG (production)
     """
 
+    @must_stay_async("callers use await")
     async def run(self, envelope: Any) -> Any:
         """
         Execute DAG pipeline for packet.

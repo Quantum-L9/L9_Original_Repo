@@ -1,8 +1,8 @@
 # ADR-0074: Surgical Edits Only
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Author:** Igor Beylin  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Author:** Igor Beylin
 
 ## Context
 
@@ -16,13 +16,13 @@ December 2025 incident: Cursor destroyed `docker-compose.yml` by using the `writ
 
 ### Edit Tool Selection
 
-| Scenario | Tool | Why |
-|----------|------|-----|
-| Change one function | `search_replace` | Minimal diff |
-| Add import | `search_replace` at file top | Precise insertion |
-| Fix bug in method | `search_replace` on method | Targeted fix |
-| Create new file | `write` | File doesn't exist |
-| Complete rewrite needed | **ASK FIRST** | Rare, needs approval |
+| Scenario                | Tool                         | Why                  |
+| ----------------------- | ---------------------------- | -------------------- |
+| Change one function     | `search_replace`             | Minimal diff         |
+| Add import              | `search_replace` at file top | Precise insertion    |
+| Fix bug in method       | `search_replace` on method   | Targeted fix         |
+| Create new file         | `write`                      | File doesn't exist   |
+| Complete rewrite needed | **ASK FIRST**                | Rare, needs approval |
 
 ### Never Use `write` Tool On
 
@@ -42,16 +42,17 @@ December 2025 incident: Cursor destroyed `docker-compose.yml` by using the `writ
 
 ### Anti-Patterns
 
-| Anti-Pattern | Why It's Wrong |
-|--------------|----------------|
+| Anti-Pattern                       | Why It's Wrong                        |
+| ---------------------------------- | ------------------------------------- |
 | Full file rewrite for small change | Destroys git history, introduces bugs |
-| "Let me regenerate the whole file" | Loses comments, context, formatting |
-| Combining 10 changes in one edit | Can't review or rollback individually |
-| Reformatting unchanged code | Creates noise in diffs |
+| "Let me regenerate the whole file" | Loses comments, context, formatting   |
+| Combining 10 changes in one edit   | Can't review or rollback individually |
+| Reformatting unchanged code        | Creates noise in diffs                |
 
 ### When Full Rewrite IS Acceptable
 
 Only with explicit approval when:
+
 - File is < 50 lines and completely wrong
 - User explicitly requests "rewrite from scratch"
 - Creating a new file that doesn't exist
@@ -60,12 +61,12 @@ Only with explicit approval when:
 
 ### Edit Size Limits
 
-| File Type | Max Edits Before Asking |
-|-----------|-------------------------|
-| Config files | 3 |
-| Source code | 10 |
-| Tests | 10 |
-| Documentation | 15 |
+| File Type     | Max Edits Before Asking |
+| ------------- | ----------------------- |
+| Config files  | 3                       |
+| Source code   | 10                      |
+| Tests         | 10                      |
+| Documentation | 15                      |
 
 If more edits needed: "This file needs significant changes. Should I proceed with [N] edits, or would you prefer a different approach?"
 
@@ -79,15 +80,18 @@ If more edits needed: "This file needs significant changes. Should I proceed wit
 ## Consequences
 
 ### Positive
+
 - Clean git history
 - Easy code review
 - Fewer accidental changes
 - Safer refactoring
 
 ### Negative
+
 - Multiple small edits instead of one big one
 - Requires more careful planning
 
 ## Related
+
 - ADR-0072: Diagnose Before Fix
 - ADR-0073: Evidence-Based Claims

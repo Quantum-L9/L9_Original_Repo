@@ -47,6 +47,8 @@ __dora_meta__ = {
 import httpx
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -57,11 +59,13 @@ class TensorAIOSBridge:
         self.tensor_url = tensor_url
         self._client: httpx.AsyncClient | None = None
 
+    @must_stay_async("callers use await")
     async def initialize(self) -> None:
         """Initialize HTTP client."""
         self._client = httpx.AsyncClient(timeout=30.0)
         logger.info("tensoraios_bridge_initialized")
 
+    @must_stay_async("callers use await")
     async def call_link_prediction(self, source: str, target: str) -> float:
         """Call link prediction model."""
         logger.debug("call_link_prediction", source=source, target=target)
@@ -69,12 +73,14 @@ class TensorAIOSBridge:
         # In production, this calls the TensorAIOS API
         return 0.75
 
+    @must_stay_async("callers use await")
     async def call_embedding_similarity(self, entity_a: str, entity_b: str) -> float:
         """Calculate embedding similarity between entities."""
         logger.debug("call_embedding_similarity", a=entity_a, b=entity_b)
 
         return 0.82
 
+    @must_stay_async("callers use await")
     async def get_embeddings(self, entity_ids: list[str]) -> list[list[float]]:
         """Get embeddings for entities."""
         logger.debug("get_embeddings", count=len(entity_ids))

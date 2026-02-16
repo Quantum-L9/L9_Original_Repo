@@ -41,12 +41,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.schemas import (
     PacketConfidence,
     PacketEnvelope,
@@ -116,7 +117,7 @@ class ResearchMemoryAdapter:
         return PacketEnvelope(
             packet_id=uuid4(),
             packet_type=packet_type,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             payload=payload,
             metadata=PacketMetadata(
                 schema_version="1.0.0",
@@ -171,7 +172,7 @@ class ResearchMemoryAdapter:
             final_summary=payload.get("final_summary", ""),
             final_output=payload.get("final_output", {}),
             errors=payload.get("errors", []),
-            timestamp=payload.get("timestamp", datetime.now(timezone.utc).isoformat()),
+            timestamp=payload.get("timestamp", datetime.now(UTC).isoformat()),
             packet_id=str(envelope.packet_id),
         )
 
@@ -179,6 +180,7 @@ class ResearchMemoryAdapter:
     # Checkpoint Operations (uses graph_checkpoints table)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def save_checkpoint(
         self,
         state: ResearchGraphState,
@@ -240,6 +242,7 @@ class ResearchMemoryAdapter:
     # Memory Event Operations (uses agent_memory_events table)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def log_memory_event(
         self,
         agent_id: str,
@@ -275,6 +278,7 @@ class ResearchMemoryAdapter:
     # Reasoning Trace Operations (uses reasoning_traces table)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def save_reasoning_trace(
         self,
         agent_id: str,
@@ -307,7 +311,7 @@ class ResearchMemoryAdapter:
             decision_tokens=[],
             confidence_scores={"overall": confidence},
             memory_write_ops=[],
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         )
 
         # Add agent_id as attribute for repository

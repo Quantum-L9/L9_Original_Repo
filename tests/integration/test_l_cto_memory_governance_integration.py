@@ -17,6 +17,8 @@ import os
 import sys
 from pathlib import Path
 
+from core.decorators import must_stay_async
+
 # CRITICAL: Set path BEFORE any imports
 # Use resolve() to get absolute path
 PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
@@ -42,6 +44,7 @@ class TestMemoryGovernanceIntegration:
     """Test memory and governance integration."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_governance_validation_before_memory_write(self):
         """
         Test governance validation happens before memory writes.
@@ -69,6 +72,7 @@ class TestMemoryGovernanceIntegration:
         assert safety_result["safe"] is False
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_audit_trail_tracks_executions(self):
         """
         Test audit trail tracks all executions for drift detection.
@@ -102,6 +106,7 @@ class TestMemoryGovernanceIntegration:
         assert drift is None or drift["drift_detected"] is False
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_drift_detection_triggers_on_low_success_rate(self):
         """
         Test drift detection triggers when success rate drops.
@@ -129,6 +134,7 @@ class TestMemoryGovernanceIntegration:
         assert drift["type"] in ["success_rate_drop", "repeated_failure"]
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_governance_blocks_and_logs_violations(self):
         """
         Test governance blocks violations and logs them.

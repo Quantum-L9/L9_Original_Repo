@@ -11,6 +11,8 @@ GMP: kernel_boot_frontier_phase1
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Kernelevolution",
@@ -37,12 +39,13 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
 
-from core.agents.selfreflection import BehaviorGap, ReflectionResult
+if TYPE_CHECKING:
+    from core.agents.selfreflection import BehaviorGap, ReflectionResult
 
 logger = structlog.get_logger(__name__)
 
@@ -316,6 +319,7 @@ def generate_proposals_from_reflection(
     return proposals
 
 
+@must_stay_async("callers use await")
 async def create_evolution_plan(
     reflection: ReflectionResult,
     substrate_service: Any | None = None,

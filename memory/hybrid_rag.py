@@ -163,6 +163,7 @@ class EntityExtractor:
         self._use_llm = use_llm
         self._llm_client = llm_client
 
+    @must_stay_async("callers use await")
     async def extract_entities(
         self,
         text: str,
@@ -357,6 +358,7 @@ class GraphEnricher:
         """
         self._neo4j = neo4j_client
 
+    @must_stay_async("callers use await")
     async def enrich(
         self,
         entities: list[dict[str, Any]],
@@ -434,6 +436,7 @@ class GraphEnricher:
             relationship_count=len(relationship_paths),
         )
 
+    @must_stay_async("callers use await")
     async def _get_direct_neighbors(
         self,
         entity_type: str,
@@ -474,6 +477,7 @@ class GraphEnricher:
             logger.debug(f"Direct neighbor query failed: {e}")
             return []
 
+    @must_stay_async("callers use await")
     async def _get_extended_neighborhood(
         self,
         entity_type: str,
@@ -594,6 +598,7 @@ class HybridRAGPipeline:
 
         logger.info("HybridRAGPipeline initialized")
 
+    @must_stay_async("callers use await")
     async def search(
         self,
         query: str,
@@ -710,23 +715,57 @@ class HybridRAGPipeline:
             filtered_results = [
                 r
                 for r in results
-                if ((r.get("similarity") if isinstance(r, dict) else getattr(r, "similarity", None)) or (r.get("score", 0.0) if isinstance(r, dict) else getattr(r, "score", 0.0)))
+                if (
+                    (
+                        r.get("similarity")
+                        if isinstance(r, dict)
+                        else getattr(r, "similarity", None)
+                    )
+                    or (
+                        r.get("score", 0.0)
+                        if isinstance(r, dict)
+                        else getattr(r, "score", 0.0)
+                    )
+                )
                 >= min_similarity
             ]
 
             return [
                 VectorHit(
                     packet_id=(
-                        UUID(str(r.get("packet_id") if isinstance(r, dict) else r.packet_id))
-                        if (hasattr(r, "packet_id") or (isinstance(r, dict) and r.get("packet_id")))
+                        UUID(
+                            str(
+                                r.get("packet_id")
+                                if isinstance(r, dict)
+                                else r.packet_id
+                            )
+                        )
+                        if (
+                            hasattr(r, "packet_id")
+                            or (isinstance(r, dict) and r.get("packet_id"))
+                        )
                         else UUID("00000000-0000-0000-0000-000000000000")
                     ),
-                    content=(r.get("content") if isinstance(r, dict) else r.content) if (isinstance(r, dict) or hasattr(r, "content")) else str(r),
-                    similarity=(r.get("similarity") if isinstance(r, dict) else r.similarity) if (isinstance(r, dict) or hasattr(r, "similarity")) else (r.get("score", 0.0) if isinstance(r, dict) else 0.0),
-                    kind=r.get("kind") if isinstance(r, dict) else (r.kind if hasattr(r, "kind") else None),
-                    source_id=r.get("source_id") if isinstance(r, dict) else (r.source_id if hasattr(r, "source_id") else None),
-                    thread_id=r.get("thread_id") if isinstance(r, dict) else (r.thread_id if hasattr(r, "thread_id") else None),
-                    metadata=r.get("metadata", {}) if isinstance(r, dict) else (r.metadata if hasattr(r, "metadata") else {}),
+                    content=(r.get("content") if isinstance(r, dict) else r.content)
+                    if (isinstance(r, dict) or hasattr(r, "content"))
+                    else str(r),
+                    similarity=(
+                        r.get("similarity") if isinstance(r, dict) else r.similarity
+                    )
+                    if (isinstance(r, dict) or hasattr(r, "similarity"))
+                    else (r.get("score", 0.0) if isinstance(r, dict) else 0.0),
+                    kind=r.get("kind")
+                    if isinstance(r, dict)
+                    else (r.kind if hasattr(r, "kind") else None),
+                    source_id=r.get("source_id")
+                    if isinstance(r, dict)
+                    else (r.source_id if hasattr(r, "source_id") else None),
+                    thread_id=r.get("thread_id")
+                    if isinstance(r, dict)
+                    else (r.thread_id if hasattr(r, "thread_id") else None),
+                    metadata=r.get("metadata", {})
+                    if isinstance(r, dict)
+                    else (r.metadata if hasattr(r, "metadata") else {}),
                 )
                 for r in filtered_results
             ]
@@ -810,6 +849,7 @@ async def get_hybrid_rag_pipeline(
     return _pipeline
 
 
+@must_stay_async("callers use await")
 async def hybrid_search(
     semantic_service: Any,
     neo4j_client: Any,

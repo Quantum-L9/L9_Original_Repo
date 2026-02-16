@@ -8,6 +8,8 @@ Adapts reasoning engine for LangGraph node integration.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "AdapterNode",
@@ -68,6 +70,7 @@ class ReasoningAdapterNode:
         self._orchestrator = orchestrator or ReasoningOrchestrator()
         logger.info("ReasoningAdapterNode initialized")
 
+    @must_stay_async("callers use await")
     async def process(self, state: ReasoningNodeState) -> ReasoningNodeState:
         """
         Process state through reasoning orchestrator.

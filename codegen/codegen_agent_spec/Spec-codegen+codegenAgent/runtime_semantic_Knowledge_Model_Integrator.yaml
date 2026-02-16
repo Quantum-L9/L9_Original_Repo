@@ -1,0 +1,65 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Runtime Semantic Knowledge Model Integrator"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-06T16:58:23Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "runtime_semantic_Knowledge_Model_Integrator"
+# type: "cli"
+# status: "active"
+# ============================================================================
+
+# ============================================================
+# Knowledge_Model_Integrator.py
+# ============================================================
+
+filename: runtime/semantic/Knowledge_Model_Integrator.py
+type: reasoning_connector
+language: python
+description: |
+  Links CGA-generated agents and modules to L9's WorldModel.
+  Maps schemas, tasks, and outputs into causal chains and reasoning lattices.
+
+wiring:
+  inputs:
+    - path: schemas/**/*.yaml
+    - path: worldmodel/current.json
+  outputs:
+    - path: worldmodel/integrated_tasks.json
+    - path: audit/semantic_graph.gml
+  triggers:
+    - new_module_deployed
+    - orchestrator_recompiled
+
+code: |
+  import yaml, json
+  from utils.semantic_graph import integrate_schema_into_worldmodel
+
+  def integrate():
+      with open('worldmodel/current.json') as f:
+          wm = json.load(f)
+      schemas = []
+      for folder in ['schemas/agents/', 'schemas/modules/']:
+          for file in os.listdir(folder):
+              with open(f"{folder}{file}") as f:
+                  schemas.append(yaml.safe_load(f))
+      integrated = integrate_schema_into_worldmodel(schemas, wm)
+      with open('worldmodel/integrated_tasks.json', 'w') as f:
+          json.dump(integrated, f)
+      with open('audit/semantic_graph.gml', 'w') as f:
+          f.write("# Generated semantic task graph")
+
+  if __name__ == "__main__":
+      integrate()
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "cli", "code-generation", "foundation", "model-config", "schema"]
+# keywords: ["code", "description", "filename", "integrator", "knowledge", "language"]
+# last_modified: "2026-01-06T16:58:23Z"
+# ============================================================================

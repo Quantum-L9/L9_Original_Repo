@@ -22,10 +22,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import ast
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .config import RepoLayout, iter_python_files
 from .filesystem import open_report
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _module_from_path(layout: RepoLayout, path: Path) -> str:

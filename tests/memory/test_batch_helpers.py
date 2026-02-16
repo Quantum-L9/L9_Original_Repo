@@ -3,17 +3,46 @@ Tests for batch query helpers
 
 These tests verify that batch query helpers prevent N+1 patterns
 and correctly fetch related data.
+
+NOTE: These are integration tests that require a live PostgreSQL database.
 """
 
-from datetime import datetime, timezone
+import os
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.substrate_repository_batch_helpers import BatchQueryHelpers
+
+TEST_DB_URL = os.getenv("TEST_DATABASE_URL")
+
+pytestmark = pytest.mark.skipif(
+    not TEST_DB_URL,
+    reason="Requires TEST_DATABASE_URL (integration test — set to a reachable PostgreSQL URL)",
+)
 
 
 @pytest.fixture
+async def substrate_repo():
+    """Provide a SubstrateRepository connected to the test database.
+
+    Skips if TEST_DATABASE_URL is not set.
+    """
+    if not TEST_DB_URL:
+        pytest.skip("TEST_DATABASE_URL not set")
+
+    from memory.substrate_repository import SubstrateRepository
+
+    repo = SubstrateRepository(TEST_DB_URL)
+    await repo.initialize()
+    yield repo
+    await repo.close()
+
+
+@pytest.fixture
+@must_stay_async("callers use await")
 async def batch_helpers(substrate_repo):
     """Provide BatchQueryHelpers instance"""
     return BatchQueryHelpers(substrate_repo)
@@ -39,7 +68,7 @@ async def sample_packets(substrate_repo):
                 packet_id,
                 "test",
                 '{"test": true}',
-                datetime.now(timezone.utc),
+                datetime.now(UTC),
                 tenant_id,
                 ["test"],
             )
@@ -88,7 +117,7 @@ async def test_get_packets_with_children_batch(batch_helpers, substrate_repo):
             parent_id,
             "parent",
             '{"type": "parent"}',
-            datetime.now(timezone.utc),
+            datetime.now(UTC),
             tenant_id,
             [],
         )
@@ -106,7 +135,7 @@ async def test_get_packets_with_children_batch(batch_helpers, substrate_repo):
                 child_id,
                 "child",
                 '{"type": "child"}',
-                datetime.now(timezone.utc),
+                datetime.now(UTC),
                 tenant_id,
                 [parent_id],
             )
@@ -223,7 +252,7 @@ async def test_tenant_isolation(batch_helpers, substrate_repo):
             packet_a,
             "test",
             "{}",
-            datetime.now(timezone.utc),
+            datetime.now(UTC),
             tenant_a,
         )
         await conn.execute(
@@ -236,7 +265,7 @@ async def test_tenant_isolation(batch_helpers, substrate_repo):
             packet_b,
             "test",
             "{}",
-            datetime.now(timezone.utc),
+            datetime.now(UTC),
             tenant_b,
         )
 

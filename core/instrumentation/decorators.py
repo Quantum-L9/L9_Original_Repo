@@ -23,6 +23,8 @@ GMP: refactor-phase0-plan10
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 # DORA HEADER META
 # ============================================================================
@@ -208,6 +210,7 @@ def traced[F: Callable[..., Any]](
         """
 
         @functools.wraps(f)
+        @must_stay_async("callers use await")
         async def async_wrapper(*args, **kwargs):
             """
             Performs asynchronous tracing and correlation ID management for auto-instrumentation in observability pipelines.
@@ -477,6 +480,7 @@ def logged[F: Callable[..., Any]](
         log_func = getattr(logger, level, logger.info)
 
         @functools.wraps(f)
+        @must_stay_async("callers use await")
         async def async_wrapper(*args, **kwargs):
             """
             Performs asynchronous function wrapping for auto-instrumentation in observability frameworks.

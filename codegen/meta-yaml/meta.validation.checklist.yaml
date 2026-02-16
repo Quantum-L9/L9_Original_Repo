@@ -1,0 +1,583 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Meta.Validation.Checklist"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-02T00:54:58Z"
+# updated_at: "2026-01-15T15:41:34Z"
+# layer: "operations"
+# domain: "current_work"
+# file_name: "meta.validation.checklist"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
+# L9 CODEGEN SYSTEM - META VALIDATION CHECKLIST TEMPLATE
+# ============================================================================
+# Storage: /codegen/templates/meta/meta.validation.checklist.yaml
+#
+# Purpose:
+#   Production-grade validation checklist applied to EVERY extracted agent.
+#   Instantiate this template once per agent. Extraction cannot complete
+#   until all checkmarks are [x].
+#
+# ============================================================================
+
+---
+
+system: L9 Codegen Meta Validation Checklist
+title: Multi-Agent Extraction Validation Checklist v6.0
+version: 6.0.0
+created: 2025-12-12
+
+purpose: |-
+  Enforce production-grade quality on every extracted agent. This checklist
+  is instantiated per agent and tracks evidence for each item. No extraction
+  completes until all items marked [x] with evidence.
+
+---
+
+## PHASE-BY-PHASE VALIDATION CHECKLIST
+
+validation_checklist:
+  
+  # =========================================================================
+  # PHASE 1: BASELINE CONFIRMATION
+  # =========================================================================
+  
+  phase_1_baseline_confirmation:
+    title: Phase 1 - Baseline Confirmation
+    description: |-
+      Verify targets exist, dependencies available, no blocking conditions.
+    
+    checklist:
+      - item: Target directory accessible
+        status: [ ]
+        evidence: |-
+          If [x]: File listing of target directory
+          If [ ]: Error message or blocking condition
+      
+      - item: All hard dependencies already extracted
+        status: [ ]
+        evidence: |-
+          If [x]: List of extracted hard_dependencies with file counts
+          If [ ]: Which dependencies missing
+      
+      - item: All soft dependencies available (or mocked)
+        status: [ ]
+        evidence: |-
+          If [x]: List of soft_dependencies verified
+          If [ ]: Which dependencies unavailable
+      
+      - item: Memory backends online
+        status: [ ]
+        evidence: |-
+          If [x]: Connection test to redis, postgres, neo4j, hypergraph
+          If [ ]: Which backends offline
+      
+      - item: Governance anchors reachable
+        status: [ ]
+        evidence: |-
+          If [x]: Governance bridge can contact anchors
+          If [ ]: Which anchors unreachable
+      
+      - item: No blocking dependencies
+        status: [ ]
+        evidence: |-
+          If [x]: Dependency DAG verified, no circular imports
+          If [ ]: List of circular dependencies
+      
+      - item: Feature flags configured
+        status: [ ]
+        evidence: |-
+          If [x]: L9_ENABLE_* flags set correctly in env
+          If [ ]: Which flags misconfigured
+    
+    sign_off: "Phase 1 baseline passed. Ready for implementation."
+  
+  # =========================================================================
+  # PHASE 2: IMPLEMENTATION
+  # =========================================================================
+  
+  phase_2_implementation:
+    title: Phase 2 - Implementation
+    description: |-
+      All files generated per schema specification. Code is complete (zero TODOs).
+    
+    code_completeness:
+      - item: All generatefiles created
+        status: [ ]
+        evidence: "File listing: [count] files in [rootpath]"
+      
+      - item: All imports resolvable
+        status: [ ]
+        evidence: |-
+          Run: python -c "import [module]" for each generated module
+          If [x]: All imports succeed
+          If [ ]: Which imports fail
+      
+      - item: No TODO comments in code
+        status: [ ]
+        evidence: |-
+          grep -r "TODO\|FIXME\|XXX" [rootpath]
+          If [x]: No matches
+          If [ ]: List matching lines with line numbers
+      
+      - item: No placeholder functions
+        status: [ ]
+        evidence: |-
+          Check for pass statements, NotImplementedError, etc.
+          If [x]: All functions have real implementation
+          If [ ]: List of stub functions
+      
+      - item: Feature flags applied
+        status: [ ]
+        evidence: |-
+          Check for L9_ENABLE_* flags in code
+          If [x]: All required flags present and checked
+          If [ ]: Which flags missing
+      
+      - item: Docstrings complete
+        status: [ ]
+        evidence: |-
+          Count: [count] functions with docstrings / [total] functions
+          Requirement: >= 95%
+      
+      - item: Type hints present
+        status: [ ]
+        evidence: |-
+          Count: [count] functions with type hints / [total] functions
+          Requirement: >= 90%
+      
+      - item: Error handling comprehensive
+        status: [ ]
+        evidence: |-
+          Check: try/except blocks, input validation, bounds checking
+          If [x]: All public APIs have error handling
+          If [ ]: Which functions missing error handling
+    
+    governance_wiring:
+      - item: Governance bridge wired
+        status: [ ]
+        evidence: "File: [filepath]/governance_bridge.py exists and imports work"
+      
+      - item: Escalation logic present
+        status: [ ]
+        evidence: |-
+          Check: escalation_handler.py or equivalent
+          If [x]: Escalation conditions defined and triggered
+      
+      - item: Audit logging configured
+        status: [ ]
+        evidence: |-
+          Check: logger.py or equivalent
+          If [x]: All decisions logged with timestamp + trace
+      
+      - item: Compliance checker present
+        status: [ ]
+        evidence: |-
+          Check: compliance_checker.py
+          If [x]: Policy rules enforced in code
+    
+    memory_wiring:
+      - item: All memory bridges created
+        status: [ ]
+        evidence: |-
+          Files: memory_bridge.py, episodic_logger.py, semantic_updater.py,
+                  causal_tracer.py (as needed per schema)
+      
+      - item: Memory backends configured
+        status: [ ]
+        evidence: |-
+          Check: config_manager.py
+          If [x]: Redis, Postgres, Neo4j, HyperGraph configs present
+      
+      - item: Episodic logging enabled
+        status: [ ]
+        evidence: "episodic_logger.py writes decision logs to Postgres"
+      
+      - item: Semantic graph update logic present
+        status: [ ]
+        evidence: "semantic_updater.py updates Neo4j on decisions"
+      
+      - item: Causal tracing enabled
+        status: [ ]
+        evidence: "causal_tracer.py records why decisions made"
+    
+    sign_off: "Phase 2 implementation complete. All code generated, no TODOs."
+  
+  # =========================================================================
+  # PHASE 3: ENFORCEMENT
+  # =========================================================================
+  
+  phase_3_enforcement:
+    title: Phase 3 - Enforcement
+    description: |-
+      Safety layers, guards, validators added to all code.
+    
+    input_validation:
+      - item: Input validation on all public APIs
+        status: [ ]
+        evidence: |-
+          Check: Every function input validated
+          Example: type checks, range checks, schema validation
+          File: [count] validation functions added
+      
+      - item: Schema validation (if applicable)
+        status: [ ]
+        evidence: |-
+          Check: pydantic models or equivalent
+          If [x]: All packet/message types validated
+      
+      - item: Rate limiting configured
+        status: [ ]
+        evidence: |-
+          Check: rate_limiter.py or equivalent
+          If [x]: Per-agent, per-domain rate limits set
+    
+    output_validation:
+      - item: Output bounds checking
+        status: [ ]
+        evidence: |-
+          Check: Confidence scores 0-1, latencies positive, counts >= 0
+          File: [count] bounds checks added
+      
+      - item: NaN/Infinity handling
+        status: [ ]
+        evidence: |-
+          Check: No NaNs or Infs in tensor/numeric outputs
+          If [x]: Safe defaults applied
+      
+      - item: Result consistency validation
+        status: [ ]
+        evidence: |-
+          Check: Results don't contradict governance rules or past decisions
+    
+    safety_layer:
+      - item: Audit logging everywhere
+        status: [ ]
+        evidence: |-
+          Check: logger.py calls in all decision points
+          Count: [count] log statements added
+      
+      - item: Governance compliance check before output
+        status: [ ]
+        evidence: |-
+          Check: All outputs verified against governance rules
+          File: compliance_checker.py
+      
+      - item: Immutable decision audit trail
+        status: [ ]
+        evidence: |-
+          Check: All decisions logged to immutable storage (S3)
+          File: episodic_logger.py writes to Postgres with S3 backup
+      
+      - item: Feature flag enforced
+        status: [ ]
+        evidence: |-
+          Check: L9_ENABLE_CODEGEN_STRICT_MODE honored
+          If true: Any issue => exception, not silent failure
+    
+    sign_off: "Phase 3 enforcement complete. All safety layers in place."
+  
+  # =========================================================================
+  # PHASE 4: VALIDATION
+  # =========================================================================
+  
+  phase_4_validation:
+    title: Phase 4 - Validation
+    description: |-
+      Unit, integration, and regression tests all passing.
+    
+    unit_testing:
+      - item: Unit test files generated
+        status: [ ]
+        evidence: "Count: [count] test files in L9/tests/[agent_name]/"
+      
+      - item: Positive path tests present
+        status: [ ]
+        evidence: |-
+          Count: [count] positive test cases
+          Requirement: >= 5 per module
+      
+      - item: Negative path tests present
+        status: [ ]
+        evidence: |-
+          Count: [count] negative test cases (error handling)
+          Requirement: >= 3 per module
+      
+      - item: Positive tests passing
+        status: [ ]
+        evidence: |-
+          pytest [agent_name]/ -k positive
+          Result: [count] passed / [count] total
+          Requirement: >= 95%
+      
+      - item: Negative tests passing
+        status: [ ]
+        evidence: |-
+          pytest [agent_name]/ -k negative
+          Result: [count] passed / [count] total
+          Requirement: >= 95%
+      
+      - item: Code coverage measured
+        status: [ ]
+        evidence: |-
+          pytest --cov [agent_name]/ --cov-report=term
+          Coverage: [X]%
+          Requirement: >= 85%
+    
+    integration_testing:
+      - item: Integration tests generated
+        status: [ ]
+        evidence: "File: L9/tests/integration/test_[agent_name].py"
+      
+      - item: Integration with dependencies tested
+        status: [ ]
+        evidence: |-
+          Test: Agent calls hard_dependencies successfully
+          Result: Passing
+      
+      - item: Memory backend integration tested
+        status: [ ]
+        evidence: |-
+          Test: Redis, Postgres, Neo4j writes work
+          Result: Passing
+      
+      - item: Governance escalation path tested
+        status: [ ]
+        evidence: |-
+          Test: Escalation triggered, logged, sent to anchors
+          Result: Passing
+      
+      - item: Integration tests passing
+        status: [ ]
+        evidence: |-
+          pytest L9/tests/integration/test_[agent_name].py
+          Result: [count] passed / [count] total
+          Requirement: >= 90%
+    
+    regression_testing:
+      - item: Regression test suite runs
+        status: [ ]
+        evidence: "pytest L9/tests/regression/"
+      
+      - item: No new regressions introduced
+        status: [ ]
+        evidence: |-
+          Comparison: Previous test results vs new results
+          Any failures? [yes/no]
+          If failures: Explain and resolve
+    
+    sign_off: "Phase 4 validation complete. Tests passing >=95%."
+  
+  # =========================================================================
+  # PHASE 5: RECURSIVE VERIFICATION
+  # =========================================================================
+  
+  phase_5_recursive_verification:
+    title: Phase 5 - Recursive Verification
+    description: |-
+      Compare generated code to schema. Verify no drift, all governance intact.
+    
+    schema_compliance:
+      - item: All generatefiles in schema exist
+        status: [ ]
+        evidence: |-
+          Schema lists: [count] files to generate
+          Actual: [count] files created
+          Match? [yes/no]
+      
+      - item: All generatedocs in schema exist
+        status: [ ]
+        evidence: |-
+          Schema lists: [count] docs
+          Actual: [count] docs created
+          Match? [yes/no]
+      
+      - item: All linkexisting correctly imported
+        status: [ ]
+        evidence: |-
+          Schema lists: [count] external links
+          Actual: All imported successfully
+          Any import failures? [yes/no]
+      
+      - item: Rootpath matches schema
+        status: [ ]
+        evidence: |-
+          Schema specifies: [rootpath]
+          Actual: [rootpath]
+          Match? [yes/no]
+    
+    governance_integrity:
+      - item: Governance anchors wired
+        status: [ ]
+        evidence: |-
+          Check: Igor, oversight council, compliance officer reachable
+          Any failures? [yes/no]
+      
+      - item: Escalation policy enforced
+        status: [ ]
+        evidence: |-
+          Schema specifies: escalation_policy
+          Check: Code implements exact policy
+          Match? [yes/no]
+      
+      - item: Audit scope complete
+        status: [ ]
+        evidence: |-
+          Schema specifies: auditscope items
+          Check: All items logged and auditable
+          Match? [yes/no]
+    
+    memory_topology:
+      - item: Memory topology matches schema
+        status: [ ]
+        evidence: |-
+          Schema specifies: working, episodic, semantic, causal, archive
+          Check: All layers configured and accessed
+          Match? [yes/no]
+      
+      - item: Memory retention policies enforced
+        status: [ ]
+        evidence: |-
+          Schema specifies: retention periods
+          Check: TTLs, archival rules, deletion policies set
+          Match? [yes/no]
+    
+    communication_stack:
+      - item: Communication stack matches schema
+        status: [ ]
+        evidence: |-
+          Schema specifies: input, output, channels
+          Check: All channels configured and working
+          Match? [yes/no]
+    
+    scope_drift_detection:
+      - item: No scope drift detected
+        status: [ ]
+        evidence: |-
+          Compare: Generated code vs schema specification
+          Any files generated outside generatefiles list? [yes/no]
+          Any linkexisting not imported? [yes/no]
+          Any governance links broken? [yes/no]
+          Result: [no drift / drift detected]
+      
+      - item: No circular imports
+        status: [ ]
+        evidence: |-
+          Tool: python -m py_compile --codeop L9/[agent]
+          Or: import cycle detection
+          Result: [no cycles / cycles found]
+      
+      - item: No unexpected dependencies
+        status: [ ]
+        evidence: |-
+          Compare: schema.dependencies vs actual imports
+          Any undeclared imports? [yes/no]
+    
+    sign_off: "Phase 5 recursive verification complete. No drift detected."
+  
+  # =========================================================================
+  # PHASE 6: FINALIZATION
+  # =========================================================================
+  
+  phase_6_finalization:
+    title: Phase 6 - Finalization
+    description: |-
+      Evidence report complete. All 10 sections signed off.
+    
+    evidence_report:
+      - item: Section 1 - Schema Input Summary
+        status: [ ]
+        evidence: "Provided: [yes/no]"
+      
+      - item: Section 2 - Locked TODO Plan
+        status: [ ]
+        evidence: "Provided: [yes/no], All TODOs executed: [yes/no]"
+      
+      - item: Section 3 - Phase 0 Research
+        status: [ ]
+        evidence: "Provided: [yes/no], No assumptions made: [yes/no]"
+      
+      - item: Section 4 - Phase 1 Baseline
+        status: [ ]
+        evidence: "Provided: [yes/no], All checks passed: [yes/no]"
+      
+      - item: Section 5 - Phase 2 Implementation
+        status: [ ]
+        evidence: "Provided: [yes/no], All artifacts generated: [yes/no]"
+      
+      - item: Section 6 - Phase 3 Enforcement
+        status: [ ]
+        evidence: "Provided: [yes/no], All safety layers in place: [yes/no]"
+      
+      - item: Section 7 - Phase 4 Validation
+        status: [ ]
+        evidence: "Provided: [yes/no], Tests passing >=95%: [yes/no]"
+      
+      - item: Section 8 - Phase 5 Recursive Verification
+        status: [ ]
+        evidence: "Provided: [yes/no], No drift detected: [yes/no]"
+      
+      - item: Section 9 - Governance & Compliance
+        status: [ ]
+        evidence: "Provided: [yes/no], All governance links intact: [yes/no]"
+      
+      - item: Section 10 - Final Declaration
+        status: [ ]
+        evidence: |-
+          Statement: "All phases (0–6) complete. No assumptions. No drift."
+          Signed: [timestamp]
+          Status: [signed/unsigned]
+    
+    deployment_readiness:
+      - item: Deployment readiness assessment complete
+        status: [ ]
+        evidence: "File: deployment_readiness.md exists and signed"
+      
+      - item: All governance notifications sent
+        status: [ ]
+        evidence: |-
+          Escalation to: Igor, Oversight Council, Compliance Officer
+          Confirmation: [yes/no]
+      
+      - item: Final manifest generated
+        status: [ ]
+        evidence: "File: extraction_manifest.json exists and valid"
+    
+    sign_off: "Phase 6 finalization complete. Evidence report signed. READY FOR DEPLOYMENT."
+
+---
+
+## MASTER SIGN-OFF TEMPLATE
+
+master_sign_off:
+  
+  agent_name: "TBD at runtime"
+  extraction_timestamp: "TBD"
+  
+  all_phases_complete: false  # [x] once all phases signed
+  no_assumptions_made: false  # [x] once verified
+  no_drift_detected: false  # [x] once verified
+  
+  final_declaration: |-
+    "All phases (0–6) complete. No assumptions. No drift.
+     Agent [agent_name] is production-ready for deployment."
+  
+  signed_by: "L9 Codegen Extractor"
+  signature_timestamp: "TBD"
+
+---
+
+end_of_validation_checklist_template
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "current-work", "model-config", "operations", "redis-config", "schema"]
+# keywords: ["meta.validation.checklist"]
+# last_modified: "2026-01-15T15:41:34Z"
+# ============================================================================

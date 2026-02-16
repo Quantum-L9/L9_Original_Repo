@@ -41,13 +41,15 @@ import asyncio
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
 import asyncpg
 import httpx
 import structlog
+
+from core.decorators import must_stay_async
 
 # =============================================================================
 # Configuration
@@ -71,7 +73,7 @@ class Config:
     MEMORY_DSN = os.getenv("MEMORY_DSN") or os.getenv("DATABASE_URL")
 
     # Test content
-    TEST_CONTENT = f"E2E Test Memory - Main Pipeline Verification - {datetime.now(timezone.utc).isoformat()}"
+    TEST_CONTENT = f"E2E Test Memory - Main Pipeline Verification - {datetime.now(UTC).isoformat()}"
     TEST_KIND = "preference"
     TEST_SCOPE = "developer"
 
@@ -323,6 +325,7 @@ class PipelineTracer:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def verify_main_pipeline():
     """Run E2E verification of main pipeline integration."""
 

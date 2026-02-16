@@ -19,6 +19,8 @@ Based on frontier AI lab patterns (Anthropic, OpenAI, DeepMind).
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Identity Tier Service",
@@ -44,7 +46,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
@@ -121,8 +123,8 @@ class IdentityFact:
     validated_by: str | None = None
 
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def __post_init__(self):
         """Ensure identity facts have minimum importance."""
@@ -174,6 +176,7 @@ class IdentityTierService:
     # CRUD Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def create_identity_fact(
         self,
         fact_text: str,
@@ -223,7 +226,7 @@ class IdentityTierService:
             fact_tags.extend(tags)
 
         # Set validation if provided
-        datetime.now(timezone.utc) if validated_by else None
+        datetime.now(UTC) if validated_by else None
 
         # Create fact via repository
         fact_id = await self._repository.insert_semantic_fact(
@@ -250,6 +253,7 @@ class IdentityTierService:
 
         return fact_id
 
+    @must_stay_async("callers use await")
     async def get_identity_facts(
         self,
         category: IdentityFactCategory | None = None,
@@ -383,6 +387,7 @@ class IdentityTierService:
     # Context Injection
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def get_identity_context(
         self,
         categories: list[IdentityFactCategory] | None = None,
@@ -464,6 +469,7 @@ class IdentityTierService:
     # Bulk Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def import_identity_facts(
         self,
         facts: list[dict[str, Any]],

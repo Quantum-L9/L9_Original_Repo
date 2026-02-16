@@ -39,8 +39,11 @@ __dora_meta__ = {
 from .action_registry import ActionRegistry, ActionResult, registry
 from .agent_state import AgentState, AgentStateManager, ProactivityLevel
 from .foresight_engine import (
+    FORESIGHT_OK,
+    HIGHEST_LEVERAGE_QUESTION,
     CandidateAction,
     DecisionMode,
+    ForesightCycleResult,
     ForesightDecision,
     ForesightEngine,
 )
@@ -57,6 +60,9 @@ __all__ = [
     "CandidateAction",
     "DecisionMode",
     "ForesightDecision",
+    "FORESIGHT_OK",
+    "ForesightCycleResult",
+    "HIGHEST_LEVERAGE_QUESTION",
     # Foresight engine
     "ForesightEngine",
     # Memory

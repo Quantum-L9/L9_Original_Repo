@@ -35,7 +35,10 @@ __dora_meta__ = {
 import asyncio
 import os
 import random
-from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
+from abc import (  # noqa: ADR-0026 - ABC provides shared implementation
+    ABC,
+    abstractmethod,
+)
 from typing import Any
 
 import structlog
@@ -167,6 +170,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
             f"Embedding request failed after {self._max_retries} retries: {last_error}"
         ) from last_error
 
+    @must_stay_async("callers use await")
     async def embed_text(self, text: str) -> list[float]:
         """Generate embedding using OpenAI API with retry logic."""
         client = self._get_client()
@@ -182,6 +186,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
 
         return await self._with_retries(_embed, operation="embed_text")
 
+    @must_stay_async("callers use await")
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """Generate embeddings for batch of texts with retry logic."""
         client = self._get_client()
@@ -273,7 +278,9 @@ class SemanticService:
         """
         if embedding_provider is None:
             if os.getenv("L9_ALLOW_STUB_EMBEDDINGS") == "1":
-                logger.warning("Using stub embeddings due to L9_ALLOW_STUB_EMBEDDINGS=1")
+                logger.warning(
+                    "Using stub embeddings due to L9_ALLOW_STUB_EMBEDDINGS=1"
+                )
                 embedding_provider = StubEmbeddingProvider(
                     dimensions=EMBEDDING_DIMENSIONS
                 )
@@ -292,12 +299,21 @@ class SemanticService:
         self._provider = embedding_provider
         self._repository = repository
 
+    def _require_repository(self) -> Any:
+        """Return the repository, raising RuntimeError if not configured."""
+        if self._repository is None:
+            raise RuntimeError(
+                "Semantic repository not configured; cannot perform storage or search."
+            )
+        return self._repository
+
+    @must_stay_async("callers use await")
     async def embed_and_store(
         self,
         text: str,
         payload: dict[str, Any],
         agent_id: str | None = None,
-        scope: str = "shared",  # RLS scope for row-level security
+        scope: str = "cursor",  # RLS scope: developer, global, cursor, l-private, agent
     ) -> str:
         """
         Generate embedding for text and store in semantic_memory.
@@ -340,7 +356,8 @@ class SemanticService:
         }
 
         # Store in database with explicit scope for RLS
-        embedding_id = await self._repository.insert_semantic_embedding(
+        repo = self._require_repository()
+        embedding_id = await repo.insert_semantic_embedding(
             vector=vector,
             payload=enriched_payload,
             agent_id=agent_id,
@@ -368,7 +385,7 @@ class SemanticService:
             RuntimeError: If embedding generation returns null/empty vector
         """
         vector = await self._provider.embed_text(text)
-        
+
         # VALIDATION: Reject null/empty embeddings (GMP-132)
         if vector is None or len(vector) == 0:
             logger.error(
@@ -377,7 +394,7 @@ class SemanticService:
                 text_preview=text[:100],
             )
             raise RuntimeError("Embedding generation returned null/empty vector")
-        
+
         enriched_payload = {
             **payload,
             "_text": text,
@@ -385,19 +402,28 @@ class SemanticService:
         }
         return vector, enriched_payload, agent_id
 
+    @must_stay_async("callers use await")
     async def search(
         self,
         query: str,
         top_k: int = 10,
         agent_id: str | None = None,
+        tags_include: list[str] | None = None,
+        tags_boost: list[str] | None = None,
+        tag_boost_factor: float = 1.15,
     ) -> list[dict[str, Any]]:
         """
         Search semantic memory for similar content.
+
+        Optionally filter and/or boost by tags for increased retrieval accuracy.
 
         Args:
             query: Natural language query
             top_k: Number of results
             agent_id: Optional filter by agent
+            tags_include: Only return memories whose packet has at least one of these tags
+            tags_boost: Boost score when hit has any of these tags (multiply by tag_boost_factor)
+            tag_boost_factor: Score multiplier for tag matches (default 1.15)
 
         Returns:
             List of hits with embedding_id, score, payload
@@ -411,16 +437,21 @@ class SemanticService:
                 f"Query embedding dimension mismatch: expected {EMBEDDING_DIMENSIONS}, got {len(query_vector)}"
             )
 
-        # Search database
-        hits = await self._repository.search_semantic_memory(
+        # Search database (repository applies tag filter and boost)
+        repo = self._require_repository()
+        hits = await repo.search_semantic_memory(
             query_embedding=query_vector,
             top_k=top_k,
             agent_id=agent_id,
+            tags_include=tags_include,
+            tags_boost=tags_boost,
+            tag_boost_factor=tag_boost_factor,
         )
 
         logger.debug(f"Found {len(hits)} results")
         return [hit.model_dump() for hit in hits]
 
+    @must_stay_async("callers use await")
     async def batch_embed_and_store(
         self,
         items: list[dict[str, Any]],
@@ -464,7 +495,8 @@ class SemanticService:
                 "_text": text,
                 "_model": getattr(self._provider, "_model", "unknown"),
             }
-            embedding_id = await self._repository.insert_semantic_embedding(
+            repo = self._require_repository()
+            embedding_id = await repo.insert_semantic_embedding(
                 vector=vector,
                 payload=enriched_payload,
                 agent_id=agent_id,
@@ -477,6 +509,7 @@ class SemanticService:
     # Spec v3.0 Required Methods (memory_spec_v3.0.yaml compliance)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def store_embedding(
         self,
         vector: list[float],
@@ -502,7 +535,8 @@ class SemanticService:
             "_model": getattr(self._provider, "_model", "unknown"),
         }
 
-        embedding_id = await self._repository.insert_semantic_embedding(
+        repo = self._require_repository()
+        embedding_id = await repo.insert_semantic_embedding(
             vector=vector,
             payload=enriched_payload,
             agent_id=metadata.get("agent_id"),
@@ -530,7 +564,8 @@ class SemanticService:
         Returns:
             List of hits with embedding_id, score, payload
         """
-        hits = await self._repository.search_semantic_memory(
+        repo = self._require_repository()
+        hits = await repo.search_semantic_memory(
             query_embedding=query_vector,
             top_k=top_k,
             agent_id=None,  # No agent filter for recall
@@ -549,6 +584,7 @@ class SemanticService:
         logger.debug(f"Recalled {len(results)} similar embeddings")
         return results
 
+    @must_stay_async("callers use await")
     async def batch_store_embeddings(
         self,
         embeddings: list[dict[str, Any]],
@@ -580,6 +616,7 @@ class SemanticService:
         logger.debug(f"Batch stored {len(embedding_ids)} embeddings")
         return embedding_ids
 
+    @must_stay_async("callers use await")
     async def hybrid_search(
         self,
         query: str,
@@ -732,6 +769,7 @@ def create_embedding_provider(
 
 
 # Convenience function for direct use
+@must_stay_async("callers use await")
 async def embed_text(
     text: str,
     provider: EmbeddingProvider | None = None,

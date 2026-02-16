@@ -10,6 +10,8 @@ Version: 6.0.0
 
 from __future__ import annotations
 
+import json
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Cache Manager",
@@ -37,13 +39,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from core.decorators import must_stay_async
 from services.symbolic_computation.config import SymbolicComputationConfig, get_config
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -97,6 +101,7 @@ class CacheManager:
             redis_enabled=redis_client is not None,
         )
 
+    @must_stay_async("callers use await")
     async def cache_expression(
         self,
         expr: str,
@@ -140,6 +145,7 @@ class CacheManager:
             )
             return False
 
+    @must_stay_async("callers use await")
     async def get_cached_result(
         self,
         expr: str,

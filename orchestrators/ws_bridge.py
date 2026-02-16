@@ -21,6 +21,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "WebSocket Bridge",
@@ -178,6 +180,7 @@ def handle_ws_event(event: EventMessage) -> TaskEnvelope | None:
     return envelope
 
 
+@must_stay_async("callers use await")
 async def enqueue_ws_event(event: EventMessage) -> bool:
     """
     Convert event to task and enqueue it.

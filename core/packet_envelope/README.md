@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -184,7 +184,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CorePacketEnvelopeRequest(BaseModel):
     """Request model for core_packet_envelope operations."""
@@ -292,7 +292,7 @@ Reload configuration from environment
 
 Factory for packet ingested events
 
-- **File:** `standardization.py:429`
+- **File:** `standardization.py:440`
 - **Async:** No
 - **Returns:** `CloudEvent`
 
@@ -300,7 +300,7 @@ Factory for packet ingested events
 
 Factory function for observability
 
-- **File:** `observability.py:497`
+- **File:** `observability.py:519`
 - **Async:** No
 - **Returns:** `PacketEnvelopeObservability`
 
@@ -308,7 +308,7 @@ Factory function for observability
 
 Validate deployment readiness for phases 2-5
 
-- **File:** `integration.py:408`
+- **File:** `integration.py:430`
 - **Async:** Yes
 - **Returns:** `dict[str, Any]`
 
@@ -342,7 +342,7 @@ Core Packet Envelope operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.packet_envelope",
   "message": "Operation completed",

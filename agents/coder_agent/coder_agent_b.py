@@ -13,6 +13,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Coder Agent B",
@@ -107,6 +109,7 @@ class CoderAgentB(BaseAgent):
             return await self._review_code(task, context)
         return await self._implement(task, context)
 
+    @must_stay_async("callers use await")
     async def _implement(
         self,
         task: dict[str, Any],
@@ -145,6 +148,7 @@ Provide:
         messages = [self.format_user_message(prompt)]
         return await self.call_llm(messages, json_mode=True)
 
+    @must_stay_async("callers use await")
     async def _review_code(
         self,
         task: dict[str, Any],
@@ -194,6 +198,7 @@ Provide thorough review:
         messages = [self.format_user_message(prompt)]
         return await self.call_llm(messages, json_mode=True)
 
+    @must_stay_async("callers use await")
     async def write_tests(
         self,
         code: str,
@@ -233,6 +238,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def write_documentation(
         self,
         code: str,
@@ -268,6 +274,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def implement_utilities(
         self,
         main_code: str,
@@ -310,6 +317,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def create_config(
         self,
         application: str,

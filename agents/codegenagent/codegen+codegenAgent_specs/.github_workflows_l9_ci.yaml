@@ -1,0 +1,65 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: ".Github Workflows L9 Ci"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: ".github_workflows_l9_ci"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================
+# L9 CodeGen Spec: CI Workflow
+# ============================
+
+filename: .github/workflows/l9_ci.yml
+type: ci_config
+language: yaml
+
+description: |
+  GitHub CI runner for validating meta contracts in all modules.
+  Calls ci_meta_checker.py and fails build on any missing contract fields.
+
+wiring:
+  triggers:
+    - push
+    - pull_request
+  runs:
+    - ci/ci_meta_checker.py
+    - pytest (optional, after meta pass)
+
+code: |
+  name: L9 CI
+
+  on:
+    push:
+      branches: [main]
+    pull_request:
+      branches: [main]
+
+  jobs:
+    meta-validate:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: 3.10
+        - name: Install deps
+          run: pip install pyyaml
+        - name: Run meta contract check
+          run: python ci/ci_meta_checker.py meta.yaml
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-execution", "configuration", "intelligence", "utility", "workflow"]
+# keywords: [".github", "code", "description", "filename", "language", "type"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

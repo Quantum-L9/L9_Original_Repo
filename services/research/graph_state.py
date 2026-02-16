@@ -37,7 +37,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, TypedDict
 
 
@@ -192,7 +192,7 @@ def create_initial_state(
         # Errors
         errors=[],
         # Metadata
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
         packet_id=None,
         # Memory Substrate Integration
         stored_insights=[],

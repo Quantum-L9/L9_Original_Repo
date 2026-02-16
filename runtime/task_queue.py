@@ -14,6 +14,8 @@ Note: Redis is mandatory; missing Redis blocks async execution.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Task Queue",
@@ -48,17 +50,20 @@ __dora_meta__ = {
 
 import asyncio
 from collections import deque
-from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Coroutine
+
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def dispatch_task_immediate(task: QueuedTask) -> str:
     """
     Execute a task immediately without queueing.
@@ -117,7 +122,7 @@ class QueuedTask:
     agent_id: str | None
     priority: int
     tags: list[str]
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: str = "pending_igor_approval"
     approved_by: str | None = None
     approval_timestamp: datetime | None = None
@@ -165,7 +170,7 @@ class QueuedTask:
             priority=data.get("priority", 5),
             tags=data.get("tags", []),
             created_at=datetime.fromisoformat(
-                data.get("created_at", datetime.now(timezone.utc).isoformat())
+                data.get("created_at", datetime.now(UTC).isoformat())
             ),
             status=data.get("status", "pending_igor_approval"),
             approved_by=data.get("approved_by"),
@@ -237,6 +242,7 @@ class TaskQueue:
             raise RuntimeError("TaskQueue: Redis unavailable; execution blocked")
         return True
 
+    @must_stay_async("callers use await")
     async def enqueue(
         self,
         name: str,

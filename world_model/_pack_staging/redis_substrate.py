@@ -32,10 +32,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
+
+import structlog
 
 from world_model.interfaces import Entity, Relation
 from world_model.state import WorldModelState

@@ -59,7 +59,7 @@ heuristics:
       class MemoryIngestionError(Exception):
           """Raised when packet ingestion fails."""
           pass
-      
+
       class ApprovalRequiredError(Exception):
           """Raised when operation requires Igor approval."""
           pass
@@ -140,7 +140,7 @@ heuristics:
     example_good: |
       async with httpx.AsyncClient(timeout=30.0) as client:
           response = await client.get(url)
-      
+
       # Or with asyncio
       result = await asyncio.wait_for(
           external_service.call(),
@@ -167,7 +167,7 @@ heuristics:
     example_good: |
       async with db.pool.acquire() as conn:
           result = await conn.fetch(query)
-      
+
       async with aiofiles.open(path) as f:
           content = await f.read()
     example_bad: |
@@ -217,10 +217,10 @@ heuristics:
       at runtime while preserving type information for mypy.
     example_good: |
       from typing import TYPE_CHECKING
-      
+
       if TYPE_CHECKING:
           from memory.substrate_service import MemorySubstrateService
-      
+
       def process(substrate: "MemorySubstrateService") -> None:
           ...
     example_bad: |
@@ -246,7 +246,7 @@ heuristics:
     example_good: |
       import structlog
       logger = structlog.get_logger(__name__)
-      
+
       logger.info(
           "Packet processed",
           packet_id=str(packet.id),
@@ -257,7 +257,7 @@ heuristics:
       import logging
       logger = logging.getLogger(__name__)
       logger.info(f"Packet {packet.id} processed")  # Not structured
-      
+
       print(f"Debug: {value}")  # Never use print
     auto_fix_strategy:
       - "Replace logging import with structlog"
@@ -302,7 +302,7 @@ heuristics:
       Fail fast at startup if required secrets are missing.
     example_good: |
       import os
-      
+
       API_KEY = os.environ["OPENAI_API_KEY"]
       if not API_KEY:
           raise RuntimeError("OPENAI_API_KEY environment variable required")
@@ -326,7 +326,7 @@ heuristics:
       class CreateUserRequest(BaseModel):
           email: EmailStr
           password: constr(min_length=8)
-      
+
       @app.post("/users")
       async def create_user(request: CreateUserRequest) -> UserResponse:
           ...

@@ -52,6 +52,7 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelope, PacketKind
 
 logger = structlog.get_logger(__name__)
@@ -106,6 +107,7 @@ class PacketRouter:
         self._fallback_handler = handler
         logger.info("fallback_handler_set")
 
+    @must_stay_async("callers use await")
     async def route_packet(self, packet: PacketEnvelope) -> str:
         """
         Determine routing for packet.
@@ -159,7 +161,8 @@ class PacketRouter:
 
         return self._handlers.get(packet_type)
 
-    async def validate(self, packet: PacketEnvelope) -> "ValidationResult":
+    @must_stay_async("callers use await")
+    async def validate(self, packet: PacketEnvelope) -> "ValidationResult":  # noqa: F821 — forward ref resolved at runtime
         """Validate packet structure."""
         from .packet_validator import ValidationResult
 

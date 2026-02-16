@@ -1,0 +1,51 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Compliance Shadow Agent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "compliance_shadow_agent"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# =====================================
+# Compliance Shadow Agent
+# =====================================
+
+filename: compliance/shadow_agent.py
+type: audit_module
+language: python
+
+description: |
+  Mirrors live agent execution, performs compliance diffing, memory audit,
+  and rollback planning in real-time. Runs in background alongside orchestrator stack.
+
+wiring:
+  mirrors:
+    - /agents/**
+    - /runtime/tasks/*
+  watches:
+    - patch_audit_log.yaml
+    - meta_diff.yaml
+  emits:
+    - rollback_plan.yaml
+    - shadow_trace.log
+
+code: |
+  def run_shadow_audit(agent_id):
+      trace = open(f"patch_audit/{agent_id}_trace.yaml").read()
+      if "violation" in trace:
+          open(f"rollback_plan/{agent_id}.yaml", "w").write("rollback: true\\nreason: policy_violation")
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "intelligence", "utility"]
+# keywords: ["agent", "code", "compliance", "description", "filename", "language"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

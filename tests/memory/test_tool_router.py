@@ -8,6 +8,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.tool_router import (
     ToolEmbedding,
     ToolMatch,
@@ -212,7 +213,7 @@ class TestToolRouter:
         count = await router.embed_tools(tools)
 
         assert count == 3
-        assert len(router.list_embedded_tools()) == 3
+        assert len(await router.list_embedded_tools()) == 3
 
     @pytest.mark.asyncio
     async def test_embed_duplicate_detection(self):
@@ -228,6 +229,7 @@ class TestToolRouter:
         assert result1.embedding_id == result2.embedding_id
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_text_match_fallback(self):
         """Test text matching when no embeddings available."""
         router = ToolRouter()
@@ -332,11 +334,12 @@ class TestToolRouter:
 
         assert "search" in context.lower()
 
-    def test_get_stats(self):
+    @pytest.mark.asyncio
+    async def test_get_stats(self):
         """Test statistics retrieval."""
         router = ToolRouter()
 
-        stats = router.get_stats()
+        stats = await router.get_stats()
 
         assert "total_tools" in stats
         assert "categories" in stats
@@ -356,7 +359,7 @@ class TestToolRouter:
 
         await router.embed_tools(tools)
 
-        stats = router.get_stats()
+        stats = await router.get_stats()
 
         assert stats["total_tools"] == 3
         assert stats["categories"]["cat1"] == 2
@@ -411,7 +414,7 @@ class TestConvenienceFunctions:
         router = await init_tool_router(tools)
 
         assert router is not None
-        assert "init_test" in router.list_embedded_tools()
+        assert "init_test" in await router.list_embedded_tools()
 
     @pytest.mark.asyncio
     async def test_get_tool_router_singleton(self):

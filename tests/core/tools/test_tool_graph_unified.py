@@ -20,6 +20,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Ensure project root is on path FIRST
 project_root = Path(__file__).parent.parent.parent.parent
 if str(project_root) not in sys.path:
@@ -165,6 +167,7 @@ async def test_get_l_tool_catalog_query_format():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_get_l_tool_catalog_returns_tools():
     """Test that catalog returns properly formatted tool list."""
 

@@ -52,6 +52,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 # L9 governance imports (ApprovalManager is the L9 equivalent of ApprovalService)
 from core.governance import ApprovalManager
 
@@ -117,6 +119,7 @@ class GovernanceBridge:
         self.igor_client = igor_client
         self._initialized = False
 
+    @must_stay_async("callers use await")
     async def initialize(self) -> None:
         """Initialize governance connections."""
         logger.info("governance_bridge_initializing")
@@ -127,6 +130,7 @@ class GovernanceBridge:
         self._initialized = True
         logger.info("governance_bridge_ready")
 
+    @must_stay_async("callers use await")
     async def check_governance(
         self,
         decision: dict[str, Any],
@@ -182,6 +186,7 @@ class GovernanceBridge:
         """Alias for check_governance."""
         return await self.check_governance(result)
 
+    @must_stay_async("callers use await")
     async def escalate_to_anchor(
         self,
         decision: dict[str, Any],

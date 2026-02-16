@@ -41,7 +41,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -108,7 +108,7 @@ class ExecutionPlan:
     source_graph_id: UUID = field(default_factory=uuid4)
     steps: list[ExecutionStep] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: str = "created"  # created, executing, completed, failed, cancelled
     current_step: int = 0
 

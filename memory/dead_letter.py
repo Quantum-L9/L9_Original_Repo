@@ -10,6 +10,8 @@ GMP-88: Core Resilience for SubstrateDagOrchestrator
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Dead Letter Queue",
@@ -36,7 +38,7 @@ __dora_meta__ = {
 
 import json
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -84,6 +86,7 @@ class DeadLetterQueue:
         self._stream_key = stream_key
         logger.info("DeadLetterQueue initialized", stream_key=stream_key)
 
+    @must_stay_async("callers use await")
     async def enqueue(
         self,
         envelope: dict[str, Any],
@@ -112,7 +115,7 @@ class DeadLetterQueue:
                 type(error).__name__ if isinstance(error, Exception) else "string"
             ),
             "attempts": str(attempts),
-            "failed_at": datetime.now(timezone.utc).isoformat(),
+            "failed_at": datetime.now(UTC).isoformat(),
             "original_envelope": json.dumps(envelope),
         }
 

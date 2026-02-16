@@ -49,7 +49,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -110,7 +110,8 @@ class EventMessage(BaseModel):
     id: UUID = Field(default_factory=uuid4, description="Unique event identifier")
     type: EventType = Field(..., description="High-level event category")
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Event creation timestamp"
+        default_factory=lambda: datetime.now(UTC),
+        description="Event creation timestamp",
     )
     channel: str = Field(default="agent", description="Logical message bus")
     agent_id: str | None = Field(None, description="Related agent identifier")
@@ -153,7 +154,7 @@ class AgentHeartbeat(BaseModel):
 
     agent_id: str = Field(..., min_length=1, description="Agent identifier")
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Heartbeat timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Heartbeat timestamp"
     )
     load_avg: float | None = Field(None, ge=0, description="System load average")
     running_tasks: int = Field(default=0, ge=0, description="Active task count")
@@ -201,7 +202,7 @@ class ErrorEvent(BaseModel):
         default_factory=dict, description="Additional error context"
     )
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Error timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Error timestamp"
     )
     recoverable: bool = Field(default=True, description="Is error recoverable")
 

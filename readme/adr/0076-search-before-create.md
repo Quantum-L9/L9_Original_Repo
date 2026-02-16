@@ -1,8 +1,8 @@
 # ADR-0076: Search Before Create
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Author:** Igor Beylin  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Author:** Igor Beylin
 
 ## Context
 
@@ -19,11 +19,13 @@ Example incident: PR #30 created `memory/deduplication.py` with new `Deduplicati
 Before creating ANY new file:
 
 1. **SEARCH** — Check if similar functionality exists
+
    - `grep -r "function_name\|ClassName" .`
    - Check related modules
    - Search for similar patterns
 
 2. **ASK** — If similar code found:
+
    - "I found existing `[file]` with `[function]`. Should I enhance that or create new?"
 
 3. **INTEGRATE** — Prefer enhancing existing code:
@@ -33,13 +35,13 @@ Before creating ANY new file:
 
 ### When to Create New vs Enhance Existing
 
-| Scenario | Action |
-|----------|--------|
-| Exact functionality exists | Use existing |
-| Similar functionality exists | Enhance existing |
-| Related module exists | Add to module |
-| Completely new domain | Create new file |
-| User explicitly requests new file | Create new file |
+| Scenario                          | Action           |
+| --------------------------------- | ---------------- |
+| Exact functionality exists        | Use existing     |
+| Similar functionality exists      | Enhance existing |
+| Related module exists             | Add to module    |
+| Completely new domain             | Create new file  |
+| User explicitly requests new file | Create new file  |
 
 ### Integration Patterns
 
@@ -76,12 +78,12 @@ rg "pattern_name" -t py
 
 ### Anti-Patterns
 
-| Anti-Pattern | Why It's Wrong |
-|--------------|----------------|
-| "I'll create a new file for this" | Didn't search first |
-| "This is cleaner as separate" | Justifying duplication |
-| "I didn't know that existed" | Didn't search |
-| Creating `utils2.py` | Clear duplication signal |
+| Anti-Pattern                      | Why It's Wrong           |
+| --------------------------------- | ------------------------ |
+| "I'll create a new file for this" | Didn't search first      |
+| "This is cleaner as separate"     | Justifying duplication   |
+| "I didn't know that existed"      | Didn't search            |
+| Creating `utils2.py`              | Clear duplication signal |
 
 ## Implementation
 
@@ -97,20 +99,24 @@ Before creating any new file:
 ### Code Review Signal
 
 If PR creates new file with similar name to existing:
+
 - Flag for review
 - Ask: "Why not enhance existing `[file]`?"
 
 ## Consequences
 
 ### Positive
+
 - No duplicate implementations
 - Easier maintenance
 - Smaller codebase
 - Clear ownership
 
 ### Negative
+
 - Initial search takes time
 - Existing code may need refactoring to accept enhancement
 
 ## Related
+
 - ADR-0075: Ask Before Build

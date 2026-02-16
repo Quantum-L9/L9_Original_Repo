@@ -1,0 +1,56 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Tests Harness Test Harness Autowire"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-06T16:58:23Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "tests_harness_Test_Harness_Autowire"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================
+# PATCH — Test_Harness_Autowire.py
+# Purpose: Dynamic slot expansion based on schema slots and tags
+# ============================================================
+
+filename: tests/harness/Test_Harness_Autowire.py
+patch_type: smart_test_scaffold
+language: python
+description: |
+  Improves the generated tests by mapping construct schema slots
+  to individual test cases using slot tags, memory traces, and
+  prompt features.
+
+patch:
+  update_function: autowire_tests
+  recursive_enrichment_passes: 3
+  enriched_code: |
+    def autowire_tests():
+        module_schemas = [f for f in os.listdir('schemas/modules/') if f.endswith('.yaml')]
+        for schema_file in module_schemas:
+            with open(f'schemas/modules/{schema_file}') as f:
+                schema = yaml.safe_load(f)
+
+            test_code = emit_tests_from_schema(schema)
+
+            for slot in schema.get("slots", []):
+                if slot.get("type") == "tensor":
+                    test_code += f"\n# Test tensor slot: {slot['name']}"
+                if "prompt_trace" in slot:
+                    test_code += f"\n# Verify prompt trace for {slot['name']}"
+
+            with open(f'tests/generated/test_{schema["name"]}.py', 'w') as f:
+                f.write(test_code)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["code-generation", "foundation", "prompt", "schema", "utility"]
+# keywords: ["autowire", "description", "filename", "harness", "language", "patch"]
+# last_modified: "2026-01-06T16:58:23Z"
+# ============================================================================

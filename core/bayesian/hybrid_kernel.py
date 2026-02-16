@@ -174,9 +174,7 @@ class HybridInferenceKernel:
 
         if deterministic_result["blocking"]:
             # Hard rule violated - no probabilistic reasoning needed
-            execution_time = (
-                datetime.now(UTC) - start_time
-            ).total_seconds() * 1000
+            execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
             return GovernanceDecision(
                 decision_id=f"GOV-{int(start_time.timestamp())}",
@@ -203,9 +201,7 @@ class HybridInferenceKernel:
         else:
             decision = self._default_assessment(context)
 
-        execution_time = (
-            datetime.now(UTC) - start_time
-        ).total_seconds() * 1000
+        execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
         decision.execution_time_ms = round(execution_time, 2)
 
         return decision
@@ -440,6 +436,8 @@ class HybridInferenceKernel:
             3. Replace P(...) > threshold with True/False
             4. Evaluate remaining FOL
         """
+        start_time = datetime.now(UTC)
+
         # Pattern: P(ModelName) > threshold('name') or literal
         pattern = r"P\((\w+)\)\s*([><=]+)\s*(?:threshold\('(\w+)'\)|(\d+\.?\d*))"
 
@@ -510,9 +508,7 @@ class HybridInferenceKernel:
         # For now, simple boolean evaluation
         final_result = "True" in resolved_fol
 
-        execution_time = (
-            datetime.now(UTC) - start_time
-        ).total_seconds() * 1000
+        execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         return GovernanceDecision(
             decision_id=f"GOV-{int(start_time.timestamp())}",

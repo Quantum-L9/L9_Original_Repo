@@ -25,8 +25,13 @@ import hmac
 import os
 
 import httpx
+import structlog
 from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import PlainTextResponse
+
+from api.routes.registry import router_registry
+
+logger = structlog.get_logger(__name__)
 
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
@@ -34,12 +39,23 @@ TWILIO_SMS_NUMBER = os.getenv("TWILIO_SMS_NUMBER")
 TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_WHATSAPP_NUMBER")
 EXECUTOR_API_KEY = os.getenv("L9_EXECUTOR_API_KEY")
 
-if not all(
+_TWILIO_CONFIGURED = all(
     [TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_SMS_NUMBER, EXECUTOR_API_KEY]
-):
-    raise RuntimeError("Twilio or executor environment variables not fully configured")
+)
+if not _TWILIO_CONFIGURED:
+    logger.warning(
+        "Twilio environment variables not fully configured — routes will reject requests"
+    )
 
 router = APIRouter()
+
+router_registry.register(
+    router=router,
+    prefix="/twilio",
+    tags=["twilio"],
+    module_id="twilio_webhook",
+    display_name="Twilio SMS/WhatsApp Webhook",
+)
 
 CHAT_URL = "http://127.0.0.1:8000/chat"
 
@@ -82,6 +98,8 @@ async def twilio_webhook(
     - Forwards text to /chat
     - Returns plain text reply in TwiML-compatible form
     """
+    if not _TWILIO_CONFIGURED:
+        raise HTTPException(status_code=503, detail="Twilio not configured")
     form = await request.form()
     if not x_twilio_signature:
         raise HTTPException(status_code=401, detail="Missing Twilio signature")

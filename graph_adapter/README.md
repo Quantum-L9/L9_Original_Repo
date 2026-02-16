@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -111,7 +111,7 @@ class PacketNodeAdapter:
 
 **Public Methods:** `__init__`, `__call__`
 
-**Lines:** 54-110 in `packet_node_adapter.py`
+**Lines:** 56-113 in `packet_node_adapter.py`
 
 
 ---
@@ -128,7 +128,7 @@ class PacketNodeAdapter:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class GraphAdapterRequest(BaseModel):
     """Request model for graph_adapter operations."""
@@ -244,7 +244,7 @@ Graph Adapter operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "graph_adapter",
   "message": "Operation completed",

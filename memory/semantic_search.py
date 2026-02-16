@@ -8,6 +8,8 @@ tailored for Cursor use cases.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Semantic Search",
@@ -29,13 +31,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 import structlog
 from pydantic import BaseModel, Field
 
 from core.schemas import SemanticSearchRequest
-from memory.substrate_service import MemorySubstrateService
+
+if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 
@@ -61,6 +66,7 @@ class SearchHit(BaseModel):
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def semantic_search(
     query: str,
     agent_id: str,

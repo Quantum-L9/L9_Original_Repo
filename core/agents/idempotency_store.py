@@ -15,6 +15,8 @@ Public API unchanged - existing PacketEnvelope semantics preserved.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Idempotency Store",
@@ -47,15 +49,16 @@ from typing import TYPE_CHECKING, Any, Protocol
 
 import structlog
 
-from core.schemas.packet_envelope import PacketEnvelope
-
 if TYPE_CHECKING:
     from redis.asyncio import Redis
+
+    from core.schemas.packet_envelope import PacketEnvelope
 
 
 class SubstrateServiceProtocol(Protocol):
     """Protocol for substrate service providing Redis access."""
 
+    @must_stay_async("callers use await")
     async def get_redis_client(self) -> Redis:
         """Get async Redis client."""
         ...

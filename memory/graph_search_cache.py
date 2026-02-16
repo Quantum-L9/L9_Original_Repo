@@ -8,6 +8,8 @@ Implements Decision 8 from design clarifications.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Graph Search Cache",
@@ -35,14 +37,15 @@ __dora_meta__ = {
 import hashlib
 import json
 import random
-from datetime import datetime, timezone
-from typing import Any, Literal
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Literal
 
 import structlog
 from pydantic import BaseModel, Field
 
-from memory.graph_client import Neo4jClient
-from runtime.redis_client import RedisClient
+if TYPE_CHECKING:
+    from memory.graph_client import Neo4jClient
+    from runtime.redis_client import RedisClient
 
 logger = structlog.get_logger(__name__)
 
@@ -67,7 +70,7 @@ class GraphSearchResult(BaseModel):
 
     results: list[dict[str, Any]] = Field(..., description="Search results")
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Result creation time"
+        default_factory=lambda: datetime.now(UTC), description="Result creation time"
     )
     schema_version: str = Field(..., description="Schema version hash")
     ttl: int = Field(..., description="Time-to-live in seconds")
@@ -140,15 +143,16 @@ def _compute_ttl(ctx: GraphSearchContext, is_governance: bool = False) -> int:
     Returns:
         TTL in seconds with ±10% jitter
     """
-    base_ttl = random.randint(60, 120) if is_governance else random.randint(300, 600)
+    base_ttl = random.randint(60, 120) if is_governance else random.randint(300, 600)  # noqa: S311 — used for cache TTL jitter, not security
 
     # Add ±10% jitter
     jitter = int(base_ttl * 0.1)
-    ttl = base_ttl + random.randint(-jitter, jitter)
+    ttl = base_ttl + random.randint(-jitter, jitter)  # noqa: S311 — used for cache TTL jitter, not security
 
     return max(ttl, 10)  # Minimum 10 seconds
 
 
+@must_stay_async("callers use await")
 async def cached_graph_search(
     query: str,
     params: dict[str, Any],

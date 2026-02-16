@@ -41,9 +41,8 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import datetime, timezone
-from typing import Any
-from uuid import UUID
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -55,6 +54,9 @@ from ir_engine.ir_schema import (
     IRStatus,
     NodePriority,
 )
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 logger = structlog.get_logger(__name__)
 
@@ -230,7 +232,7 @@ class IRGenerator:
 
         return {
             "plan_id": str(graph.graph_id),
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "total_steps": len(steps),
             "estimated_duration_ms": sum(
                 a.estimated_duration_ms or 0 for a in ordered_actions

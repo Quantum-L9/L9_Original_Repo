@@ -8,6 +8,8 @@ Provides async functions for all memory substrate operations.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Repository Layer",
@@ -41,11 +43,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
-from datetime import UTC, datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import asyncpg
@@ -75,7 +76,6 @@ from memory.governance_gate import (
     build_scope_project_filter,
     require_governance_context,
 )
-from memory.substrate_semantic import EMBEDDING_DIMENSIONS
 from memory.substrate_models import (
     AgentMemoryEventRow,
     EpisodicEventRow,
@@ -86,6 +86,10 @@ from memory.substrate_models import (
     SemanticFactRow,
     StructuredReasoningBlock,
 )
+from memory.substrate_semantic import EMBEDDING_DIMENSIONS
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 logger = structlog.get_logger(__name__)
 
@@ -138,6 +142,7 @@ class SubstrateRepository:
             logger.info("Database connection pool closed")
 
     @asynccontextmanager
+    @must_stay_async("callers use await")
     async def acquire(self) -> AsyncGenerator[asyncpg.Connection, None]:
         """Acquire a connection from the pool."""
         if self._pool is None:
@@ -146,6 +151,7 @@ class SubstrateRepository:
             yield conn
 
     @asynccontextmanager
+    @must_stay_async("callers use await")
     async def transaction(
         self,
         tenant_id: str | None = None,
@@ -197,6 +203,7 @@ class SubstrateRepository:
     # Packet Store Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def insert_packet(self, envelope: PacketEnvelope) -> UUID:
         """
         Insert a PacketEnvelope into packet_store.
@@ -214,10 +221,12 @@ class SubstrateRepository:
         metadata_dict = envelope.metadata.model_dump() if envelope.metadata else {}
         content_hash = metadata_dict.get("content_hash")
         session_id = metadata_dict.get("session_id")
-        scope = metadata_dict.get("scope", "shared")
+        scope = metadata_dict.get("scope", "cursor")  # Default to valid DB scope
         trace_id = metadata_dict.get("trace_id")
-        # importance_score: prefer metadata, fallback to confidence.score
-        importance_score = metadata_dict.get("importance")
+        # importance_score: prefer metadata (intake/leverage rating), fallback to confidence.score
+        importance_score = metadata_dict.get("importance") or metadata_dict.get(
+            "importance_score"
+        )
         if importance_score is None and envelope.confidence:
             importance_score = envelope.confidence.score
 
@@ -260,6 +269,7 @@ class SubstrateRepository:
             )
             return envelope.packet_id
 
+    @must_stay_async("callers use await")
     async def _insert_packet_with_connection(
         self,
         conn: asyncpg.Connection,
@@ -275,7 +285,6 @@ class SubstrateRepository:
         trace_id,
         importance_score,
     ) -> None:
-        """Helper method to insert packet using provided connection."""
         """Helper method to insert packet using provided connection."""
         # GMP-C1-GOVERNANCE: Pass dict directly to asyncpg.
         # The JSONB codec (line 57) will serialize it. DO NOT json.dumps() here
@@ -324,7 +333,10 @@ class SubstrateRepository:
             importance_score,
         )
         logger.debug(
-            f"Inserted packet {envelope.packet_id} with thread_id={thread_id}, parent_ids={parent_ids}, importance={importance_score}"
+            "Inserted packet with thread_id, importance",
+            packet_id=str(envelope.packet_id),
+            thread_id=thread_id,
+            importance=importance_score,
         )
 
     async def get_packet(self, packet_id: UUID) -> PacketStoreRow | None:
@@ -339,7 +351,7 @@ class SubstrateRepository:
             # SAFE: filter_clause is internal SQL (e.g. "AND scope = $2"), not user input.
             # User values go through filter_params as parameterized $N placeholders.  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             row = await conn.fetchrow(
-                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",  # noqa: S608, ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 packet_id,
                 *filter_params,
             )
@@ -368,6 +380,7 @@ class SubstrateRepository:
             )
             return bool(result)
 
+    @must_stay_async("callers use await")
     async def get_packets_batch(
         self,
         packet_ids: list[UUID],
@@ -413,6 +426,7 @@ class SubstrateRepository:
 
         return result
 
+    @must_stay_async("callers use await")
     async def search_packets_by_thread(
         self,
         thread_id: UUID,
@@ -439,8 +453,7 @@ class SubstrateRepository:
             if packet_type:
                 filter_clause, filter_params, _ = build_scope_project_filter(
                     ctx, param_idx=5, table_alias="packet_store"
-                )  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                )
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store
@@ -448,7 +461,7 @@ class SubstrateRepository:
                     {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $3 OFFSET $4
-                    """,
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     thread_id,
                     packet_type,
                     limit,
@@ -458,8 +471,7 @@ class SubstrateRepository:
             else:
                 filter_clause, filter_params, _ = build_scope_project_filter(
                     ctx, param_idx=4, table_alias="packet_store"
-                )  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                )
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store
@@ -467,7 +479,7 @@ class SubstrateRepository:
                     {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $2 OFFSET $3
-                    """,
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     thread_id,
                     limit,
                     offset,
@@ -475,6 +487,7 @@ class SubstrateRepository:
                 )
             return [self._row_to_packet_store(r) for r in rows]
 
+    @must_stay_async("callers use await")
     async def search_packets_by_type(
         self,
         packet_type: str,
@@ -523,19 +536,18 @@ class SubstrateRepository:
 
             params.append(limit)
 
-            # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             query = f"""
                 SELECT * FROM packet_store
                 WHERE {" AND ".join(conditions)}
                 ORDER BY timestamp DESC
                 LIMIT ${param_idx}
-            """
+            """  # noqa: S608 — conditions are internal SQL, user values parameterized
 
             rows = await conn.fetch(query, *params)
             return [self._row_to_packet_store(r) for r in rows]
 
     def _row_to_packet_store(self, row: Any) -> PacketStoreRow:
-        """Convert a database row to PacketStoreRow (all 22 columns from migrations 0001, 0002, 0008)."""
+        """Convert a database row to PacketStoreRow (migrations 0001, 0002, 0008)."""
         return PacketStoreRow(
             # Core fields (migration 0001)
             packet_id=row["packet_id"],
@@ -562,7 +574,7 @@ class SubstrateRepository:
             tags=row.get("tags") or [],
             ttl=row.get("ttl"),
             # 10X Enhancements (migration 0008)
-            scope=row.get("scope", "shared"),
+            scope=row.get("scope", "cursor"),
             importance_score=row.get("importance_score", 0.5),
             access_count=row.get("access_count", 0),
             last_accessed=row.get("last_accessed"),
@@ -606,7 +618,7 @@ class SubstrateRepository:
                 """
                 INSERT INTO agent_memory_events (event_id, agent_id, timestamp, packet_id, event_type, content)
                 VALUES ($1, $2, $3, $4, $5, $6)
-                """,
+                """,  # noqa: ADR-0087
                 event_id,
                 agent_id,
                 timestamp or datetime.now(UTC),
@@ -802,6 +814,7 @@ class SubstrateRepository:
     # Knowledge Facts Operations (v2.1.0 - GMP-67 Unified Pipeline)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def insert_knowledge_fact(
         self,
         subject: str,
@@ -810,6 +823,7 @@ class SubstrateRepository:
         confidence: float,
         source_packet: UUID | None,
         fact_id: UUID | None = None,
+        scope: str = "cursor",  # RLS scope: developer, global, cursor, l-private, agent
     ) -> KnowledgeFactRow:
         """
         Insert or update knowledge fact (idempotent via UPSERT).
@@ -826,6 +840,7 @@ class SubstrateRepository:
             object_value: Value, entity, or structured data
             confidence: Extraction confidence (0.0-1.0)
             source_packet: Source packet ID (foreign key)
+            scope: RLS scope for row-level security (default: cursor)
 
         Returns:
             KnowledgeFactRow with assigned/existing fact_id
@@ -856,6 +871,7 @@ class SubstrateRepository:
                 confidence,
                 source_packet,
                 created_at,
+                scope,
             )
         else:
             async with self.acquire() as conn:
@@ -868,6 +884,7 @@ class SubstrateRepository:
                     confidence,
                     source_packet,
                     created_at,
+                    scope,
                 )
 
         return row
@@ -882,6 +899,7 @@ class SubstrateRepository:
         confidence: float,
         source_packet: UUID | None,
         created_at: datetime,
+        scope: str = "cursor",  # RLS scope for row-level security
     ) -> KnowledgeFactRow:
         """Helper to insert fact using provided connection."""
         # UPSERT: Insert or update on conflict (idempotent)
@@ -889,14 +907,15 @@ class SubstrateRepository:
         row = await conn.fetchrow(
             """
             INSERT INTO knowledge_facts (
-                fact_id, subject, predicate, object, confidence, source_packet, created_at
-            ) VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7)
+                fact_id, subject, predicate, object, confidence, source_packet, created_at, scope
+            ) VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8)
             ON CONFLICT (source_packet, subject, predicate)
             WHERE source_packet IS NOT NULL
             DO UPDATE SET
                 object = EXCLUDED.object,
-                confidence = EXCLUDED.confidence
-            RETURNING fact_id, subject, predicate, object, confidence, source_packet, created_at
+                confidence = EXCLUDED.confidence,
+                scope = EXCLUDED.scope
+            RETURNING fact_id, subject, predicate, object, confidence, source_packet, created_at, scope
             """,
             fact_id,
             subject,
@@ -905,11 +924,12 @@ class SubstrateRepository:
             confidence,
             source_packet,
             created_at,
+            scope,
         )
 
         logger.debug(
             f"Upserted knowledge fact {row['fact_id']} "
-            f"({subject} - {predicate}) for packet {source_packet}"
+            f"({subject} - {predicate}) for packet {source_packet} with scope={scope}"
         )
 
         return KnowledgeFactRow(
@@ -926,6 +946,7 @@ class SubstrateRepository:
             created_at=row["created_at"],
         )
 
+    @must_stay_async("callers use await")
     async def get_knowledge_facts(
         self,
         source_packet: UUID | None = None,
@@ -960,13 +981,12 @@ class SubstrateRepository:
 
             params.append(limit)
 
-            # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             query = f"""
                 SELECT * FROM knowledge_facts
                 WHERE {" AND ".join(conditions)}
                 ORDER BY created_at DESC
                 LIMIT ${param_idx}
-            """
+            """  # noqa: S608 — conditions are internal SQL, user values parameterized
 
             rows = await conn.fetch(query, *params)
             return [
@@ -990,12 +1010,13 @@ class SubstrateRepository:
     # Semantic Memory Operations (pgvector)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def insert_semantic_embedding(
         self,
         vector: list[float],
         payload: dict[str, Any],
         agent_id: str | None = None,
-        scope: str = "shared",  # RLS scope: 'developer', 'global', 'shared', 'l-private'
+        scope: str = "cursor",  # RLS scope: 'developer', 'global', 'cursor', 'l-private', 'agent'
     ) -> UUID:
         """
         Insert a semantic embedding into semantic_memory.
@@ -1023,6 +1044,7 @@ class SubstrateRepository:
             )
             return embedding_id
 
+    @must_stay_async("callers use await")
     async def _insert_semantic_embedding_with_connection(
         self,
         conn: asyncpg.Connection,
@@ -1030,7 +1052,7 @@ class SubstrateRepository:
         vector: list[float],
         payload: dict[str, Any],
         agent_id: str | None,
-        scope: str = "shared",
+        scope: str = "cursor",  # Default to valid DB scope
     ) -> None:
         """Helper to insert semantic embedding using provided connection.
 
@@ -1051,7 +1073,7 @@ class SubstrateRepository:
                 embedding_id, agent_id, vector, payload, created_at, scope, tenant_id, org_id, user_id
             )
             VALUES ($1, $2, $3::vector, $4, $5, $6, $7::uuid, $8::uuid, $9::uuid)
-            """,
+            """,  # noqa: ADR-0087
             embedding_id,
             agent_id,
             vector_str,
@@ -1068,22 +1090,33 @@ class SubstrateRepository:
         )
         logger.debug(f"Inserted semantic embedding {embedding_id} with scope={scope}")
 
+    @must_stay_async("callers use await")
     async def search_semantic_memory(
         self,
         query_embedding: list[float],
         top_k: int = 10,
         agent_id: str | None = None,
+        tags_include: list[str] | None = None,
+        tags_boost: list[str] | None = None,
+        tag_boost_factor: float = 1.15,
     ) -> list[SemanticHit]:
         """
         Search semantic memory using cosine similarity.
+
+        Optionally filter by tags (require at least one match) and/or boost
+        scores when hit tags overlap tags_boost. Uses packet_store.tags via
+        JOIN when tag options are set.
 
         Args:
             query_embedding: Query vector
             top_k: Number of results to return
             agent_id: Optional filter by agent
+            tags_include: If set, only return rows whose packet has at least one of these tags
+            tags_boost: If set, multiply score by tag_boost_factor when hit has any of these tags
+            tag_boost_factor: Multiplier for tag-based boost (default 1.15)
 
         Returns:
-            List of SemanticHit with embedding_id, score, payload
+            List of SemanticHit with embedding_id, score, payload (payload may include _tags)
         """
         if len(query_embedding) != EMBEDDING_DIMENSIONS:
             raise ValueError(
@@ -1091,14 +1124,73 @@ class SubstrateRepository:
             )
         ctx = require_governance_context("repository.search_semantic_memory")
 
+        use_tag_join = bool(tags_include or tags_boost)
+        fetch_k = top_k * 2 if tags_boost else top_k  # over-fetch for boost re-sort
+
         async with self.acquire() as conn:
-            # Apply vector search optimization
             config = get_vector_config()
             await config.apply(conn)
 
             vector_str = f"[{','.join(str(v) for v in query_embedding)}]"
 
-            if agent_id:
+            if use_tag_join:
+                # JOIN packet_store to get tags for filter/boost; payload may already have "tags" from DAG
+                idx = 8
+                tag_filter = (
+                    " AND ps.tags && $" + str(idx) + "::text[]" if tags_include else ""
+                )
+                if tags_include:
+                    idx += 1
+                agent_clause = (
+                    " AND (sm.agent_id = $" + str(idx) + ")" if agent_id else ""
+                )
+                sel = (
+                    """
+                    SELECT
+                        sm.embedding_id,
+                        sm.payload,
+                        1 - (sm.vector <=> $1::vector) as score,
+                        ps.tags as packet_tags
+                    FROM semantic_memory sm
+                    LEFT JOIN packet_store ps ON ps.packet_id = (sm.payload->>'packet_id')::uuid
+                    WHERE
+                        sm.scope = ANY($2)
+                        AND sm.payload->>'_project_id' = $3
+                        AND (
+                            sm.tenant_id IS NULL
+                            OR sm.tenant_id = $4::uuid
+                        )
+                        AND (
+                            sm.org_id IS NULL
+                            OR sm.org_id = $5::uuid
+                        )
+                        AND (
+                            sm.user_id IS NULL
+                            OR sm.user_id = $6::uuid
+                        )
+                """
+                    + tag_filter
+                    + agent_clause
+                    + """
+                    ORDER BY sm.vector <=> $1::vector
+                    LIMIT $7
+                """
+                )
+                params = [
+                    vector_str,
+                    list(ctx.allowed_scopes),
+                    ctx.project_id,
+                    ctx.tenant_id,
+                    ctx.org_id,
+                    ctx.user_id,
+                    fetch_k,
+                ]
+                if tags_include:
+                    params.append(tags_include)
+                if agent_id:
+                    params.append(agent_id)
+                rows = await conn.fetch(sel, *params)
+            elif agent_id:
                 rows = await conn.fetch(
                     """
                     SELECT
@@ -1169,23 +1261,52 @@ class SubstrateRepository:
                     top_k,
                 )
 
-            return [
-                SemanticHit(
-                    embedding_id=r["embedding_id"],
-                    score=float(r["score"]),
-                    payload=(
-                        json.loads(r["payload"])
-                        if isinstance(r["payload"], str)
-                        else r["payload"]
-                    ),
+            hits: list[SemanticHit] = []
+            for r in rows:
+                payload = (
+                    json.loads(r["payload"])
+                    if isinstance(r["payload"], str)
+                    else dict(r["payload"])
                 )
-                for r in rows
-            ]
+                if use_tag_join and "packet_tags" in r and r["packet_tags"] is not None:
+                    payload["_tags"] = list(r["packet_tags"])
+                elif use_tag_join and payload.get("tags") is not None:
+                    payload["_tags"] = payload["tags"]
+                score = float(r["score"])
+                hits.append(
+                    SemanticHit(
+                        embedding_id=r["embedding_id"],
+                        score=score,
+                        payload=payload,
+                    )
+                )
+
+            if tags_boost and hits:
+                boosted = []
+                for h in hits:
+                    hit_tags = h.payload.get("_tags") or h.payload.get("tags") or []
+                    if any(t in hit_tags for t in tags_boost):
+                        boosted.append(
+                            SemanticHit(
+                                embedding_id=h.embedding_id,
+                                score=min(1.0, h.score * tag_boost_factor),
+                                payload=h.payload,
+                            )
+                        )
+                    else:
+                        boosted.append(h)
+                boosted.sort(key=lambda x: x.score, reverse=True)
+                hits = boosted[:top_k]
+            elif use_tag_join and len(hits) > top_k:
+                hits = hits[:top_k]
+
+            return hits
 
     # =========================================================================
     # Graph Checkpoint Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def save_checkpoint(
         self,
         agent_id: str,
@@ -1432,6 +1553,7 @@ class SubstrateRepository:
             )
             return log_id
 
+    @must_stay_async("callers use await")
     async def get_facts_by_subject(
         self,
         subject: str,
@@ -1686,6 +1808,7 @@ class SubstrateRepository:
     # Semantic Facts Operations (Migration 0018 - Memory Spec v3.1)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def insert_semantic_fact(
         self,
         fact_text: str,
@@ -1785,6 +1908,7 @@ class SubstrateRepository:
         logger.debug(f"Inserted semantic fact {fact_id}: {fact_text[:50]}...")
         return fact_id
 
+    @must_stay_async("callers use await")
     async def get_semantic_facts_by_subject(
         self,
         subject: str,
@@ -1914,6 +2038,7 @@ class SubstrateRepository:
             for r in rows
         ]
 
+    @must_stay_async("callers use await")
     async def update_fact_importance(
         self,
         fact_id: UUID,
@@ -1966,6 +2091,7 @@ class SubstrateRepository:
     # Episodic Events Operations (Migration 0019 - Memory Spec v3.1)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def insert_episodic_event(
         self,
         observation: str,
@@ -2043,6 +2169,7 @@ class SubstrateRepository:
         logger.debug(f"Inserted episodic event {event_id}: {observation[:50]}...")
         return event_id
 
+    @must_stay_async("callers use await")
     async def get_events_by_time_range(
         self,
         start_time: datetime,
@@ -2158,6 +2285,7 @@ class SubstrateRepository:
             for r in rows
         ]
 
+    @must_stay_async("callers use await")
     async def link_event_to_facts(
         self,
         event_id: UUID,
@@ -2341,6 +2469,7 @@ class SubstrateRepository:
     # Time-Travel Queries (Migration 0022)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def get_facts_as_of(
         self,
         point_in_time: datetime,
@@ -2393,6 +2522,7 @@ class SubstrateRepository:
 
         return [self._row_to_semantic_fact(r) for r in rows]
 
+    @must_stay_async("callers use await")
     async def get_fact_history(
         self,
         fact_text: str,
@@ -2436,6 +2566,7 @@ class SubstrateRepository:
 
         return [self._row_to_semantic_fact(r) for r in rows]
 
+    @must_stay_async("callers use await")
     async def supersede_fact(
         self,
         old_fact_id: UUID,

@@ -9,6 +9,7 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.schemas.ws_event_stream import EventMessage, EventType
 from orchestration.ws_task_router import WSTaskRouter
 
@@ -19,6 +20,7 @@ class TestWSTaskRoutingIntegration:
     """Test WebSocket to Task Router integration."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_task_result_routed_to_handler(self):
         """Task result message routes to correct handler."""
         router = WSTaskRouter()
@@ -40,6 +42,7 @@ class TestWSTaskRoutingIntegration:
         assert result is not None or handler.called
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_unknown_message_type_handled(self):
         """Unknown message types don't crash router."""
         router = WSTaskRouter()
@@ -55,6 +58,7 @@ class TestWSTaskRoutingIntegration:
         assert result is None or isinstance(result, dict)
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_multiple_handlers_chain(self):
         """Multiple handlers for same type all execute."""
         router = WSTaskRouter()

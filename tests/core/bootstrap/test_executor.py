@@ -28,6 +28,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from core.decorators import must_stay_async
+
 # Add project root to path before any imports
 project_root = Path(__file__).parent.parent.parent.parent
 if str(project_root) not in sys.path:
@@ -73,6 +75,7 @@ class MockAIOSRuntime:
         """Set sequence of responses to return."""
         self.responses = list(responses)  # Copy to avoid mutation
 
+    @must_stay_async("callers use await")
     async def execute_reasoning(self, context: dict[str, Any]) -> AIOSResult:
         """Execute mock reasoning and record context."""
         self.call_count += 1
@@ -123,6 +126,7 @@ class MockToolRegistry:
         self._dispatch_exception = exc
         self._dispatch_result = None
 
+    @must_stay_async("callers use await")
     async def dispatch_tool_call(
         self,
         tool_id: str,
@@ -198,6 +202,7 @@ class MockSubstrateService:
         """Clear any write exception."""
         self._write_exception = None
 
+    @must_stay_async("callers use await")
     async def write_packet(self, packet_in: Any) -> dict[str, Any]:
         """Write mock packet."""
         if self._write_exception is not None:
@@ -205,6 +210,7 @@ class MockSubstrateService:
         self.packets.append(packet_in)
         return {"status": "ok"}
 
+    @must_stay_async("callers use await")
     async def search_packets(
         self,
         thread_id: UUID,
@@ -213,6 +219,7 @@ class MockSubstrateService:
         """Search mock packets."""
         return self._search_results
 
+    @must_stay_async("callers use await")
     async def search_packets_by_type(
         self,
         packet_type: str,
@@ -230,6 +237,7 @@ class MockSubstrateService:
                 results.append({"payload": p.payload if hasattr(p, "payload") else {}})
         return results[:limit]
 
+    @must_stay_async("callers use await")
     async def search_packets_by_thread(
         self,
         thread_id: str,
@@ -367,6 +375,7 @@ async def test_valid_task_instantiates_agent(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_executor_binds_approved_tools(
     executor: AgentExecutorService,
     mock_aios: MockAIOSRuntime,
@@ -436,6 +445,7 @@ async def test_executor_binds_approved_tools(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_tool_result_is_in_next_aios_context(
     executor: AgentExecutorService,
     mock_aios: MockAIOSRuntime,
@@ -550,6 +560,7 @@ async def test_execution_loop_calls_aios(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_tool_call_is_dispatched(
     executor: AgentExecutorService,
     mock_aios: MockAIOSRuntime,
@@ -612,6 +623,7 @@ async def test_tool_call_is_dispatched(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_tool_call_name_resolution_for_openai(
     executor: AgentExecutorService,
     mock_aios: MockAIOSRuntime,
@@ -693,6 +705,7 @@ async def test_executor_terminates_on_final_answer(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_executor_terminates_on_max_iterations(
     mock_aios: MockAIOSRuntime,
     mock_tool_registry: MockToolRegistry,
@@ -766,6 +779,7 @@ async def test_executor_terminates_on_max_iterations(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_idempotency_returns_duplicate_response(
     executor: AgentExecutorService,
     mock_aios: MockAIOSRuntime,
@@ -842,6 +856,7 @@ async def test_invalid_agent_id_returns_error(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_validation_does_not_mutate_task(
     mock_aios: MockAIOSRuntime,
     mock_tool_registry: MockToolRegistry,
@@ -921,6 +936,7 @@ async def test_aios_error_handled(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_unbound_tool_not_dispatched(
     executor: AgentExecutorService,
     mock_aios: MockAIOSRuntime,
@@ -967,6 +983,7 @@ async def test_unbound_tool_not_dispatched(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_tool_dispatch_failure_handled(
     executor: AgentExecutorService,
     mock_aios: MockAIOSRuntime,
@@ -1026,6 +1043,7 @@ async def test_tool_dispatch_failure_handled(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_packets_emitted_with_required_fields(
     executor: AgentExecutorService,
     mock_aios: MockAIOSRuntime,
@@ -1161,6 +1179,7 @@ async def test_substrate_write_failure_doesnt_crash(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_tool_call_packet_emitted(
     executor: AgentExecutorService,
     mock_aios: MockAIOSRuntime,
@@ -1216,6 +1235,7 @@ async def test_tool_call_packet_emitted(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_set_tensor_bridge(
     executor: AgentExecutorService,
 ) -> None:
@@ -1265,6 +1285,7 @@ class MockTensorBridge:
         self.enrich_calls: list[dict[str, Any]] = []
         self.should_fail: bool = False
 
+    @must_stay_async("callers use await")
     async def enrich_context(
         self,
         query: str,

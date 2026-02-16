@@ -10,7 +10,7 @@ Integration tests for the GMP-80 frontier memory retrieval architecture:
 These tests verify the complete pipeline without requiring a live database.
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
@@ -386,12 +386,16 @@ class TestActiveEncoder:
 
         assert len(learnings) >= 2
         # Check that preference pattern is detected
-        pref_learning = next((l for l in learnings if "async" in l.fact_text), None)
+        pref_learning = next(
+            (item for item in learnings if "async" in item.fact_text), None
+        )
         assert pref_learning is not None
         assert pref_learning.learning_type == "preference"
 
         # Check that correction pattern is detected
-        corr_learning = next((l for l in learnings if "next time" in l.fact_text), None)
+        corr_learning = next(
+            (item for item in learnings if "next time" in item.fact_text), None
+        )
         assert corr_learning is not None
         assert corr_learning.learning_type == "correction"
 
@@ -463,7 +467,7 @@ class TestImportanceManager:
         manager = ImportanceManager()
 
         # 30 days ago = half-life, so importance should halve
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         thirty_days_ago = now - timedelta(days=30)
 
         decayed = manager._calculate_decay(1.0, thirty_days_ago, now)
@@ -477,7 +481,7 @@ class TestImportanceManager:
         manager = ImportanceManager()
 
         # Very old access = should hit floor
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         ancient = now - timedelta(days=365)
 
         decayed = manager._calculate_decay(0.5, ancient, now)

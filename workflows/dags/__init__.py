@@ -36,6 +36,8 @@ __dora_meta__ = {
 # ============================================================================
 
 # Legacy DAGs (dataclass-based documentation)
+from workflows.dags.component_audit_dag import COMPONENT_AUDIT_DAG
+from workflows.dags.confirm_wiring_dag import CONFIRM_WIRING_DAG
 from workflows.dags.dag_authoring_dag import DAG_AUTHORING_DAG
 from workflows.dags.gmp_execution_dag import GMP_EXECUTION_DAG
 from workflows.dags.harvest_deploy_dag import HARVEST_DEPLOY_DAG
@@ -54,20 +56,20 @@ from workflows.dags.test_pipeline_dag import TEST_PIPELINE_DAG
 from workflows.dags.wire_dag import WIRE_DAG
 
 __all__ = [
-    # Real LangGraph (use these)
-    "INSPECT_DAG",
-    "InspectState",
-    "build_inspect_graph",
-    "run_inspect",
-    # Legacy (to be migrated)
+    "COMPONENT_AUDIT_DAG",
+    "CONFIRM_WIRING_DAG",
     "DAG_AUTHORING_DAG",
     "GMP_EXECUTION_DAG",
     "HARVEST_DEPLOY_DAG",
+    "INSPECT_DAG",
     "README_PIPELINE_DAG",
     "REFACTORING_DAG",
     "SLASH_COMMAND_UPDATE_DAG",
     "TEST_PIPELINE_DAG",
     "WIRE_DAG",
+    "InspectState",
+    "build_inspect_graph",
+    "run_inspect",
 ]
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

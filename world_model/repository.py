@@ -19,6 +19,7 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -51,7 +52,7 @@ __dora_meta__ = {
 
 import json
 import os
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -92,6 +93,7 @@ DATABASE_URL = os.getenv(
 _pool = None
 
 
+@must_stay_async("callers use await")
 async def get_pool(
     pool: asyncpg.Pool | None = None,
 ) -> asyncpg.Pool:
@@ -426,6 +428,7 @@ class WorldModelRepository:
                 return WorldModelEntityRow.from_row(row)
             return None
 
+    @must_stay_async("callers use await")
     async def list_entities(
         self,
         entity_type: str | None = None,
@@ -480,11 +483,12 @@ class WorldModelRepository:
                 {where_clause}
                 ORDER BY updated_at DESC
                 LIMIT ${param_idx} OFFSET ${param_idx + 1}
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
 
             rows = await conn.fetch(query, *params)
             return [WorldModelEntityRow.from_row(row) for row in rows]
 
+    @must_stay_async("callers use await")
     async def upsert_entity(
         self,
         entity_id: str,
@@ -585,6 +589,7 @@ class WorldModelRepository:
     # Update Operations (Audit Log)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def record_update(
         self,
         insight_id: UUID | None,
@@ -654,6 +659,7 @@ class WorldModelRepository:
                 state_version_after=state_version_after,
             )
 
+    @must_stay_async("callers use await")
     async def list_updates(
         self,
         insight_type: str | None = None,
@@ -714,7 +720,7 @@ class WorldModelRepository:
                 {where_clause}
                 ORDER BY applied_at DESC
                 LIMIT ${param_idx}
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
 
             rows = await conn.fetch(query, *params)
             results = []
@@ -745,6 +751,7 @@ class WorldModelRepository:
     # Snapshot Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def save_snapshot(
         self,
         snapshot: dict[str, Any],

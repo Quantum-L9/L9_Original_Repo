@@ -15,7 +15,12 @@ Purpose: Technical debt tracking, not debt hiding
 
 from __future__ import annotations
 
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Add Noqa To Violations",
     "module_version": "1.0.0",
@@ -106,13 +111,15 @@ def fix_file_print(filepath: Path, dry_run: bool) -> int:
     changes = 0
     new_lines = []
 
-    for i, line in enumerate(lines):
+    for _i, line in enumerate(lines):
         # Match print( at start of line (with optional whitespace)
         if re.match(r"^\s*print\(", line) and "# noqa" not in line:
             new_lines.append(add_noqa_to_line(line, "ADR-0019").rstrip())
             changes += 1
             if dry_run:
-                print(f"  {filepath}:{i + 1}: {line.strip()[:60]}...")
+                logger.info(
+                    "  filepath:{i + 1}: {line.strip()[:60]}...", filepath=filepath
+                )
         else:
             new_lines.append(line)
 
@@ -135,12 +142,14 @@ def fix_file_sql(filepath: Path, dry_run: bool) -> int:
 
     sql_pattern = re.compile(r'f"(SELECT|INSERT|UPDATE|DELETE).*\{', re.IGNORECASE)
 
-    for i, line in enumerate(lines):
+    for _i, line in enumerate(lines):
         if sql_pattern.search(line) and "# noqa" not in line:
             new_lines.append(add_noqa_to_line(line, "ADR-0087").rstrip())
             changes += 1
             if dry_run:
-                print(f"  {filepath}:{i + 1}: {line.strip()[:60]}...")
+                logger.info(
+                    "  filepath:{i + 1}: {line.strip()[:60]}...", filepath=filepath
+                )
         else:
             new_lines.append(line)
 
@@ -164,7 +173,7 @@ def fix_file_logging(filepath: Path, dry_run: bool) -> int:
     changes = 0
     new_lines = []
 
-    for i, line in enumerate(lines):
+    for _i, line in enumerate(lines):
         if (
             re.match(r"^import logging$", line.strip())
             or re.match(r"^from logging import", line.strip())
@@ -172,7 +181,9 @@ def fix_file_logging(filepath: Path, dry_run: bool) -> int:
             new_lines.append(add_noqa_to_line(line, "ADR-0019").rstrip())
             changes += 1
             if dry_run:
-                print(f"  {filepath}:{i + 1}: {line.strip()[:60]}...")
+                logger.info(
+                    "  filepath:{i + 1}: {line.strip()[:60]}...", filepath=filepath
+                )
         else:
             new_lines.append(line)
 
@@ -194,15 +205,15 @@ def main() -> int:
     args = parser.parse_args()
 
     if not args.dry_run and not args.apply:
-        print("Must specify --dry-run or --apply")
+        logger.info("must specify --dry-run or --apply")
         return 1
 
     dry_run = args.dry_run
     mode = "DRY RUN" if dry_run else "APPLYING"
 
-    print(f"{'=' * 60}")
-    print(f"  ADD NOQA COMMENTS TO ADR VIOLATIONS ({mode})")
-    print(f"{'=' * 60}\n")
+    logger.info("{'=' * 60}")
+    logger.info("  add noqa comments to adr violations (mode)", mode=mode)
+    logger.info("{'=' * 60}\n")
 
     total_print = 0
     total_sql = 0
@@ -210,39 +221,43 @@ def main() -> int:
 
     py_files = [f for f in L9_ROOT.rglob("*.py") if f.is_file() and not should_skip(f)]
 
-    print(f"Scanning {len(py_files)} Python files...\n")
+    logger.info("scanning {len(py_files)} python files...\n")
 
     if args.adr in ("0019", "all"):
-        print("=== ADR-0019: print() violations ===")
+        logger.info("=== adr-0019: print() violations ===")
         for filepath in py_files:
             total_print += fix_file_print(filepath, dry_run)
-        print(f"\nTotal print() fixes: {total_print}\n")
+        logger.info("\ntotal print() fixes: total print\n", total_print=total_print)
 
-        print("=== ADR-0019: logging module violations ===")
+        logger.info("=== adr-0019: logging module violations ===")
         for filepath in py_files:
             total_logging += fix_file_logging(filepath, dry_run)
-        print(f"\nTotal logging fixes: {total_logging}\n")
+        logger.info(
+            "\ntotal logging fixes: total logging\n", total_logging=total_logging
+        )
 
     if args.adr in ("0087", "all"):
-        print("=== ADR-0087: f-string SQL violations ===")
+        logger.info("=== adr-0087: f-string sql violations ===")
         for filepath in py_files:
             total_sql += fix_file_sql(filepath, dry_run)
-        print(f"\nTotal SQL fixes: {total_sql}\n")
+        logger.info("\ntotal sql fixes: total sql\n", total_sql=total_sql)
 
     total = total_print + total_sql + total_logging
 
-    print(f"{'=' * 60}")
-    print(f"  SUMMARY: {total} violations {'would be ' if dry_run else ''}fixed")
-    print(f"{'=' * 60}")
-    print(f"  ADR-0019 print():  {total_print}")
-    print(f"  ADR-0019 logging:  {total_logging}")
-    print(f"  ADR-0087 SQL:      {total_sql}")
-    print(f"{'=' * 60}")
+    logger.info("{'=' * 60}")
+    logger.info(
+        "  summary: total violations {'would be ' if dry run else ''}fixed", total=total
+    )
+    logger.info("{'=' * 60}")
+    logger.info("  adr-0019 print():  total print", total_print=total_print)
+    logger.info("  adr-0019 logging:  total logging", total_logging=total_logging)
+    logger.info("  adr-0087 sql:      total sql", total_sql=total_sql)
+    logger.info("{'=' * 60}")
 
     if dry_run:
-        print("\nRun with --apply to make changes")
+        logger.info("\nrun with --apply to make changes")
     else:
-        print("\n✅ Changes applied. Run ADR checker to verify.")
+        logger.info("\n✅ changes applied. run adr checker to verify.")
 
     return 0
 

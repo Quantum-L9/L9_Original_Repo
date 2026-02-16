@@ -9,6 +9,7 @@ from uuid import UUID
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.hybrid_rag import (
     EnrichmentStrategy,
     EntityExtractor,
@@ -171,6 +172,7 @@ class TestGraphEnricher:
         assert result.related_entities == []
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_enrich_direct_strategy(self):
         """Test direct (1-hop) enrichment strategy."""
         mock_neo4j = MagicMock()
@@ -253,6 +255,7 @@ class TestHybridRAGPipeline:
         assert len(result.results) == 0
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_search_with_vector_results(self):
         """Test search with vector results and enrichment."""
         # Mock vector search results
@@ -305,6 +308,7 @@ class TestHybridRAGPipeline:
         assert result.graph_enrichment_ms >= 0
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_combined_score_calculation(self):
         """Test combined score calculation."""
         semantic = self._create_mock_semantic_service([])
@@ -327,6 +331,7 @@ class TestHybridRAGPipeline:
         assert factors["graph_centrality"] == 0.0
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_combined_score_with_enrichment(self):
         """Test combined score with graph enrichment."""
         semantic = self._create_mock_semantic_service([])

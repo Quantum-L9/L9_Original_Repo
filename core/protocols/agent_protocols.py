@@ -27,6 +27,8 @@ Author: Top Frontier AI Lab
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Agent Protocols",
@@ -135,6 +137,7 @@ class ToolExecutor(Protocol):
     - TracedToolExecutor: Tool execution with observability
     """
 
+    @must_stay_async("callers use await")
     async def execute_tool(
         self,
         tool_name: str,
@@ -205,6 +208,7 @@ class StateManager(Protocol):
     - DistributedStateManager: State shared across instances
     """
 
+    @must_stay_async("callers use await")
     async def get_state(self, agent_id: str) -> AgentState | None:
         """
         Get current state of an agent.
@@ -217,6 +221,7 @@ class StateManager(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def set_state(self, agent_id: str, state: AgentState) -> None:
         """
         Set state of an agent.
@@ -227,6 +232,7 @@ class StateManager(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def transition_state(
         self, agent_id: str, from_state: AgentState, to_state: AgentState
     ) -> bool:
@@ -243,6 +249,7 @@ class StateManager(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def get_state_history(
         self, agent_id: str, limit: int = 10
     ) -> list[dict[str, Any]]:
@@ -273,6 +280,7 @@ class AgentOrchestrator(Protocol):
     - DistributedOrchestrator: Multi-node orchestration
     """
 
+    @must_stay_async("callers use await")
     async def register_agent(
         self, agent: ActivatableAgent, metadata: dict[str, Any] | None = None
     ) -> str:
@@ -288,6 +296,7 @@ class AgentOrchestrator(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def unregister_agent(self, agent_id: str) -> bool:
         """
         Unregister an agent.
@@ -300,6 +309,7 @@ class AgentOrchestrator(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def route_task(
         self, task: dict[str, Any], constraints: dict[str, Any] | None = None
     ) -> str:
@@ -315,6 +325,7 @@ class AgentOrchestrator(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def get_agent_status(self, agent_id: str) -> dict[str, Any]:
         """
         Get agent status.

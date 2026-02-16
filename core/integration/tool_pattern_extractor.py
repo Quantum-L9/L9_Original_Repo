@@ -45,7 +45,7 @@ __dora_meta__ = {
 import asyncio
 import contextlib
 import os
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import structlog
@@ -171,7 +171,7 @@ class ToolPatternExtractor:
             # 3. Store in World Model
             await self._store_patterns(patterns)
 
-            self._last_extraction = datetime.now(timezone.utc)
+            self._last_extraction = datetime.now(UTC)
             self._extraction_count += 1
 
             logger.info(
@@ -213,9 +213,7 @@ class ToolPatternExtractor:
 
             try:
                 # Query recent tool invocations
-                lookback = datetime.now(timezone.utc) - timedelta(
-                    hours=self.lookback_hours
-                )
+                lookback = datetime.now(UTC) - timedelta(hours=self.lookback_hours)
 
                 query = """
                     SELECT
@@ -323,7 +321,7 @@ class ToolPatternExtractor:
             ),
             "total_cost_usd": total_cost,
             "lookback_hours": self.lookback_hours,
-            "extracted_at": datetime.now(timezone.utc).isoformat(),
+            "extracted_at": datetime.now(UTC).isoformat(),
         }
 
     async def _store_patterns(self, patterns: dict[str, Any]) -> None:

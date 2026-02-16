@@ -19,6 +19,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Memory Segment Helpers",
@@ -69,6 +71,7 @@ ALL_SEGMENTS = [
 ]
 
 
+@must_stay_async("callers use await")
 async def memory_search(
     segment: str,
     query: str,
@@ -154,6 +157,7 @@ async def memory_search(
         raise
 
 
+@must_stay_async("callers use await")
 async def memory_write(
     segment: str,
     payload: dict[str, Any],

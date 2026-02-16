@@ -13,6 +13,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Semantic Compiler",
@@ -42,8 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 import structlog
 from openai import AsyncOpenAI
@@ -60,6 +61,9 @@ from ir_engine.ir_schema import (
     IRStatus,
     NodePriority,
 )
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 logger = structlog.get_logger(__name__)
 
@@ -150,6 +154,7 @@ class SemanticCompiler:
     # Main Compilation
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def compile(
         self,
         text: str,
@@ -211,6 +216,7 @@ class SemanticCompiler:
 
         return graph
 
+    @must_stay_async("callers use await")
     async def _extract_semantic_structure(
         self,
         text: str,

@@ -12,11 +12,13 @@ GMP: Research Graph Persistence
 
 # Import via direct module load to avoid chain imports
 import importlib.util
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+
+from core.decorators import must_stay_async
 
 _spec = importlib.util.spec_from_file_location(
     "graph_persistence",
@@ -71,7 +73,7 @@ def test_research_finding_structure():
         source_agent="researcher",
         key_facts=["uses events", "has store"],
         tags=["architecture", "events"],
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
         metadata={"extra": "data"},
     )
 
@@ -238,6 +240,7 @@ class TestResearchGraphPersistence:
     # =========================================================================
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_get_findings_by_type_success(
         self, persistence: ResearchGraphPersistence
     ):
@@ -289,6 +292,7 @@ class TestResearchGraphPersistence:
     # =========================================================================
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_persist_evidence_as_findings_batch(
         self, persistence: ResearchGraphPersistence
     ):
@@ -321,6 +325,7 @@ class TestResearchGraphPersistence:
         assert len(finding_ids) == 2
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_persist_evidence_classifies_types(
         self, persistence: ResearchGraphPersistence
     ):

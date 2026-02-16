@@ -37,7 +37,7 @@ import hashlib
 import json
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -319,7 +319,7 @@ class Reporter:
 <body>
     <div class="container">
         <h1>🔍 {title}</h1>
-        <p>Generated: {datetime.now().isoformat()}</p>
+        <p>Generated: {datetime.now(tz=UTC).isoformat()}</p>
 
         <div class="summary">
 """
@@ -338,7 +338,7 @@ class Reporter:
 
         <footer>
             <p>L9 Audit Suite v2.0 — Frontier Grade</p>
-            <p>Report generated at {datetime.now().isoformat()}</p>
+            <p>Report generated at {datetime.now(tz=UTC).isoformat()}</p>
         </footer>
     </div>
 </body>
@@ -520,7 +520,7 @@ class ObservabilityHooks:
             "operation": operation,
             "status": status,
             "duration_ms": duration_ms,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(tz=UTC).isoformat(),
             "attributes": attributes or {},
         }
         self.spans.append(span)

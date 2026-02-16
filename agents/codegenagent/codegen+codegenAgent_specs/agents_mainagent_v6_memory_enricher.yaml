@@ -1,0 +1,46 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Mainagent V6 Memory Enricher"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "agents_mainagent_v6_memory_enricher"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ======================================
+# L9 Codegen Spec: Memory Fusion Module
+# ======================================
+
+filename: agents/mainagent_v6/memory_enricher.py
+type: memory_adapter
+language: python
+
+description: |
+  Pulls and merges semantic, episodic, and causal memory fragments to enrich packets.
+
+wiring:
+  sources:
+    - Redis (working)
+    - pgvector (episodic)
+    - Neo4j (causal)
+
+code: |
+  def enrich_context(packet):
+      semantic = memory.redis.lookup(packet)
+      episodic = memory.pgvector.embed_and_search(packet)
+      causal = memory.neo4j.query_relations(packet)
+      return {**semantic, **episodic, **causal}
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "intelligence", "redis-config", "utility"]
+# keywords: ["agents", "code", "description", "enricher", "filename", "language"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

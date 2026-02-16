@@ -31,7 +31,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from world_model.interfaces import Entity, IWorldModelState, Relation
@@ -56,7 +56,7 @@ class WorldModelState(IWorldModelState):
         self._entity_to_relations: dict[str, list[str]] = {}
         self._causal_graph: Any | None = None  # Deferred import
         self._version: int = 0
-        self._timestamp: datetime = datetime.now(timezone.utc)
+        self._timestamp: datetime = datetime.now(UTC)
 
     # ========== ENTITY OPERATIONS ==========
 
@@ -86,7 +86,7 @@ class WorldModelState(IWorldModelState):
         self._entities[entity.id] = entity
         self._entity_to_relations[entity.id] = []
         self._version += 1
-        self._timestamp = datetime.now(timezone.utc)
+        self._timestamp = datetime.now(UTC)
 
     def update_entity(self, entity_id: str, updates: dict[str, Any]) -> None:
         """Update entity attributes by ID.
@@ -115,7 +115,7 @@ class WorldModelState(IWorldModelState):
 
         self._entities[entity_id] = updated
         self._version += 1
-        self._timestamp = datetime.now(timezone.utc)
+        self._timestamp = datetime.now(UTC)
 
     def remove_entity(self, entity_id: str) -> None:
         """Remove entity from state and clean up relations.
@@ -147,7 +147,7 @@ class WorldModelState(IWorldModelState):
         del self._entities[entity_id]
         del self._entity_to_relations[entity_id]
         self._version += 1
-        self._timestamp = datetime.now(timezone.utc)
+        self._timestamp = datetime.now(UTC)
 
     def list_entities(self, entity_type: str | None = None) -> list[Entity]:
         """List all entities, optionally filtered by type.
@@ -208,7 +208,7 @@ class WorldModelState(IWorldModelState):
             self._entity_to_relations[relation.target_id].append(relation.id)
 
         self._version += 1
-        self._timestamp = datetime.now(timezone.utc)
+        self._timestamp = datetime.now(UTC)
 
     def remove_relation(self, relation_id: str) -> None:
         """Remove relation from state.
@@ -238,7 +238,7 @@ class WorldModelState(IWorldModelState):
 
         del self._relations[relation_id]
         self._version += 1
-        self._timestamp = datetime.now(timezone.utc)
+        self._timestamp = datetime.now(UTC)
 
     # ========== CAUSAL GRAPH INTEGRATION ==========
 

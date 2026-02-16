@@ -13,11 +13,32 @@ Usage:
     is_safe = await refcount_service.is_safe_to_delete("packet_123")
 """
 
+__dora_meta__ = {
+    "component_name": "Retention Refcount",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.982943+00:00",
+    "updated_at": "2026-02-13T23:37:34.982943+00:00",
+    "layer": "core",
+    "domain": "memory",
+    "module_name": "memory.retention_refcount",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
+
 import asyncio
 from dataclasses import dataclass
-from typing import Optional
 
 import structlog
+
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -88,6 +109,7 @@ class ReferenceCountingService:
         self._refcount_cache: dict[str, PacketRefCount] = {}
         logger.info("ReferenceCountingService initialized")
 
+    @must_stay_async("callers use await")
     async def compute_refcount(
         self, packet_id: str, use_cache: bool = True
     ) -> PacketRefCount:
@@ -95,9 +117,9 @@ class ReferenceCountingService:
         Compute the reference count for a packet from database queries.
 
         Queries:
-        1. Lineage: SELECT COUNT(*) FROM packetstore WHERE $packet_id = ANY(parent_ids)
-        2. Facts: SELECT COUNT(*) FROM semanticfacts WHERE source_packet = $packet_id
-        3. Checkpoints: SELECT COUNT(*) FROM agentcheckpoint WHERE graphstate CONTAINS $packet_id
+        1. Lineage: SELECT COUNT(*) FROM packet_store WHERE $packet_id = ANY(parent_ids)
+        2. Facts: SELECT COUNT(*) FROM semantic_facts WHERE source_packet = $packet_id
+        3. Checkpoints: SELECT COUNT(*) FROM graph_checkpoints WHERE graph_state CONTAINS $packet_id
 
         Args:
             packet_id: The packet to compute references for
@@ -118,7 +140,7 @@ class ReferenceCountingService:
                 # Count lineage references (children pointing to this packet as parent)
                 lineage_query = """
                     SELECT COUNT(*)
-                    FROM packetstore
+                    FROM packet_store
                     WHERE $1 = ANY(parent_ids)
                 """
                 lineage_count = await conn.fetchval(lineage_query, packet_id)
@@ -127,18 +149,18 @@ class ReferenceCountingService:
                 # Count semantic fact references
                 fact_query = """
                     SELECT COUNT(*)
-                    FROM semanticfacts
-                    WHERE source_packet = $1
+                    FROM semantic_facts
+                    WHERE source_packet_id = $1
                 """
                 fact_count = await conn.fetchval(fact_query, packet_id)
                 refcount.fact_refs = fact_count or 0
 
                 # Count agent checkpoint references
-                # Note: Using text search on JSONB graphstate
+                # Note: Using text search on JSONB graph_state
                 checkpoint_query = """
                     SELECT COUNT(*)
-                    FROM agentcheckpoint
-                    WHERE graphstate::text LIKE $1
+                    FROM graph_checkpoints
+                    WHERE graph_state::text LIKE $1
                 """
                 checkpoint_count = await conn.fetchval(
                     checkpoint_query, f"%{packet_id}%"
@@ -190,13 +212,13 @@ class ReferenceCountingService:
             async with self.repository.acquire() as conn:
                 await conn.execute(
                     """
-                    UPDATE packetstore
+                    UPDATE packet_store
                     SET metadata = jsonb_set(
                         COALESCE(metadata, '{}'::jsonb),
                         '{soft_expired}',
                         'true'::jsonb
                     )
-                    WHERE packetid = $1
+                    WHERE packet_id = $1
                 """,
                     packet_id,
                 )
@@ -206,6 +228,7 @@ class ReferenceCountingService:
         except Exception as e:
             logger.error(f"Error marking packet {packet_id} as soft-expired: {e}")
 
+    @must_stay_async("callers use await")
     async def invalidate_cache(self, packet_id: str | None = None) -> None:
         """
         Invalidate cached reference counts.

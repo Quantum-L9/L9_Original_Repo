@@ -1,0 +1,52 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Governance Eval Patch"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "governance_eval_patch"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ======================================
+# Patch: GMP Compliance → GovernanceEngine
+# ======================================
+
+filename: governance/eval_patch.py
+type: compliance_enforcer
+language: python
+
+description: |
+  Integrates GMP patch compliance checks into GovernanceEngine.
+  Enforces rollback triggers, logs patch deltas, and validates against
+  approval policies before deployment.
+
+wiring:
+  policy_loader: governance/policy.yaml
+  validates:
+    - patch_audit_log.yaml
+    - capsule_diff.yaml
+  triggers:
+    - GPT override
+    - audit flag
+    - LCTO alert
+
+code: |
+  def enforce_compliance(patch_path):
+      from utils.audit import check_patch_compliance
+      status = check_patch_compliance(patch_path)
+      if not status["pass"]:
+          raise Exception(f"Policy Violation: {status['errors']}")
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-execution", "intelligence", "utility"]
+# keywords: ["code", "description", "eval", "filename", "governance", "language"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

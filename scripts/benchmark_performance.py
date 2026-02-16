@@ -37,7 +37,14 @@ import time
 from pathlib import Path
 from uuid import uuid4
 
+import structlog
+
+from core.decorators import must_stay_async
+
 # Add project root to path
+
+logger = structlog.get_logger(__name__)
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
@@ -66,8 +73,11 @@ async def benchmark_batch_insert():
         )
         duration = time.time() - start
 
-        print(f"✅ Batch insert: {links_created} links in {duration * 1000:.2f}ms")
-        print(f"   Performance: {duration / len(fact_ids) * 1000:.2f}ms per link")
+        logger.info(
+            "✅ batch insert: links created links in {duration * 1000:.2f}ms",
+            links_created=links_created,
+        )
+        logger.info("   performance: {duration / len(fact_ids) * 1000:.2f}ms per link")
 
         # Cleanup
         async with repo.acquire() as conn:
@@ -81,6 +91,7 @@ async def benchmark_batch_insert():
         await repo.disconnect()
 
 
+@must_stay_async("callers use await")
 async def benchmark_kernel_loading():
     """Benchmark kernel loading with caching"""
     from pathlib import Path
@@ -91,7 +102,7 @@ async def benchmark_kernel_loading():
     full_path = Path(kernel_path)
 
     if not full_path.exists():
-        print(f"⚠️  Kernel file not found: {kernel_path}")
+        logger.info("⚠️  kernel file not found: kernel path", kernel_path=kernel_path)
         return None
 
     # First load (uncached)
@@ -106,40 +117,38 @@ async def benchmark_kernel_loading():
 
     speedup = duration_uncached / duration_cached if duration_cached > 0 else 0
 
-    print("✅ Kernel loading:")
-    print(f"   Uncached: {duration_uncached * 1000:.2f}ms")
-    print(f"   Cached: {duration_cached * 1000:.2f}ms")
-    print(f"   Speedup: {speedup:.1f}x faster")
+    logger.info("✅ kernel loading:")
+    logger.info("   uncached: {duration_uncached * 1000:.2f}ms")
+    logger.info("   cached: {duration_cached * 1000:.2f}ms")
+    logger.info("   speedup: {speedup:.1f}x faster")
 
     return duration_uncached, duration_cached
 
 
 async def main():
     """Run all benchmarks"""
-    print("🚀 L9 Performance Benchmark")
-    print("=" * 60)
-    print()
+    logger.info("🚀 l9 performance benchmark")
+    logger.info("=" * 60)
+    logger.info("output", value="")
 
     # Benchmark 1: Batch insert
-    print("1. Batch Insert Performance")
-    print("-" * 60)
+    logger.info("1. batch insert performance")
+    logger.info("-" * 60)
     try:
         await benchmark_batch_insert()
     except Exception as e:
-        print(f"❌ Batch insert benchmark failed: {e}")
-    print()
+        logger.error("❌ batch insert benchmark failed: e", e=e)
+    logger.info("output", value="")
 
     # Benchmark 2: Kernel caching
-    print("2. Kernel Loading Performance")
-    print("-" * 60)
+    logger.info("2. kernel loading performance")
+    logger.info("-" * 60)
     try:
         await benchmark_kernel_loading()
     except Exception as e:
-        print(f"❌ Kernel caching benchmark failed: {e}")
-    print()
-
-    print("=" * 60)
-    print("✅ Benchmark complete!")
+        logger.error("❌ kernel caching benchmark failed: e", e=e)
+    logger.info("=" * 60)
+    logger.info("✅ benchmark complete!")
 
 
 if __name__ == "__main__":

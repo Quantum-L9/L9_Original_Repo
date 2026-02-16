@@ -44,7 +44,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -110,7 +110,7 @@ class AgentTask(BaseModel):
         default_factory=dict, description="Task-specific data"
     )
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Creation timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Creation timestamp"
     )
     priority: int = Field(default=5, ge=1, le=10, description="Priority (1=highest)")
     trace_id: str | None = Field(None, description="Distributed trace ID")
@@ -162,7 +162,7 @@ class TaskResult(BaseModel):
     output: dict[str, Any] = Field(default_factory=dict, description="Execution output")
     error: str | None = Field(None, description="Error message if failed")
     completed_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Completion timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Completion timestamp"
     )
     duration_ms: int | None = Field(None, ge=0, description="Execution duration (ms)")
 
@@ -225,7 +225,7 @@ class TaskEnvelope(BaseModel):
             Self with updated assignment
         """
         self.agent_id = agent_id
-        self.assigned_at = datetime.now(timezone.utc)
+        self.assigned_at = datetime.now(UTC)
         return self
 
     def to_dict(self) -> dict[str, Any]:

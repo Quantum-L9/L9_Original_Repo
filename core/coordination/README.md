@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -108,7 +108,7 @@ class Message:
 
 ```
 
-**Lines:** 94-116 in `agent_mediator.py`
+**Lines:** 96-118 in `agent_mediator.py`
 
 ### `agent_mediator.py` — MessageDeliveryStatus
 
@@ -120,7 +120,7 @@ class MessageDeliveryStatus:
 
 ```
 
-**Lines:** 120-127 in `agent_mediator.py`
+**Lines:** 122-129 in `agent_mediator.py`
 
 ### `agent_mediator.py` — AgentMediator
 
@@ -144,7 +144,7 @@ class AgentMediator:
 
 **Public Methods:** `__init__`, `register_agent`, `unregister_agent`, `subscribe`, `unsubscribe`
 
-**Lines:** 135-444 in `agent_mediator.py`
+**Lines:** 137-454 in `agent_mediator.py`
 
 ### `event_queue.py` — EventKind
 
@@ -172,7 +172,7 @@ class Event:
 
 **Public Methods:** `__post_init__`
 
-**Lines:** 64-78 in `event_queue.py`
+**Lines:** 64-84 in `event_queue.py`
 
 
 ---
@@ -189,7 +189,7 @@ class Event:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreCoordinationRequest(BaseModel):
     """Request model for core_coordination operations."""
@@ -281,7 +281,7 @@ CORE_COORDINATION_ENABLED=true
 
 Get the singleton AgentMediator instance.
 
-- **File:** `agent_mediator.py:461`
+- **File:** `agent_mediator.py:472`
 - **Async:** Yes
 - **Returns:** `AgentMediator`
 
@@ -289,7 +289,7 @@ Get the singleton AgentMediator instance.
 
 Close the AgentMediator singleton.
 
-- **File:** `agent_mediator.py:477`
+- **File:** `agent_mediator.py:488`
 - **Async:** Yes
 - **Returns:** `None`
 
@@ -297,7 +297,7 @@ Close the AgentMediator singleton.
 
 Initialize event-driven coordination at startup
 
-- **File:** `event_queue.py:224`
+- **File:** `event_queue.py:266`
 - **Async:** Yes
 - **Returns:** `EventQueue`
 
@@ -305,7 +305,7 @@ Initialize event-driven coordination at startup
 
 Health check for event queue
 
-- **File:** `event_queue.py:240`
+- **File:** `event_queue.py:282`
 - **Async:** Yes
 - **Returns:** `dict`
 
@@ -339,7 +339,7 @@ Core Coordination operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.coordination",
   "message": "Operation completed",

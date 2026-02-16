@@ -17,6 +17,8 @@ Alignment:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Execution Outcome Recording",
@@ -42,12 +44,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import structlog
 
 from config.settings import get_integration_settings
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 
@@ -115,6 +122,7 @@ class ToolFeedbackService:
         if len(self._buffer) >= self._buffer_size:
             await self.flush()
 
+    @must_stay_async("callers use await")
     async def flush(self) -> None:
         """
         Flush buffered feedback entries into Postgres.
@@ -186,6 +194,7 @@ class ToolFeedbackService:
     # Success-rate Queries
     # --------------------------------------------------------------------- #
 
+    @must_stay_async("callers use await")
     async def get_success_rates(
         self,
         tool_names: Iterable[str],

@@ -15,6 +15,8 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Configuration
 # =============================================================================
@@ -37,6 +39,7 @@ class TestRLSScopeTransaction:
     """Tests for RLS scope within transactions."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_rls_scope_set_in_transaction(self):
         """Verify RLS scope is set within transaction."""
         from contextlib import asynccontextmanager
@@ -49,6 +52,7 @@ class TestRLSScopeTransaction:
 
         # Create an actual async context manager for transaction()
         @asynccontextmanager
+        @must_stay_async("callers use await")
         async def mock_transaction_cm():
             yield mock_conn
 
@@ -60,6 +64,7 @@ class TestRLSScopeTransaction:
 
         # Create async context manager for pool.acquire()
         @asynccontextmanager
+        @must_stay_async("callers use await")
         async def mock_acquire_cm():
             yield mock_conn
 
@@ -85,6 +90,7 @@ class TestRLSScopeTransaction:
             assert call_args[4] == "end_user"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_rls_connection_available_in_context(self):
         """Verify RLS connection is available in context variable during transaction."""
         from contextlib import asynccontextmanager
@@ -100,6 +106,7 @@ class TestRLSScopeTransaction:
 
         # Create an actual async context manager for transaction()
         @asynccontextmanager
+        @must_stay_async("callers use await")
         async def mock_transaction_cm():
             yield mock_conn
 
@@ -107,6 +114,7 @@ class TestRLSScopeTransaction:
 
         # Create async context manager for pool.acquire()
         @asynccontextmanager
+        @must_stay_async("callers use await")
         async def mock_acquire_cm():
             yield mock_conn
 
@@ -140,6 +148,7 @@ class TestRLSIsolation:
     """Tests for tenant isolation via RLS."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_repository_uses_rls_connection_when_available(self):
         """Verify repository methods use RLS connection when available."""
         from core.schemas import PacketEnvelope, PacketMetadata, PacketProvenance
@@ -177,16 +186,23 @@ class TestRLSIsolation:
             _current_rls_connection.reset(token)
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_repository_uses_pool_when_no_rls_connection(self):
         """Verify repository methods use pool when no RLS connection available."""
+        from contextlib import asynccontextmanager
+
         from core.schemas import PacketEnvelope, PacketMetadata, PacketProvenance
         from memory.substrate_repository import SubstrateRepository
 
-        # Mock connection pool
+        # Mock connection pool with proper async context manager
         mock_pool = MagicMock()
         mock_conn = AsyncMock()
-        mock_pool.acquire.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
-        mock_pool.acquire.return_value.__aexit__ = AsyncMock(return_value=None)
+
+        @asynccontextmanager
+        async def _mock_acquire():
+            yield mock_conn
+
+        mock_pool.acquire = MagicMock(return_value=_mock_acquire())
 
         repository = SubstrateRepository("postgresql://test/test")
         repository._pool = mock_pool
@@ -216,23 +232,35 @@ class TestWritePacketWithRLS:
     """Tests for write_packet with RLS scope."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_write_packet_uses_transaction_with_rls(self):
         """Verify write_packet uses transaction when RLS scope provided."""
+        from contextlib import asynccontextmanager
         from unittest.mock import AsyncMock, MagicMock
 
         from core.schemas import PacketEnvelopeIn
         from memory.governance_gate import build_governance_context, governance_context
         from memory.substrate_service import MemorySubstrateService
 
-        # Mock repository with transaction
+        # Mock repository with proper async context managers
         mock_repository = MagicMock()
         mock_transaction = AsyncMock()
-        mock_repository.transaction.return_value.__aenter__ = AsyncMock(
-            return_value=mock_transaction
+        mock_conn = AsyncMock()
+
+        @asynccontextmanager
+        @must_stay_async("callers use await")
+        async def _mock_transaction_cm(**kwargs):
+            yield mock_transaction
+
+        @asynccontextmanager
+        @must_stay_async("callers use await")
+        async def _mock_acquire():
+            yield mock_conn
+
+        mock_repository.transaction = MagicMock(
+            side_effect=lambda **kw: _mock_transaction_cm(**kw)
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
-            return_value=None
-        )
+        mock_repository.acquire = MagicMock(return_value=_mock_acquire())
 
         # Mock DAG
         mock_dag = AsyncMock()
@@ -246,6 +274,7 @@ class TestWritePacketWithRLS:
 
         # Create mock embedding provider (required since GMP-96: fail-closed enforcement)
         mock_embedding_provider = MagicMock()
+        mock_embedding_provider.dimensions = 1536
         mock_embedding_provider.embed_text = AsyncMock(return_value=[0.1] * 1536)
         mock_embedding_provider.embed_batch = AsyncMock(return_value=[[0.1] * 1536])
 

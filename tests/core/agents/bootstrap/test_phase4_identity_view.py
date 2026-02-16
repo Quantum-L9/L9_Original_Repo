@@ -5,8 +5,6 @@ L9 Bootstrap Tests – Phase 4 Identity View Loading
 Tests for phase4_loadidentity: pure view computation, no Neo4j writes.
 """
 
-from datetime import datetime, timezone
-
 import pytest
 
 from core.agents.bootstrap.models import IdentityView

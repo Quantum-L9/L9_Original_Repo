@@ -29,6 +29,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
 from ir_engine.ir_schema import IRGraph, IRMetadata
 from ir_engine.semantic_compiler import SemanticCompiler
 
@@ -69,6 +70,7 @@ class TestIncrementalCompilation:
         }
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_incremental_appends_intents(
         self,
         mock_openai_client,
@@ -111,6 +113,7 @@ class TestIncrementalCompilation:
         assert "logging" in new_intent.description.lower()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_incremental_appends_constraints(
         self,
         mock_openai_client,
@@ -154,6 +157,7 @@ class TestIncrementalCompilation:
             assert constraint.description
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_incremental_appends_actions(
         self,
         mock_openai_client,
@@ -188,6 +192,7 @@ class TestIncrementalCompilation:
         assert len(updated_graph.actions) > initial_action_count
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_processing_log_records_events(
         self,
         mock_openai_client,
@@ -314,6 +319,7 @@ class TestIncrementalEdgeCases:
         assert updated_graph.metadata.session_id == "test-session"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_multiple_incremental_compilations(
         self,
         mock_openai_client,
@@ -363,6 +369,7 @@ class TestIncrementalValidation:
     """Test validation after incremental compilation."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_incremental_graph_remains_valid(
         self,
         mock_openai_client,

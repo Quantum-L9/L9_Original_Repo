@@ -46,7 +46,7 @@ __dora_meta__ = {
 import asyncio
 import contextlib
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -175,7 +175,7 @@ class GraphToWorldModelSync:
             # 3. Upsert to World Model
             await self._upsert_to_world_model(wm_entity)
 
-            self._last_sync = datetime.now(timezone.utc)
+            self._last_sync = datetime.now(UTC)
             self._sync_count += 1
 
             logger.info(
@@ -304,7 +304,7 @@ class GraphToWorldModelSync:
                     for t in tools
                     if t.get("risk_level") == "high" or t.get("requires_approval")
                 ],
-                "last_graph_sync": datetime.now(timezone.utc).isoformat(),
+                "last_graph_sync": datetime.now(UTC).isoformat(),
             },
         }
 

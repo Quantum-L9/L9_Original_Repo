@@ -41,7 +41,9 @@ from typing import Any
 import structlog
 
 from core.decorators import must_stay_async
-from runtime.tool_registry import get_tool_executors
+
+# ADR-0094: get_tool_executors import removed. All tool dispatch goes through
+# core.tools.base_registry via sync_runtime_tools_to_primary() bridge.
 
 # Lazy import for symbolic tools (requires sympy)
 symbolic_compute = None
@@ -56,6 +58,7 @@ logger = structlog.get_logger(__name__)
 # Note: memory_search is registered in core/tools/memory_tools.py
 
 
+@must_stay_async("callers use await")
 async def memory_search(
     query: str,
     segment: str = "all",
@@ -105,6 +108,7 @@ async def memory_search(
 
 
 # Note: memory_write is registered in core/tools/memory_tools.py
+@must_stay_async("callers use await")
 async def memory_write(
     packet: dict[str, Any],
     segment: str,
@@ -399,6 +403,7 @@ async def memory_get_facts(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def memory_write_insight(
     insight: str,
     category: str,
@@ -475,6 +480,7 @@ async def memory_embed_text(
 # MEMORY CLIENT API (Batch 2 - GMP-31)
 
 
+@must_stay_async("callers use await")
 async def memory_hybrid_search(
     query: str,
     top_k: int = 10,
@@ -519,6 +525,7 @@ async def memory_hybrid_search(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def memory_fetch_lineage(
     packet_id: str,
     direction: str = "ancestors",
@@ -594,6 +601,7 @@ async def memory_fetch_thread(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def memory_fetch_facts_api(
     subject: str | None = None,
     predicate: str | None = None,
@@ -634,6 +642,7 @@ async def memory_fetch_facts_api(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def memory_fetch_insights(
     packet_id: str | None = None,
     insight_type: str | None = None,
@@ -702,6 +711,7 @@ async def memory_gc_stats(
 # GOVERNANCE TOOLS (High-Risk: Requires Igor Approval)
 
 
+@must_stay_async("callers use await")
 async def gmp_run(
     gmp_id: str,
     params: dict[str, Any] | None = None,
@@ -756,6 +766,7 @@ async def gmp_run(
 # VERSION CONTROL TOOLS (High-Risk: Requires Igor Approval)
 
 
+@must_stay_async("callers use await")
 async def git_commit(
     message: str,
     files: list[str] | None = None,
@@ -810,6 +821,7 @@ async def git_commit(
 # EXECUTION TOOLS (High-Risk: Requires Igor Approval)
 
 
+@must_stay_async("callers use await")
 async def mac_agent_exec_task(
     command: str,
     timeout: int = 30,
@@ -888,6 +900,7 @@ async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
 
 
 # Note: mcp_list_tools is registered in core/tools/registry_adapter.py
+@must_stay_async("callers use await")
 async def mcp_list_tools(
     server_id: str,
     **kwargs: Any,
@@ -930,6 +943,7 @@ async def mcp_list_tools(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def mcp_call_tool(
     server_id: str,
     tool_name: str,
@@ -997,6 +1011,7 @@ async def mcp_call_tool(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
     """
     Discover all MCP tools from all servers and register them in Neo4j.
@@ -1008,7 +1023,12 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
         Dict with registration results
     """
     try:
-        from core.tools.tool_graph import ToolDefinition, ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolDefinition = module.ToolDefinition
+        ToolGraph = module.ToolGraph
         from runtime.mcp_client import get_mcp_client
 
         client = get_mcp_client()
@@ -1096,6 +1116,7 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
 # MCP SERVER CONTROL TOOLS (GMP-32 Batch 6)
 
 
+@must_stay_async("callers use await")
 async def mcp_start_server(
     server_id: str,
     **kwargs: Any,
@@ -1131,6 +1152,7 @@ async def mcp_start_server(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def mcp_stop_server(
     server_id: str,
     **kwargs: Any,
@@ -1211,6 +1233,8 @@ async def redis_get_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         count = await client.get_rate_limit(key)
 
         return {
@@ -1224,6 +1248,7 @@ async def redis_get_rate_limit(
 
 
 # Note: redis_set_rate_limit is registered in core/tools/registry_adapter.py
+@must_stay_async("callers use await")
 async def redis_set_rate_limit(
     key: str,
     count: int,
@@ -1245,6 +1270,8 @@ async def redis_set_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         await client.set_rate_limit(key, count, ttl_seconds)
 
         logger.info(f"Rate limit set: {key}={count} TTL={ttl_seconds}s")
@@ -1278,6 +1305,8 @@ async def redis_increment_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         new_count = await client.increment_rate_limit(key, amount)
 
         return {
@@ -1310,6 +1339,8 @@ async def redis_decrement_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         new_count = await client.decrement_rate_limit(key, amount)
 
         return {
@@ -1401,9 +1432,9 @@ async def memory_health_check(**kwargs: Any) -> dict[str, Any]:
         Dict with health status for each component
     """
     try:
-        from memory.substrate_service import MemorySubstrateService
+        from memory.substrate_service import get_substrate_service
 
-        substrate = MemorySubstrateService.get_service()
+        substrate = get_substrate_service()
         health = await substrate.health_check()
 
         return {
@@ -1419,6 +1450,7 @@ async def memory_health_check(**kwargs: Any) -> dict[str, Any]:
 # TOOL GRAPH ANALYSIS TOOLS (GMP-32 Batch 9)
 
 
+@must_stay_async("callers use await")
 async def tools_get_api_dependents(
     api_name: str,
     **kwargs: Any,
@@ -1433,7 +1465,11 @@ async def tools_get_api_dependents(
         Dict with dependent tools
     """
     try:
-        from core.tools.tool_graph import ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolGraph = module.ToolGraph
 
         tools = await ToolGraph.get_api_dependents(api_name)
 
@@ -1448,6 +1484,7 @@ async def tools_get_api_dependents(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def tools_get_dependencies(
     tool_name: str,
     **kwargs: Any,
@@ -1462,7 +1499,11 @@ async def tools_get_dependencies(
         Dict with tool dependencies
     """
     try:
-        from core.tools.tool_graph import ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolGraph = module.ToolGraph
 
         deps = await ToolGraph.get_tool_dependencies(tool_name)
 
@@ -1476,6 +1517,7 @@ async def tools_get_dependencies(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def tools_get_blast_radius(
     api_name: str,
     **kwargs: Any,
@@ -1490,7 +1532,11 @@ async def tools_get_blast_radius(
         Dict with affected tools and impact analysis
     """
     try:
-        from core.tools.tool_graph import ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolGraph = module.ToolGraph
 
         radius = await ToolGraph.get_blast_radius(api_name)
 
@@ -1512,7 +1558,11 @@ async def tools_detect_circular_deps(**kwargs: Any) -> dict[str, Any]:
         Dict with circular dependency analysis
     """
     try:
-        from core.tools.tool_graph import ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolGraph = module.ToolGraph
 
         cycles = await ToolGraph.detect_circular_dependencies()
 
@@ -1535,7 +1585,11 @@ async def tools_get_catalog(**kwargs: Any) -> dict[str, Any]:
         Dict with full tool catalog
     """
     try:
-        from core.tools.tool_graph import ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolGraph = module.ToolGraph
 
         catalog = await ToolGraph.get_l_tool_catalog()
 
@@ -1917,6 +1971,7 @@ async def llm_chat(
 # SIMULATION TOOLS
 
 
+@must_stay_async("callers use await")
 async def simulation_execute(
     graph_data: dict[str, Any],
     scenario_params: dict[str, Any] | None = None,
@@ -1980,6 +2035,7 @@ async def simulation_execute(
 # WORLD MODEL TOOLS
 
 
+@must_stay_async("callers use await")
 async def world_model_query(
     query_type: str,
     params: dict[str, Any] | None = None,
@@ -2037,6 +2093,7 @@ async def world_model_query(
 # NEO4J GRAPH TOOLS
 
 
+@must_stay_async("callers use await")
 async def neo4j_query(
     cypher: str,
     params: dict[str, Any] | None = None,
@@ -2129,6 +2186,7 @@ async def redis_get(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def redis_set(
     key: str,
     value: str,
@@ -2241,6 +2299,7 @@ async def redis_delete(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def redis_enqueue_task(
     queue_name: str,
     task_data: dict[str, Any],
@@ -2361,6 +2420,7 @@ async def redis_get_task_context(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def redis_set_task_context(
     task_id: str,
     context: dict[str, Any],
@@ -2633,6 +2693,7 @@ async def world_model_get_entity(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def world_model_list_entities(
     entity_type: str | None = None,
     min_confidence: float | None = None,
@@ -2846,34 +2907,9 @@ async def kernel_read(
 
 
 # ============================================================================
-# TOOL REGISTRY
-
-# Map tool names to executor functions
-# CRITICAL: Populated dynamically by auto-registration in runtime/tool_registry.py
-TOOL_EXECUTORS = get_tool_executors()
-
-
-def get_tool_executor(tool_name: str) -> Any | None:
-    """
-    Get executor function for a tool by name.
-
-    Args:
-        tool_name: Name of the tool
-
-    Returns:
-        Executor function or None if not found
-    """
-    return TOOL_EXECUTORS.get(tool_name)
-
-
-def list_available_tools() -> list[str]:
-    """
-    List all available tool names.
-
-    Returns:
-        List of tool names
-    """
-    return list(TOOL_EXECUTORS.keys())
+# ADR-0094: TOOL_EXECUTORS, get_tool_executor(), list_available_tools() removed.
+# All tool dispatch now goes through core.tools.base_registry.get_tool_registry().
+# ============================================================================
 
 
 # ============================================================================

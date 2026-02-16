@@ -11,6 +11,8 @@ import importlib.util
 
 import pytest
 
+from core.decorators import must_stay_async
+
 
 def _get_repository_class():
     if importlib.util.find_spec("world_model.repository") is None:
@@ -27,6 +29,7 @@ class FakeConnection:
     def __init__(self):
         self.execute_calls = []
 
+    @must_stay_async("callers use await")
     async def execute(self, query: str, *args):
         self.execute_calls.append((query, args))
 
@@ -51,6 +54,7 @@ async def test_set_session_scope_executes_rls_call():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_ensure_scope_rejects_missing_values():
     repo_class = _get_repository_class()
     with pytest.raises(RuntimeError):

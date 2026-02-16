@@ -42,7 +42,7 @@ import hmac
 import os
 import sys
 import time
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -461,7 +461,7 @@ async def audit_slack_telemetry() -> AuditResult:
         )
 
         if PROMETHEUS_AVAILABLE:
-            from telemetry.slack_metrics import (
+            from telemetry.slack_metrics import (  # noqa: F401 — verify metrics importable
                 SLACK_AIOS_CALL_DURATION,
                 SLACK_IDEMPOTENT_HITS,
                 SLACK_PROCESSING_DURATION,
@@ -525,6 +525,7 @@ async def audit_slack_telemetry() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_rate_limiting() -> AuditResult:
     """Audit Slack rate limiting configuration."""
     result = AuditResult("Slack Rate Limiting")
@@ -692,6 +693,7 @@ async def audit_slack_e2e_flow() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def run_full_audit() -> dict[str, Any]:
     """Run all audit checks."""
     print("\n" + "=" * 80)  # noqa: ADR-0019

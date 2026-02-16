@@ -35,6 +35,7 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.singleton_auto_registry import register_singleton
 from core.tools.base_registry import ToolMetadata, ToolRegistry, get_tool_registry
 
@@ -148,6 +149,7 @@ class ToolResolver:
 
         return True, "OK"
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         tool_id: str,

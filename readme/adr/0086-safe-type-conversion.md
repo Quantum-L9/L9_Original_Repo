@@ -1,8 +1,8 @@
 # ADR-0086: Safe Type Conversion Pattern
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Source:** Bug Audit PR #83  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Source:** Bug Audit PR #83
 
 ## Context
 
@@ -52,15 +52,16 @@ def parse_required_float(value: str) -> float:
 
 The semgrep rule is intentionally broad. These patterns are **safe** and do NOT need try/except:
 
-| Pattern | Why Safe |
-|---------|----------|
-| `float(tensor.item())` | Torch tensors always contain numeric values |
-| `float(np.mean(...))` | NumPy operations return numeric types |
-| `float(value)` after `isinstance(value, (int, float))` | Type already validated |
-| `float(os.getenv("X", "0.75"))` | Default is valid float literal |
-| `return float(computed_result)` | Internal computation, not user input |
+| Pattern                                                | Why Safe                                    |
+| ------------------------------------------------------ | ------------------------------------------- |
+| `float(tensor.item())`                                 | Torch tensors always contain numeric values |
+| `float(np.mean(...))`                                  | NumPy operations return numeric types       |
+| `float(value)` after `isinstance(value, (int, float))` | Type already validated                      |
+| `float(os.getenv("X", "0.75"))`                        | Default is valid float literal              |
+| `return float(computed_result)`                        | Internal computation, not user input        |
 
 **When to add `# nosemgrep:`:**
+
 - Only for high-traffic code paths where the warning is noisy
 - Prefer leaving warnings for audit trail
 

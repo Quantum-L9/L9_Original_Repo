@@ -48,7 +48,6 @@ from .ws_bridge import (
 
 __all__ = [
     "ActionToolOrchestrator",
-    "EvolutionOrchestrator",
     "MemoryOrchestrator",
     "MetaOrchestrator",
     "ReasoningOrchestrator",

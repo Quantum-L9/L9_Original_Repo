@@ -2,19 +2,19 @@
 # Readme Manifest
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 README File Manifest
-# Generated: 2026-02-12 16:28
+# Generated: 2026-02-14 09:16
 #
 # AI Reference: Quick lookup for module documentation
 # Each entry shows: PATH | TITLE | DESCRIPTION
 # ============================================================================
 
-# Total: 82 README files across 35 directories
+# Total: 88 README files across 36 directories
 
 # ============================================================================
 # .SEMGREP (1 files)
@@ -33,12 +33,20 @@ TITLE: External Adapters
 DESC: > **Tier:** INFRASTRUCTURE | **Path:** `adapters` | **Owner:** Igor
 
 # ============================================================================
-# AGENTS (5 files)
+# AGENTS (7 files)
 # ============================================================================
 
 PATH: agents/README.md
 TITLE: Agent Modules
 DESC: > **Tier:** AGENTS | **Path:** `agents` | **Owner:** Igor
+
+PATH: agents/codegenagent/README.md
+TITLE: CodeGenAgent
+DESC: Central orchestrator for L9's meta-driven code generation pipeline.
+
+PATH: agents/codegenagent/codegen+codegenAgent_specs/README.md
+TITLE: CodeGenAgent (CGA) — L9 Autonomous Code Generation System
+DESC: **CodeGenAgent (CGA)** is the autonomous "Head of Code Generation" for L9 and all company projects. It receives contracts and specifications from L...
 
 PATH: agents/cursor/README.md
 TITLE: Cursor Agent
@@ -85,7 +93,7 @@ TITLE: API Clients
 DESC: > **Tier:** INFRASTRUCTURE | **Path:** `clients` | **Owner:** Igor
 
 # ============================================================================
-# CODEGEN (4 files)
+# CODEGEN (5 files)
 # ============================================================================
 
 PATH: codegen/Perplexity-Search-Pack/perplexity-c-superprompt-pack/README.md
@@ -96,25 +104,17 @@ PATH: codegen/README.md
 TITLE: L9 CodeGen System
 DESC: Autonomous code generation from YAML specifications.
 
-PATH: codegen/codegenAgent Spec/Spec-codegen+codegenAgent/README.md
+PATH: codegen/codegen_agent_spec/Spec-codegen+codegenAgent/README.md
 TITLE: CodeGenAgent (CGA) — L9 Autonomous Code Generation System
 DESC: **CodeGenAgent (CGA)** is the autonomous "Head of Code Generation" for L9 and all company projects. It receives contracts and specifications from L...
+
+PATH: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/README.md
+TITLE: Domain-Tensor Bridge v6.0
+DESC: > Central orchestrator connecting domain data with TensorAIOS layer
 
 PATH: codegen/process/README.md
 TITLE: CodeGen Process Pipeline
 DESC: This folder contains the YAML definitions that orchestrate the code generation pipeline.
-
-# ============================================================================
-# CODEGENAGENT (2 files)
-# ============================================================================
-
-PATH: codegenagent/README.md
-TITLE: CodeGen Agent
-DESC: > **Tier:** AGENTS | **Path:** `codegenagent` | **Owner:** Igor
-
-PATH: codegenagent/codegen+codegenAgent_specs/README.md
-TITLE: CodeGenAgent (CGA) — L9 Autonomous Code Generation System
-DESC: **CodeGenAgent (CGA)** is the autonomous "Head of Code Generation" for L9 and all company projects. It receives contracts and specifications from L...
 
 # ============================================================================
 # COLLABORATIVE_CELLS (1 files)
@@ -137,7 +137,7 @@ TITLE: L9 Agent Configurations
 DESC: Agent YAML manifests defining identity, capabilities, tools, and governance for L9 AI agents.
 
 # ============================================================================
-# CORE (33 files)
+# CORE (35 files)
 # ============================================================================
 
 PATH: core/README.md
@@ -151,6 +151,14 @@ DESC: > **Tier:** CORE | **Path:** `core/accountability` | **Owner:** Igor
 PATH: core/agents/README.md
 TITLE: Agent Execution Runtime
 DESC: > **Tier:** CORE | **Path:** `core/agents` | **Owner:** Igor
+
+PATH: core/agents/codegenagent/README.md
+TITLE: CodeGen Agent
+DESC: > **Tier:** AGENTS | **Path:** `codegenagent` | **Owner:** Igor
+
+PATH: core/agents/codegenagent/codegen+codegenAgent_specs/README.md
+TITLE: CodeGenAgent (CGA) — L9 Autonomous Code Generation System
+DESC: **CodeGenAgent (CGA)** is the autonomous "Head of Code Generation" for L9 and all company projects. It receives contracts and specifications from L...
 
 PATH: core/aios/README.md
 TITLE: AIOS Core
@@ -337,6 +345,14 @@ TITLE: Mac Agent
 DESC: > **Tier:** AGENTS | **Path:** `mac_agent` | **Owner:** Igor
 
 # ============================================================================
+# MCP_MEMORY (1 files)
+# ============================================================================
+
+PATH: mcp_memory/README.md
+TITLE: MCP Memory Server
+DESC: > **Tier:** API | **Path:** `mcp_memory` | **Owner:** Igor
+
+# ============================================================================
 # MEMORY (1 files)
 # ============================================================================
 
@@ -387,6 +403,14 @@ DESC: This directory contains Architecture Decision Records for the L9 codebase.
 PATH: readme/diagrams/README.md
 TITLE: L9 Architecture Diagrams
 DESC: This directory contains comprehensive architecture diagrams for all major subsystems of the L9 Agentic Intelligence Platform.
+
+# ============================================================================
+# REPORTS (1 files)
+# ============================================================================
+
+PATH: reports/perplexity_audit/phase_packs/phase-01-reliability/README.md
+TITLE: Phase 1: Reliability Remediation
+DESC: **Findings:** 4 **Total Fix Effort:** 17h
 
 # ============================================================================
 # ROOT (1 files)
@@ -469,12 +493,16 @@ TITLE: Background Workers
 DESC: > **Tier:** INFRASTRUCTURE | **Path:** `workers` | **Owner:** Igor
 
 # ============================================================================
-# WORKFLOWS (1 files)
+# WORKFLOWS (2 files)
 # ============================================================================
 
 PATH: workflows/README.md
 TITLE: Workflow Engine
 DESC: > **Tier:** INFRASTRUCTURE | **Path:** `workflows` | **Owner:** Igor
+
+PATH: workflows/dags/gmp/README.md
+TITLE: GMP LangGraph Executor
+DESC: Programmatic GMP (Governance Managed Process) execution via LangGraph StateGraph.
 
 # ============================================================================
 # WORLD_MODEL (1 files)
@@ -502,8 +530,8 @@ DESC: > **Tier:** SERVICES | **Path:** `world_model` | **Owner:** Igor
 
 # agents/ - Agent definitions and capabilities
 #   agents/README.md: Agent Modules
-#   agents/cursor/README.md: Cursor Agent
-#   agents/cursor/gmp_protocol/README.md: GMP Protocol v3.2.0 — L9 Canonical
+#   agents/codegenagent/README.md: CodeGenAgent
+#   agents/codegenagent/codegen+codegenAgent_specs/README.md: CodeGenAgent (CGA) — L9 Autonomous Code Generation System
 
 # orchestration/ - Task routing and orchestration
 #   orchestration/README.md: Unified Orchestration

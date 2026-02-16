@@ -2,14 +2,14 @@
 # Adr Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 Architecture Decision Record (ADR) Catalog
-# Generated: 2026-02-12
-# Total: 92 ADRs
+# Generated: 2026-02-14
+# Total: 99 ADRs
 #
 # Format: ADR_NUMBER | STATUS | TITLE | PATH
 # ============================================================================
@@ -60,10 +60,8 @@
 0039 | Unknown | L9 CLI Tool | readme/adr/0039-l9-cli-tool.md
 0040 | Unknown | CI/CD Security Scanning | readme/adr/0040-ci-cd-security-scanning.md
 0041 | Proposed | Executor Builder Pattern | readme/adr/0041-executor-builder-pattern.md
-0041 | Unknown | Unsafe eval() Remediation | readme/adr/0041-unsafe-eval-remediation.md
 0042 | Proposed | Execution Profiles | readme/adr/0042-execution-profiles.md
 0043 | Proposed | Controller Profiles | readme/adr/0043-controller-profiles.md
-0043 | Unknown | Security & Rate Limiting Architecture | readme/adr/0043-security-rate-limiting-architecture.md
 0044 | Proposed | Agent Policy Protocols | readme/adr/0044-agent-policy-protocols.md
 0045 | Proposed | Online/Offline Execution Split | readme/adr/0045-online-offline-execution-split.md
 0046 | Proposed | Pipeline Stage Organization | readme/adr/0046-pipeline-stage-organization.md
@@ -85,7 +83,6 @@
 0064 | Unknown | Unknown | readme/adr/0064-dynamic-tool-discovery.md
 0065 | Unknown | Cursor ADR Enforcement Rules | readme/adr/0065-cursor-adr-enforcement.md
 0066 | Unknown | AWS S3 Storage Architecture | readme/adr/0066-aws-s3-storage-architecture.md
-0066 | Unknown | Unknown | readme/adr/0066-governance-authority-superpack.md
 0067 | Unknown | AWS Secrets Manager Integration | readme/adr/0067-aws-secrets-manager-integration.md
 0068 | Accepted | Unified Resilience Protocol Layer | readme/adr/0068-unified-resilience-protocol-layer.md
 0069 | Accepted | Automated Documentation Generation System | readme/adr/0069-automated-documentation-generation.md
@@ -111,6 +108,16 @@
 0089 | Unknown | Unknown | readme/adr/0089-hierarchical-compose-symlinks.md
 0090 | Unknown | No Hardcoded Credentials in Cursor Rules | readme/adr/0090-no-hardcoded-credentials-in-rules.md
 0091 | Unknown | Unknown | readme/adr/0091-definition-of-done.md
+0093 | ACCEPTED | Unknown | readme/adr/0093-no-debt-hiding-via-noqa.md
+0094 | ACCEPTED | Unknown | readme/adr/0094-tool-registry-primary-pipeline-unification.md
+0095 | Unknown | Unsafe eval() Remediation | readme/adr/0095-unsafe-eval-remediation.md
+0096 | Unknown | Security & Rate Limiting Architecture | readme/adr/0096-security-rate-limiting-architecture.md
+0097 | Unknown | Unknown | readme/adr/0097-governance-authority-superpack.md
+0098 | Unknown | Unknown | readme/adr/0098-single-source-of-truth-for-config-defaults.md
+0099 | Unknown | Unknown | readme/adr/0099-dry-config-constants-enforcement.md
+0100 | Unknown | Unknown | readme/adr/0100-slash-commands-dag-only-no-cli-executors.md
+0101 | Unknown | Unknown | readme/adr/0101-dag-executors-via-sdk-not-per-service-routes.md
+0102 | Unknown | Unknown | readme/adr/0102-sdk-first-external-interface.md
 
 # ============================================================================
 # AI QUICK REFERENCE - KEY DO NOT's
@@ -130,3 +137,6 @@
 # Do NOT suppress errors in hooks/scripts with `2>/dev/null || true` patterns (ADR-0071)
 # Do NOT proceed to Phase 5 (ADR-0081)
 # do NOT need try/except: (ADR-0086)
+# Do not rename factory functions to PascalCase (ADR-0094)
+# Do not create CLI executor scripts for slash commands (ADR-0100)
+# Do NOT create** standalone Python executor scripts (e (ADR-0100)

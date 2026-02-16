@@ -17,6 +17,8 @@ GMP: GMP-115-memory-service-adapter
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "MemoryService Adapter",
@@ -48,7 +50,6 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from core.protocols import MemoryService
 from core.schemas import (
     PacketEnvelopeIn,
     PacketKind,
@@ -56,6 +57,7 @@ from core.schemas import (
 )
 
 if TYPE_CHECKING:
+    from core.protocols import MemoryService
     from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
@@ -90,6 +92,7 @@ class MemoryServiceAdapter:
         self._substrate = substrate_service
         logger.info("MemoryServiceAdapter initialized")
 
+    @must_stay_async("callers use await")
     async def store(
         self,
         content: str,
@@ -159,6 +162,7 @@ class MemoryServiceAdapter:
 
         return packet_id
 
+    @must_stay_async("callers use await")
     async def retrieve(
         self,
         memory_id: str,
@@ -202,6 +206,7 @@ class MemoryServiceAdapter:
             "metadata": packet.get("payload", {}).get("metadata", {}),
         }
 
+    @must_stay_async("callers use await")
     async def search(
         self,
         query: str,

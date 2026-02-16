@@ -28,10 +28,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
+import logging
 from dataclasses import asdict, dataclass
 from enum import Enum
 from typing import Any
+
+import structlog
 
 
 class DiscoveryPhase(Enum):
@@ -92,7 +94,10 @@ class DiscoveryTracer:
 
         # Log with appropriate level
         level = logging.INFO if trace.success else logging.WARNING
-        self.logger.log(level, json.dumps(asdict(trace)))
+        # Use a custom serializer for Enum
+        trace_dict = asdict(trace)
+        trace_dict["phase"] = trace.phase.value
+        self.logger.log(level, json.dumps(trace_dict))
 
     def get_discovery_stats(self) -> dict[str, Any]:
         """Compute statistics from traces"""

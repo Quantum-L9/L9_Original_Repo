@@ -60,7 +60,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import warnings
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -159,6 +159,12 @@ class PacketMetadata(BaseModel):
     schema_version: str | None = Field("1.0.1", description="Schema version")
     agent: str | None = Field(None, description="Agent identifier")
     domain: str | None = Field(None, description="Domain context")
+    # Required by DB constraint packet_store_project_id_not_null
+    project_id: str = Field("l9", description="Project identifier for RLS isolation")
+    # Required by DB constraint packet_store_scope_check
+    scope: str = Field(
+        "cursor", description="RLS scope: developer, global, cursor, l-private, agent"
+    )
 
     model_config = {"frozen": True, "extra": "allow"}
 
@@ -193,7 +199,7 @@ class PacketEnvelope(BaseModel):
         description="Flexible JSON-like structure. Repository does not enforce shape.",
     )
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(UTC),
         description="UTC timestamp (generated automatically)",
     )
 
@@ -222,7 +228,7 @@ class PacketEnvelope(BaseModel):
             update={
                 "packet_id": uuid4(),
                 "provenance": new_provenance,
-                "timestamp": datetime.now(timezone.utc),
+                "timestamp": datetime.now(UTC),
                 **updates,
             }
         )
@@ -248,7 +254,7 @@ class PacketEnvelopeIn(BaseModel):
             packet_id=uuid4(),
             packet_type=self.packet_type,
             payload=self.payload,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             metadata=PacketMetadata(**self.metadata) if self.metadata else None,
             provenance=PacketProvenance(**self.provenance) if self.provenance else None,
             confidence=PacketConfidence(**self.confidence) if self.confidence else None,

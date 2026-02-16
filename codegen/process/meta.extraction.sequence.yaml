@@ -1,0 +1,286 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Meta.Extraction.Sequence"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-06T16:58:22Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "meta.extraction.sequence"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
+# L9 CODEGEN SYSTEM - META EXTRACTION SEQUENCE TEMPLATE
+# ============================================================================
+# Storage: /codegen/templates/meta/meta.extraction.sequence.yaml
+#
+# Purpose:
+#   Defines extraction ordering, dependency resolution, and orchestration
+#   of multi-agent code generation. This file is instantiated at runtime
+#   with actual agent data from input schemas.
+#
+# ============================================================================
+
+---
+
+system: L9 Codegen Meta Extraction Sequence
+title: Multi-Agent Extraction Orchestration v6.0
+version: 6.0.0
+created: 2025-12-12
+
+purpose: |-
+  At runtime, instantiate this template with actual agent data from input
+  schema collection. Build extraction_sequence array with one entry per agent,
+  ordered by dependencies and criticality.
+
+---
+
+## EXTRACTION ORDERING ALGORITHM
+
+ordering_algorithm:
+  
+  step_1_build_dependency_graph:
+    # From schema input, extract all depends_on relationships
+    # Build DAG: Agent A -> Agent B (A must extract before B)
+    input: schema.input.schemas[].depends_on
+    output: dependency_dag
+  
+  step_2_topological_sort:
+    # Sort agents so all hard_dependencies are satisfied
+    algorithm: kahn_topological_sort
+    result: extraction_order_sequence
+  
+  step_3_assign_extraction_phases:
+    # Assign each agent to extraction phase (2, 3, 4, 5, or 6)
+    # Phases are from meta.codegen.schema.yaml
+    logic: |-
+      - Phase 2: Implementation (core services)
+      - Phase 3: Enforcement (safety layers)
+      - Phase 4: Validation (testing)
+      - Phase 5: Recursive Verification (final checks)
+      - Phase 6: Finalization (evidence report)
+      
+      Agent placement depends on:
+      - Extraction order (earlier agents = earlier phases)
+      - Criticality (core services phase 2, monitoring services phase 5)
+      - Test complexity (complex agents might need more phase 4 time)
+  
+  step_4_assign_parallelization:
+    # Some agents can extract in parallel if:
+    # - No hard dependencies between them
+    # - Both are in same phase
+    # Set orchestration.parallel_with = [list of agent_ids]
+
+---
+
+## EXTRACTION SEQUENCE TEMPLATE
+
+extraction_sequence_template:
+  
+  sequence_metadata:
+    total_agents: 0  # Filled at runtime
+    total_phases: 5  # 2-6 (0 and 1 are prerequisites)
+    estimated_total_duration_hours: 0  # Calculated
+    extraction_mode: sequential_with_parallel_option
+  
+  # RUNTIME: For each agent in schema.input.schemas, create one entry:
+  agent_entry_template:
+    
+    agent_id: string  # e.g., "tensoraios", "mainagent"
+    agent_name: string  # e.g., "TensorAIOS Core Service"
+    
+    metadata:
+      rootpath: string  # e.g., "L9/core/tensoraios"
+      schema_source_file: string  # Filename from input
+      agent_criticality: enum [core, orchestration, domain_specific, support, monitoring]
+      # core = foundation for others (extract first)
+      # orchestration = coordinates others (extract second)
+      # domain_specific = limited scope (extract third+)
+      # support = background jobs (extract later)
+      # monitoring = observability (extract last)
+    
+    extraction_order:
+      sequence_number: integer  # 1, 2, 3, ... (determined by topological sort)
+      estimated_phase_start: string  # e.g., "phase_2_implementation"
+      estimated_duration_minutes: integer
+      estimated_artifacts:
+        python_modules: integer
+        documentation_files: integer
+        test_files: integer
+      estimated_total_size_bytes: integer
+    
+    dependencies:
+      hard_dependencies: list  # [agent_id, ...]
+        # Must extract these agents BEFORE this one
+        # Example: ["tensoraios", "mainagent"]
+      
+      soft_dependencies: list  # [agent_id, ...]
+        # Should extract these before, but not required
+        # Example: ["governance"]
+      
+      blocking_conditions: list  # Conditions that would block extraction
+        # Example: ["memory_backends_unavailable", "governance_anchors_offline"]
+    
+    resource_requirements:
+      memory_mb: integer  # RAM needed during extraction
+      disk_space_mb: integer  # Disk for generated code + tests
+      network_access: list  # Required services
+        # Example: ["L9_POSTGRES_URL", "L9_REDIS_URL"]
+    
+    orchestration:
+      can_parallelize_with: list  # [agent_id, ...]
+        # Agents that can extract simultaneously with this one
+        # Only set if NO hard dependencies between agents
+      
+      parallel_start_after_phase: integer  # Phase number
+        # Don't parallelize until this phase (usually 3)
+      
+      mutex_groups: list  # Groups of agents that can't parallelize
+        # Example: ["tensoraios_core", "tensoraios_deps"]
+    
+    validation_gates:
+      before_phase_2_implementation:
+        - hard_dependencies_extracted
+        - target_directory_accessible
+        - memory_backends_online
+        - governance_layer_reachable
+        - no_circular_imports
+      
+      before_phase_4_validation:
+        - all_generatefiles_created
+        - all_generatedocs_created
+        - all_tests_created
+        - feature_flags_applied
+      
+      before_phase_5_recursive_verification:
+        - unit_tests_passing: ">= 95%"
+        - integration_tests_passing: ">= 90%"
+        - test_coverage: ">= 85%"
+        - no_new_regressions: true
+      
+      before_phase_6_finalization:
+        - every_generatefile_in_schema_exists
+        - every_linkexisting_correctly_imported
+        - governance_links_intact
+        - memory_topology_matches_schema
+        - no_scope_drift_detected
+    
+    evidence_checkpoints:
+      phase_0: "TODO plan locked and signed"
+      phase_1: "Baseline confirmation passed"
+      phase_2: "All artifacts generated"
+      phase_3: "Safety layers added"
+      phase_4: "Tests passing at >=95%"
+      phase_5: "Recursive verification complete"
+      phase_6: "Evidence report signed off"
+
+---
+
+## RUNTIME INSTANTIATION PSEUDOCODE
+
+instantiation_pseudocode: |-
+  
+  # Load input schema collection
+  schemas = load_yaml(user_provided_schema_file)
+  
+  # Extract metadata
+  agents_list = schemas.agents  # Array of agent schemas
+  
+  # Build dependency graph
+  dag = build_dependency_graph(agents_list)
+  
+  # Topological sort
+  ordered_agents = topological_sort(dag)
+  
+  # Assign sequence numbers and phases
+  extraction_sequence = []
+  for index, agent in enumerate(ordered_agents):
+    entry = instantiate_from_template(agent_entry_template)
+    entry.agent_id = agent.system  # Or agent.name
+    entry.agent_name = agent.title
+    entry.metadata.rootpath = agent.rootpath
+    entry.metadata.schema_source_file = agent_schema_filename
+    entry.extraction_order.sequence_number = index + 1
+    entry.dependencies.hard_dependencies = agent.depends_on.hard  # From schema
+    entry.dependencies.soft_dependencies = agent.depends_on.soft  # From schema
+    
+    # Criticality based on position + features
+    if index == 0:
+      entry.metadata.agent_criticality = "core"
+    elif index == 1:
+      entry.metadata.agent_criticality = "orchestration"
+    else:
+      if agent.rootpath contains "adapter":
+        entry.metadata.agent_criticality = "domain_specific"
+      elif agent.rootpath contains "orchestration":
+        entry.metadata.agent_criticality = "support"
+      elif agent.rootpath contains "governance":
+        entry.metadata.agent_criticality = "monitoring"
+    
+    # Estimate duration per criticality
+    if agent.expected_artifacts.python_modules:
+      estimated_duration = agent.expected_artifacts.python_modules * 5  # ~5 min per module
+      entry.extraction_order.estimated_duration_minutes = estimated_duration
+    
+    extraction_sequence.append(entry)
+  
+  # Find parallelization opportunities
+  for agent in extraction_sequence:
+    if agent.extraction_order.sequence_number > 3:  # After phase 1-3
+      # Look for agents with no hard dependencies between them
+      for other_agent in extraction_sequence:
+        if other_agent.extraction_order.sequence_number == agent.extraction_order.sequence_number:
+          if not has_hard_dependency(agent, other_agent):
+            agent.orchestration.can_parallelize_with.append(other_agent.agent_id)
+  
+  return extraction_sequence
+
+---
+
+## PARALLEL EXECUTION EXAMPLE
+
+parallel_execution_example:
+  
+  scenario: "Extract agents 4 & 5 in parallel (after agents 1-3 sequential)"
+  
+  timeline: |-
+    T=0:00    Agent 1 start (TensorAIOS)
+    T=0:45    Agent 1 complete
+    T=0:45    Agent 2 start (Main Agent)
+    T=1:30    Agent 2 complete
+    T=1:30    Agent 3 start (PlastOS Adapter)
+    T=2:00    Agent 3 complete
+    
+    T=2:00    Agent 4 start (Trainer) IN PARALLEL WITH Agent 5 start
+    T=2:00    Agent 5 start (Auditor)
+    T=2:30    Agent 4 complete
+    T=2:45    Agent 5 complete
+    
+    Total: 2:45 (vs 3:15 sequential)
+    Savings: 30 minutes (~15% reduction)
+  
+  conditions_for_parallel: |-
+    - Both agents in same phase (usually phase 2)
+    - No hard_dependencies between them
+    - Both have all soft_dependencies available (from agents 1-3)
+  
+  how_to_enable: |-
+    Set in orchestration config:
+    orchestration.parallel_after_phase: 3
+    orchestration.max_parallel_agents: 2
+
+---
+
+end_of_extraction_sequence_template
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "code-generation", "configuration", "foundation", "redis-config", "schema", "utility"]
+# keywords: ["meta.extraction.sequence"]
+# last_modified: "2026-01-06T16:58:22Z"
+# ============================================================================

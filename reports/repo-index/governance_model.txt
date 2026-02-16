@@ -2,8 +2,8 @@
 # Governance Model
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -23,7 +23,9 @@
 | `core/governance/engine.py` | SubstrateProtocol, GovernanceEngineService | L9 Core Governance - Engine Service |
 | `core/governance/loader.py` | PolicyLoadError, InvalidPolicyError, PolicyLoader | L9 Core Governance - Policy Loader |
 | `core/governance/mistake_prevention.py` | Severity, MistakeRule, Violation | L9 Core Governance - Mistake Prevention Engine |
+| `core/governance/policy_engine.py` | PolicyConflictResolver, PolicyAuditLogger | Policy Conflict Resolution Engine |
 | `core/governance/policy_generator.py` | PolicySpec, ScopeAccessSpec, PolicyFileSpec | L9 Core Governance - Policy Generator |
+| `core/governance/policy_models.py` | PolicyDecision, PolicyPriority, PolicyResult | Data models for governance policy system. |
 | `core/governance/policy_registry.py` | PolicySource | L9 Core Governance - Policy Auto-Discovery System |
 | `core/governance/protected_files_policy.py` | - | L9 Core Governance - Protected Files Policy Loader |
 | `core/governance/quick_fixes.py` | QuickFix, FixResult, QuickFixEngine | L9 Core Governance - Quick Fix Engine |
@@ -82,6 +84,7 @@
 - `ApprovalManager` (core/governance/approvals.py) — Manages approval of high-risk tasks.
 - `SecretPattern` (core/governance/credentials_policy.py) — A secret detection pattern.
 - `GovernanceEngineService` (core/governance/engine.py) — Stateless policy evaluation engine.
+- `GovernanceDecision` (core/governance/policy_models.py) — Final governance decision after conflict resolution.
 - `MemoryGovernanceContext` (memory/governance_gate.py) — Immutable governance context for memory operations.
 - `GovernanceHook` (memory/governance_hooks.py) — Abstract base class for governance hooks.
 - `GovernanceHookRegistry` (memory/governance_hooks.py) — Registry for governance hooks.
@@ -97,3 +100,7 @@
 - `TestUserCorrectionPatternDetection` (tests/integration/test_governance_tracking_e2e.py) — Tests for UserCorrectionPattern firing correctly.
 - `TestGovernanceTrackingEndToEnd` (tests/integration/test_governance_tracking_e2e.py) — End-to-end test of the complete governance tracking flow.
 - `TestMemoryGovernanceIntegration` (tests/integration/test_l_cto_memory_governance_integration.py) — Test memory and governance integration.
+- `TestGovernanceContextPropagation` (tests/governance/test_governance_propagation.py) — Governance ContextVar must propagate across async task bound
+- `GovernanceDecision` (codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py) — Governance check outcomes.
+- `GovernanceResult` (codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py) — Result of governance check.
+- `GovernanceBridge` (codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py) — Bridge to L9 governance layer.

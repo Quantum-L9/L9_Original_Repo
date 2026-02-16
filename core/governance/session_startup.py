@@ -61,7 +61,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -142,7 +142,7 @@ class StartupResult:
     files_failed: list[str]
     errors: list[str]
     warnings: list[str]
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     duration_ms: int = 0
     # Kernel readiness (new in v2.0)
     kernels_ready: bool = False
@@ -462,7 +462,9 @@ class SessionStartup:
         try:
             import os
 
-            from core.agents.kernel_registry import KernelAwareAgentRegistry
+            from core.agents.kernel_registry import (
+                KernelAwareAgentRegistry,  # noqa: F401 — availability check
+            )
 
             # Only check if USE_KERNELS is enabled
             if os.getenv("L9_USE_KERNELS", "true").lower() in ("true", "1", "yes"):
@@ -605,7 +607,7 @@ class SessionStartup:
         Returns:
             StartupResult with complete status
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Clear state
         self._files_loaded = []
@@ -708,7 +710,7 @@ class SessionStartup:
 
     def _calc_duration_ms(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
-        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        return int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
 
 # Factory function

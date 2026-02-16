@@ -1,0 +1,6 @@
+Method,Relative_Speed,Use_Case,Complexity
+SymPy evalf(),1,Symbolic work,Low
+lambdify (math),50,Scalar eval,Low
+lambdify (numpy),100,Array ops,Medium
+autowrap (cython),500,Production code,High
+autowrap (f2py),800,Fortran speed,High

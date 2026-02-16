@@ -15,6 +15,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Tool Call Wrapper",
@@ -37,15 +39,23 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-from collections.abc import Callable, Coroutine
 from functools import wraps
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Coroutine
 
 logger = structlog.get_logger(__name__)
 
 
+def _record_tool_execution_metric(*args: Any, **kwargs: Any) -> None:
+    """Placeholder for tool execution metric recording."""
+    pass
+
+
+@must_stay_async("callers use await")
 async def tool_call_wrapper(
     tool_name: str,
     tool_func: Callable[..., Coroutine[Any, Any, Any]],
@@ -104,7 +114,11 @@ async def tool_call_wrapper(
         duration_ms = int((time.time() - start_time) * 1000)
 
         try:
-            from core.tools.tool_graph import ToolGraph
+            # Use runtime import to avoid circular dependency
+            import importlib
+
+            module = importlib.import_module("core.tools.tool_graph")
+            ToolGraph = module.ToolGraph
 
             await ToolGraph.log_tool_call(
                 tool_name=tool_name,
@@ -142,7 +156,9 @@ async def tool_call_wrapper(
             agent_id=agent_id,
             duration_ms=duration_ms,
             status="success" if success else "error",
-            error_type=type(error).__name__ if error and not isinstance(error, str) else None,
+            error_type=type(error).__name__
+            if error and not isinstance(error, str)
+            else None,
         )
 
     return result
@@ -161,10 +177,12 @@ def wrap_tool_function(
 
     Usage:
         @wrap_tool_function("gmp_run", agent_id="L")
+        @must_stay_async("callers use await")
         async def gmp_run_tool(...):
             ...
     """
 
+    @wraps(tool_name)
     def decorator(func: Callable[..., Coroutine[Any, Any, Any]]) -> Callable:
         """
         Performs a decorator that wraps tool functions to ensure all calls are logged via ToolGraph.log_tool_call for consistent audit logging.
@@ -192,10 +210,10 @@ def wrap_tool_function(
                 The result of the tool function execution, wrapped with logging.
             """
             return await tool_call_wrapper(
+                *args,
                 tool_name=tool_name,
                 tool_func=func,
                 agent_id=agent_id,
-                *args,
                 **kwargs,
             )
 

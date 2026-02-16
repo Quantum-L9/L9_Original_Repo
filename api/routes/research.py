@@ -122,7 +122,7 @@ async def research_test(
 async def research_status(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    orchestrator: ResearchSwarmOrchestrator = Depends(get_research_swarm_orchestrator),
+    orchestrator: ResearchSwarmOrchestrator = Depends(get_research_swarm_orchestrator),  # noqa: B008 — FastAPI dependency injection
 ):
     """Get research swarm orchestrator status."""
     return {
@@ -134,11 +134,12 @@ async def research_status(
 
 
 @router.post("/execute", response_model=ResearchExecuteResponse)
+@must_stay_async("callers use await")
 async def execute_research(
     request: ResearchExecuteRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    orchestrator: ResearchSwarmOrchestrator = Depends(get_research_swarm_orchestrator),
+    orchestrator: ResearchSwarmOrchestrator = Depends(get_research_swarm_orchestrator),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Execute research swarm via ResearchSwarmOrchestrator.

@@ -280,7 +280,7 @@ class LessonsLearnedResponse(BaseModel):
 async def reflection_agent_status(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_reflection_agent),
+    agent=Depends(get_reflection_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """Get ReflectionAgent status and capabilities."""
     return {
@@ -299,11 +299,12 @@ async def reflection_agent_status(
 
 
 @router.post("/reflect", response_model=ReflectResponse)
+@must_stay_async("callers use await")
 async def reflect(
     request: ReflectRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_reflection_agent),
+    agent=Depends(get_reflection_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Execute reflection on execution history.
@@ -351,7 +352,7 @@ async def analyze_failure(
     request: AnalyzeFailureRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_reflection_agent),
+    agent=Depends(get_reflection_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Deep failure root cause analysis.
@@ -399,7 +400,7 @@ async def compare_approaches(
     request: CompareApproachesRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_reflection_agent),
+    agent=Depends(get_reflection_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Compare two approaches with scoring.
@@ -446,7 +447,7 @@ async def extract_patterns(
     request: ExtractPatternsRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_reflection_agent),
+    agent=Depends(get_reflection_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Extract patterns from examples.
@@ -488,7 +489,7 @@ async def generate_improvements(
     request: GenerateImprovementsRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_reflection_agent),
+    agent=Depends(get_reflection_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Generate improvement plan from current performance.
@@ -533,7 +534,7 @@ async def generate_improvements(
 async def get_lessons_learned(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_reflection_agent),
+    agent=Depends(get_reflection_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """Get accumulated lessons learned from reflection sessions."""
     try:
@@ -555,7 +556,7 @@ async def get_lessons_learned(
 async def clear_lessons_learned(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_reflection_agent),
+    agent=Depends(get_reflection_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """Clear accumulated lessons learned."""
     try:

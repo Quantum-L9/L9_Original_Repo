@@ -1,8 +1,8 @@
 # L9 Database Best Practices
 
-**Version:** 1.0.0
-**Last Updated:** January 17, 2026
-**Audience:** L9 Developers
+**Version:** 2.0.0
+**Last Updated:** February 13, 2026
+**Audience:** AI agents and L9 developers
 
 ---
 
@@ -32,25 +32,25 @@ An N+1 query pattern occurs when you:
 
 ```python
 # BAD: N+1 pattern - 101 queries for 100 packets
-async def get_packets_with_metadata_bad(packet_ids: List[UUID]):
+async def get_packets_with_embeddings_bad(packet_ids: list[UUID]):
     packets = []
 
     # Query 1: Fetch packets one by one
     for packet_id in packet_ids:  # ❌ Loop with query inside
         packet = await conn.fetch_one(
-            "SELECT * FROM packets WHERE packet_id = $1",
+            "SELECT * FROM packet_store WHERE packet_id = $1",
             packet_id
         )
 
-        # Query 2-101: Fetch metadata one by one
-        metadata = await conn.fetch_one(
-            "SELECT * FROM packet_metadata WHERE packet_id = $1",
-            packet_id
+        # Query 2-101: Fetch embeddings one by one
+        embedding = await conn.fetch_one(
+            "SELECT * FROM semantic_memory WHERE payload->>'packet_id' = $1::text",
+            str(packet_id)
         )
 
         packets.append({
             "packet": packet,
-            "metadata": metadata
+            "embedding": embedding
         })
 
     return packets
@@ -62,30 +62,30 @@ async def get_packets_with_metadata_bad(packet_ids: List[UUID]):
 
 ```python
 # GOOD: Batch queries - 2 queries for 100 packets
-async def get_packets_with_metadata_good(packet_ids: List[UUID]):
+async def get_packets_with_embeddings_good(packet_ids: list[UUID]):
     if not packet_ids:
         return []
 
     # Query 1: Fetch ALL packets in one query
     packets = await conn.fetch(
-        "SELECT * FROM packets WHERE packet_id = ANY($1)",
+        "SELECT * FROM packet_store WHERE packet_id = ANY($1)",
         packet_ids
     )
 
-    # Query 2: Fetch ALL metadata in one query
-    metadata_rows = await conn.fetch(
-        "SELECT * FROM packet_metadata WHERE packet_id = ANY($1)",
+    # Query 2: Fetch ALL embeddings in one query
+    embedding_rows = await conn.fetch(
+        "SELECT * FROM semantic_memory WHERE (payload->>'packet_id')::uuid = ANY($1)",
         packet_ids
     )
 
     # Build lookup dictionary (in-memory, fast)
-    metadata_map = {row["packet_id"]: row for row in metadata_rows}
+    embedding_map = {UUID(row["payload"]["packet_id"]): row for row in embedding_rows}
 
     # Combine results (no database queries)
     return [
         {
             "packet": packet,
-            "metadata": metadata_map.get(packet["packet_id"])
+            "embedding": embedding_map.get(packet["packet_id"])
         }
         for packet in packets
     ]
@@ -105,15 +105,15 @@ PostgreSQL's `ANY()` operator is the **preferred way** to query multiple items:
 # ✅ RECOMMENDED: Use ANY() with list
 packet_ids = [uuid1, uuid2, uuid3]
 results = await conn.fetch(
-    "SELECT * FROM packets WHERE packet_id = ANY($1)",
+    "SELECT * FROM packet_store WHERE packet_id = ANY($1)",
     packet_ids
 )
 
 # ❌ AVOID: IN clause with string interpolation
-# (SQL injection risk, less efficient)
+# (SQL injection risk — violates ADR-0087)
 placeholders = ','.join(['$' + str(i) for i in range(1, len(packet_ids) + 1)])
 results = await conn.fetch(
-    f"SELECT * FROM packets WHERE packet_id IN ({placeholders})",
+    f"SELECT * FROM packet_store WHERE packet_id IN ({placeholders})",
     *packet_ids
 )
 ```
@@ -132,7 +132,7 @@ Use PostgreSQL array functions for efficient operations:
 # Add tags to multiple packets in one query
 await conn.execute(
     """
-    UPDATE packets
+    UPDATE packet_store
     SET tags = array_cat(tags, $2)
     WHERE packet_id = ANY($1)
     """,
@@ -143,7 +143,7 @@ await conn.execute(
 # Remove tags
 await conn.execute(
     """
-    UPDATE packets
+    UPDATE packet_store
     SET tags = array_remove(tags, $2)
     WHERE packet_id = ANY($1)
     """,
@@ -154,7 +154,7 @@ await conn.execute(
 # Check if tag exists
 results = await conn.fetch(
     """
-    SELECT * FROM packets
+    SELECT * FROM packet_store
     WHERE $1 = ANY(tags)
     """,
     "important"
@@ -166,10 +166,10 @@ results = await conn.fetch(
 Efficiently query JSONB columns:
 
 ```python
-# Query by JSONB field
+# Query by JSONB field (packet_store.envelope is JSONB)
 results = await conn.fetch(
     """
-    SELECT * FROM packets
+    SELECT * FROM packet_store
     WHERE envelope->>'type' = $1
     AND envelope->'metadata'->>'priority' = $2
     """,
@@ -180,7 +180,7 @@ results = await conn.fetch(
 # Update JSONB field
 await conn.execute(
     """
-    UPDATE packets
+    UPDATE packet_store
     SET envelope = jsonb_set(envelope, '{metadata,status}', '"completed"')
     WHERE packet_id = $1
     """,
@@ -195,14 +195,14 @@ Insert multiple rows efficiently:
 ```python
 # ✅ GOOD: Batch insert
 packets_data = [
-    (uuid1, "type1", json.dumps(envelope1), timestamp1),
-    (uuid2, "type2", json.dumps(envelope2), timestamp2),
-    (uuid3, "type3", json.dumps(envelope3), timestamp3),
+    (uuid1, "memory.lesson", json.dumps(envelope1), timestamp1),
+    (uuid2, "memory.pattern", json.dumps(envelope2), timestamp2),
+    (uuid3, "memory.decision", json.dumps(envelope3), timestamp3),
 ]
 
 await conn.executemany(
     """
-    INSERT INTO packets (packet_id, packet_type, envelope, timestamp)
+    INSERT INTO packet_store (packet_id, packet_type, envelope, timestamp)
     VALUES ($1, $2, $3, $4)
     """,
     packets_data
@@ -211,7 +211,7 @@ await conn.executemany(
 # ❌ BAD: Insert one by one
 for packet in packets:
     await conn.execute(
-        "INSERT INTO packets (...) VALUES (...)",
+        "INSERT INTO packet_store (...) VALUES (...)",
         packet.id, packet.type, packet.envelope, packet.timestamp
     )
 ```
@@ -226,10 +226,10 @@ for packet in packets:
 
 ```python
 # ✅ CORRECT: Explicit tenant filtering
-async def get_packets(tenant_id: str, packet_ids: List[UUID]):
+async def get_packets(tenant_id: UUID, packet_ids: list[UUID]):
     return await conn.fetch(
         """
-        SELECT * FROM packets
+        SELECT * FROM packet_store
         WHERE packet_id = ANY($1)
         AND tenant_id = $2
         """,
@@ -238,9 +238,9 @@ async def get_packets(tenant_id: str, packet_ids: List[UUID]):
     )
 
 # ❌ WRONG: Missing tenant filter
-async def get_packets_bad(packet_ids: List[UUID]):
+async def get_packets_bad(packet_ids: list[UUID]):
     return await conn.fetch(
-        "SELECT * FROM packets WHERE packet_id = ANY($1)",
+        "SELECT * FROM packet_store WHERE packet_id = ANY($1)",
         packet_ids
     )
     # ⚠️ Security risk: Can access other tenants' data!
@@ -248,25 +248,51 @@ async def get_packets_bad(packet_ids: List[UUID]):
 
 ### Row-Level Security (RLS)
 
-L9 uses PostgreSQL RLS for defense-in-depth:
+L9 uses PostgreSQL RLS for defense-in-depth. RLS is enabled on `packet_store`, `semantic_memory`, and `knowledge_facts`.
+
+#### RLS session variables
+
+The `l9_set_scope()` SQL function sets four session variables that RLS policies evaluate:
+
+| Variable | Purpose | Example values |
+|----------|---------|----------------|
+| `app.tenant_id` | Tenant UUID | `73350468-3158-5d0f-9b8c-9b193d96fc4b` |
+| `app.org_id` | Organization UUID | `14910cef-fea1-51d7-9a28-05579e6c0c18` |
+| `app.user_id` | User UUID | `2f00c090-3816-51a0-806c-34d32522a070` |
+| `app.role` | Caller role | `end_user`, `cursor`, `l9_system`, `platform_admin` |
+
+UUIDs are deterministic (uuid5 from string identifiers) — see `config/rls_config.py`.
 
 ```python
-# Set RLS context before queries
-await conn.execute(
-    "SET LOCAL l9.tenant_id = $1",
-    tenant_id
-)
-await conn.execute(
-    "SET LOCAL l9.org_id = $1",
-    org_id
-)
+# Set RLS context before queries (done by MemorySubstrateService automatically)
+await conn.execute("SELECT l9_set_scope($1, $2, $3, $4)", tenant_id, org_id, user_id, role)
 
 # Now all queries are automatically filtered by RLS
-packets = await conn.fetch("SELECT * FROM packets")
-# RLS ensures only tenant's packets are returned
+packets = await conn.fetch("SELECT * FROM packet_store")
+# RLS ensures only authorized rows are returned
 ```
 
-**Best Practice:** Use explicit tenant filtering **AND** RLS for maximum security.
+#### Scope-based access control
+
+RLS policies gate access by `scope` column + `app.role`:
+
+| Scope | Accessible by role |
+|-------|-------------------|
+| `developer`, `global`, `agent` | All roles (open) |
+| `cursor` | `cursor`, `cursor_user`, `platform_admin` |
+| `l-private` | `l9_system`, `platform_admin` |
+
+#### Role assignment per caller
+
+| Caller | `app.role` | Default write scope | Allowed read scopes |
+|--------|-----------|-------------------|-------------------|
+| **L** (L-CTO kernel) | `end_user` | `developer` | `developer`, `global`, `l-private`, `cursor` |
+| **C** (Cursor IDE) | `end_user` | `cursor` | `cursor`, `developer`, `global` |
+| **Emma / future agents** | `end_user` | `agent` | `agent`, `developer`, `global` |
+
+**Important:** `MemorySubstrateService.write_packet()` calls `l9_set_scope()` automatically before every transaction. Agents do NOT call it directly — it's handled by the service layer.
+
+**Best Practice:** Use explicit tenant filtering **AND** RLS for maximum security. Application-level scope filtering (in `memory_unified.py`) provides a second enforcement layer on top of database-level RLS.
 
 ---
 
@@ -313,19 +339,27 @@ async def get_packet_bad(packet_id: UUID):
 Ensure frequently-queried columns have indexes:
 
 ```sql
--- Index on packet_id (already exists as primary key)
+-- Primary key on packet_id (already exists)
 -- Index on tenant_id (critical for RLS)
-CREATE INDEX idx_packets_tenant_id ON packets(tenant_id);
+CREATE INDEX idx_packet_store_tenant_id ON packet_store(tenant_id);
 
 -- Index on timestamp for time-range queries
-CREATE INDEX idx_packets_timestamp ON packets(timestamp);
+CREATE INDEX idx_packet_store_timestamp ON packet_store(timestamp);
 
 -- Composite index for common query patterns
-CREATE INDEX idx_packets_tenant_timestamp
-ON packets(tenant_id, timestamp DESC);
+CREATE INDEX idx_packet_store_tenant_timestamp
+ON packet_store(tenant_id, timestamp DESC);
 
 -- JSONB GIN index for envelope queries
-CREATE INDEX idx_packets_envelope_gin ON packets USING gin(envelope);
+CREATE INDEX idx_packet_store_envelope_gin ON packet_store USING gin(envelope);
+
+-- pgvector HNSW index for semantic search (semantic_memory)
+CREATE INDEX idx_semantic_memory_vector ON semantic_memory
+USING hnsw(vector vector_cosine_ops);
+
+-- Scope index for RLS-filtered queries
+CREATE INDEX idx_packet_store_scope ON packet_store(scope);
+CREATE INDEX idx_semantic_memory_scope ON semantic_memory(scope);
 ```
 
 ### 2. Use EXPLAIN ANALYZE
@@ -336,8 +370,9 @@ Profile slow queries:
 # Add EXPLAIN ANALYZE to understand query performance
 query = """
 EXPLAIN ANALYZE
-SELECT * FROM packets
+SELECT * FROM packet_store
 WHERE tenant_id = $1
+AND scope IN ('developer', 'global')
 AND timestamp > $2
 ORDER BY timestamp DESC
 LIMIT 100
@@ -345,7 +380,7 @@ LIMIT 100
 
 result = await conn.fetch(query, tenant_id, start_time)
 for row in result:
-    print(row)
+    logger.info(row)  # Use structlog, not print (ADR-0019)
 ```
 
 ### 3. Limit Result Sets
@@ -355,13 +390,13 @@ Always use LIMIT for potentially large result sets:
 ```python
 # ✅ GOOD: Paginated query
 async def get_packets_paginated(
-    tenant_id: str,
+    tenant_id: UUID,
     limit: int = 100,
     offset: int = 0
 ):
     return await conn.fetch(
         """
-        SELECT * FROM packets
+        SELECT * FROM packet_store
         WHERE tenant_id = $1
         ORDER BY timestamp DESC
         LIMIT $2 OFFSET $3
@@ -372,9 +407,9 @@ async def get_packets_paginated(
     )
 
 # ❌ BAD: Unbounded query
-async def get_all_packets_bad(tenant_id: str):
+async def get_all_packets_bad(tenant_id: UUID):
     return await conn.fetch(
-        "SELECT * FROM packets WHERE tenant_id = $1",
+        "SELECT * FROM packet_store WHERE tenant_id = $1",
         tenant_id
     )
     # ⚠️ Could return millions of rows!
@@ -384,39 +419,38 @@ async def get_all_packets_bad(tenant_id: str):
 
 ## 🎯 Common Patterns
 
-### Pattern 1: Fetch Items with Related Data
+### Pattern 1: Fetch Packets with Related Data
 
 ```python
 async def get_packets_with_children(
-    parent_ids: List[UUID]
-) -> Dict[UUID, List[Dict]]:
-    """Fetch packets and their children in 2 queries"""
+    parent_ids: list[UUID]
+) -> dict[UUID, list[dict]]:
+    """Fetch packets and their children in 2 queries."""
 
     if not parent_ids:
         return {}
 
     # Query 1: Fetch parent packets
     parents = await conn.fetch(
-        "SELECT * FROM packets WHERE packet_id = ANY($1)",
+        "SELECT * FROM packet_store WHERE packet_id = ANY($1)",
         parent_ids
     )
 
     # Query 2: Fetch all children in one query
     children = await conn.fetch(
         """
-        SELECT * FROM packets
-        WHERE $1 = ANY(parent_ids)
+        SELECT * FROM packet_store
+        WHERE $1 && parent_ids
         """,
         parent_ids
     )
 
     # Group children by parent (in-memory)
-    children_by_parent = {}
+    children_by_parent: dict[UUID, list] = {}
     for child in children:
         for parent_id in child["parent_ids"]:
             children_by_parent.setdefault(parent_id, []).append(child)
 
-    # Combine
     return {
         parent["packet_id"]: children_by_parent.get(parent["packet_id"], [])
         for parent in parents
@@ -427,17 +461,17 @@ async def get_packets_with_children(
 
 ```python
 async def update_packet_status_bulk(
-    packet_ids: List[UUID],
+    packet_ids: list[UUID],
     status: str
 ) -> int:
-    """Update status for multiple packets"""
+    """Update processing_status for multiple packets."""
 
     result = await conn.execute(
         """
-        UPDATE packets
+        UPDATE packet_store
         SET
-            envelope = jsonb_set(envelope, '{status}', to_jsonb($2::text)),
-            updated_at = NOW()
+            processing_status = $2,
+            metadata = jsonb_set(metadata, '{updated_at}', to_jsonb(now()::text))
         WHERE packet_id = ANY($1)
         """,
         packet_ids,
@@ -453,19 +487,19 @@ async def update_packet_status_bulk(
 
 ```python
 async def archive_old_packets(
-    tenant_id: str,
+    tenant_id: UUID,
     days_old: int = 90
 ) -> int:
-    """Archive packets older than N days"""
+    """Archive packets older than N days."""
 
     result = await conn.execute(
         """
-        UPDATE packets
+        UPDATE packet_store
         SET
             tags = array_append(tags, 'archived'),
-            envelope = jsonb_set(envelope, '{archived}', 'true')
+            metadata = jsonb_set(metadata, '{archived}', 'true')
         WHERE tenant_id = $1
-        AND timestamp < NOW() - INTERVAL '$2 days'
+        AND timestamp < NOW() - make_interval(days => $2)
         AND NOT ('archived' = ANY(tags))
         """,
         tenant_id,
@@ -474,6 +508,43 @@ async def archive_old_packets(
 
     archived_count = int(result.split()[-1])
     return archived_count
+```
+
+### Pattern 4: Semantic Search with Scope Filtering
+
+```python
+async def search_memories_by_scope(
+    query_embedding: list[float],
+    scopes: list[str],
+    tenant_id: UUID,
+    top_k: int = 5,
+    threshold: float = 0.7,
+) -> list[dict]:
+    """Semantic search filtered by scope and tenant — the core MCP search pattern."""
+
+    embedding_str = f"[{','.join(str(v) for v in query_embedding)}]"
+    scope_placeholders = ", ".join([f"${i}" for i in range(4, 4 + len(scopes))])
+    params = [embedding_str, threshold, top_k, *scopes, tenant_id]
+
+    rows = await conn.fetch(
+        f"""
+        SELECT
+            sm.embedding_id,
+            sm.payload->>'packet_id' as packet_id,
+            COALESCE(sm.payload->>'_text', sm.payload->>'content') as content,
+            sm.scope,
+            1 - (sm.vector <=> $1::vector) as similarity
+        FROM semantic_memory sm
+        WHERE sm.vector IS NOT NULL
+        AND sm.scope IN ({scope_placeholders})
+        AND sm.tenant_id = ${4 + len(scopes)}::uuid
+        AND 1 - (sm.vector <=> $1::vector) >= $2
+        ORDER BY similarity DESC
+        LIMIT $3
+        """,
+        *params
+    )
+    return [dict(r) for r in rows]
 ```
 
 ---
@@ -499,18 +570,17 @@ async def db_transaction(substrate_repo):
 ```python
 @pytest.mark.asyncio
 async def test_batch_insert(db_transaction):
-    """Test batch insert performance"""
+    """Test batch insert performance."""
     conn = db_transaction
 
-    # Insert 1000 packets
     packets = [
-        (uuid4(), "test", json.dumps({}), datetime.utcnow())
+        (uuid4(), "memory.lesson", json.dumps({"payload": {}}), datetime.now(UTC))
         for _ in range(1000)
     ]
 
     start = time.time()
     await conn.executemany(
-        "INSERT INTO packets (packet_id, packet_type, envelope, timestamp) VALUES ($1, $2, $3, $4)",
+        "INSERT INTO packet_store (packet_id, packet_type, envelope, timestamp) VALUES ($1, $2, $3, $4)",
         packets
     )
     duration = time.time() - start
@@ -519,33 +589,35 @@ async def test_batch_insert(db_transaction):
     assert duration < 0.1
 ```
 
-### 3. Test Tenant Isolation
+### 3. Test Tenant and Scope Isolation
 
 ```python
 @pytest.mark.asyncio
-async def test_tenant_isolation(db_transaction):
-    """Test that tenant filtering works"""
+async def test_scope_isolation(db_transaction):
+    """Test that scope filtering works with RLS."""
     conn = db_transaction
 
-    # Insert packets for two tenants
+    tenant_a = uuid5(NAMESPACE_DNS, "tenant-a")
+
+    # Insert packets with different scopes
     await conn.execute(
-        "INSERT INTO packets (packet_id, tenant_id, ...) VALUES ($1, $2, ...)",
-        uuid1, "tenant-a", ...
+        "INSERT INTO packet_store (packet_id, tenant_id, scope, ...) VALUES ($1, $2, $3, ...)",
+        uuid4(), tenant_a, "cursor", ...
     )
     await conn.execute(
-        "INSERT INTO packets (packet_id, tenant_id, ...) VALUES ($1, $2, ...)",
-        uuid2, "tenant-b", ...
+        "INSERT INTO packet_store (packet_id, tenant_id, scope, ...) VALUES ($1, $2, $3, ...)",
+        uuid4(), tenant_a, "developer", ...
     )
 
-    # Query with tenant filter
+    # Query with scope filter
     results = await conn.fetch(
-        "SELECT * FROM packets WHERE tenant_id = $1",
-        "tenant-a"
+        "SELECT * FROM packet_store WHERE tenant_id = $1 AND scope = $2",
+        tenant_a, "cursor"
     )
 
-    # Should only return tenant-a's packet
+    # Should only return cursor-scoped packet
     assert len(results) == 1
-    assert results[0]["tenant_id"] == "tenant-a"
+    assert results[0]["scope"] == "cursor"
 ```
 
 ---
@@ -557,21 +629,21 @@ async def test_tenant_isolation(db_transaction):
 ```python
 # ❌ WRONG
 for packet_id in packet_ids:
-    await conn.execute("UPDATE packets SET ... WHERE packet_id = $1", packet_id)
+    await conn.execute("UPDATE packet_store SET ... WHERE packet_id = $1", packet_id)
 
 # ✅ CORRECT
-await conn.execute("UPDATE packets SET ... WHERE packet_id = ANY($1)", packet_ids)
+await conn.execute("UPDATE packet_store SET ... WHERE packet_id = ANY($1)", packet_ids)
 ```
 
 ### Mistake 2: Missing Tenant Filter
 
 ```python
 # ❌ WRONG
-await conn.fetch("SELECT * FROM packets WHERE packet_id = $1", packet_id)
+await conn.fetch("SELECT * FROM packet_store WHERE packet_id = $1", packet_id)
 
 # ✅ CORRECT
 await conn.fetch(
-    "SELECT * FROM packets WHERE packet_id = $1 AND tenant_id = $2",
+    "SELECT * FROM packet_store WHERE packet_id = $1 AND tenant_id = $2",
     packet_id, tenant_id
 )
 ```
@@ -580,10 +652,10 @@ await conn.fetch(
 
 ```python
 # ❌ WRONG
-await conn.fetch("SELECT * FROM packets")
+await conn.fetch("SELECT * FROM packet_store")
 
 # ✅ CORRECT
-await conn.fetch("SELECT * FROM packets LIMIT 1000")
+await conn.fetch("SELECT * FROM packet_store LIMIT 1000")
 ```
 
 ### Mistake 4: Creating Connections Instead of Using Pool
@@ -599,24 +671,45 @@ async with substrate_repo.acquire() as conn:
     # ... use conn ...
 ```
 
+### Mistake 5: Wrong Scope for Caller
+
+```python
+# ❌ WRONG: Cursor writing to agent scope
+await save_memory(content="...", scope="agent")  # Cursor should use "cursor"
+
+# ❌ WRONG: Agent writing to cursor scope
+await save_memory(content="...", scope="cursor")  # Agents should use "agent"
+
+# ✅ CORRECT: Each caller uses their designated scope
+# Cursor → scope="cursor"
+# Emma/agents → scope="agent"
+# L-CTO → scope="developer" or "l-private"
+```
+
+### Mistake 6: f-string SQL (ADR-0087 violation)
+
+```python
+# ❌ WRONG: SQL injection risk
+await conn.fetch(f"SELECT * FROM packet_store WHERE scope = '{scope}'")
+
+# ✅ CORRECT: Parameterized query
+await conn.fetch("SELECT * FROM packet_store WHERE scope = $1", scope)
+```
+
 ---
 
-## 📚 Additional Resources
+## L9 Database Schema (Key Tables)
 
-### L9 Documentation
-- `L9_ARCHITECTURE_FOR_AI.md` - Architecture overview
-- `memory/substrate_repository.py` - Repository implementation
-- `memory/substrate_models.py` - Data models
+| Table | Purpose | Key columns |
+|-------|---------|-------------|
+| `packet_store` | Canonical event log | `packet_id`, `packet_type`, `envelope` (JSONB), `scope`, `tenant_id`, `timestamp` |
+| `semantic_memory` | Vector embeddings (pgvector) | `embedding_id`, `vector` (1536-dim), `payload` (JSONB), `scope`, `tenant_id` |
+| `knowledge_facts` | Extracted facts | `fact_id`, `content`, `scope`, `tenant_id` |
+| `reasoning_traces` | Reasoning audit trail | `trace_id`, `reasoning_block` (JSONB) |
+| `agent_memory_events` | Agent event log | `event_id`, `agent_id`, `event_type` |
+| `graph_checkpoints` | Graph state snapshots | `checkpoint_id`, `state` (JSONB) |
 
-### PostgreSQL Documentation
-- [ANY() operator](https://www.postgresql.org/docs/current/functions-comparisons.html)
-- [Array functions](https://www.postgresql.org/docs/current/functions-array.html)
-- [JSONB functions](https://www.postgresql.org/docs/current/functions-json.html)
-- [Row-Level Security](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)
-
-### Tools
-- `scripts/check_n_plus_1.py` - Automated N+1 detection
-- `.pre-commit-config.yaml` - Pre-commit hooks
+**RLS-enabled tables:** `packet_store`, `semantic_memory`, `knowledge_facts`
 
 ---
 
@@ -626,20 +719,36 @@ When reviewing database code, check:
 
 - [ ] No database queries inside loops
 - [ ] Batch queries use `ANY()` or `executemany()`
-- [ ] All queries filter by `tenant_id`
+- [ ] All queries filter by `tenant_id` (and `scope` where applicable)
 - [ ] Large result sets use `LIMIT` and pagination
 - [ ] Connection pooling used (via `SubstrateRepository`)
 - [ ] Indexes exist for queried columns
 - [ ] JSONB queries use appropriate operators
-- [ ] Tests cover tenant isolation
-- [ ] No SQL injection vulnerabilities
+- [ ] Tests cover tenant and scope isolation
+- [ ] No SQL injection vulnerabilities (ADR-0087)
+- [ ] No f-string SQL — always use parameterized queries
+- [ ] RLS context set before transactions (`l9_set_scope()`)
 
 ---
 
-**Last Updated:** January 17, 2026
-**Maintainer:** L9 Platform Team
-**Questions?** See `docs/` or ask in #l9-dev
+## 📚 Additional Resources
+
+### L9 Documentation
+- `docs/MCP-MEMORY-CAPSULE.md` — Agent memory integration guide
+- `docs/MEMORY_PIPELINE_MAP.md` — Ingestion/retrieval pipeline map
+- `config/rls_config.py` — RLS UUID generation and configuration
+- `memory/substrate_repository.py` — Repository implementation
+- `memory/substrate_dag.py` — DAG pipeline (all ingestion nodes)
+- `readme/adr/0005-rls-shared-tenant-model.md` — RLS architecture decision
+- `readme/adr/0087-sql-parameterization.md` — SQL injection prevention
+
+### PostgreSQL Documentation
+- [ANY() operator](https://www.postgresql.org/docs/current/functions-comparisons.html)
+- [Array functions](https://www.postgresql.org/docs/current/functions-array.html)
+- [JSONB functions](https://www.postgresql.org/docs/current/functions-json.html)
+- [Row-Level Security](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)
+- [pgvector](https://github.com/pgvector/pgvector)
 
 ---
 
-*This document is part of L9's commitment to production-ready, secure, and performant code.*
+**Last Updated:** February 13, 2026

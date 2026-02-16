@@ -174,10 +174,11 @@ class ValidateRequest(BaseModel):
 
 
 @router.post("/evaluate", response_model=ComputationResult)
+@must_stay_async("callers use await")
 async def evaluate_expression(
     request: EvaluateRequest,
-    evaluator: ExpressionEvaluator = Depends(get_evaluator),
-    validator: ExpressionValidator = Depends(get_validator),
+    evaluator: ExpressionEvaluator = Depends(get_evaluator),  # noqa: B008 — FastAPI dependency injection
+    validator: ExpressionValidator = Depends(get_validator),  # noqa: B008 — FastAPI dependency injection
 ) -> ComputationResult:
     """
     Evaluate a SymPy expression numerically.
@@ -220,10 +221,11 @@ async def evaluate_expression(
 
 
 @router.post("/generate_code", response_model=CodeGenResult)
+@must_stay_async("callers use await")
 async def generate_code(
     request: CodeGenRequest,
-    generator: CodeGenerator = Depends(get_generator),
-    validator: ExpressionValidator = Depends(get_validator),
+    generator: CodeGenerator = Depends(get_generator),  # noqa: B008 — FastAPI dependency injection
+    validator: ExpressionValidator = Depends(get_validator),  # noqa: B008 — FastAPI dependency injection
 ) -> CodeGenResult:
     """
     Generate compilable code from a SymPy expression.
@@ -273,8 +275,8 @@ async def generate_code(
 @must_stay_async("FastAPI/ASGI route handler")
 async def optimize_expression(
     request: OptimizeRequest,
-    optimizer: Optimizer = Depends(get_optimizer),
-    validator: ExpressionValidator = Depends(get_validator),
+    optimizer: Optimizer = Depends(get_optimizer),  # noqa: B008 — FastAPI dependency injection
+    validator: ExpressionValidator = Depends(get_validator),  # noqa: B008 — FastAPI dependency injection
 ) -> OptimizeResponse:
     """
     Optimize a SymPy expression for faster evaluation.
@@ -331,7 +333,7 @@ async def optimize_expression(
 @must_stay_async("FastAPI/ASGI route handler")
 async def validate_expression(
     request: ValidateRequest,
-    validator: ExpressionValidator = Depends(get_validator),
+    validator: ExpressionValidator = Depends(get_validator),  # noqa: B008 — FastAPI dependency injection
 ) -> ValidationResult:
     """
     Validate an expression for safety and correctness.
@@ -353,7 +355,7 @@ async def validate_expression(
 @router.get("/metrics", response_model=MetricsSummary)
 async def get_metrics_summary(
     last_hours: int = 24,
-    metrics: MetricsCollector = Depends(get_metrics),
+    metrics: MetricsCollector = Depends(get_metrics),  # noqa: B008 — FastAPI dependency injection
 ) -> MetricsSummary:
     """
     Get performance metrics summary.
@@ -383,7 +385,7 @@ async def health_check() -> HealthStatus:
         # Would check actual Redis connection here
         redis_ok = True
     except Exception:
-        pass
+        logger.debug("symbolic_computation.redis_health_check_failed")
 
     # Check Postgres connectivity
     postgres_ok = False
@@ -391,7 +393,7 @@ async def health_check() -> HealthStatus:
         # Would check actual Postgres connection here
         postgres_ok = True
     except Exception:
-        pass
+        logger.debug("symbolic_computation.postgres_health_check_failed")
 
     # Determine overall status
     if redis_ok and postgres_ok:

@@ -4,15 +4,15 @@ Module specification parsing, validation, and normalization.
 """
 
 from .spec_normalizer_v2 import (
-    SpecNormalizer,
     NormalizedSpec,
-    SpecValidationError,
+    SpecNormalizer,
     SpecParseError,
+    SpecValidationError,
 )
 
 __all__ = [
-    "SpecNormalizer",
     "NormalizedSpec",
-    "SpecValidationError",
+    "SpecNormalizer",
     "SpecParseError",
+    "SpecValidationError",
 ]

@@ -13,6 +13,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.checkpoint.postgres_saver import L9PostgresSaver, L9RetryablePostgresSaver
 
 # ============================================================================
@@ -133,6 +134,7 @@ class TestExecuteWithRetry:
         assert mock_func.call_count == retryable_saver.max_retries
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_exponential_backoff_timing(self, mock_repository):
         """Test that retry delays follow exponential backoff."""
         saver = L9RetryablePostgresSaver(
@@ -150,7 +152,7 @@ class TestExecuteWithRetry:
 
         mock_func = AsyncMock(side_effect=Exception("Error"))
 
-        with patch("asyncio.sleep", mock_sleep), pytest.raises(Exception):
+        with patch("asyncio.sleep", mock_sleep), pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             await saver._execute_with_retry("test_op", mock_func)
 
         # Should have 2 delays (before retry 2 and 3)

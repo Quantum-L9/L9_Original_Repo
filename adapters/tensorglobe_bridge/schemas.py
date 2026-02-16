@@ -23,7 +23,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -68,12 +68,14 @@ class TensorRequest(BaseModel):
     signature: str = Field(..., description="Signed by L9 agent")
     signing_key_id: str = Field(...)
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     def compute_canonical(self) -> str:
         """Canonical form for signature verification"""
         # Handle both enum and string (use_enum_values=True returns string)
-        operation_value = self.operation.value if hasattr(self.operation, 'value') else self.operation
+        operation_value = (
+            self.operation.value if hasattr(self.operation, "value") else self.operation
+        )
         parts = [
             self.request_id,
             self.domain_id,
@@ -124,12 +126,16 @@ class TensorResponse(BaseModel):
     signature: str = Field(..., description="Signed by TensorGlobe")
     signing_key_id: str = Field(...)
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     def to_evidence_object(self, request: TensorRequest) -> EpistemicObject:
         """Convert response to L9 Evidence object"""
         # Handle both enum and string (use_enum_values=True returns string)
-        operation_value = request.operation.value if hasattr(request.operation, 'value') else request.operation
+        operation_value = (
+            request.operation.value
+            if hasattr(request.operation, "value")
+            else request.operation
+        )
         content = f"TensorGlobe {operation_value}: {len(self.results)} results"
 
         return EpistemicObject(

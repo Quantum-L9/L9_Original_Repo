@@ -63,6 +63,7 @@ if TYPE_CHECKING:
     from memory.substrate_dag import SubstrateDAG
     from memory.substrate_repository import SubstrateRepository
     from memory.substrate_semantic import SemanticService
+    from memory.substrate_service import MemorySubstrateService
 
 from core.decorators import must_stay_async
 from core.governance.rate_limit_policy import rate_limit
@@ -70,7 +71,6 @@ from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
 from memory.audit_utils import prepare_packet_for_ingest
 from memory.governance_gate import enforce_packet_governance, require_governance_context
 from memory.graph_client import get_neo4j_client
-from memory.substrate_service import MemorySubstrateService
 from memory.validators.packet_validator import PacketValidationError, PacketValidator
 
 logger = structlog.get_logger(__name__)
@@ -175,6 +175,7 @@ class IngestionPipeline:
         """Enable or disable DAG enrichment (v2.1.0)."""
         self._enable_enrichment = enable
 
+    @must_stay_async("callers use await")
     async def ingest(
         self,
         packet_in: PacketEnvelopeIn,
@@ -280,7 +281,7 @@ class IngestionPipeline:
                         scope = (
                             (envelope.metadata or {}).get("db_scope")
                             or (envelope.metadata or {}).get("scope")
-                            or "shared"
+                            or "cursor"  # Default to valid DB scope
                         )
                         await self._repository.insert_semantic_embedding(
                             vector=vector,
@@ -408,6 +409,7 @@ class IngestionPipeline:
             warnings=warnings_list,
         )
 
+    @must_stay_async("callers use await")
     async def _trigger_critical_checkpoint(self, envelope: PacketEnvelope) -> None:
         """
         Trigger checkpoint for critical packet ingestion.
@@ -576,6 +578,7 @@ class IngestionPipeline:
             timestamp=envelope.timestamp,
         )
 
+    @must_stay_async("callers use await")
     async def _prepare_embedding(
         self, envelope: PacketEnvelope
     ) -> tuple[list[float], dict[str, Any], str | None] | None:
@@ -818,6 +821,7 @@ def init_ingestion_pipeline(
 
 
 @rate_limit("memory.ingest")
+@must_stay_async("callers use await")
 async def ingest_packet(
     packet_in: PacketEnvelopeIn,
     service: MemorySubstrateService | None = None,
@@ -885,6 +889,7 @@ async def ingest_packet(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def on_task_completion(
     task_id: str,
     task_type: str = "general",

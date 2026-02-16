@@ -291,6 +291,7 @@ class ReflectionCell(BaseCell):
     # Reflection-Specific Methods
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def reflect_on_execution(
         self,
         execution_history: list[dict[str, Any]],
@@ -331,6 +332,7 @@ class ReflectionCell(BaseCell):
 
         return result.output or {}
 
+    @must_stay_async("callers use await")
     async def reflect_on_failure(
         self,
         failure_context: dict[str, Any],
@@ -383,6 +385,7 @@ class ReflectionCell(BaseCell):
             "process_changes": output.get("process_changes", []),
         }
 
+    @must_stay_async("callers use await")
     async def derive_lessons(
         self,
         session_history: list[dict[str, Any]],

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -125,7 +125,7 @@ class ReviewerCell:
 
 **Public Methods:** `__init__`, `_ensure_client`, `_run_producer`, `_run_critic`, `_apply_revisions`
 
-**Lines:** 141-401 in `reviewer_cell.py`
+**Lines:** 141-404 in `reviewer_cell.py`
 
 ### `architect_cell.py` — ArchitectCell
 
@@ -149,7 +149,7 @@ class ArchitectCell:
 
 **Public Methods:** `__init__`, `_ensure_client`, `_run_producer`, `_run_critic`, `_apply_revisions`
 
-**Lines:** 140-378 in `architect_cell.py`
+**Lines:** 140-379 in `architect_cell.py`
 
 ### `reflection_cell.py` — ReflectionCell
 
@@ -173,7 +173,7 @@ class ReflectionCell:
 
 **Public Methods:** `__init__`, `_ensure_client`, `_run_producer`, `_run_critic`, `_apply_revisions`
 
-**Lines:** 133-444 in `reflection_cell.py`
+**Lines:** 133-447 in `reflection_cell.py`
 
 ### `base_cell.py` — ConsensusStrategy
 
@@ -185,7 +185,7 @@ class ConsensusStrategy:
 
 ```
 
-**Lines:** 59-65 in `base_cell.py`
+**Lines:** 62-68 in `base_cell.py`
 
 ### `base_cell.py` — CellConfig
 
@@ -197,7 +197,7 @@ class CellConfig:
 
 ```
 
-**Lines:** 69-79 in `base_cell.py`
+**Lines:** 72-82 in `base_cell.py`
 
 
 ---
@@ -219,7 +219,7 @@ class CellConfig:
 | `ARCHITECT_B_PROMPT` | `'You are Architect B, the challenger and...` | 102 |
 | `ANALYST_PROMPT` | `'You are the Reflection Analyst. Examine...` | 50 |
 | `SYNTHESIZER_PROMPT` | `'You are the Reflection Synthesizer. Cre...` | 89 |
-| `T` | `TypeVar('T')` | 105 |
+| `T` | `TypeVar('T')` | 108 |
 | `CODER_A_PROMPT` | `'You are Coder A, the primary implemente...` | 50 |
 
 *...and 1 more constants*
@@ -229,7 +229,7 @@ class CellConfig:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CollaborativeCellsRequest(BaseModel):
     """Request model for collaborative_cells operations."""
@@ -385,7 +385,7 @@ Collaborative Cells operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "collaborative_cells",
   "message": "Operation completed",

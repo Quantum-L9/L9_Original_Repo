@@ -2,8 +2,8 @@
 # Singleton Registry
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -16,14 +16,12 @@
 
 | Singleton | Module | Category | Lifecycle | Description |
 |-----------|--------|----------|-----------|-------------|
-| `agent_mediator` | core/coordination/agent_mediator.py | coordination | LAZY | Agent-to-agent message mediator for decoupled comm |
 | `cursor_memory_kernel` | agents/cursor/cursor_memory_kernel.py | - | LAZY | Cursor IDE memory kernel |
 | `housekeeping_engine` | memory/housekeeping.py | - | LAZY | Memory housekeeping engine for cleanup and optimiz |
 | `ingestion_pipeline` | memory/ingestion.py | - | LAZY | Memory ingestion pipeline for packet processing an |
-| `insight_extraction_pipeline` | memory/insight_extraction.py | - | LAZY | Memory insight extraction pipeline for pattern det |
-| `memory_substrate_repository` | core/singleton_auto_registry.py | memory | STARTUP | Memory substrate repository |
+| `insight_extraction_pipeline` | memory/archive/insight_extraction.py | - | LAZY | Memory insight extraction pipeline for pattern det |
+| `memory_substrate_repository` | memory/substrate_repository.py | - | LAZY | PostgreSQL connection pool for memory substrate |
 | `memory_substrate_service` | memory/substrate_service.py | - | LAZY | Memory substrate service orchestrating repository, |
-| `neo4j_client` | memory/graph_client.py | - | LAZY | Neo4j graph database client for knowledge graph op |
 | `redis_client` | core/singleton_auto_registry.py | core | STARTUP | Redis cache/queue client |
 | `research_graph_runtime` | services/research/graph_runtime.py | - | LAZY | Research service graph runtime |
 | `research_memory_adapter` | services/research/memory_adapter.py | - | LAZY | Research service memory adapter |
@@ -34,7 +32,7 @@
 | `world_model_repository` | world_model/repository.py | - | LAZY | World model data repository |
 | `world_model_service` | world_model/service.py | - | LAZY | World model service layer |
 
-# Total: 17 registered singletons
+# Total: 15 registered singletons
 
 ## Registration Pattern
 

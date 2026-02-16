@@ -37,7 +37,12 @@ GMP: GMP-129 (Memory Pipeline Governance)
 
 from __future__ import annotations
 
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Check Memory Bypass",
     "module_version": "1.0.0",
@@ -236,21 +241,19 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    print("=" * 60)
-    print("  MEMORY PIPELINE BYPASS CHECK (GMP-129)")
-    print("=" * 60)
-    print()
-
+    logger.info("=" * 60)
+    logger.info("  memory pipeline bypass check (gmp-129)")
+    logger.info("=" * 60)
     violations = scan_directory(args.base_path, SCAN_DIRS)
 
     if violations:
-        print(f"❌ FAILED: Found {len(violations)} bypass violation(s):\n")
+        logger.error("❌ failed: found {len(violations)} bypass violation(s):\n")
         for v in violations:
-            print(f"  {v}\n")
+            logger.info("  v\n", v=v)
 
-        print("\n" + "=" * 60)
-        print("HOW TO FIX:")
-        print("=" * 60)
+        logger.info("\n" + "=" * 60)
+        logger.info("how to fix:")
+        logger.info("=" * 60)
         print("""
 1. Replace direct INSERT with MemorySubstrateService:
 
@@ -270,8 +273,8 @@ def main() -> int:
 3. For tests, use test fixtures that mock the substrate service.
 """)
         return 1
-    print("✅ PASSED: No memory pipeline bypass violations found")
-    print(f"   Scanned directories: {', '.join(SCAN_DIRS)}")
+    logger.info("✅ passed: no memory pipeline bypass violations found")
+    logger.info("   scanned directories: {', '.join(scan_dirs)}")
     return 0
 
 

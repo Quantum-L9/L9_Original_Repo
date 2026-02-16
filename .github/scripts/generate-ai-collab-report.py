@@ -41,7 +41,7 @@ def get_changed_files() -> set[str]:
     """Get files changed in current PR."""
     try:
         result = subprocess.run(
-            ["git", "diff", "--name-only", "origin/main...HEAD"],
+            ["git", "diff", "--name-only", "origin/main...HEAD"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             check=True,

@@ -14,6 +14,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
@@ -31,6 +33,7 @@ except ImportError as e:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_executor_runs_command():
     """
     Contract: Executor can execute automation commands.
@@ -59,6 +62,7 @@ async def test_executor_runs_command():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_executor_handles_timeout():
     """
     Contract: Executor handles timeout errors gracefully.

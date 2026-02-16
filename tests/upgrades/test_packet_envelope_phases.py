@@ -10,9 +10,11 @@ Tests cover:
 """
 
 import json
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
+
+from core.decorators import must_stay_async
 
 # ============================================================================
 # PHASE 2: OBSERVABILITY TESTS
@@ -72,7 +74,7 @@ class TestPhase2Observability:
         from core.packet_envelope.observability import StructuredLogEvent
 
         event = StructuredLogEvent(
-            timestamp=datetime(2026, 1, 5, 12, 0, 0),
+            timestamp=datetime(2026, 1, 5, 12, 0, 0, tzinfo=UTC),
             level="INFO",
             message="Test message",
             trace_id="abc123",
@@ -246,6 +248,7 @@ class TestPhase4Scalability:
     """Tests for Phase 4 scalability features"""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_batch_ingestion_success(self):
         """Test batch ingestion with valid packets"""
         from core.packet_envelope.scalability import (
@@ -294,6 +297,7 @@ class TestPhase4Scalability:
         assert result.failed_packets > 0 or len(result.errors) > 0
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_command_handler_ingest_packet(self):
         """Test command handler produces correct events"""
         from core.packet_envelope.scalability import (
@@ -383,11 +387,11 @@ class TestPhase5Governance:
         manager.set_retention_policy("pkt-001", RetentionPolicy.MINIMAL)
 
         # Created 31 days ago - should be expired
-        created_at = datetime.now(timezone.utc) - timedelta(days=31)
+        created_at = datetime.now(UTC) - timedelta(days=31)
         assert manager.is_expired("pkt-001", created_at) is True
 
         # Created 29 days ago - should NOT be expired
-        created_at = datetime.now(timezone.utc) - timedelta(days=29)
+        created_at = datetime.now(UTC) - timedelta(days=29)
         assert manager.is_expired("pkt-001", created_at) is False
 
     def test_retention_policy_permanent(self):
@@ -398,7 +402,7 @@ class TestPhase5Governance:
         manager.set_retention_policy("pkt-002", RetentionPolicy.PERMANENT)
 
         # Even 10 years ago should not expire
-        created_at = datetime.now(timezone.utc) - timedelta(days=3650)
+        created_at = datetime.now(UTC) - timedelta(days=3650)
         assert manager.is_expired("pkt-002", created_at) is False
 
     @pytest.mark.asyncio
@@ -451,6 +455,7 @@ class TestPhase5Governance:
             await engine.execute_erasure(request.request_id)
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_anonymization_strategies(self):
         """Test anonymization strategies"""
         from core.packet_envelope.governance import (

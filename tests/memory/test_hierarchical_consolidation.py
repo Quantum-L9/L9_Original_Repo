@@ -8,7 +8,7 @@ Tests cover:
 """
 
 import math
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
@@ -116,7 +116,7 @@ Requirements:
         """Items grouped into correct time windows."""
         summarizer = HierarchicalSummarizer()
 
-        base_time = datetime(2026, 1, 15, 10, 0, 0)
+        base_time = datetime(2026, 1, 15, 10, 0, 0, tzinfo=UTC)
         items = [
             {"created_at": base_time},
             {"created_at": base_time + timedelta(minutes=5)},

@@ -1,0 +1,355 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Orchestrator"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2025-12-16T16:32:42Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "orchestrator"
+# type: "controller"
+# status: "active"
+# ============================================================================
+
+# Main Agent / Orchestrator Schema v6.0
+# =====================================
+#
+# The central orchestration agent that coordinates all domain agents
+# and neural-symbolic reasoning in L9.
+#
+# Version: 6.0.0
+
+---
+title: L9 Main Orchestration Agent
+purpose: >
+  Central Domain-Tensor Orchestrator that coordinates all domain agents
+  and neural-symbolic reasoning within the L9 AI Operating System.
+summary: >
+  L9 Main Agent is the cognitive hub that receives domain transactions,
+  enriches them with world model context, coordinates tensor inference,
+  applies governance rules, and distributes enriched results to domain
+  agents and external systems.
+
+system:
+  system: L9 Main Orchestration Agent
+  module: orchestrator
+  name: MainOrchestrator
+  role: >
+    Central Domain-Tensor Orchestrator. Acts as the cognitive hub for L9,
+    receiving domain transactions, enriching them with world model context,
+    coordinating tensor inference, applying governance rules, and distributing
+    enriched results to domain agents and external systems. Manages packet
+    routing, context enrichment, multi-modal reasoning, governance feedback,
+    and learning loops across all registered domains.
+  rootpath: L9/agents/main
+
+integration:
+  connectto:
+    - L9/core
+    - L9/core/tensoraios
+    - L9/worldmodel
+    - L9/governance
+    - L9/memory
+    - L9/orchestration
+    - L9/agents/adapters/*
+  shareddomains:
+    - All L9 Domains
+
+governance:
+  anchors:
+    - Igor
+    - Domain Oversight Council
+    - Compliance Officer
+  mode: hybrid
+  humanoverride: true
+  complianceauditor: L9/governance/main_agent_audit.py
+  escalationpolicy: >
+    Auto-escalate if:
+    - Decision confidence < 0.7 AND domain criticality > 0.5
+    - Governance override requested by any anchor
+    - Anomaly flagged by tensor layer
+    - Cross-domain conflict detected
+    - Memory sync failure or data inconsistency
+    - Model drift or tensor serving latency spike
+    - Reasoning cycle detects potential ethical violation
+  performancereporting: L9/monitoring/mainagent_dashboard.py
+  auditscope:
+    - packet_reception_and_routing
+    - context_enrichment
+    - tensor_coordination
+    - reasoning_decisions
+    - governance_escalations
+    - result_distribution
+    - learning_feedback
+    - memory_synchronization
+
+memorytopology:
+  workingmemory:
+    storagetype: redis_cluster
+    purpose: >
+      Active reasoning state: current packets, intermediate reasoning steps,
+      tensor scores awaiting aggregation, governance decisions in flight.
+      TTL=5 minutes.
+    keyspace: mainagent:working:*
+    
+  episodicmemory:
+    storagetype: postgres + pgvector
+    purpose: >
+      Detailed decision logs: packet received, reasoning applied, tensor
+      scores obtained, output generated, feedback received. Searchable by
+      timestamp, domain, packet_id.
+    retention: 1 year
+    indexby:
+      - domain
+      - packet_id
+      - decision_timestamp
+      - confidence_score
+      - governance_escalation
+      
+  semanticmemory:
+    storagetype: neo4j_auradb
+    purpose: >
+      Graph of domain entities, embeddings, relationships predicted by
+      tensor layer, trust scores, patterns learned across domains.
+      Nodes: Buyers, Suppliers, Materials, Borrowers, Properties.
+      Edges: MATCHES, TRUSTS, LEARNED_FROM, CONFLICTS_WITH.
+    structure:
+      - node_type: domain_entity
+        fields:
+          - entity_id
+          - domain
+          - entity_type
+          - embedding_vector
+          - trust_score
+          - last_updated
+      - edge_type: tensor_prediction
+        fields:
+          - source_entity_id
+          - target_entity_id
+          - relationship_type
+          - prediction_score
+          - confidence
+          - model_version
+          - timestamp
+      - edge_type: cross_domain_pattern
+        fields:
+          - source_domain
+          - target_domain
+          - pattern_description
+          - confidence
+          - learned_from_count
+          
+  causalmemory:
+    storagetype: hypergraphdb
+    purpose: >
+      Why did Main Agent make this decision? Track causal reasoning:
+      what world model factors influenced the decision? What tensor
+      signals were strongest? What governance constraints applied?
+      Enable explainability and learning.
+    schema:
+      - factor: domain_transaction_signal
+        influences:
+          - tensor_score
+          - risk_assessment
+          - match_confidence
+      - factor: world_model_context
+        influences:
+          - market_condition
+          - temporal_pattern
+          - causal_factor
+      - factor: governance_constraint
+        influences:
+          - escalation_decision
+          - human_override_applied
+      - factor: memory_consistency
+        influences:
+          - decision_validity
+          - cross_domain_sync_status
+          
+  longtermpersistence:
+    storagetype: s3_durable_archive + glacier
+    purpose: >
+      Archive all decision logs, reasoning traces, model versions,
+      governance escalations. Immutable audit trail for compliance.
+    retention: indefinite
+    
+  crossagentsharing:
+    enabled: true
+    layer: cognition_bus
+
+communicationstack:
+  input:
+    - structuredapi
+    - messagesqueue
+    - eventstream
+    - webhook
+  output:
+    - structuredapi
+    - eventstream
+    - governancereport
+    - callback
+  channels:
+    slack: true
+    email: true
+    api: true
+    webhook: true
+
+reasoningengine:
+  framework: multimodal_reflective
+  model: gpt-4o
+  secondarymodels:
+    - gpt-4-turbo
+    - claude-3-opus
+  strategymodes:
+    - causal_inference
+    - analogical_reasoning
+    - reflective_critique
+    - multi_hop_reasoning
+    - domain_transfer
+  temporalscope: rolling_180_days
+  knowledgefusionlayer:
+    mode: hierarchical_blend
+    sourceblend:
+      - domain_transactions
+      - tensor_predictions
+      - world_model_context
+      - historical_decisions
+      - governance_constraints
+  reasoningfeedbackloop:
+    policy: reinforcement_reflection
+    rewardfunction: >
+      Successful domain outcomes + accurate predictions +
+      fast response time + governance compliance +
+      cross-domain pattern discovery
+    penaltyfunction: >
+      Failed predictions + governance violations +
+      escalation without resolution + domain complaints +
+      reasoning cycle timeout
+    retrainintervalhours: 168
+
+collaborationnetwork:
+  collaborators:
+    - name: TensorAIOS
+      role: Neural scoring and embeddings
+      interaction: api_call
+    - name: WorldModel
+      role: Causal context
+      interaction: api_call
+    - name: GovernanceEngine
+      role: Policy enforcement
+      interaction: event_observe
+    - name: DomainAdapters
+      role: Domain data bridges
+      interaction: bidirectional
+  protocol: PacketEnvelope
+
+learningsystem:
+  architecture: continuous_metalearning
+  modules:
+    - cross_domain_pattern_extractor
+    - decision_confidence_calibrator
+    - escalation_threshold_tuner
+    - routing_optimizer
+    - tensor_model_selector
+  feedbackchannels:
+    - domain_outcomes
+    - governance_resolutions
+    - tensor_prediction_accuracy
+    - user_feedback
+    - system_metrics
+  autonomyprofile:
+    mode: controlled_autonomy
+    tasklimit: 500_parallel
+    decisionlatencymaxms: 1000
+    escalationtriggers:
+      - confidence_threshold_breach
+      - governance_policy_conflict
+      - cross_domain_conflict
+      - resource_exhaustion
+      - model_drift_detected
+
+worldmodelintegration:
+  enabled: true
+  sources:
+    - entity_graph
+    - market_conditions
+    - temporal_patterns
+    - causal_factors
+    - governance_state
+  updatefrequency: realtime
+  contextwindow: 180_days
+
+cursorinstructions:
+  createifmissing:
+    - L9/agents/main
+    - L9/agents/main/routers
+    - L9/agents/main/coordinators
+    - L9/tests/agents/main
+    - L9/manifests/main
+  generatefiles:
+    - controller.py
+    - __init__.py
+    - packet_router.py
+    - tensor_coordinator.py
+    - context_enricher.py
+    - governance_integrator.py
+    - learning_orchestrator.py
+  linkexisting:
+    - L9/core/governance.py
+    - L9/core/packetprotocol.py
+    - L9/core/tensoraios/tensor_scorer.py
+    - L9/worldmodel/context_provider.py
+  generatedocs:
+    - README.md
+    - CONFIG.md
+    - API_SPEC.md
+    - ARCHITECTURE.md
+    - DEPLOYMENT.md
+  postgeneration:
+    manifest: L9/manifests/main/manifest.json
+    validatedependencies: true
+    generatetests: true
+
+deployment:
+  runtime: python_3.11_async
+  endpoints:
+    - /agent/main/process
+    - /agent/main/route
+    - /agent/main/status
+    - /agent/main/health
+    - /agent/main/metrics
+  healthcheck: /agent/main/health
+  telemetry:
+    metrics: true
+    tracing: true
+    logging: true
+    dashboardpath: L9/monitoring/mainagent_dashboard.py
+  replicas: 5
+  resources:
+    cpu: 8
+    memory: 16Gi
+    disk: 100Gi
+
+metadata:
+  version: "6.0.0"
+  created: "2025-01-15"
+  updated: "2025-01-15"
+  status: production
+  owner: L9 System Architect
+  tags:
+    - main-agent
+    - orchestration
+    - domain-bridge
+    - cognitive-hub
+    - multi-domain
+    - production
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "code-generation", "configuration", "controller", "foundation", "model-config", "redis-config"]
+# keywords: ["collaborationnetwork", "communicationstack", "governance", "integration", "memorytopology", "orchestrator"]
+# last_modified: "2025-12-16T16:32:42Z"
+# ============================================================================

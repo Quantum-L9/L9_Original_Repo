@@ -1,0 +1,51 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Memory Memory Lattice Enhancer"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "memory_memory_lattice_enhancer"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ==========================================
+# Memory Lattice Enhancer (Semantic DAG Upgrader)
+# ==========================================
+
+filename: memory/memory_lattice_enhancer.py
+type: memory_patch
+language: python
+
+description: |
+  Upgrades memory DAGs using semantic similarity between nodes and their tensor tags.
+  Enhances traceability, retrieval fidelity, and compression of agent session memory.
+
+wiring:
+  reads:
+    - memory/dag.json
+    - tensor_map.json
+  emits:
+    - enriched_memory_graph.json
+
+code: |
+  import json
+
+  def enhance_memory_graph():
+      dag = json.load(open("memory/dag.json"))
+      tensor_map = json.load(open("memory/tensor_map.json"))
+      for node in dag["nodes"]:
+          node["tags"] += tensor_map.get(node["id"], [])
+      json.dump(dag, open("memory/enriched_graph.json", "w"), indent=2)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "intelligence", "utility"]
+# keywords: ["code", "description", "enhancer", "filename", "language", "lattice"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

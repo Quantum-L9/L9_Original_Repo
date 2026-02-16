@@ -9,6 +9,8 @@ Helpers to wrap arbitrary LangGraph node functions so they:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Packet Node Adapter",
@@ -67,6 +69,7 @@ class PacketNodeAdapter:
         self._agent_id = agent_id
         self._event_type = event_type
 
+    @must_stay_async("callers use await")
     async def __call__(
         self, state: GraphState, node: NodeFn, node_name: str
     ) -> GraphState:

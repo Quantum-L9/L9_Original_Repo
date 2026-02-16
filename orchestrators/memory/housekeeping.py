@@ -27,11 +27,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from memory.consolidation import ConsolidationPipeline
 
 logger = structlog.get_logger(__name__)
@@ -83,6 +84,7 @@ class Housekeeping:
             return await self.compact()
         return await self.health_check()
 
+    @must_stay_async("callers use await")
     async def garbage_collect(
         self,
         threshold_days: int = 30,
@@ -134,7 +136,7 @@ class Housekeeping:
                 }
 
         try:
-            cutoff_date = datetime.now(timezone.utc) - timedelta(days=threshold_days)
+            cutoff_date = datetime.now(UTC) - timedelta(days=threshold_days)
 
             # Delete old packets via repository (age-based)
             if hasattr(repository, "delete_packets_before"):
@@ -387,9 +389,10 @@ class Housekeeping:
             "success": all_ok,
             "status": "healthy" if all_ok else "degraded",
             "procedures": results,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
+    @must_stay_async("callers use await")
     async def run_consolidation(
         self,
         dry_run: bool = False,
@@ -445,7 +448,7 @@ class Housekeeping:
                 "success": len(report.errors) == 0,
                 "status": "complete",
                 "report": report_dict,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
         except Exception as e:
@@ -454,7 +457,7 @@ class Housekeeping:
                 "success": False,
                 "status": "error",
                 "message": str(e),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
 

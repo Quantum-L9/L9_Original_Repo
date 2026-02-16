@@ -1,9 +1,9 @@
 # ADR-0000: L9 Core Philosophy — Automation-First, 100% Done
 
-**Status:** Accepted  
-**Date:** 2026-02-02  
-**Author:** Igor Beylin  
-**Priority:** ULTRA-CRITICAL  
+**Status:** Accepted
+**Date:** 2026-02-02
+**Author:** Igor Beylin
+**Priority:** ULTRA-CRITICAL
 
 ## Summary
 
@@ -60,18 +60,21 @@ Automation is not a feature — it is the foundation upon which L9 is built. Eve
 ### Automation Tiers
 
 **Tier 1: Must Be Automated (Day 0)**
+
 - GMP report generation
 - Code validation (py_compile, import test, lint)
 - Session startup (load governance, workflow state)
 - Pre-commit hooks (security, format, type-check)
 
 **Tier 2: Should Be Automated (Sprint N)**
+
 - Code review suggestions
 - Documentation generation
 - Test scaffolding
 - Dependency updates
 
 **Tier 3: Can Be Automated (Future)**
+
 - Architecture decision suggestions
 - Refactoring recommendations
 - Performance optimization detection
@@ -81,18 +84,18 @@ Automation is not a feature — it is the foundation upon which L9 is built. Eve
 
 > **"If a tool generates stubs that need manual completion, the tool is 50% done. Finish the automation."**
 
-| Status | Description | Reality |
-|--------|-------------|---------|
-| Stub generator | Creates TODO placeholders | 50% tool, 50% manual work |
-| **Full generator** | Creates runnable code | 100% automation |
+| Status             | Description               | Reality                   |
+| ------------------ | ------------------------- | ------------------------- |
+| Stub generator     | Creates TODO placeholders | 50% tool, 50% manual work |
+| **Full generator** | Creates runnable code     | 100% automation           |
 
 **Cost Comparison (Test Generation Example):**
 
-| Approach | Per File | 200 Files | Quality |
-|----------|----------|-----------|---------|
-| Manual Cursor | $5-50 | $1,000-10,000 | Variable |
-| LLM API | $0.01-0.10 | $2-20 | Consistent |
-| **Savings** | **99%** | **$998-9,980** | Better |
+| Approach      | Per File   | 200 Files      | Quality    |
+| ------------- | ---------- | -------------- | ---------- |
+| Manual Cursor | $5-50      | $1,000-10,000  | Variable   |
+| LLM API       | $0.01-0.10 | $2-20          | Consistent |
+| **Savings**   | **99%**    | **$998-9,980** | Better     |
 
 > **"Don't pay dollars for what costs pennies. If there's an LLM-automatable step, automate it."**
 
@@ -108,14 +111,14 @@ Work completed to 95% is broken code waiting to fail in production.
 
 ### The Completion Ladder
 
-| Level | % | Status | Reality |
-|-------|---|--------|---------|
-| Edit made | 50% | NOT DONE | May not even compile |
-| Syntax valid | 60% | NOT DONE | Probably doesn't work |
-| Lints pass | 70% | NOT DONE | Logic may be wrong |
-| Tests pass | 85% | NOT DONE | Dependencies may break |
-| Integration verified | 95% | NOT DONE | Edge cases may fail |
-| **Actually works end-to-end** | 100% | **DONE** | Ship it |
+| Level                         | %    | Status   | Reality                |
+| ----------------------------- | ---- | -------- | ---------------------- |
+| Edit made                     | 50%  | NOT DONE | May not even compile   |
+| Syntax valid                  | 60%  | NOT DONE | Probably doesn't work  |
+| Lints pass                    | 70%  | NOT DONE | Logic may be wrong     |
+| Tests pass                    | 85%  | NOT DONE | Dependencies may break |
+| Integration verified          | 95%  | NOT DONE | Edge cases may fail    |
+| **Actually works end-to-end** | 100% | **DONE** | Ship it                |
 
 ### Completion Verification Protocol (CVP)
 
@@ -125,34 +128,38 @@ Work completed to 95% is broken code waiting to fail in production.
 ## ✅ COMPLETION VERIFICATION
 
 ### 1. Change Scope Trace
+
 - [ ] Listed ALL files that reference the changed entity
 - [ ] Verified each reference still works with the change
 - [ ] Checked healthchecks, tests, configs, docs
 
 ### 2. Downstream Impact
+
 - [ ] Traced what depends on this change
 - [ ] Updated all dependents
 - [ ] No orphaned references
 
 ### 3. Verification Evidence
+
 - [ ] Command run: `<actual command>`
 - [ ] Output: `<actual output>`
 - [ ] Exit code: 0
 
 ### 4. Integration Test
+
 - [ ] Tested with actual dependencies (not mocks)
 - [ ] Verified end-to-end flow works
 ```
 
 ### Anti-Patterns (VIOLATIONS)
 
-| Anti-Pattern | Why It's Broken |
-|--------------|-----------------|
-| "Added the line you asked for" | Didn't check what else depends on it |
-| "Change made, should work" | No verification |
+| Anti-Pattern                         | Why It's Broken                        |
+| ------------------------------------ | -------------------------------------- |
+| "Added the line you asked for"       | Didn't check what else depends on it   |
+| "Change made, should work"           | No verification                        |
 | "Updated X, you'll need to update Y" | Incomplete — should have updated Y too |
-| "Here's the fix" (no test) | How do you know it's fixed? |
-| 95% confident | 5% chance of production outage |
+| "Here's the fix" (no test)           | How do you know it's fixed?            |
+| 95% confident                        | 5% chance of production outage         |
 
 ### The Redis Healthcheck Lesson
 
@@ -205,6 +212,7 @@ healthcheck:
 ## AI Guidance
 
 **DO:**
+
 - Suggest automation opportunities in every code review
 - Create scripts for repetitive tasks before doing them manually
 - Add `--dry-run` and `--verify` flags to all automation scripts
@@ -214,6 +222,7 @@ healthcheck:
 - Provide evidence (test output, exit codes) before claiming done
 
 **DO NOT:**
+
 - Manually draft reports, indexes, or catalogs that can be generated
 - Accept manual processes without questioning if they can be automated
 - Create automation without verification/validation steps
@@ -238,14 +247,14 @@ healthcheck:
 
 ## Metrics for Health
 
-| Metric                            | Target | How to Measure                   |
-| --------------------------------- | ------ | -------------------------------- |
-| Manual report drafts              | 0      | Count reports not in `reports/`  |
-| Automation coverage               | >80%   | Scripts / Total processes        |
-| Automation suggestions per review | ≥1     | Track in code review logs        |
-| Script verification rate          | 100%   | Scripts with `--verify` or tests |
-| Automation failure rate           | <5%    | Failed runs / Total runs         |
-| Incomplete changes caught         | 100%   | CVP checklist enforcement        |
+| Metric                            | Target | How to Measure                           |
+| --------------------------------- | ------ | ---------------------------------------- |
+| Manual report drafts              | 0      | Count reports not in `reports/`          |
+| Automation coverage               | >80%   | Scripts / Total processes                |
+| Automation suggestions per review | ≥1     | Track in code review logs                |
+| Script verification rate          | 100%   | Scripts with `--verify` or tests         |
+| Automation failure rate           | <5%    | Failed runs / Total runs                 |
+| Incomplete changes caught         | 100%   | CVP checklist enforcement                |
 | 95% done incidents                | 0      | Production failures from incomplete work |
 
 ---

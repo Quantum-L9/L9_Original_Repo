@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -122,7 +122,7 @@ class EOSHypergraphClient:
 
 **Public Methods:** `__init__`, `available`, `check_violations`, `get_agent_capabilities`, `get_active_prohibitions`
 
-**Lines:** 46-345 in `hypergraph_client.py`
+**Lines:** 49-351 in `hypergraph_client.py`
 
 ### `ledger_writer.py` — EOSLedgerWriter
 
@@ -146,7 +146,7 @@ class EOSLedgerWriter:
 
 **Public Methods:** `__init__`, `available`, `_compute_hash`, `write`, `write_verdict_entry`
 
-**Lines:** 53-414 in `ledger_writer.py`
+**Lines:** 55-422 in `ledger_writer.py`
 
 ### `accountability_engine.py` — AccountabilityEngine
 
@@ -170,31 +170,31 @@ class AccountabilityEngine:
 
 **Public Methods:** `__init__`, `evaluate_action`, `_verify_signature`, `_check_authority`, `_check_constraints`
 
-**Lines:** 32-330 in `accountability_engine.py`
+**Lines:** 56-362 in `accountability_engine.py`
 
 ### `schemas.py` — EpistemicObjectType
 
 ```python
 class EpistemicObjectType:
-    """Types of epistemic objects"""
+    """Types of epistemic objects."""
 
     # Key methods:
 
 ```
 
-**Lines:** 18-27 in `schemas.py`
+**Lines:** 46-59 in `schemas.py`
 
 ### `schemas.py` — Enforceability
 
 ```python
 class Enforceability:
-    """Enforceability levels"""
+    """Enforceability levels."""
 
     # Key methods:
 
 ```
 
-**Lines:** 30-35 in `schemas.py`
+**Lines:** 62-71 in `schemas.py`
 
 
 ---
@@ -213,7 +213,7 @@ class Enforceability:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreEosRequest(BaseModel):
     """Request model for core_eos operations."""
@@ -305,7 +305,7 @@ CORE_EOS_ENABLED=true
 
 Factory function to create EOSHypergraphClient with Neo4j.
 
-- **File:** `hypergraph_client.py:353`
+- **File:** `hypergraph_client.py:359`
 - **Async:** Yes
 - **Returns:** `EOSHypergraphClient`
 
@@ -313,7 +313,7 @@ Factory function to create EOSHypergraphClient with Neo4j.
 
 Factory function to create EOSLedgerWriter with SubstrateService.
 
-- **File:** `ledger_writer.py:422`
+- **File:** `ledger_writer.py:430`
 - **Async:** Yes
 - **Returns:** `EOSLedgerWriter`
 
@@ -347,7 +347,7 @@ Core Eos operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.eos",
   "message": "Operation completed",

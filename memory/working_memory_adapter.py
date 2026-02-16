@@ -13,13 +13,37 @@ Scope: helper utilities only; no side effects beyond substrate queries.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Any, Iterable
+__dora_meta__ = {
+    "component_name": "Working Memory Adapter",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.979871+00:00",
+    "updated_at": "2026-02-13T23:37:34.979871+00:00",
+    "layer": "core",
+    "domain": "memory",
+    "module_name": "memory.working_memory_adapter",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
+import os
+from collections.abc import Iterable
+from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.schemas import SemanticSearchRequest
-from memory.substrate_service import MemorySubstrateService
+
+if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 
@@ -49,6 +73,7 @@ class WorkingMemoryAdapter:
     # High-level API
     # ---------------------------------------------------------------------
 
+    @must_stay_async("callers use await")
     async def build_world_model_context(
         self,
         *,
@@ -71,7 +96,7 @@ class WorkingMemoryAdapter:
         `WorkingMemorySnapshot.recent_decisions`, `open_hypotheses`, etc.
         """
 
-        since = datetime.now(timezone.utc) - timedelta(minutes=lookback_minutes)
+        since = datetime.now(UTC) - timedelta(minutes=lookback_minutes)
 
         packets_result = await self._substrate.query_packets(
             packet_types=["insight", "reflection", "execution_plan"],
@@ -116,11 +141,12 @@ class WorkingMemoryAdapter:
             "summaries": summaries,
             "hypotheses": hypotheses,
             "since": since.isoformat(),
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
         }
 
         return world_model_context
 
+    @must_stay_async("callers use await")
     async def semantic_recall_for_intent(
         self,
         *,
@@ -133,8 +159,19 @@ class WorkingMemoryAdapter:
 
         This lets AGENT_WORKING_MEMORY pull back semantically relevant
         memories tied to the current intent, without embedding directly.
-        """
 
+        When ENABLE_PIPELINE_ROUTER=true, delegates to PipelineRouter.query()
+        for multi-tier retrieval with optional query rewriting (Phase 2 wiring E1).
+        """
+        # --- Phase 2 wiring E1: PipelineRouter delegation (feature-flagged) ---
+        if os.environ.get("ENABLE_PIPELINE_ROUTER", "false").lower() == "true":
+            return await self._semantic_recall_via_pipeline(
+                agent_id=agent_id,
+                query=query,
+                top_k=top_k,
+            )
+
+        # --- Original path (unchanged) ---
         request = SemanticSearchRequest(
             query=query,
             top_k=top_k,
@@ -160,3 +197,58 @@ class WorkingMemoryAdapter:
             recalled.append(payload)
 
         return recalled
+
+    async def _semantic_recall_via_pipeline(
+        self,
+        *,
+        agent_id: str,
+        query: str,
+        top_k: int = 8,
+    ) -> list[dict[str, Any]]:
+        """Delegate semantic recall to PipelineRouter (Phase 2 wiring E1).
+
+        Imports are deferred to avoid circular imports (ADR-0002).
+        """
+        from memory.pipeline_router import CallerContext, PipelineRouter
+
+        logger.info(
+            "working_memory_adapter.semantic_recall_via_pipeline",
+            agent_id=agent_id,
+            query=query[:80],
+        )
+
+        try:
+            router = PipelineRouter(
+                ingestion=self._substrate,
+                retrieval=self._substrate,
+            )
+            caller = CallerContext(agent_id=agent_id)
+            result = await router.query(query, caller=caller)
+
+            # Normalize RouterResult sections into flat dicts
+            recalled: list[dict[str, Any]] = []
+            for section in getattr(result, "sections", []):
+                for chunk in getattr(section, "chunks", []):
+                    recalled.append(
+                        {
+                            "content": getattr(chunk, "content", ""),
+                            "score": getattr(chunk, "score", 0.0),
+                            "source": "pipeline_router",
+                        }
+                    )
+
+            logger.debug(
+                "working_memory_adapter.pipeline_recall_complete",
+                agent_id=agent_id,
+                hit_count=len(recalled),
+            )
+            return recalled[:top_k]
+
+        except Exception:
+            logger.error(
+                "working_memory_adapter.pipeline_recall_failed",
+                agent_id=agent_id,
+                exc_info=True,
+            )
+            # Fail loud per ADR-0055 — don't silently fall back
+            raise

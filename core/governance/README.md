@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -85,13 +85,13 @@ core/governance/
 ├── engine.py
 ├── loader.py
 ├── mistake_prevention.py
+├── policy_engine.py
 ├── policy_generator.py
+├── policy_models.py
 ├── policy_registry.py
 ├── protected_files_policy.py
 ├── quick_fixes.py
-├── rate_limit_policy.py
-├── schemas.py
-└── ... (5 more files)
+└── ... (7 more files)
 ```
 
 | File | Purpose |
@@ -162,41 +162,41 @@ class QuickFixEngine:
 
 **Lines:** 88-335 in `quick_fixes.py`
 
-### `approvals.py` — ApprovalManager
+### `policy_engine.py` — PolicyConflictResolver
 
 ```python
-class ApprovalManager:
-    """Manages approval of high-risk tasks."""
+class PolicyConflictResolver:
+    """Resolves conflicts between multiple policy evaluation results."""
+
+    # Key methods:
+
+    def resolve(self, ...) -> GovernanceDecision: ...
+
+    def explain_decision(self, ...) -> str: ...
+
+```
+
+**Public Methods:** `resolve`, `explain_decision`
+
+**Lines:** 55-189 in `policy_engine.py`
+
+### `policy_engine.py` — PolicyAuditLogger
+
+```python
+class PolicyAuditLogger:
+    """Logs policy decisions and conflicts for audit trail."""
 
     # Key methods:
 
     def __init__(self, ...): ...
 
-    def requires_approval(self, ...) -> bool: ...
-
-    def get_high_risk_tools(self, ...) -> list[str]: ...
-
-    async def request_approval(self, ...) -> str: ...
-
-    async def _notify_slack(self, ...) -> None: ...
+    async def log_decision(self, ...) -> None: ...
 
 ```
 
-**Public Methods:** `__init__`, `requires_approval`, `get_high_risk_tools`, `request_approval`, `_notify_slack`
+**Public Methods:** `__init__`, `log_decision`
 
-**Lines:** 75-525 in `approvals.py`
-
-### `approval_gate.py` — EscalationResult
-
-```python
-class EscalationResult:
-    """Result of escalation to Igor."""
-
-    # Key methods:
-
-```
-
-**Lines:** 52-59 in `approval_gate.py`
+**Lines:** 192-247 in `policy_engine.py`
 
 
 ---
@@ -212,7 +212,7 @@ The following data models define the contracts for this subsystem:
 
 `ADRLoadResult`, `ApprovalDecision`, `ApprovalManager`, `ApprovalRequest`, `ApprovalStatus`, `CMTSService`, `Condition`, `ConditionOperator`, `CredentialRecord`, `CredentialRotationPolicy`
 
-*...and 58 more*
+*...and 64 more*
 
 ### Module Constants
 
@@ -221,10 +221,10 @@ The following data models define the contracts for this subsystem:
 | `PROTECTED_BY_LCTO` | `get_lcto_controlled_files()` | 202 |
 | `SUBSYSTEM_PROTECTED` | `get_subsystem_protected_files()` | 203 |
 | `ALL_PROTECTED` | `get_all_protected_files()` | 204 |
-| `HIGH_RISK_TOOLS` | `get_high_risk_tools_with_descriptions()` | 72 |
-| `FILE_PATTERNS` | `{'auth': ['api/auth\\.py', 'core/.*auth....` | 46 |
-| `KEYWORD_PATTERNS` | `{'auth': ['\\bauth\\w*\\b', '\\blogin\\b...` | 78 |
-| `SUBSYSTEM_PRIORITY` | `['auth', 'tools', 'memory_retrieval', 'c...` | 115 |
+| `HIGH_RISK_TOOLS` | `get_high_risk_tools_with_descriptions()` | 74 |
+| `FILE_PATTERNS` | `{'auth': ['api/auth\\.py', 'core/.*auth....` | 67 |
+| `KEYWORD_PATTERNS` | `{'auth': ['\\bauth\\w*\\b', '\\blogin\\b...` | 99 |
+| `SUBSYSTEM_PRIORITY` | `['auth', 'tools', 'memory_retrieval', 'c...` | 136 |
 | `HIGH_RISK_TOOLS` | `get_high_risk_tools()` | 262 |
 
 *...and 3 more constants*
@@ -234,7 +234,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreGovernanceRequest(BaseModel):
     """Request model for core_governance operations."""
@@ -393,7 +393,7 @@ Core Governance operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.governance",
   "message": "Operation completed",

@@ -581,8 +581,7 @@ class CursorProbabilisticEngine:
             with open(self.telemetry_path, "a") as f:
                 f.write(json.dumps(decision_record) + "\n")
         except Exception as e:
-            # Silent fail - don't break governance for logging issues
-            pass
+            logger.debug("probabilistic_engine.telemetry_write_failed", error=str(e))
 
         # Keep in memory for this session
         self.decision_history.append(decision_record)
@@ -643,7 +642,7 @@ class CursorProbabilisticEngine:
         ece = 0.0
         total_decisions = len(decisions)
 
-        for bin_idx, bin_decisions in enumerate(bins):
+        for _bin_idx, bin_decisions in enumerate(bins):
             if not bin_decisions:
                 continue
 

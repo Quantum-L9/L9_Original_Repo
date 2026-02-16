@@ -42,7 +42,7 @@ __dora_meta__ = {
 
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -111,7 +111,7 @@ class VPSRepoGraphLoader:
 
         url = f"{VPS_URL}{endpoint}"
 
-        async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
+        async with httpx.AsyncClient(verify=False, timeout=60.0) as client:  # noqa: S501 — internal VPS service, cert validation not required
             try:
                 if method.upper() == "GET":
                     response = await client.get(url, headers=headers, **kwargs)
@@ -198,6 +198,7 @@ class VPSRepoGraphLoader:
 
         logger.info("Indexes created/verified")
 
+    @must_stay_async("callers use await")
     async def load_file_metrics(self):
         """Load file metrics as File nodes."""
         logger.info("Loading file metrics...")
@@ -254,6 +255,7 @@ class VPSRepoGraphLoader:
 
         logger.info(f"Files loaded: {self.stats['files']:,}")
 
+    @must_stay_async("callers use await")
     async def load_class_definitions(self):
         """Load class definitions."""
         logger.info("Loading class definitions...")
@@ -330,6 +332,7 @@ class VPSRepoGraphLoader:
 
         logger.info(f"Classes loaded: {self.stats['classes']:,}")
 
+    @must_stay_async("callers use await")
     async def load_inheritance_graph(self):
         """Load inheritance relationships."""
         logger.info("Loading inheritance graph...")
@@ -375,6 +378,7 @@ class VPSRepoGraphLoader:
 
         logger.info(f"EXTENDS relationships: {self.stats['extends']:,}")
 
+    @must_stay_async("callers use await")
     async def load_route_handlers(self):
         """Load route handlers."""
         logger.info("Loading route handlers...")
@@ -436,7 +440,7 @@ class VPSRepoGraphLoader:
 
         logger.info("Writing repo structure summary to VPS memory...")
 
-        summary = f"""L9 REPOSITORY STRUCTURE SUMMARY (Updated: {datetime.now().isoformat()})
+        summary = f"""L9 REPOSITORY STRUCTURE SUMMARY (Updated: {datetime.now(tz=UTC).isoformat()})
 
 STATISTICS:
 - Files: {self.stats["files"]:,}
@@ -473,8 +477,8 @@ USAGE: At session start, this summary provides instant repo context.
             import subprocess
 
             try:
-                result = subprocess.run(
-                    [
+                result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                    [  # noqa: S607 — trusted system command
                         "python3",
                         str(memory_client_path),
                         "write",
@@ -519,8 +523,8 @@ USAGE: At session start, this summary provides instant repo context.
             # Run audit script as subprocess
             import subprocess
 
-            result = subprocess.run(
-                [
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                [  # noqa: S607 — trusted system command
                     "python3",
                     str(audit_script_path),
                 ],
@@ -596,23 +600,24 @@ USAGE: At session start, this summary provides instant repo context.
 
     def print_summary(self):
         """Print loading summary."""
-        print("\n" + "=" * 60)
-        print("L9 REPO GRAPH - VPS NEO4J LOAD SUMMARY")
-        print("=" * 60)
-        print(f"  Files:           {self.stats['files']:,}")
-        print(f"  Classes:         {self.stats['classes']:,}")
-        print(f"  Functions:       {self.stats['functions']:,}")
-        print(f"  Methods:         {self.stats['methods']:,}")
-        print(f"  Routes:          {self.stats['routes']:,}")
-        print(f"  Pydantic Models: {self.stats['pydantic_models']:,}")
-        print("-" * 60)
-        print(f"  EXTENDS rels:    {self.stats['extends']:,}")
-        print(f"  HAS_METHOD rels: {self.stats['has_method']:,}")
-        print(f"  HANDLED_BY rels: {self.stats['handled_by']:,}")
-        print(f"  Queries:         {self.stats['queries_executed']:,}")
-        print("=" * 60)
+        logger.info("\n" + "=" * 60)
+        logger.info("l9 repo graph - vps neo4j load summary")
+        logger.info("=" * 60)
+        logger.info(f"  files:           {self.stats['files']:,}")
+        logger.info(f"  classes:         {self.stats['classes']:,}")
+        logger.info(f"  functions:       {self.stats['functions']:,}")
+        logger.info(f"  methods:         {self.stats['methods']:,}")
+        logger.info(f"  routes:          {self.stats['routes']:,}")
+        logger.info(f"  pydantic models: {self.stats['pydantic_models']:,}")
+        logger.info("-" * 60)
+        logger.info(f"  extends rels:    {self.stats['extends']:,}")
+        logger.info(f"  has_method rels: {self.stats['has_method']:,}")
+        logger.info(f"  handled_by rels: {self.stats['handled_by']:,}")
+        logger.info(f"  queries:         {self.stats['queries_executed']:,}")
+        logger.info("=" * 60)
 
 
+@must_stay_async("callers use await")
 async def main():
     """
     Loads repository index files into VPS Neo4j via HTTP API for graph data management.

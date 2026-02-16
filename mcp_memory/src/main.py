@@ -38,6 +38,11 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from config.rls_config import get_rls_config
+from core.config_constants import (
+    get_allowed_scopes_for_caller,
+    get_default_project_id,
+    get_default_scope_for_caller,
+)
 from core.decorators import must_stay_async
 from memory.governance_gate import build_governance_context, governance_context
 from src.config import settings
@@ -353,6 +358,7 @@ class CallerIdentity:
         return "l9-kernel" if self.is_l else "cursor"
 
 
+@must_stay_async("callers use await")
 async def verify_api_key(
     request: Request, authorization: str = Header(None)
 ) -> CallerIdentity:
@@ -458,7 +464,8 @@ async def health_check():
 @app.get("/mcp/tools")
 @must_stay_async("FastAPI/ASGI route handler")
 async def list_tools(
-    request: Request, caller: CallerIdentity = Depends(verify_api_key)
+    request: Request,
+    caller: CallerIdentity = Depends(verify_api_key),  # noqa: B008 — FastAPI dependency injection
 ):
     """List available MCP tools for the authenticated caller.
 
@@ -473,7 +480,7 @@ async def list_tools(
 
 
 @app.post("/mcp/call")
-async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_api_key)):
+async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_api_key)):  # noqa: B008 — FastAPI dependency injection
     """Execute MCP tool with caller-enforced governance.
 
     Caller identity (L or C) determines:
@@ -485,7 +492,6 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
     GMP-C1-GOVERNANCE: Sets MemoryGovernanceContext before tool execution.
     This ensures all downstream DB operations have proper RLS context.
     """
-    import os
 
     try:
         payload = await request.json()
@@ -501,21 +507,16 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
 
         # GMP-C1-GOVERNANCE: Build governance context from CallerIdentity + RLS config
         # This MUST be set before any DB operations that call require_governance_context()
+        # ADR-0098: All defaults from core.config_constants (single source of truth)
         rls = get_rls_config()
-        scope = os.getenv("L9_MEMORY_SCOPE", "developer")
-        project_id = os.getenv("L9_PROJECT_ID", "l9-default")
-
-        # L gets all scopes, C gets developer + global only (no l-private)
-        allowed_scopes = (
-            ["developer", "global", "l-private"]
-            if caller.is_l
-            else ["developer", "global"]
-        )
+        project_id = get_default_project_id()
+        allowed_scopes = get_allowed_scopes_for_caller(caller.caller_id)
+        caller_scope = get_default_scope_for_caller(caller.caller_id)
 
         ctx = build_governance_context(
             caller_id=caller.caller_id,
             role="end_user",
-            scope=scope,
+            scope=caller_scope,
             project_id=project_id,
             allowed_scopes=allowed_scopes,
             tenant_id=rls.tenant_uuid,

@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
@@ -94,9 +94,7 @@ class AnomalyClassifierRequest(BaseModel):
     """Input request for AnomalyClassifier."""
 
     request_id: str = Field(
-        default_factory=lambda: str(
-            uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc)))
-        )
+        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.now(UTC))))
     )
     anomaly_id: str = Field(..., description="Unique anomaly identifier")
     source: str = Field(
@@ -108,7 +106,7 @@ class AnomalyClassifierRequest(BaseModel):
     context: dict[str, Any] = Field(
         default_factory=dict, description="Additional context"
     )
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"extra": "forbid"}
 
@@ -250,6 +248,7 @@ class AnomalyClassifier:
     # Main API
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def process(
         self, request: AnomalyClassifierRequest
     ) -> AnomalyClassifierResponse:
@@ -262,7 +261,7 @@ class AnomalyClassifier:
         Returns:
             AnomalyClassifierResponse with classification result
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         try:
             logger.info(
@@ -397,7 +396,7 @@ class AnomalyClassifier:
 
     def _calc_duration(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
-        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        return int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
     # =========================================================================
     # Health Check

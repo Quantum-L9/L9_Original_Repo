@@ -150,7 +150,9 @@ import torch.nn.functional as F
 logger = structlog.get_logger(__name__)
 
 try:
-    from bayesian_torch.layers import LinearReparameterization
+    from bayesian_torch.layers import (
+        LinearReparameterization,  # noqa: F401 — availability check
+    )
 
     BAYESIAN_TORCH_AVAILABLE = True
 except ImportError:
@@ -236,12 +238,20 @@ class BayesianUncertainty:
         is_ood = epistemic_std > self.ood_threshold
 
         result = {
-            "mean": float(calibrated_mean.item())  # nosemgrep: l9-float-requires-try-except
+            "mean": float(
+                calibrated_mean.item()
+            )  # nosemgrep: l9-float-requires-try-except
             if calibrated_mean.numel() == 1
             else calibrated_mean.cpu().numpy(),
-            "epistemic_std": float(epistemic_std.item()),  # nosemgrep: l9-float-requires-try-except
-            "aleatoric_std": float(aleatoric_std.item()),  # nosemgrep: l9-float-requires-try-except
-            "confidence": float(confidence.item()),  # nosemgrep: l9-float-requires-try-except
+            "epistemic_std": float(
+                epistemic_std.item()
+            ),  # nosemgrep: l9-float-requires-try-except
+            "aleatoric_std": float(
+                aleatoric_std.item()
+            ),  # nosemgrep: l9-float-requires-try-except
+            "confidence": float(
+                confidence.item()
+            ),  # nosemgrep: l9-float-requires-try-except
             "is_ood": bool(is_ood.item()),
         }
 
@@ -501,11 +511,11 @@ if __name__ == "__main__":
     )
 
     # Validate requirements
-    assert "epistemic_std" in result
-    assert "aleatoric_std" in result
-    assert "confidence" in result
-    assert result["epistemic_std"] >= 0
-    assert 0 <= result["confidence"] <= 1
+    assert "epistemic_std" in result  # noqa: S101 — mathematical invariant
+    assert "aleatoric_std" in result  # noqa: S101 — mathematical invariant
+    assert "confidence" in result  # noqa: S101 — mathematical invariant
+    assert result["epistemic_std"] >= 0  # noqa: S101 — mathematical invariant
+    assert 0 <= result["confidence"] <= 1  # noqa: S101 — mathematical invariant
 
     logger.info("Bayesian uncertainty engine validated", status="success")
 

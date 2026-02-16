@@ -228,6 +228,7 @@ class PatternOrchestrator:
 
         return SubsystemConfig(**data)
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         user_prompts: list[str] | None = None,
@@ -341,6 +342,7 @@ class PatternOrchestrator:
 
         return result
 
+    @must_stay_async("callers use await")
     async def _execute_node(
         self,
         node: NodeDefinition,
@@ -525,6 +527,7 @@ class PatternOrchestrator:
             node_id=node_id,
         )
 
+    @must_stay_async("callers use await")
     async def _write_to_memory(
         self,
         node: NodeDefinition,
@@ -606,7 +609,9 @@ def create_pattern_orchestrator(
     # Try to get memory service
     memory_service = None
     try:
-        from memory.substrate_service import MemorySubstrateService
+        from memory.substrate_service import (
+            MemorySubstrateService,  # noqa: F401 — availability check
+        )
 
         # Memory service would need to be initialized elsewhere
         # This is just a placeholder for integration

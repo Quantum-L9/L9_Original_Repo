@@ -1,0 +1,33 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent C Gmp Engine"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "agents_codegen_agent_c_gmp_engine"
+# type: "engine"
+# status: "active"
+# ============================================================================
+
+# =========================================
+# Cursor GodMode Prompt (C-GMP) Expander
+# =========================================
+
+filename: agents/codegen_agent/c_gmp_engine.py
+type: code_expander
+language: python
+
+description: |
+  Extracts
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "engine", "intelligence", "prompt"]
+# keywords: ["agent", "agents", "codegen", "description", "engine", "filename"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

@@ -54,7 +54,7 @@ def test_register_mcp_server(clean_registry):
     """Test registering an MCP server."""
     config = register_mcp_server(
         server_id="filesystem",
-        command=["npx", "-y", "@modelcontextprotocol/server-filesystem", "/tmp"],
+        command=["npx", "-y", "@modelcontextprotocol/server-filesystem", "/tmp"],  # noqa: S108 — test fixture
         env={"NODE_ENV": "production"},
         category="storage",
     )
@@ -64,7 +64,7 @@ def test_register_mcp_server(clean_registry):
         "npx",
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/tmp",
+        "/tmp",  # noqa: S108 — test fixture
     ]
     assert config.env == {"NODE_ENV": "production"}
     assert config.enabled is True

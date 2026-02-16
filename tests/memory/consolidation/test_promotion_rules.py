@@ -19,8 +19,6 @@ ADR: 0014 (DORA metadata), 0019 (structlog)
 
 from __future__ import annotations
 
-import pytest
-
 from memory.consolidation.promotion_rules import (
     PromotionSignal,
     get_promotion_reason,
@@ -36,7 +34,7 @@ from memory.consolidation.promotion_rules import (
 def test_user_confirmed_always_promotes() -> None:
     """
     Contract: Rule 1 - Explicit user confirmation always promotes.
-    
+
     Verifies:
     - user_confirmed=True returns True
     - Works regardless of other signals
@@ -48,7 +46,7 @@ def test_user_confirmed_always_promotes() -> None:
 def test_user_confirmed_overrides_missing_signals() -> None:
     """
     Contract: user_confirmed promotes even without tests or governance.
-    
+
     Verifies:
     - user_confirmed alone is sufficient
     """
@@ -69,7 +67,7 @@ def test_user_confirmed_overrides_missing_signals() -> None:
 def test_tests_passed_with_sufficient_reuse_promotes() -> None:
     """
     Contract: Rule 2 - tests_passed + reuse_count >= 2 promotes.
-    
+
     Verifies:
     - tests_passed=True AND reuse_count=2 returns True
     - Solid pattern validation
@@ -84,7 +82,7 @@ def test_tests_passed_with_sufficient_reuse_promotes() -> None:
 def test_tests_passed_with_high_reuse_promotes() -> None:
     """
     Contract: Higher reuse counts satisfy Rule 2.
-    
+
     Verifies:
     - reuse_count > 2 still promotes
     """
@@ -98,7 +96,7 @@ def test_tests_passed_with_high_reuse_promotes() -> None:
 def test_tests_passed_with_insufficient_reuse_does_not_promote() -> None:
     """
     Contract: Rule 2 requires BOTH tests_passed AND reuse_count >= 2.
-    
+
     Verifies:
     - tests_passed=True but reuse_count=1 does NOT promote
     - Strict over loose principle
@@ -113,7 +111,7 @@ def test_tests_passed_with_insufficient_reuse_does_not_promote() -> None:
 def test_tests_passed_with_zero_reuse_does_not_promote() -> None:
     """
     Contract: Single use without reuse does not promote.
-    
+
     Verifies:
     - Even with tests, no reuse = no promotion
     """
@@ -127,7 +125,7 @@ def test_tests_passed_with_zero_reuse_does_not_promote() -> None:
 def test_no_tests_with_high_reuse_does_not_promote() -> None:
     """
     Contract: Reuse without test validation does not promote.
-    
+
     Verifies:
     - tests_passed=False blocks promotion even with high reuse
     """
@@ -146,7 +144,7 @@ def test_no_tests_with_high_reuse_does_not_promote() -> None:
 def test_governance_approved_always_promotes() -> None:
     """
     Contract: Rule 3 - Governance approval always promotes.
-    
+
     Verifies:
     - governance_approved=True returns True
     """
@@ -157,7 +155,7 @@ def test_governance_approved_always_promotes() -> None:
 def test_governance_approved_overrides_missing_signals() -> None:
     """
     Contract: governance_approved promotes even without tests or reuse.
-    
+
     Verifies:
     - governance_approved alone is sufficient
     """
@@ -177,7 +175,7 @@ def test_governance_approved_overrides_missing_signals() -> None:
 def test_critical_error_always_promotes() -> None:
     """
     Contract: Rule 4 - Critical errors always promote (negative memory).
-    
+
     Verifies:
     - is_critical_error=True returns True
     - Errors must be remembered
@@ -189,7 +187,7 @@ def test_critical_error_always_promotes() -> None:
 def test_critical_error_overrides_missing_signals() -> None:
     """
     Contract: critical_error promotes even without positive signals.
-    
+
     Verifies:
     - Errors are remembered regardless of success metrics
     """
@@ -209,7 +207,7 @@ def test_critical_error_overrides_missing_signals() -> None:
 def test_empty_event_does_not_promote() -> None:
     """
     Contract: Default - no signals means no promotion.
-    
+
     Verifies:
     - Empty event returns False
     - Strict over loose principle
@@ -221,7 +219,7 @@ def test_empty_event_does_not_promote() -> None:
 def test_insufficient_signals_do_not_promote() -> None:
     """
     Contract: Partial signals without meeting any rule do not promote.
-    
+
     Verifies:
     - tests_passed alone is insufficient
     - reuse_count alone is insufficient
@@ -236,7 +234,7 @@ def test_insufficient_signals_do_not_promote() -> None:
 def test_unknown_signals_do_not_promote() -> None:
     """
     Contract: Unknown signals are ignored.
-    
+
     Verifies:
     - Random keys don't cause promotion
     """
@@ -255,7 +253,7 @@ def test_unknown_signals_do_not_promote() -> None:
 def test_user_confirmed_has_highest_confidence() -> None:
     """
     Contract: user_confirmed gives highest confidence score.
-    
+
     Verifies:
     - user_confirmed contributes 0.9
     """
@@ -267,7 +265,7 @@ def test_user_confirmed_has_highest_confidence() -> None:
 def test_governance_approved_confidence() -> None:
     """
     Contract: governance_approved contributes 0.7.
-    
+
     Verifies:
     - governance_approved score
     """
@@ -279,7 +277,7 @@ def test_governance_approved_confidence() -> None:
 def test_tests_passed_confidence() -> None:
     """
     Contract: tests_passed contributes 0.3.
-    
+
     Verifies:
     - tests_passed score
     """
@@ -291,7 +289,7 @@ def test_tests_passed_confidence() -> None:
 def test_reuse_confidence() -> None:
     """
     Contract: reuse_count >= 2 contributes 0.2.
-    
+
     Verifies:
     - reuse score
     """
@@ -303,7 +301,7 @@ def test_reuse_confidence() -> None:
 def test_combined_signals_confidence_capped_at_one() -> None:
     """
     Contract: Combined confidence score capped at 1.0.
-    
+
     Verifies:
     - user_confirmed + governance_approved + tests_passed + reuse = 1.0 (not > 1.0)
     """
@@ -320,7 +318,7 @@ def test_combined_signals_confidence_capped_at_one() -> None:
 def test_partial_signals_confidence() -> None:
     """
     Contract: Partial signals combine correctly.
-    
+
     Verifies:
     - tests_passed + reuse = 0.5
     """
@@ -335,7 +333,7 @@ def test_partial_signals_confidence() -> None:
 def test_empty_event_has_zero_confidence() -> None:
     """
     Contract: No signals means zero confidence.
-    
+
     Verifies:
     - Empty event returns 0.0
     """
@@ -352,7 +350,7 @@ def test_empty_event_has_zero_confidence() -> None:
 def test_user_confirmed_reason() -> None:
     """
     Contract: get_promotion_reason returns human-readable explanation.
-    
+
     Verifies:
     - user_confirmed reason
     """
@@ -364,7 +362,7 @@ def test_user_confirmed_reason() -> None:
 def test_governance_approved_reason() -> None:
     """
     Contract: governance_approved reason.
-    
+
     Verifies:
     - governance reason
     """
@@ -376,7 +374,7 @@ def test_governance_approved_reason() -> None:
 def test_tests_passed_reason() -> None:
     """
     Contract: tests_passed reason.
-    
+
     Verifies:
     - tests reason
     """
@@ -388,7 +386,7 @@ def test_tests_passed_reason() -> None:
 def test_reuse_count_reason() -> None:
     """
     Contract: reuse_count reason includes count.
-    
+
     Verifies:
     - reuse reason with count
     """
@@ -400,7 +398,7 @@ def test_reuse_count_reason() -> None:
 def test_critical_error_reason() -> None:
     """
     Contract: critical_error reason.
-    
+
     Verifies:
     - error reason (negative memory)
     """
@@ -412,7 +410,7 @@ def test_critical_error_reason() -> None:
 def test_combined_reasons() -> None:
     """
     Contract: Multiple signals combine with ' + ' separator.
-    
+
     Verifies:
     - Multiple reasons joined correctly
     """
@@ -429,7 +427,7 @@ def test_combined_reasons() -> None:
 def test_no_promotion_signal_reason() -> None:
     """
     Contract: No signals returns 'no promotion signal'.
-    
+
     Verifies:
     - Empty event reason
     """
@@ -446,7 +444,7 @@ def test_no_promotion_signal_reason() -> None:
 def test_promotion_signal_enum_values() -> None:
     """
     Contract: PromotionSignal enum has expected values.
-    
+
     Verifies:
     - All signal types exist
     """

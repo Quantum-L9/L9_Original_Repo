@@ -142,7 +142,7 @@ def generate_test_cases(
 
     test_cases = []
     for _ in range(num_cases):
-        case = {var: random.uniform(-10, 10) for var in variables}
+        case = {var: random.uniform(-10, 10) for var in variables}  # noqa: S311 — used for test data generation, not security
         test_cases.append(case)
 
     return test_cases

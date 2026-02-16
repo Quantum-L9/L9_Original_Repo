@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -121,7 +121,7 @@ class GraphToWorldModelSync:
 
 **Public Methods:** `__init__`, `start`, `stop`, `_sync_loop`, `sync_agent`
 
-**Lines:** 62-343 in `graph_to_wm_sync.py`
+**Lines:** 62-347 in `graph_to_wm_sync.py`
 
 ### `tool_pattern_extractor.py` — ToolPatternExtractor
 
@@ -169,7 +169,7 @@ class WMToGraphSync:
 
 **Public Methods:** `__init__`, `start`, `stop`, `_sync_loop`, `sync_all`
 
-**Lines:** 66-304 in `wm_to_graph_sync.py`
+**Lines:** 66-316 in `wm_to_graph_sync.py`
 
 
 ---
@@ -198,7 +198,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreIntegrationRequest(BaseModel):
     """Request model for core_integration operations."""
@@ -290,7 +290,7 @@ CORE_INTEGRATION_ENABLED=true
 
 Get the global GraphToWorldModelSync instance.
 
-- **File:** `graph_to_wm_sync.py:350`
+- **File:** `graph_to_wm_sync.py:354`
 - **Async:** No
 - **Returns:** `GraphToWorldModelSync`
 
@@ -298,7 +298,7 @@ Get the global GraphToWorldModelSync instance.
 
 Start the global sync service.
 
-- **File:** `graph_to_wm_sync.py:365`
+- **File:** `graph_to_wm_sync.py:369`
 - **Async:** Yes
 - **Returns:** `None`
 
@@ -306,7 +306,7 @@ Start the global sync service.
 
 Stop the global sync service.
 
-- **File:** `graph_to_wm_sync.py:378`
+- **File:** `graph_to_wm_sync.py:382`
 - **Async:** Yes
 - **Returns:** `None`
 
@@ -356,7 +356,7 @@ Core Integration operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.integration",
   "message": "Operation completed",

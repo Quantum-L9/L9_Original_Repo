@@ -5,7 +5,6 @@ L9 Bootstrap Tests – Orchestrator
 Tests for AgentBootstrapOrchestrator: 7-phase pipeline execution.
 """
 
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -18,6 +17,7 @@ from core.agents.bootstrap.orchestrator import (
     PhaseResult,
 )
 from core.agents.schemas import AgentConfig
+from core.decorators import must_stay_async
 
 
 @pytest.fixture
@@ -65,6 +65,7 @@ def sample_kernel_paths():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_orchestrator_all_phases_success(
     orchestrator, sample_config, sample_kernel_paths, mock_services
 ):
@@ -165,6 +166,7 @@ async def test_orchestrator_all_phases_success(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_orchestrator_phase_failure_triggers_rollback(
     orchestrator, sample_config, sample_kernel_paths, mock_services
 ):
@@ -273,7 +275,6 @@ def test_agent_bootstrap_context_canonical_json():
 
 def test_agent_bootstrap_context_compute_signature():
     """Test deterministic init_signature computation."""
-    from core.agents.bootstrap.orchestrator import IdentityView
 
     ctx1 = AgentBootstrapContext(
         agent_id="agent1",

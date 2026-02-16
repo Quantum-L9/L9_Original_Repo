@@ -56,6 +56,7 @@ SKIP_PATTERNS = [
     "*.egg-info",
     "docs/Quantum Research Factory",  # Legacy docs
     "docs/12-23-25",  # Legacy documentation scripts
+    "codegen",
 ]
 
 

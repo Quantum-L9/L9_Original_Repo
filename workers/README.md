@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -198,7 +198,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class WorkersRequest(BaseModel):
     """Request model for workers operations."""
@@ -289,7 +289,7 @@ WORKERS_ENABLED=true
 
 Factory function to create AnomalyClassifier.
 
-- **File:** `anomaly_classifier.py:420`
+- **File:** `anomaly_classifier.py:421`
 - **Async:** No
 - **Returns:** `AnomalyClassifier`
 
@@ -297,7 +297,7 @@ Factory function to create AnomalyClassifier.
 
 Factory function to create ViolationPatterns.
 
-- **File:** `violation_patterns.py:444`
+- **File:** `violation_patterns.py:445`
 - **Async:** No
 - **Returns:** `ViolationPatterns`
 
@@ -305,7 +305,7 @@ Factory function to create ViolationPatterns.
 
 Factory function to create RemediationEngine.
 
-- **File:** `remediation_engine.py:480`
+- **File:** `remediation_engine.py:481`
 - **Async:** No
 - **Returns:** `RemediationEngine`
 
@@ -313,7 +313,7 @@ Factory function to create RemediationEngine.
 
 Factory function to create ViolationTrackerService.
 
-- **File:** `violation_tracker_service.py:563`
+- **File:** `violation_tracker_service.py:565`
 - **Async:** No
 - **Returns:** `ViolationTrackerService`
 
@@ -321,7 +321,7 @@ Factory function to create ViolationTrackerService.
 
 Factory function to create AnomalyResponseMonitor.
 
-- **File:** `anomaly_response_monitor.py:538`
+- **File:** `anomaly_response_monitor.py:541`
 - **Async:** No
 - **Returns:** `AnomalyResponseMonitor`
 
@@ -355,7 +355,7 @@ Workers operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "workers",
   "message": "Operation completed",

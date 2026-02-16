@@ -15,6 +15,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from core.decorators import must_stay_async
+
 # Add project root to path (required for test imports)
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -31,6 +33,7 @@ class TestLCTOMemoryEmission:
     """Test L-CTO agent memory emission."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_emits_reasoning_packet_on_success(self):
         """Agent should emit reasoning packet after successful execution."""
         from agents.base_agent import AgentResponse
@@ -84,6 +87,7 @@ class TestLCTOMemoryEmission:
             await agent._emit_reasoning_packet(task, response, None)
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_emission_includes_task_and_response(self):
         """Packet payload should include task and response data."""
         from agents.base_agent import AgentResponse
@@ -116,6 +120,7 @@ class TestLCTOMemoryEmission:
         assert payload["agent_id"] == "test-l-cto"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_run_calls_emission(self):
         """LCTOAgent.run() should call _emit_reasoning_packet."""
         from agents.base_agent import AgentResponse

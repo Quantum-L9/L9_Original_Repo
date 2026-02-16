@@ -23,27 +23,26 @@ import pytest
 
 from core.tools.registry_cache import (
     CacheConfig,
+    CachedToolRegistry,
     CacheEntry,
     CacheMetrics,
     CacheStrategy,
-    CachedToolRegistry,
     ToolRegistryCache,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 def lru_cache() -> ToolRegistryCache:
     """LRU cache with max_size=3."""
     config = CacheConfig(max_size=3, strategy=CacheStrategy.LRU, enable_metrics=True)
     return ToolRegistryCache(config)
 
 
-@pytest.fixture()
+@pytest.fixture
 def ttl_cache() -> ToolRegistryCache:
     """TTL cache with 1-second TTL for fast expiry tests."""
     config = CacheConfig(
@@ -55,14 +54,14 @@ def ttl_cache() -> ToolRegistryCache:
     return ToolRegistryCache(config)
 
 
-@pytest.fixture()
+@pytest.fixture
 def lfu_cache() -> ToolRegistryCache:
     """LFU cache with max_size=3."""
     config = CacheConfig(max_size=3, strategy=CacheStrategy.LFU, enable_metrics=True)
     return ToolRegistryCache(config)
 
 
-@pytest.fixture()
+@pytest.fixture
 def fifo_cache() -> ToolRegistryCache:
     """FIFO cache with max_size=3."""
     config = CacheConfig(max_size=3, strategy=CacheStrategy.FIFO, enable_metrics=True)
@@ -125,7 +124,14 @@ class TestCacheMetrics:
     def test_to_dict_keys(self) -> None:
         m = CacheMetrics(hits=10, misses=5, evictions=2, size=8, max_size=100)
         d = m.to_dict()
-        assert set(d.keys()) == {"hits", "misses", "evictions", "size", "max_size", "hit_rate"}
+        assert set(d.keys()) == {
+            "hits",
+            "misses",
+            "evictions",
+            "size",
+            "max_size",
+            "hit_rate",
+        }
         assert d["hit_rate"] == pytest.approx(0.6667, abs=0.001)
 
 
@@ -256,13 +262,12 @@ class TestTTLExpiry:
     """Tests for TTL-based expiration."""
 
     def test_expired_entry_returns_none(self) -> None:
-        config = CacheConfig(
-            max_size=10, strategy=CacheStrategy.TTL, ttl_seconds=0
-        )
+        config = CacheConfig(max_size=10, strategy=CacheStrategy.TTL, ttl_seconds=0)
         cache = ToolRegistryCache(config)
         cache.set("k", "v")
         # Entry expires immediately (ttl=0 means expires_at ≈ now)
         import time
+
         time.sleep(0.01)
         assert cache.get("k") is None
 
@@ -300,7 +305,9 @@ class TestCacheWarming:
     """Tests for cache warming via loader function."""
 
     def test_warm_populates_cache(self, lru_cache: ToolRegistryCache) -> None:
-        loader = lambda: {"t1": {"name": "t1"}, "t2": {"name": "t2"}}
+        def loader():
+            return {"t1": {"name": "t1"}, "t2": {"name": "t2"}}
+
         count = lru_cache.warm_cache(loader)
         assert count == 2
         assert lru_cache.get("t1") == {"name": "t1"}
@@ -353,7 +360,7 @@ class TestCachedToolRegistry:
         )
         assert cached.get_tool("ghost") is None
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_register_tool_invalidates_cache(self) -> None:
         mock_registry = MagicMock()
         mock_registry.list_tools.return_value = []
@@ -376,7 +383,7 @@ class TestCachedToolRegistry:
         # Cache entry for old_tool should be invalidated
         assert cached._cache.get("old_tool") is None
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_unregister_tool_invalidates_cache(self) -> None:
         mock_registry = MagicMock()
         mock_registry.list_tools.return_value = []

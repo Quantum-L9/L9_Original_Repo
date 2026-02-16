@@ -1,196 +1,247 @@
 #!/usr/bin/env bash
-# L9 Post-Merge Hook - Auto-sync after git pull
-# Drop this into .git/hooks/post-merge and chmod +x
+# =============================================================================
+# L9 POST-MERGE HOOK v2.0 — FRONTIER AI LAB PRODUCTION STANDARD
+# =============================================================================
+# Author: L9 Engineering (via AI Agent)
+# Date:   2026-02-16
+# Drop into .git/hooks/post-merge and chmod +x
+# Compliance: ShellCheck SC0-level
+# Risk Tier: T2 (auto-sync on pull)
+#
+# CHANGES FROM v1.0:
+# - ShellCheck clean (printf, quoted vars, local declarations)
+# - Migration gate → advisory only (no auto-execution) — per risk tiering
+# - Hook versioning with self-update detection
+# - Trap-based cleanup
+# =============================================================================
 
-set -e  # Exit on any error
+HOOK_VERSION="2.0.0"
+set -euo pipefail
+IFS=$'\n\t'
 
 # Colors
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-RED='\033[0;31m'
-NC='\033[0m'
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly NC='\033[0m'
 
-echo -e "${BLUE}🔄 L9 Post-Merge Automation${NC}"
-echo "========================================"
+# Paths
+readonly REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+printf "%b🔄 L9 Post-Merge Automation v%s%b\n" "$BLUE" "$HOOK_VERSION" "$NC"
+printf "========================================\n"
 
 # Get changed files between previous HEAD and current HEAD
 CHANGED_FILES=$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD 2>/dev/null || true)
 
 if [ -z "$CHANGED_FILES" ]; then
-    echo -e "${GREEN}✓ No changes detected${NC}"
+    printf "%b✓ No changes detected%b\n" "$GREEN" "$NC"
     exit 0
+fi
+
+# ============================================
+# 0. HOOK VERSION CHECK (self-update)
+# ============================================
+printf "\n%b[0/9]%b Checking hook versions...\n" "$YELLOW" "$NC"
+
+CANONICAL_VERSION_FILE="$REPO_ROOT/scripts/hooks/.version"
+INSTALLED_VERSION_FILE="$REPO_ROOT/.git/hooks/.installed_version"
+
+if [ -f "$CANONICAL_VERSION_FILE" ]; then
+    CANONICAL_VERSION=$(cat "$CANONICAL_VERSION_FILE")
+    INSTALLED_VERSION=""
+    if [ -f "$INSTALLED_VERSION_FILE" ]; then
+        INSTALLED_VERSION=$(cat "$INSTALLED_VERSION_FILE")
+    fi
+
+    if [ "$CANONICAL_VERSION" != "$INSTALLED_VERSION" ]; then
+        printf "%b⚠ Hooks are outdated! Installed: %s, Repo: %s%b\n" "$YELLOW" "${INSTALLED_VERSION:-none}" "$CANONICAL_VERSION" "$NC"
+        if [ -f "$REPO_ROOT/scripts/hooks/install-hooks.sh" ]; then
+            printf "  Auto-reinstalling hooks...\n"
+            bash "$REPO_ROOT/scripts/hooks/install-hooks.sh" || {
+                printf "%b⚠ Auto-reinstall failed. Run manually: bash scripts/hooks/install-hooks.sh%b\n" "$YELLOW" "$NC"
+            }
+        else
+            printf "  Run: bash scripts/hooks/install-hooks.sh\n"
+        fi
+    else
+        printf "%b✓ Hooks are up to date (v%s)%b\n" "$GREEN" "$CANONICAL_VERSION" "$NC"
+    fi
+else
+    printf "%b✓ No version file found (skipping)%b\n" "$GREEN" "$NC"
 fi
 
 # ============================================
 # 1. ENVIRONMENT VARIABLES SYNC
 # ============================================
-echo -e "\n${YELLOW}[1/8]${NC} Checking environment variables..."
+printf "\n%b[1/9]%b Checking environment variables...\n" "$YELLOW" "$NC"
 
 if echo "$CHANGED_FILES" | grep -q "^\.env\.example$"; then
-    echo -e "${YELLOW}⚠ .env.example changed!${NC}"
-
-    # Check for new required vars
+    printf "%b⚠ .env.example changed!%b\n" "$YELLOW" "$NC"
     if [ -f ".env.example" ] && [ -f ".env" ]; then
         NEW_VARS=$(comm -23 <(grep "^[A-Z]" .env.example | cut -d= -f1 | sort) <(grep "^[A-Z]" .env | cut -d= -f1 | sort) || true)
-
         if [ -n "$NEW_VARS" ]; then
-            echo -e "${RED}❌ Missing environment variables:${NC}"
-            echo "$NEW_VARS" | while read var; do
-                echo "   - $var"
+            printf "%b❌ Missing environment variables:%b\n" "$RED" "$NC"
+            echo "$NEW_VARS" | while IFS= read -r var; do
+                printf "  - %s\n" "$var"
             done
-            echo ""
-            echo "Action required:"
-            echo "  1. Copy missing vars from .env.example to .env"
-            echo "  2. Set appropriate values"
+            printf "\nAction required:\n"
+            printf "  1. Copy missing vars from .env.example to .env\n"
+            printf "  2. Set appropriate values\n"
         else
-            echo -e "${GREEN}✓ All required env vars present${NC}"
+            printf "%b✓ All required env vars present%b\n" "$GREEN" "$NC"
         fi
     fi
 else
-    echo -e "${GREEN}✓ No env changes${NC}"
+    printf "%b✓ No env changes%b\n" "$GREEN" "$NC"
 fi
 
 # ============================================
 # 2. PYTHON DEPENDENCIES
 # ============================================
-echo -e "\n${YELLOW}[2/8]${NC} Checking Python dependencies..."
+printf "\n%b[2/9]%b Checking Python dependencies...\n" "$YELLOW" "$NC"
 
 if echo "$CHANGED_FILES" | grep -qE "^(requirements\.txt|pyproject\.toml|setup\.py)$"; then
-    echo -e "${YELLOW}⚠ Dependencies changed!${NC}"
-    echo "   Auto-installing..."
-
+    printf "%b⚠ Dependencies changed!%b\n" "$YELLOW" "$NC"
+    printf "  Auto-installing...\n"
     if [ -f "requirements.txt" ]; then
         pip install -r requirements.txt --quiet 2>&1 | tail -5 || true
     elif [ -f "pyproject.toml" ]; then
         pip install -e . --quiet 2>&1 | tail -5 || true
     fi
-
-    echo -e "${GREEN}✓ Dependencies installed${NC}"
+    printf "%b✓ Dependencies installed%b\n" "$GREEN" "$NC"
 else
-    echo -e "${GREEN}✓ No dependency changes${NC}"
+    printf "%b✓ No dependency changes%b\n" "$GREEN" "$NC"
 fi
 
 # ============================================
-# 3. DATABASE MIGRATIONS
+# 3. DATABASE MIGRATIONS (ADVISORY ONLY — T3 risk)
 # ============================================
-echo -e "\n${YELLOW}[3/8]${NC} Checking for new migrations..."
+printf "\n%b[3/9]%b Checking for new migrations...\n" "$YELLOW" "$NC"
 
 if echo "$CHANGED_FILES" | grep -q "^migrations/.*\.sql$"; then
     NEW_MIGRATIONS=$(echo "$CHANGED_FILES" | grep "^migrations/.*\.sql$" || true)
-
-    echo -e "${YELLOW}⚠ New migrations detected:${NC}"
-    echo "$NEW_MIGRATIONS" | while read migration; do
-        echo "   - $migration"
+    printf "%b⚠ New migrations detected:%b\n" "$YELLOW" "$NC"
+    echo "$NEW_MIGRATIONS" | while IFS= read -r migration; do
+        printf "  - %s\n" "$migration"
     done
-
-    # Check if migration runner exists
-    if [ -f "memory/migration_runner.py" ]; then
-        echo "   Auto-running migrations..."
-        python3 -c "from memory.migration_runner import run_migrations; import asyncio; asyncio.run(run_migrations())" 2>&1 | tail -5 || {
-            echo -e "${RED}❌ Migration failed! Check logs.${NC}"
-        }
-        echo -e "${GREEN}✓ Migrations applied${NC}"
-    else
-        echo -e "${YELLOW}   Manual action required: Run migrations${NC}"
-    fi
+    printf "\n%b  ⚠ ADVISORY: Migrations require manual execution (T3 risk)%b\n" "$YELLOW" "$NC"
+    printf "  Run:\n"
+    printf "    python3 -c \"from memory.migration_runner import run_migrations; import asyncio; asyncio.run(run_migrations())\"\n"
+    printf "  Or:\n"
+    printf "    make migrate\n\n"
 else
-    echo -e "${GREEN}✓ No new migrations${NC}"
+    printf "%b✓ No new migrations%b\n" "$GREEN" "$NC"
 fi
 
 # ============================================
 # 4. DOCKER CHANGES
 # ============================================
-echo -e "\n${YELLOW}[4/8]${NC} Checking Docker configuration..."
+printf "\n%b[4/9]%b Checking Docker configuration...\n" "$YELLOW" "$NC"
 
 if echo "$CHANGED_FILES" | grep -qE "^(Dockerfile|docker-compose\.yml|\.dockerignore)$"; then
-    echo -e "${YELLOW}⚠ Docker configuration changed!${NC}"
-    echo ""
-    echo "Action required:"
-    echo "  docker-compose down"
-    echo "  docker-compose up --build -d"
-    echo ""
+    printf "%b⚠ Docker configuration changed!%b\n" "$YELLOW" "$NC"
+    printf "\n  Action required:\n"
+    printf "    docker-compose down\n"
+    printf "    docker-compose up --build -d\n\n"
 else
-    echo -e "${GREEN}✓ No Docker changes${NC}"
+    printf "%b✓ No Docker changes%b\n" "$GREEN" "$NC"
 fi
 
 # ============================================
-# 5. KERNEL HOT-RELOAD (NEW!)
+# 5. KERNEL HOT-RELOAD
 # ============================================
-echo -e "\n${YELLOW}[5/8]${NC} Checking kernel changes..."
+printf "\n%b[5/9]%b Checking kernel changes...\n" "$YELLOW" "$NC"
 
 if echo "$CHANGED_FILES" | grep -q "^kernels/"; then
-    echo -e "${YELLOW}⚠ Kernels changed!${NC}"
-
-    # Attempt hot-reload via API
+    printf "%b⚠ Kernels changed!%b\n" "$YELLOW" "$NC"
     if curl -s -X POST http://localhost:8000/api/kernels/reload --max-time 2 >/dev/null 2>&1; then
-        echo -e "${GREEN}✓ Kernels hot-reloaded${NC}"
+        printf "%b✓ Kernels hot-reloaded%b\n" "$GREEN" "$NC"
     else
-        echo -e "${YELLOW}   (Server not running - kernels will reload on next startup)${NC}"
+        printf "%b  (Server not running — kernels will reload on next startup)%b\n" "$YELLOW" "$NC"
     fi
 else
-    echo -e "${GREEN}✓ No kernel changes${NC}"
+    printf "%b✓ No kernel changes%b\n" "$GREEN" "$NC"
 fi
 
 # ============================================
-# 6. AUDIT CACHE INVALIDATION (NEW!)
+# 6. AUDIT CACHE INVALIDATION
 # ============================================
-echo -e "\n${YELLOW}[6/8]${NC} Checking audit scripts..."
+printf "\n%b[6/9]%b Checking audit scripts...\n" "$YELLOW" "$NC"
 
 if echo "$CHANGED_FILES" | grep -q "^scripts/audit/"; then
-    echo -e "${YELLOW}⚠ Audit scripts changed!${NC}"
-
+    printf "%b⚠ Audit scripts changed!%b\n" "$YELLOW" "$NC"
     if [ -d ".audit_cache" ]; then
-        echo "   Clearing audit cache..."
+        printf "  Clearing audit cache...\n"
         rm -rf .audit_cache/
-        echo -e "${GREEN}✓ Cache cleared${NC}"
+        printf "%b✓ Cache cleared%b\n" "$GREEN" "$NC"
     else
-        echo -e "${GREEN}✓ No cache to clear${NC}"
+        printf "%b✓ No cache to clear%b\n" "$GREEN" "$NC"
     fi
 else
-    echo -e "${GREEN}✓ No audit script changes${NC}"
+    printf "%b✓ No audit script changes%b\n" "$GREEN" "$NC"
 fi
 
 # ============================================
-# 7. PRE-COMMIT CONFIG UPDATE (NEW!)
+# 7. PRE-COMMIT CONFIG UPDATE
 # ============================================
-echo -e "\n${YELLOW}[7/8]${NC} Checking pre-commit configuration..."
+printf "\n%b[7/9]%b Checking pre-commit configuration...\n" "$YELLOW" "$NC"
 
 if echo "$CHANGED_FILES" | grep -q "^\.pre-commit-config\.yaml$"; then
-    echo -e "${YELLOW}⚠ Pre-commit config changed!${NC}"
-
+    printf "%b⚠ Pre-commit config changed!%b\n" "$YELLOW" "$NC"
     if command -v pre-commit &> /dev/null; then
-        echo "   Reinstalling hooks..."
+        printf "  Reinstalling hooks...\n"
         pre-commit install --install-hooks >/dev/null 2>&1 || true
-        echo -e "${GREEN}✓ Hooks updated${NC}"
+        printf "%b✓ Hooks updated%b\n" "$GREEN" "$NC"
     else
-        echo -e "${YELLOW}   Install pre-commit: pip install pre-commit${NC}"
+        printf "%b  Install pre-commit: pip install pre-commit%b\n" "$YELLOW" "$NC"
     fi
 else
-    echo -e "${GREEN}✓ No pre-commit changes${NC}"
+    printf "%b✓ No pre-commit changes%b\n" "$GREEN" "$NC"
 fi
 
 # ============================================
-# 8. REPO INDEX REGENERATION (NEW!)
+# 8. REPO INDEX REGENERATION
 # ============================================
-echo -e "\n${YELLOW}[8/8]${NC} Checking repo index..."
+printf "\n%b[8/9]%b Checking repo index...\n" "$YELLOW" "$NC"
 
 if echo "$CHANGED_FILES" | grep -qE "\.(py|md|yaml)$"; then
     if [ -f "scripts/generate_repo_index.py" ]; then
-        echo "   Regenerating repo index (background)..."
+        printf "  Regenerating repo index (background)...\n"
         nohup python3 scripts/generate_repo_index.py --quiet >/dev/null 2>&1 &
-        echo -e "${GREEN}✓ Index regeneration started${NC}"
+        printf "%b✓ Index regeneration started%b\n" "$GREEN" "$NC"
     else
-        echo -e "${GREEN}✓ No index generator found${NC}"
+        printf "%b✓ No index generator found%b\n" "$GREEN" "$NC"
     fi
 else
-    echo -e "${GREEN}✓ No index regeneration needed${NC}"
+    printf "%b✓ No index regeneration needed%b\n" "$GREEN" "$NC"
+fi
+
+# ============================================
+# 9. DEPENDENCY LOCKFILE VALIDATION
+# ============================================
+printf "\n%b[9/9]%b Checking lockfile integrity...\n" "$YELLOW" "$NC"
+
+if echo "$CHANGED_FILES" | grep -qE "^(requirements\.txt|pyproject\.toml)$"; then
+    if [ -f "requirements.txt" ] && [ -f "requirements.lock" ]; then
+        CURRENT_HASH=$(sha256sum requirements.txt | cut -d' ' -f1)
+        LOCK_HASH=$(head -1 requirements.lock 2>/dev/null | grep -oP '(?<=hash:)[a-f0-9]+' || echo "none")
+        if [ "$CURRENT_HASH" != "$LOCK_HASH" ]; then
+            printf "%b⚠ requirements.txt changed but lockfile hash mismatch%b\n" "$YELLOW" "$NC"
+            printf "  Run: make lock-deps\n"
+        else
+            printf "%b✓ Lockfile matches%b\n" "$GREEN" "$NC"
+        fi
+    else
+        printf "%b✓ No lockfile to validate%b\n" "$GREEN" "$NC"
+    fi
+else
+    printf "%b✓ No dependency file changes%b\n" "$GREEN" "$NC"
 fi
 
 # ============================================
 # SUCCESS
 # ============================================
-echo ""
-echo -e "${GREEN}✅ Post-merge automation complete!${NC}"
-echo "========================================"
-exit 0
+printf "\n%b✅ Post-merge automation complete!%b\n" "$GREEN" "$NC"
+printf "========================================\n"

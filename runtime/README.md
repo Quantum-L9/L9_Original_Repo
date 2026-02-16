@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -92,7 +92,7 @@ runtime/
 ├── kernel_loader.py
 ├── kernel_state.py
 ├── l_tools.py
-└── ... (18 more files)
+└── ... (19 more files)
 ```
 
 | File | Purpose |
@@ -206,7 +206,7 @@ class ResponseBuilder:
 
 **Public Methods:** `__init__`, `opening`, `section`, `confidence`, `from_claims`
 
-**Lines:** 270-345 in `response_renderer.py`
+**Lines:** 270-346 in `response_renderer.py`
 
 
 ---
@@ -222,7 +222,7 @@ The following data models define the contracts for this subsystem:
 
 `ALL_SEGMENTS`, `AuthAttemptResult`, `AuthRateLimitConfig`, `AuthRateLimiter`, `BackgroundTaskRegistry`, `ClaimCollection`, `ConfidenceLevel`, `DEFAULT_KERNEL_PATH`, `DEFAULT_TOOL_AUTHORIZATION`, `DoraGraph`
 
-*...and 117 more*
+*...and 122 more*
 
 ### Module Constants
 
@@ -232,19 +232,19 @@ The following data models define the contracts for this subsystem:
 | `DORA_BLOCK_END_PY` | `re.compile('^# ={10,}\\n# END L9 DORA BL...` | 177 |
 | `DORA_BLOCK_PATTERN_PY` | `re.compile('(# ={10,}\\n# L9 DORA BLOCK ...` | 181 |
 | `F` | `TypeVar('F', bound=Callable[..., Any])` | 281 |
-| `GIT_QUEUE` | `TaskQueue(queue_name='l9:git_commits', u...` | 46 |
-| `MEMORY_SEGMENT_GOVERNANCE_META` | `'governance_meta'` | 59 |
-| `MEMORY_SEGMENT_PROJECT_HISTORY` | `'project_history'` | 60 |
-| `MEMORY_SEGMENT_TOOL_AUDIT` | `'tool_audit'` | 61 |
+| `GIT_QUEUE` | `TaskQueue(queue_name='l9:git_commits', u...` | 48 |
+| `MEMORY_SEGMENT_GOVERNANCE_META` | `'governance_meta'` | 61 |
+| `MEMORY_SEGMENT_PROJECT_HISTORY` | `'project_history'` | 62 |
+| `MEMORY_SEGMENT_TOOL_AUDIT` | `'tool_audit'` | 63 |
 
-*...and 21 more constants*
+*...and 20 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class RuntimeRequest(BaseModel):
     """Request model for runtime operations."""
@@ -337,7 +337,7 @@ RUNTIME_ENABLED=true
 
 GMP run tool implementation.
 
-- **File:** `gmp_tool.py:45`
+- **File:** `gmp_tool.py:48`
 - **Async:** Yes
 - **Returns:** `dict[str, Any]`
 
@@ -369,7 +369,7 @@ Decorator to trace function execution for DORA Block.
 
 Create and emit a DORA trace from the executor.
 
-- **File:** `dora.py:442`
+- **File:** `dora.py:472`
 - **Async:** Yes
 - **Returns:** `DoraTraceBlock`
 
@@ -403,7 +403,7 @@ Runtime operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "runtime",
   "message": "Operation completed",

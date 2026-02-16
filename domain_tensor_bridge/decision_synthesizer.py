@@ -49,6 +49,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -83,6 +85,7 @@ class DecisionSynthesizer:
             "reflective": 0.25,
         }
 
+    @must_stay_async("callers use await")
     async def synthesize_decision(
         self,
         reasoning_outputs: list[dict[str, Any]],

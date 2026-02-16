@@ -53,7 +53,7 @@ __dora_meta__ = {
 
 import os
 from contextlib import asynccontextmanager, suppress
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 
@@ -67,7 +67,6 @@ from fastapi import (
     Header,
     HTTPException,
     Request,
-    Response,
     WebSocket,
     WebSocketDisconnect,
 )
@@ -96,14 +95,10 @@ from core.singleton_registry import get_singleton_registry
 from runtime.background_tasks import BackgroundTaskRegistry
 
 # MCP Server Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
-from runtime.mcp_server_registry import (
-    get_all_mcp_servers,
-)
 
 # Tool Executor Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
-from runtime.tool_registry import (
-    get_tool_executors,
-)
+# NOTE: runtime.tool_registry imports moved to lifespan scope per ADR-0094.
+# Bridge sync handled by sync_runtime_tools_to_primary() in lifespan.
 
 # Telemetry / Prometheus metrics
 try:
@@ -148,7 +143,9 @@ except ImportError:
 # Optional: Quantum Research Factory (v2.1+)
 try:
     from services.research.graph_runtime import init_runtime, shutdown_runtime
-    from services.research.research_api import router as research_router
+    from services.research.research_api import (
+        router as research_router,  # noqa: F401 — verified available
+    )
 
     _has_research = True
 except ImportError:
@@ -158,9 +155,7 @@ except ImportError:
 try:
     from world_model.runtime import (
         RuntimeConfig,
-        WorldModelRuntime,
         create_runtime_with_substrate,
-        get_or_create_runtime,
     )
 
     _has_world_model_runtime = True
@@ -176,7 +171,6 @@ try:
         AgentType,
         DuplicateTaskResponse,
         ExecutionResult,
-        ToolBinding,
     )
 
     _has_agent_executor = True
@@ -189,7 +183,7 @@ except Exception as e:
 
 # Optional: AIOS Runtime (v2.2+)
 try:
-    from core.aios.runtime import AIOSRuntime, create_aios_runtime
+    from core.aios.runtime import create_aios_runtime
 
     _has_aios_runtime = True
 except ImportError as e:
@@ -202,7 +196,6 @@ except Exception as e:
 # Optional: Tool Registry Adapter (v2.2+)
 try:
     from core.tools.registry_adapter import (
-        ExecutorToolRegistry,
         create_executor_tool_registry,
     )
 
@@ -227,7 +220,10 @@ except ImportError:
 
 # Optional: Pattern Orchestrator (v4.0+ / Agent Pattern System)
 try:
-    from orchestrators.pattern import CellAgentAdapter, PatternOrchestrator
+    from orchestrators.pattern import (  # noqa: F401 — availability check
+        CellAgentAdapter,
+        PatternOrchestrator,
+    )
 
     _has_pattern = True
 except ImportError:
@@ -243,7 +239,7 @@ except ImportError:
 
 # Optional: ResearchAgent (Perplexity-based unified research-to-code agent)
 try:
-    from agents.research_agent_impl import ResearchAgent, create_research_agent
+    from agents.research_agent_impl import create_research_agent
 
     _has_research_agent = True
 except ImportError as e:
@@ -252,7 +248,7 @@ except ImportError as e:
 
 # Optional: ReflectionAgent (Meta-reasoning and self-improvement agent)
 try:
-    from agents.reflection_agent import ReflectionAgent, create_reflection_agent
+    from agents.reflection_agent import create_reflection_agent
 
     _has_reflection_agent = True
 except ImportError as e:
@@ -276,7 +272,7 @@ except ImportError as e:
 
 # Optional: Governance Engine (v2.4+)
 try:
-    from core.governance.engine import GovernanceEngineService, create_governance_engine
+    from core.governance.engine import create_governance_engine
     from core.governance.loader import InvalidPolicyError, PolicyLoadError
 
     _has_governance = True
@@ -299,7 +295,6 @@ _has_commands = False  # commands_interface removed
 # Optional: Kernel-Aware Agent Registry (v2.5+)
 try:
     from core.agents.kernel_registry import (
-        KernelAwareAgentRegistry,
         create_kernel_aware_registry,
     )
 
@@ -356,15 +351,11 @@ try:
     from core.agents.graph_state import (
         AgentGraphLoader,
         GraphHydrator,
-        bootstrap_l_graph,
     )
     from core.tools.agent_self_modify import (
-        AgentSelfModifyTool,
         create_self_modify_tool,
     )
     from services.research.graph_persistence import (
-        ResearchGraphPersistence,
-        create_graph_persistence,
         init_graph_persistence,
     )
 
@@ -384,7 +375,6 @@ try:
         instrument_tool_registry,
     )
     from core.observability.service import (
-        ObservabilityService,
         initialize_observability,
     )
 
@@ -403,7 +393,7 @@ except ImportError:
 
 # Optional: Event Queue (v3.1+ Stage 3)
 try:
-    from core.coordination.event_queue import EventQueue, init_event_driven_coordination
+    from core.coordination.event_queue import init_event_driven_coordination
 
     _has_event_queue = True
 except ImportError:
@@ -435,7 +425,7 @@ if not _has_email_agent:
 
 # Optional: Housekeeping Engine (v2.4+)
 try:
-    from memory.housekeeping import HousekeepingEngine, init_housekeeping_engine
+    from memory.housekeeping import init_housekeeping_engine
 
     _has_housekeeping = True
 except ImportError:
@@ -443,7 +433,7 @@ except ImportError:
 
 # Optional: Bayesian Calibration Services (v4.0+ / Bayesian Upgrade)
 try:
-    from core.bayesian import BayesianKernel, get_bayesian_kernel
+    from core.bayesian import get_bayesian_kernel
     from core.calibration import (
         CalibrationService,
         GatingPolicyService,
@@ -647,7 +637,7 @@ async def lifespan(app: FastAPI):
 
     # ------------------------------------------------------------------------
     # Tool Executor Auto-Registration (GMP-95 Auto-Wiring)
-    # Register all tools: legacy TOOL_EXECUTORS + extension modules + @register_tool
+    # Register all tools: extension modules + @register_tool decorators
     # ------------------------------------------------------------------------
     try:
         from runtime.tool_registry import (
@@ -673,8 +663,25 @@ async def lifespan(app: FastAPI):
             extension_tools=extension_count,
             total_tools=snapshot["component_count"],
         )
+
+        # 4. ADR-0094: Bridge runtime auto-registered tools into primary
+        #    base registry so all dispatch goes through ExecutorToolRegistry.
+        #    Also sets tool_graph_healthy flag (previously set by register_l_tools).
+        try:
+            from core.tools.registry_adapter import sync_runtime_tools_to_primary
+
+            bridge_count = sync_runtime_tools_to_primary()
+            logger.info(
+                "ADR-0094 bridge: runtime tools synced to primary pipeline",
+                synced=bridge_count,
+            )
+            app.state.tool_graph_healthy = bridge_count > 0
+        except Exception as bridge_err:
+            logger.warning("ADR-0094 bridge failed (non-fatal)", error=str(bridge_err))
+            app.state.tool_graph_healthy = False
+
     except Exception as e:
-        # Non-fatal: tools can still be accessed via legacy TOOL_EXECUTORS directly
+        # Non-fatal: tools may still be accessible via base registry if bridge ran
         logger.warning(f"Tool executor auto-registration failed: {e}")
 
     # ------------------------------------------------------------------------
@@ -1032,6 +1039,7 @@ async def lifespan(app: FastAPI):
                 config=RuntimeConfig(
                     poll_interval_seconds=60,  # Poll memory every minute
                     batch_size=50,
+                    auto_load_seeds=False,  # GMP-FIX: Disable auto seed loading to prevent startup hang
                 ),
             )
             app.state.world_model_runtime = world_model_runtime
@@ -1647,7 +1655,6 @@ async def lifespan(app: FastAPI):
     try:
         from memory.graph_client import (
             close_neo4j_client,
-            get_neo4j_client,
             init_neo4j_client,
         )
 
@@ -1659,7 +1666,7 @@ async def lifespan(app: FastAPI):
                     try:
                         await close_neo4j_client()
                     except Exception:
-                        pass  # Ignore errors closing non-existent client
+                        logger.debug("neo4j.close_retry_cleanup_failed")
 
                 # Use init_neo4j_client() on first attempt to CREATE the singleton
                 # GMP-132: get_neo4j_client() only retrieves existing client, does not create
@@ -1731,7 +1738,12 @@ async def lifespan(app: FastAPI):
 
             # Register L9 tools in graph (for dependency tracking)
             try:
-                from core.tools.tool_graph import register_l9_tools, register_l_tools
+                # Use runtime import to avoid circular dependency
+                import importlib
+
+                module = importlib.import_module("core.tools.tool_graph")
+                register_l9_tools = module.register_l9_tools
+                register_l_tools = module.register_l_tools
 
                 tool_count = await register_l9_tools()
                 logger.info(f"Registered {tool_count} tools in Neo4j graph")
@@ -1946,30 +1958,10 @@ async def lifespan(app: FastAPI):
         logger.warning("STARTUP VALIDATION: Rate limiter not initialized")
 
     # ========================================================================
-    # REGISTER L-CTO TOOLS
+    # ADR-0094: L-CTO tool registration removed. All tools now registered
+    # via sync_runtime_tools_to_primary() bridge in the tool discovery block
+    # above. tool_graph_healthy flag set there.
     # ========================================================================
-    try:
-        from core.tools.registry_adapter import register_l_tools
-
-        tool_count = await register_l_tools()
-        if tool_count > 0:
-            logger.info(f"✓ L-CTO tools registered: {tool_count} tools available")
-            app.state.tool_graph_healthy = True
-        else:
-            logger.warning(
-                "⚠️ Tool registration returned 0 tools. "
-                "System will operate in degraded mode.",
-                extra={"alert": "tool_graph_degraded"},
-            )
-            app.state.tool_graph_healthy = False
-    except Exception as e:
-        logger.error(
-            f"❌ Tool registration failed: {e}. Tool graph unavailable.",
-            exc_info=True,
-            extra={"alert": "tool_graph_failed"},
-        )
-        app.state.tool_graph_healthy = False
-        # Non-fatal: tools still work via direct executor dispatch
 
     # ========================================================================
     # REGISTER MEMORY TOOLS (Agent Self-Query)
@@ -3188,7 +3180,7 @@ async def tools_health_endpoint():
             tools = tool_registry.list_tools()
             tool_count = len(tools) if tools else 0
         except Exception:
-            pass
+            logger.debug("health.tool_registry_list_failed")
 
     # Dynamic discovery count (from tool embeddings sync at startup)
     # These are stored in app.state by the lifespan handler

@@ -36,6 +36,7 @@ from uuid import uuid4
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.singleton_auto_registry import register_singleton
 from memory.substrate_repository import close_repository, init_repository
 from services.research.memory_adapter import get_memory_adapter, init_memory_adapter
@@ -88,6 +89,7 @@ class ResearchGraphRuntime:
         self._initialized = False
         logger.info("Research graph runtime shutdown")
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         query: str,

@@ -19,6 +19,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Service-Based LangGraph Nodes",
@@ -40,7 +42,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, TypedDict
 from uuid import uuid4
 
@@ -83,6 +85,7 @@ class WorldModelGraphState(TypedDict, total=False):
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def world_model_service_update_node(
     state: WorldModelGraphState,
     world_model_service=None,
@@ -177,6 +180,7 @@ async def world_model_service_update_node(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def world_model_snapshot_node(
     state: WorldModelGraphState,
     world_model_service=None,
@@ -219,9 +223,7 @@ async def world_model_snapshot_node(
     try:
         # Generate description if not provided
         if description is None:
-            description = (
-                f"LangGraph snapshot at {datetime.now(timezone.utc).isoformat()}"
-            )
+            description = f"LangGraph snapshot at {datetime.now(UTC).isoformat()}"
 
         # Create snapshot
         snapshot = await world_model_service.create_snapshot(
@@ -251,6 +253,7 @@ async def world_model_snapshot_node(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def world_model_query_node(
     state: dict[str, Any],
     world_model_service=None,

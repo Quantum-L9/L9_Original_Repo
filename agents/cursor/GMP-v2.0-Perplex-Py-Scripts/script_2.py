@@ -1,4 +1,9 @@
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Script 2",
     "module_version": "1.0.0",
@@ -409,11 +414,11 @@ $ dora-update /l9/core/agents/executor.py --version 1.2.4 --change-type update
 **END OF DORA BLOCK SPECIFICATION v2.0**
 """
 
-print(gmp_v2_synthesis)
-print(dora_spec)
-print("\n" + "=" * 60)
-print("✓ DORA Block Spec v2.0 Complete")
-print("=" * 60)
+logger.info("output", value=gmp_v2_synthesis)
+logger.info("output", value=dora_spec)
+logger.info("separator", value="\n" + "=" * 60)
+logger.info("✓ dora block spec v2.0 complete")
+logger.info("separator", value="=" * 60)
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

@@ -53,15 +53,17 @@ import hashlib
 import json
 import re
 import unicodedata
-from collections.abc import Iterable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 import structlog
 
 from core.schemas import PacketEnvelopeIn, PacketMetadata
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 logger = structlog.get_logger(__name__)
 
@@ -161,7 +163,7 @@ class AuditReport:
     """
 
     packet_id: UUID
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     injection_markers: set[str] = field(default_factory=set)
     regex_matches: list[str] = field(default_factory=list)
     # v2.0 additions
@@ -280,7 +282,7 @@ def _extract_text_content(packet: PacketEnvelopeIn) -> str | None:
         if len(payload_str) < 10240:
             return payload_str
     except Exception:
-        pass
+        logger.debug("audit_utils.payload_stringify_failed")
 
     return None
 

@@ -1,0 +1,249 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Canonical Template - Memory"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-18T00:38:07Z"
+# updated_at: "2026-01-18T00:38:11Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "Canonical Template - Memory"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================
+# CANONICAL MEMORY MODULE SCHEMA v2.0
+# SYSTEM: L9 Cognitive Architecture
+# MODULE: Multi-Store Memory Engine
+# PURPOSE: Persistent, multi-layer memory substrate for L9
+# ============================================================
+
+version: 6.0
+system: L9
+module: memory_engine
+name: Memory
+role: Persistent Cognitive Memory Substrate
+root_path: L9/memory/
+
+integration:
+  connect_to:
+    - L9/core/
+    - L9/agents/
+    - L9/orchestration/
+    - L9/world_model/
+  shared_domains:
+    - L9_Core
+    - All_Domain_OS
+
+description: >
+  Memory v2.0 is the canonical, persistent memory engine for L9.
+  It replaces session-based handoffs with continuous accumulation,
+  consolidation, and retrieval of knowledge across all interactions.
+  The module integrates semantic, episodic, structural, and causal memory
+  using Postgres+pgvector, Neo4j, and optional hypergraph extensions.
+  It supports bulk ingestion of historical transcripts and live streams.
+
+governance:
+  anchors:
+    - Igor
+    - L
+  mode: hybrid
+  human_override: true
+  compliance_auditor: L9/governance/auto_audit.py
+  escalation_policy: manual_review
+  performance_reporting: L9/monitoring/memory_metrics.json
+  audit_scope:
+    - data_ingestion
+    - retrieval
+    - mutation
+    - deletion
+
+memory_topology:
+  working_memory: redis
+  episodic_memory: postgres_pgvector
+  semantic_memory: postgres_pgvector
+  structural_memory: neo4j
+  causal_memory: neo4j_hypergraph
+  long_term_persistence: postgres
+  cross_agent_sharing:
+    enabled: true
+    layer: cognition_bus
+  memory_graph_linking:
+    type: temporal_hypergraph
+    enable_embedding_streams: true
+  update_interval_hours: 1
+
+communication_stack:
+  input:
+    - text
+    - structured_api
+    - transcript_batch
+  output:
+    - structured_context
+    - memory_bundle
+  channels:
+    internal_chat: L9_Comms_Bus
+    slack: true
+    email: false
+  i_o_engine:
+    multimodal_integration: disabled
+  sentiment_feedback: disabled
+  contextual_intent_detection: true
+
+reasoning_engine:
+  framework: memory_augmented_retrieval
+  model: adapter_selected
+  secondary_models:
+    - embedding_model
+    - entity_extraction_model
+  strategy_modes:
+    - recency_weighted
+    - semantic_similarity
+    - structural_traversal
+    - temporal_reconstruction
+  temporal_scope: infinite
+  knowledge_fusion_layer:
+    mode: hybrid_vector_graph
+    source_blend:
+      - semantic_embeddings
+      - episodic_sequences
+      - entity_relationships
+      - events
+  reasoning_feedback_loop:
+    policy: reinforcement_reflection
+    reward_function: retrieval_usefulness_score
+    penalty_function: hallucination_penalty
+    retrain_interval_hours: 24
+
+collaboration_network:
+  partners:
+    - L9_Agent_Core
+    - L9_Extraction_Agent
+  interaction_protocol:
+    context_exchange: memory_bundle_api
+    memory_alignment: async_vector_sync
+    approval_handoff: direct_call
+  autonomy_scope:
+    internal_decisions: full
+    external_actions: gated_by_governance
+  delegation_policy:
+    spawn_sub_agents: allowed
+    max_parallel_sub_agents: 3
+    sub_agent_templates:
+      - extraction_agent
+      - summarization_agent
+
+learning_system:
+  architecture: continuous_meta_learning
+  modules:
+    - consolidation
+    - summarization
+    - decay_pruning
+  feedback_channels:
+    - agent_usage
+    - human_corrections
+  model_update_policy:
+    mode: semi_online
+    auto_tune_hyperparams: true
+    rollback_on_regression: true
+  cognitive_growth_vector:
+    stability_threshold: 0.05
+    optimization_target: recall_quality_x_latency
+
+autonomy_profile:
+  mode: controlled_autonomy
+  task_limit: unlimited
+  decision_latency_max_ms: 1000
+  escalation_triggers:
+    - schema_violation
+    - destructive_delete
+  safety_layer:
+    - retention_policy_enforcer
+    - provenance_tracker
+    - conflict_detector
+
+cursor_instructions:
+  create_if_missing:
+    - L9/memory/
+    - L9/memory/ingestion/
+    - L9/memory/retrieval/
+    - L9/memory/schemas/
+    - L9/memory/tests/
+  generate_all_required: true
+  auto_integrate: true
+  generate_files:
+    - ingestion_engine.py
+    - retrieval_engine.py
+    - consolidation_worker.py
+    - memory_bundle.py
+    - schemas/postgres.sql
+    - schemas/neo4j.cypher
+  link_existing:
+    - L9/core/config.py
+    - L9/core/db.py
+  generate_docs:
+    - L9/memory/README.md
+    - L9/memory/ARCHITECTURE.md
+  logging:
+    - L9/logs/memory_ingestion.log
+    - L9/logs/memory_retrieval.log
+  post_generation:
+    manifest: L9/manifests/memory_v2_manifest.json
+    validate_dependencies: true
+
+deployment:
+  runtime: async_single_node
+  environment: vps_cluster_L9
+  api_mode: internal
+  endpoints:
+    - /memory/ingest
+    - /memory/query
+    - /memory/bundle
+  telemetry:
+    dashboard: L9/monitoring/memory_dashboard.py
+    metrics:
+      - ingestion_latency_ms
+      - retrieval_latency_ms
+      - embedding_freshness
+      - graph_size
+  alerting:
+    - notify_Igor
+    - auto_patch_minor_errors
+
+world_model_integration:
+  active_models:
+    - L9_world_model
+  data_connectors:
+    - entity_stream
+    - event_stream
+  model_type: dynamic_hypergraph
+  use_cases:
+    - long_term_reasoning
+    - decision_traceability
+    - contradiction_detection
+
+governance_feedback_cycle:
+  compliance_auditor: L9/governance/auto_audit.py
+  reflection_auditor: L9/governance/reflective_log.py
+  improvement_scoring:
+    - recall_quality
+    - latency
+    - coherence
+  report_frequency_hours: 24
+  escalation_path: governance_bridge
+
+metadata:
+  author: system
+  owner: Igor
+  version_hash: L9-Memory-v2.0
+  generated: 2025-12-13
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "code-generation", "configuration", "foundation", "model-config", "redis-config", "schema"]
+# keywords: ["canonical", "description", "governance", "integration", "memory", "memory_topology"]
+# last_modified: "2026-01-18T00:38:11Z"
+# ============================================================================

@@ -19,6 +19,8 @@ Created: 2026-01-05
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Bootstrap L Graph",
@@ -217,6 +219,7 @@ L_TOOLS = [
 ]
 
 
+@must_stay_async("callers use await")
 async def bootstrap_l_graph(
     neo4j_driver: AsyncDriver,
     force_refresh: bool = False,

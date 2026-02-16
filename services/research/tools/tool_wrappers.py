@@ -27,7 +27,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from abc import ABC, abstractmethod  # TODO(ADR-0026): Convert to Protocol - no shared impl
+from abc import (  # TODO(ADR-0026): Convert to Protocol - no shared impl
+    ABC,
+    abstractmethod,
+)
 from typing import Any
 
 import httpx
@@ -77,6 +80,7 @@ class PerplexityTool(BaseTool):
         """Initialize Perplexity tool."""
         self._client: PerplexityClient | None = None
 
+    @must_stay_async("callers use await")
     async def execute(self, args: dict[str, Any]) -> dict[str, Any]:
         """
         Execute Perplexity search.
@@ -157,6 +161,7 @@ class HTTPTool(BaseTool):
     Makes HTTP requests to external APIs.
     """
 
+    @must_stay_async("callers use await")
     async def execute(self, args: dict[str, Any]) -> dict[str, Any]:
         """
         Execute HTTP request.

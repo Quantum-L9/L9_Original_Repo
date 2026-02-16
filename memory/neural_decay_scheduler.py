@@ -20,6 +20,8 @@ Memories that are frequently accessed decay slower due to reinforcement.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Neural Decay Scheduler",
@@ -47,11 +49,13 @@ __dora_meta__ = {
 import asyncio
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any
-from uuid import UUID
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 import structlog
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 logger = structlog.get_logger(__name__)
 
@@ -164,6 +168,7 @@ class NeuralDecayScheduler:
         # Clamp to valid range
         return max(0.0, min(1.0, salience))
 
+    @must_stay_async("callers use await")
     async def run_decay_pass(
         self,
         reference_time: datetime | None = None,
@@ -177,8 +182,8 @@ class NeuralDecayScheduler:
         Returns:
             DecayResult with statistics
         """
-        reference_time = reference_time or datetime.now(timezone.utc)
-        start_time = datetime.now(timezone.utc)
+        reference_time = reference_time or datetime.now(UTC)
+        start_time = datetime.now(UTC)
         result = DecayResult()
 
         logger.info(
@@ -211,9 +216,7 @@ class NeuralDecayScheduler:
             logger.error(f"Facts decay failed: {e}", exc_info=True)
             result.errors.append(f"Facts decay: {e!s}")
 
-        result.duration_ms = (
-            datetime.now(timezone.utc) - start_time
-        ).total_seconds() * 1000
+        result.duration_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         logger.info(
             "Neural decay pass complete",
@@ -444,6 +447,7 @@ class NeuralDecayScheduler:
 
         return result
 
+    @must_stay_async("callers use await")
     async def get_decay_preview(
         self,
         packet_id: UUID | None = None,
@@ -462,7 +466,7 @@ class NeuralDecayScheduler:
         if self._repository is None:
             return {"error": "No repository configured"}
 
-        reference_time = datetime.now(timezone.utc)
+        reference_time = datetime.now(UTC)
 
         try:
             async with self._repository.acquire() as conn:

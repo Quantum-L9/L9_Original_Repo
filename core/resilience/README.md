@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -114,7 +114,7 @@ class ResilienceMixin:
 
 **Public Methods:** `with_resilience`
 
-**Lines:** 67-223 in `mixin.py`
+**Lines:** 69-226 in `mixin.py`
 
 ### `protocols.py` — ResilientService
 
@@ -142,7 +142,7 @@ class RetryExhaustedError:
 
 **Public Methods:** `__init__`
 
-**Lines:** 68-76 in `retry.py`
+**Lines:** 70-86 in `retry.py`
 
 ### `retry.py` — AsyncRetryConfig
 
@@ -158,7 +158,7 @@ class AsyncRetryConfig:
 
 **Public Methods:** `calculate_delay`
 
-**Lines:** 80-106 in `retry.py`
+**Lines:** 90-116 in `retry.py`
 
 
 ---
@@ -174,15 +174,15 @@ class AsyncRetryConfig:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `T` | `TypeVar('T')` | 65 |
-| `DEFAULT_RETRY_CONFIG` | `AsyncRetryConfig()` | 110 |
+| `T` | `TypeVar('T')` | 67 |
+| `DEFAULT_RETRY_CONFIG` | `AsyncRetryConfig()` | 120 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreResilienceRequest(BaseModel):
     """Request model for core_resilience operations."""
@@ -273,7 +273,7 @@ CORE_RESILIENCE_ENABLED=true
 
 Execute async function with retry logic and exponential backoff.
 
-- **File:** `retry.py:113`
+- **File:** `retry.py:124`
 - **Async:** Yes
 - **Returns:** `T`
 
@@ -307,7 +307,7 @@ Core Resilience operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.resilience",
   "message": "Operation completed",

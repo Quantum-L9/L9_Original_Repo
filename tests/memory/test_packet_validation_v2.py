@@ -11,10 +11,11 @@ Tests for:
 - Async context compatibility (pure function, no I/O)
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.schemas import VALID_DERIVE_TYPES, DeriveType, PacketEnvelopeIn
 from memory.validators.packet_validator import PacketValidationError, PacketValidator
 
@@ -125,7 +126,7 @@ class TestProvenanceValidation:
 
     def test_source_timestamp_in_past_accepted(self):
         """source_timestamp in the past is valid."""
-        past_time = datetime.now(timezone.utc) - timedelta(hours=1)
+        past_time = datetime.now(UTC) - timedelta(hours=1)
         packet = PacketEnvelopeIn(
             packet_type="event",
             payload={"test": "data"},
@@ -136,7 +137,7 @@ class TestProvenanceValidation:
 
     def test_source_timestamp_in_future_rejected(self):
         """source_timestamp in the future raises PacketValidationError."""
-        future_time = datetime.now(timezone.utc) + timedelta(hours=1)
+        future_time = datetime.now(UTC) + timedelta(hours=1)
         packet = PacketEnvelopeIn(
             packet_type="event",
             payload={"test": "data"},
@@ -183,7 +184,7 @@ class TestTTLValidation:
 
     def test_ttl_in_future_accepted(self):
         """TTL in the future is valid."""
-        future_ttl = datetime.now(timezone.utc) + timedelta(days=7)
+        future_ttl = datetime.now(UTC) + timedelta(days=7)
         packet = PacketEnvelopeIn(
             packet_type="event",
             payload={"test": "data"},
@@ -194,7 +195,7 @@ class TestTTLValidation:
 
     def test_ttl_in_past_rejected(self):
         """TTL in the past raises PacketValidationError."""
-        past_ttl = datetime.now(timezone.utc) - timedelta(hours=1)
+        past_ttl = datetime.now(UTC) - timedelta(hours=1)
         packet = PacketEnvelopeIn(
             packet_type="event",
             payload={"test": "data"},
@@ -248,6 +249,7 @@ class TestPacketTypeValidation:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_validator_callable_from_async_context():
     """Validator can be called from async functions without blocking."""
     packet = PacketEnvelopeIn(
@@ -261,6 +263,7 @@ async def test_validator_callable_from_async_context():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_validation_error_propagates_in_async():
     """PacketValidationError propagates correctly in async context."""
     packet = PacketEnvelopeIn(
@@ -276,6 +279,7 @@ async def test_validation_error_propagates_in_async():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_provenance_validation_in_async():
     """Provenance validation works in async context."""
     packet = PacketEnvelopeIn(

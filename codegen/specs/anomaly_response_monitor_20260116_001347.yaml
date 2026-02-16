@@ -1,0 +1,331 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Anomaly Response Monitor 20260116 001347"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-16T00:13:47Z"
+# updated_at: "2026-01-16T00:19:25Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "anomaly_response_monitor_20260116_001347"
+# type: "tracker"
+# status: "active"
+# ============================================================================
+
+metadata:
+  module_id: "anomaly_response_monitor"
+  name: "Anomaly Response Monitor"
+  tier: "7"
+  description: "Autonomous anomaly detection and response system that monitors telemetry, classifies anomalies by severity, and applies remediation"
+  system: "L9"
+  language: "python"
+  runtime: "python>=3.11"
+
+ownership:
+  team: "observability"
+  primary_contact: "observability_lead"
+
+runtime_wiring:
+  service: "worker"
+  startup_phase: "normal"
+  depends_on:
+    - "postgres"
+    - "redis"
+    - "memory.service"
+  blocks_startup_on_failure: false
+
+runtime_contract:
+  runtime_class: "workers.anomaly_response_monitor.AnomalyResponseMonitor"
+  execution_model: "async"
+  initialization: "eager"
+  singleton: true
+
+external_surface:
+  exposes_http_endpoint: false
+  exposes_webhook: false
+  exposes_tool: true
+  callable_from:
+    - "internal"
+
+dependency_contract:
+  inbound:
+    - module: "telemetry_collector"
+      interface: "direct"
+  outbound:
+    - module: "memory.service"
+      interface: "http"
+      endpoint: "/memory/ingest"
+    - module: "rollback_orchestrator"
+      interface: "tool"
+      endpoint: "rollback_orchestrator.execute"
+    - module: "aios.runtime"
+      interface: "http"
+      endpoint: "/chat"
+
+dependencies:
+  allowed_tiers:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+  outbound_calls:
+    - module: "memory.service"
+      interface: "http"
+      endpoint: "/memory/ingest"
+    - module: "rollback_orchestrator"
+      interface: "tool"
+      endpoint: "rollback_orchestrator.execute"
+    - module: "aios.runtime"
+      interface: "http"
+      endpoint: "/chat"
+
+packet_contract:
+  emits:
+    - "anomaly_response_monitor.in"
+    - "anomaly_response_monitor.out"
+    - "anomaly_response_monitor.error"
+  requires_metadata:
+    - "task_id"
+    - "thread_uuid"
+    - "source"
+    - "anomaly_id"
+    - "severity"
+
+packet_expectations:
+  on_success:
+    emit: "anomaly_response_monitor.out"
+    contains:
+      - "response_text"
+      - "remediation_status"
+      - "metadata"
+  on_error:
+    emit: "anomaly_response_monitor.error"
+    contains:
+      - "error_code"
+      - "error_message"
+      - "anomaly_id"
+  durability: "substrate"
+
+idempotency:
+  pattern: "composite_key"
+  source: "anomaly_id+severity+timestamp"
+  durability: "substrate"
+
+error_policy:
+  default: "best_effort"
+  retries:
+    enabled: true
+    max_attempts: 3
+    backoff_ms: 2000
+  escalation:
+    emit_error_packet: true
+    mark_task_failed: true
+    alert: "metric"
+
+observability:
+  logs:
+    enabled: true
+    level: "info"
+    include_request_id: true
+  metrics:
+    enabled: true
+    counters:
+      - "anomaly_response_monitor_requests_total"
+      - "anomaly_response_monitor_errors_total"
+      - "anomaly_response_monitor_remediations_total"
+      - "anomaly_response_monitor_rollbacks_total"
+    histograms:
+      - "anomaly_response_monitor_latency_seconds"
+      - "anomaly_response_monitor_detection_time_seconds"
+  traces:
+    enabled: true
+    sample_rate: 0.5
+
+runtime_touchpoints:
+  touches_db: true
+  touches_tools: true
+  touches_external_network: false
+  affects_boot: false
+
+tier_expectations:
+  tier_0_available: true
+  tier_1_available: true
+  tier_2_available: true
+  tier_3_available: true
+
+test_scope:
+  unit: true
+  integration: true
+  docker_smoke: false
+  boot_failure: false
+
+acceptance:
+  positive:
+    - id: "AP-1"
+      description: "Minor anomaly detected and auto-remediated"
+      test: "test_minor_anomaly_auto_remediated"
+    - id: "AP-2"
+      description: "Moderate anomaly classified and remediated"
+      test: "test_moderate_anomaly_remediated"
+    - id: "AP-3"
+      description: "Critical anomaly triggers rollback"
+      test: "test_critical_anomaly_triggers_rollback"
+    - id: "AP-4"
+      description: "Duplicate anomaly skipped via idempotency"
+      test: "test_duplicate_anomaly_skipped"
+  negative:
+    - id: "AN-1"
+      description: "Malformed telemetry rejected"
+      expected_behavior: "Log error, emit anomaly_response_monitor.error packet"
+      test: "test_malformed_telemetry_rejected"
+    - id: "AN-2"
+      description: "Unknown severity level handled gracefully"
+      expected_behavior: "Classify as minor, log warning"
+      test: "test_unknown_severity_handled"
+    - id: "AN-3"
+      description: "Rollback service unavailable"
+      expected_behavior: "Mark task failed, emit error packet, alert metrics"
+      test: "test_rollback_service_unavailable"
+
+global_invariants_ack:
+  emits_packet_on_ingress: true
+  tool_calls_traceable: true
+  unknown_tool_id_hard_fail: true
+  malformed_packet_blocked: true
+  missing_env_fails_boot: true
+
+spec_confidence:
+  level: "high"
+  basis:
+    - "Clear requirements mapping to L9 patterns"
+    - "Standard observability worker pattern"
+    - "Proven anomaly detection + remediation architecture"
+
+repo:
+  root_path: "/Users/ib-mac/Projects/L9"
+  allowed_new_files:
+    - "workers/anomaly_response_monitor.py"
+    - "workers/anomaly_classifier.py"
+    - "workers/remediation_engine.py"
+    - "tests/test_anomaly_response_monitor.py"
+    - "tests/test_anomaly_classifier.py"
+    - "docs/anomaly_response_monitor.md"
+  allowed_modified_files:
+    - "workers/server.py"
+
+interfaces:
+  inbound:
+    - name: "telemetry_ingest"
+      method: "POST"
+      route: "/anomaly_response_monitor/ingest"
+      headers:
+        - "X-Request-ID"
+      payload_type: "JSON"
+      auth: "internal"
+  outbound:
+    - name: "memory_ingest"
+      endpoint: "/memory/ingest"
+      method: "POST"
+      timeout_seconds: 10
+      retry: true
+    - name: "rollback_trigger"
+      endpoint: "/rollback_orchestrator/trigger"
+      method: "POST"
+      timeout_seconds: 30
+      retry: false
+    - name: "aios_consult"
+      endpoint: "/chat"
+      method: "POST"
+      timeout_seconds: 45
+      retry: true
+
+environment:
+  required:
+    - name: "ANOMALY_RESPONSE_MONITOR_CLASSIFIER_MODEL"
+      description: "Path to anomaly classification model"
+    - name: "LOG_PATH"
+      description: "Base path for anomaly logs"
+      default: "/var/log/l9"
+  optional:
+    - name: "AIOS_BASE_URL"
+      description: "AIOS endpoint for complex remediation decisions"
+      default: "http://localhost:8000"
+    - name: "ANOMALY_POLL_INTERVAL_SECONDS"
+      description: "Telemetry polling interval"
+      default: "30"
+
+orchestration:
+  validation:
+    - "Validate telemetry packet structure and required fields"
+    - "Check anomaly_id uniqueness for idempotency"
+    - "Verify severity classification model availability"
+  context_reads:
+    - method: "substrate_service.search_packets"
+      filter: "anomaly_id match"
+      purpose: "Check for existing remediation attempts"
+    - method: "substrate_service.search_packets"
+      filter: "thread_uuid match"
+      purpose: "Get system context for remediation decisions"
+  aios_calls:
+    - endpoint: "/chat"
+      input: "complex anomaly details + system context"
+      output: "remediation recommendation"
+  side_effects:
+    - action: "Store anomaly detection packet"
+      service: "substrate_service.write_packet"
+      packet_type: "anomaly_response_monitor.in"
+    - action: "Execute remediation or trigger rollback"
+      service: "remediation_engine.execute"
+      packet_type: "anomaly_response_monitor.out"
+    - action: "Log to anomaly_response.log"
+      service: "structlog.get_logger('anomaly_response')"
+      packet_type: "anomaly_response_monitor.out"
+
+boot_impact:
+  level: "soft"
+  reason: "Eager initialization for continuous monitoring, graceful failure handling"
+
+standards:
+  identity:
+    canonical_identifier: "anomaly_id"
+  logging:
+    library: "structlog"
+    forbidden: ["logging", "print"]
+  http_client:
+    library: "httpx"
+    forbidden: ["aiohttp", "requests"]
+
+goals:
+  - "Autonomous continuous anomaly detection from telemetry"
+  - "Severity-based automated response (remediate/rollback)"
+  - "Self-healing behavior with comprehensive observability"
+  - "Idempotent processing of telemetry events"
+
+non_goals:
+  - "Real-time alerting (handled by separate alerting module)"
+  - "Custom ML model training (uses pre-trained classifier)"
+  - "No new database tables"
+  - "No new migrations"
+  - "No parallel memory/logging/config systems"
+
+notes_for_codegen:
+  - "Use PacketEnvelopeIn for all packets"
+  - "Use UUIDv5 for anomaly_id from telemetry hash"
+  - "All handlers accept injected services (no singletons)"
+  - "Validate emitted packets against packet_contract.emits"
+  - "Implement continuous polling loop with exponential backoff"
+  - "Generate severity classification using ML model or rules"
+  - "Dual logging to workspace_observer.log and anomaly_response.log"
+  - "Implement self-healing: restart on persistent failures"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["code-generation", "configuration", "database-config", "foundation", "model-config", "redis-config", "tool-config", "tracker"]
+# keywords: ["001347", "20260116", "anomaly", "dependencies", "dependency_contract", "external_surface"]
+# last_modified: "2026-01-16T00:19:25Z"
+# ============================================================================

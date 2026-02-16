@@ -34,14 +34,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
 
 import structlog
 
 from core.auto_registry import AutoRegistry
 from core.singleton_registry import SingletonLifecycle
+from functools import wraps
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -210,17 +213,20 @@ def register_singleton(
             description="Memory substrate repository",
             category="memory"
         )
+        @must_stay_async("callers use await")
         async def get_memory_substrate_repository():
             # ... implementation ...
             return repository
 
         # Optionally pair with a closer
         @register_singleton_closer("memory_substrate_repository")
+        @must_stay_async("callers use await")
         async def close_memory_substrate_repository():
             # ... cleanup ...
             pass
     """
 
+    @wraps(name)
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
         """
         Performs automatic registration of singleton services by decorating functions within the singleton auto-registration system.
@@ -276,11 +282,13 @@ def register_singleton_closer(
 
     Example:
         @register_singleton_closer("redis_client")
+        @must_stay_async("callers use await")
         async def close_redis_client():
             # ... cleanup ...
             pass
     """
 
+    @wraps(singleton_name)
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
         """
         Registers a singleton service cleanup function in the auto-registration system.
@@ -335,7 +343,8 @@ def get_all_singleton_services() -> dict[str, SingletonServiceConfig]:
     Example:
         services = get_all_singleton_services()
         for name, config in services.items():
-            print(f"Singleton: {name}, Module: {config.module_path}")  # noqa: ADR-0019
+            logger.info("singleton_registered", name=name, module=config.module_path)
+            # print(f"Singleton: {name}, Module: {config.module_path}")  # noqa: ADR-0019
     """
     singleton_service_registry.initialize_factories()
 
@@ -420,7 +429,8 @@ def wire_singletons_to_registry(registry) -> int:
         # Wire them to the main registry
         registry = get_singleton_registry()
         count = wire_singletons_to_registry(registry)
-        print(f"Wired {count} singletons")  # noqa: ADR-0019
+        logger.info("singletons_wired", count=count)
+        # print(f"Wired {count} singletons")  # noqa: ADR-0019
     """
     services = get_all_singleton_services()
     wired_count = 0

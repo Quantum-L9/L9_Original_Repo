@@ -6,11 +6,11 @@ from uuid import uuid4
 import pytest
 from fastapi import HTTPException
 
-
+from core.decorators import must_stay_async
 from memory.governance_gate import build_governance_context, governance_context
 from memory.hybrid_rag import HybridRAGPipeline
-from memory.saga_patterns import _vector_search_step
 from memory.saga import SagaContext
+from memory.saga_patterns import _vector_search_step
 from memory.substrate_repository import SubstrateRepository
 from memory.substrate_semantic import EMBEDDING_DIMENSIONS, SemanticService
 
@@ -29,6 +29,7 @@ def _ctx():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_semantic_service_requires_explicit_provider():
     with pytest.raises(RuntimeError, match="Embedding provider required"):
         SemanticService(repository=MagicMock())
@@ -56,6 +57,7 @@ async def test_insert_semantic_embedding_includes_scope_and_tenant_fields():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_search_semantic_memory_applies_project_and_scope_filters():
     repo = SubstrateRepository("postgresql://unused")
     conn = AsyncMock()
@@ -103,7 +105,9 @@ async def test_vector_search_step_uses_top_k_signature():
     semantic = MagicMock()
     semantic.search = AsyncMock(return_value=[])
 
-    context = SagaContext(saga_id=uuid4(), input_data={"query": "test", "limit": 7, "min_similarity": 0.1})
+    context = SagaContext(
+        saga_id=uuid4(), input_data={"query": "test", "limit": 7, "min_similarity": 0.1}
+    )
     await _vector_search_step(context, semantic=semantic)
 
     semantic.search.assert_awaited_once_with(query="test", top_k=7)
@@ -135,6 +139,7 @@ async def test_repository_search_semantic_memory_fails_closed_without_governance
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_mcp_search_handler_enforces_tenant_project_scope_predicates(monkeypatch):
     monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "mcp_memory"))
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
@@ -143,6 +148,7 @@ async def test_mcp_search_handler_enforces_tenant_project_scope_predicates(monke
 
     captured = {}
 
+    @must_stay_async("callers use await")
     async def _mock_embed_text(_query):
         return [0.1] * EMBEDDING_DIMENSIONS
 
@@ -173,6 +179,7 @@ async def test_mcp_search_handler_enforces_tenant_project_scope_predicates(monke
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_mcp_search_handler_blocks_cross_project_request(monkeypatch):
     monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "mcp_memory"))
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
@@ -186,7 +193,6 @@ async def test_mcp_search_handler_blocks_cross_project_request(monkeypatch):
 
     async with governance_context(_ctx()):
         with pytest.raises(HTTPException, match="project_id must be derived"):
-
             await memory_unified.search_memory_handler(
                 user_id="u",
                 query="find memory",
@@ -196,13 +202,21 @@ async def test_mcp_search_handler_blocks_cross_project_request(monkeypatch):
 
 
 def test_migration_contains_semantic_scope_project_index():
-    migration_sql = (Path(__file__).resolve().parents[2] / "migrations" / "0030_semantic_memory_scope_project_index.sql").read_text()
+    migration_sql = (
+        Path(__file__).resolve().parents[2]
+        / "migrations"
+        / "0030_semantic_memory_scope_project_index.sql"
+    ).read_text()
 
-    assert "CREATE INDEX IF NOT EXISTS idx_semantic_scope_project_tenant_org_user_created" in migration_sql
+    assert (
+        "CREATE INDEX IF NOT EXISTS idx_semantic_scope_project_tenant_org_user_created"
+        in migration_sql
+    )
     assert "payload->>'_project_id'" in migration_sql
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_mcp_search_handler_legacy_null_tenant_gate(monkeypatch):
     monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "mcp_memory"))
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
@@ -212,6 +226,7 @@ async def test_mcp_search_handler_legacy_null_tenant_gate(monkeypatch):
 
     captured = {}
 
+    @must_stay_async("callers use await")
     async def _mock_embed_text(_query):
         return [0.1] * EMBEDDING_DIMENSIONS
 

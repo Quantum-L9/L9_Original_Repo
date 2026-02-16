@@ -59,7 +59,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -126,7 +126,7 @@ class StructuredReasoningBlock(BaseModel):
     memory_write_ops: list[dict[str, Any]] = Field(
         default_factory=list, description="Memory operations to perform"
     )
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 # =============================================================================
@@ -219,7 +219,7 @@ class PacketStoreRow(BaseModel):
     ttl: datetime | None = None
 
     # 10X Enhancements (migration 0008)
-    scope: str | None = "shared"
+    scope: str | None = "cursor"  # Valid: developer, global, cursor, l-private, agent
     importance_score: float | None = 0.5
     access_count: int | None = 0
     last_accessed: datetime | None = None
@@ -273,7 +273,7 @@ class KnowledgeFact(BaseModel):
         default=0.8, ge=0.0, le=1.0, description="Extraction confidence"
     )
     source_packet: UUID | None = Field(None, description="Originating packet ID")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class KnowledgeFactRow(BaseModel):
@@ -303,7 +303,7 @@ class KnowledgeFactRow(BaseModel):
     last_accessed: datetime | None = None
 
     # Scope (migration 0008)
-    scope: str | None = "shared"
+    scope: str | None = "cursor"  # Valid: developer, global, cursor, l-private, agent
 
     # Multi-tenant identity (migration 0008)
     tenant_id: UUID | None = None

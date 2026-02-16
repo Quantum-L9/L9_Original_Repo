@@ -1,0 +1,65 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Orchestration Langgraph Builder"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-06T16:58:23Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "orchestration_langgraph_builder"
+# type: "factory"
+# status: "active"
+# ============================================================================
+
+# ===================================
+# LangGraph Agent Mesh Generator
+# ===================================
+
+filename: orchestration/langgraph_builder.py
+type: graph_generator
+language: python
+
+description: |
+  Builds LangGraph DAGs from swarm.yaml agent specs.
+  Supports memory-bound reasoning flows, runtime injection, and GMP tracking.
+
+wiring:
+  inputs:
+    - swarm.yaml
+    - meta.yaml[]
+  emits:
+    - langgraph.dag.yaml
+    - orchestration_plan.md
+
+code: |
+  import yaml
+
+  def build_dag(swarm_path):
+      with open(swarm_path) as f:
+          swarm = yaml.safe_load(f)
+
+      nodes = []
+      for agent in swarm["modules"]:
+          nodes.append({
+              "id": agent["name"],
+              "type": "gmp_agent_node",
+              "inputs": agent.get("inputs", []),
+              "outputs": agent.get("outputs", [])
+          })
+
+      return {
+          "langgraph_dag": {
+              "nodes": nodes,
+              "edges": [{"from": n["id"], "to": "ReflectionAgent"} for n in nodes]
+          }
+      }
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "code-generation", "factory", "foundation"]
+# keywords: ["builder", "code", "description", "filename", "langgraph", "language"]
+# last_modified: "2026-01-06T16:58:23Z"
+# ============================================================================

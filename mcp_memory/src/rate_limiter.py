@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Rate Limiter",
@@ -73,6 +75,7 @@ class RateLimiter:
         self._lock = asyncio.Lock()
         self._buckets: dict[str, RateLimitBucket] = {}
 
+    @must_stay_async("callers use await")
     async def is_rate_limited(self, ip: str, now: float | None = None) -> bool:
         """Return True if the IP has exceeded the request limit."""
         current_time = now if now is not None else time.time()
@@ -81,6 +84,7 @@ class RateLimiter:
             self._prune(bucket, current_time, self._request_window_seconds, "request")
             return len(bucket.request_timestamps) >= self._request_limit
 
+    @must_stay_async("callers use await")
     async def is_auth_blocked(self, ip: str, now: float | None = None) -> bool:
         """Return True if the IP has exceeded failed auth attempts."""
         current_time = now if now is not None else time.time()
@@ -94,6 +98,7 @@ class RateLimiter:
             )
             return len(bucket.failed_auth_timestamps) >= self._failed_auth_limit
 
+    @must_stay_async("callers use await")
     async def record_request(self, ip: str, now: float | None = None) -> int:
         """Record a request for the IP and return the new bucket version."""
         current_time = now if now is not None else time.time()
@@ -106,6 +111,7 @@ class RateLimiter:
             bucket.version += 1
             return bucket.version
 
+    @must_stay_async("callers use await")
     async def record_failed_auth(self, ip: str, now: float | None = None) -> int:
         """Record a failed auth attempt and return the new bucket version."""
         current_time = now if now is not None else time.time()
@@ -123,6 +129,7 @@ class RateLimiter:
             bucket.version += 1
             return bucket.version
 
+    @must_stay_async("callers use await")
     async def snapshot(self, ip: str) -> RateLimitSnapshot:
         """Return a snapshot of the bucket for audits/tests."""
         async with self._lock:

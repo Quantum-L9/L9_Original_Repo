@@ -49,6 +49,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -113,6 +115,7 @@ class AnomalyHandler:
             escalated=escalated,
         )
 
+    @must_stay_async("callers use await")
     async def _escalate_anomaly(self, anomaly: AnomalyFlag) -> None:
         """Escalate anomaly to governance."""
         logger.info(

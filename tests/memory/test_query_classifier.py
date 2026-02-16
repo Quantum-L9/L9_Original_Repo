@@ -76,7 +76,7 @@ class TestQueryClassifier:
 
         queries = [
             "Tell me about X",
-            "Explore the Y system",
+            "Explore more about the Y system",
             "What do we know about Z?",
             "Overview of the project",
         ]
@@ -91,9 +91,9 @@ class TestQueryClassifier:
 
         queries = [
             "Get the value of X",
-            "What is the fact about Y?",
             "Retrieve the data for Z",
             "Fetch the fact about status",
+            "Fact about the deployment",
         ]
 
         for query in queries:

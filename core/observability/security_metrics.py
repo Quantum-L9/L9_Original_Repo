@@ -30,23 +30,30 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
 from dataclasses import dataclass
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
+import structlog
+
 # Try to import prometheus_client, but make it optional
 try:
-    from prometheus_client import Counter, Gauge, Histogram, Summary
+    from prometheus_client import (  # noqa: F401 — Summary used conditionally
+        Counter,
+        Gauge,
+        Histogram,
+        Summary,
+    )
 
     PROMETHEUS_AVAILABLE = True
 except ImportError:
     PROMETHEUS_AVAILABLE = False
-    logger = logging.getLogger(__name__)
-    logger.warning("prometheus_client not available, metrics will be logged only")
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
+
+if not PROMETHEUS_AVAILABLE:
+    logger.warning("prometheus_client not available, metrics will be logged only")
 
 
 class MetricType(Enum):

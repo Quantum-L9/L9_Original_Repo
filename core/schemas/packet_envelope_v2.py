@@ -46,7 +46,7 @@ __dora_meta__ = {
 
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Literal
 from uuid import UUID, uuid4
@@ -180,6 +180,12 @@ class PacketMetadata(BaseModel):
     reasoning_mode: str | None = Field(None, description="Reasoning mode used")
     agent: str | None = Field(None, description="Agent identifier")
     domain: str | None = Field("l9", description="Domain context")
+    # Required by DB constraint packet_store_project_id_not_null
+    project_id: str = Field("l9", description="Project identifier for RLS isolation")
+    # Required by DB constraint packet_store_scope_check
+    scope: str = Field(
+        "cursor", description="RLS scope: developer, global, cursor, l-private, agent"
+    )
 
     model_config = {"frozen": True, "extra": "allow"}
 
@@ -219,7 +225,7 @@ class PacketEnvelope(BaseModel):
         description="Flexible JSON payload. Schema does not enforce shape.",
     )
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(UTC),
         description="UTC timestamp (auto-generated if omitted)",
     )
 
@@ -315,7 +321,7 @@ class PacketEnvelope(BaseModel):
         return self.model_copy(
             update={
                 "packet_id": uuid4(),
-                "timestamp": datetime.now(timezone.utc),
+                "timestamp": datetime.now(UTC),
                 "lineage": new_lineage,
                 "metadata": new_metadata,
                 **updates,
@@ -412,7 +418,7 @@ class PacketEnvelopeIn(BaseModel):
             packet_id=self.packet_id or uuid4(),
             packet_type=self.packet_type,
             payload=self.payload,
-            timestamp=self.timestamp or datetime.now(timezone.utc),
+            timestamp=self.timestamp or datetime.now(UTC),
             metadata=(
                 PacketMetadata(**self.metadata) if self.metadata else PacketMetadata()
             ),

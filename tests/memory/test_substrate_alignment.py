@@ -8,6 +8,8 @@ import os
 
 import pytest
 
+from core.decorators import must_stay_async
+
 pytest.importorskip("asyncpg")
 
 from memory.graph_client import close_neo4j_client, get_neo4j_client
@@ -90,6 +92,7 @@ class TestQueryInjectionPrevention:
     """Tests for query injection detection."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_sql_injection_blocked(self):
         """SQL injection patterns should be blocked."""
         from core.tools.memory_tools import _detect_query_injection
@@ -104,6 +107,7 @@ class TestQueryInjectionPrevention:
             assert _detect_query_injection(query) is True, f"Should block: {query}"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cypher_injection_blocked(self):
         """Cypher injection patterns should be blocked."""
         from core.tools.memory_tools import _detect_query_injection
@@ -117,6 +121,7 @@ class TestQueryInjectionPrevention:
             assert _detect_query_injection(query) is True, f"Should block: {query}"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_benign_queries_allowed(self):
         """Normal search queries should pass."""
         from core.tools.memory_tools import _detect_query_injection
@@ -135,6 +140,7 @@ class TestCircuitBreakerIntegration:
     """Tests for circuit breaker in batch endpoint."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_circuit_breaker_opens_after_failures(self):
         """Circuit breaker should open after threshold failures."""
         from api.memory.router import _batch_circuit_breaker
@@ -147,6 +153,7 @@ class TestCircuitBreakerIntegration:
         assert _batch_circuit_breaker.is_open() is True
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_circuit_breaker_resets_on_success(self):
         """Circuit breaker should close after successful operation."""
         from api.memory.router import _batch_circuit_breaker

@@ -40,7 +40,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
@@ -96,7 +96,7 @@ class ViolationRecord(BaseModel):
     description: str
     source: str
     context: str = ""
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     violation_count: int = 1
 
 
@@ -104,9 +104,7 @@ class ViolationTrackerServiceRequest(BaseModel):
     """Input request for ViolationTrackerService."""
 
     request_id: str = Field(
-        default_factory=lambda: str(
-            uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc)))
-        )
+        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.now(UTC))))
     )
     content: str = Field(..., description="Content to scan for violations")
     source: str = Field(
@@ -114,7 +112,7 @@ class ViolationTrackerServiceRequest(BaseModel):
     )
     user_id: str = Field(default="cursor_agent", description="User or agent ID")
     context: dict[str, Any] = Field(default_factory=dict)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"extra": "forbid"}
 
@@ -224,6 +222,7 @@ class ViolationTrackerService:
     # Main API
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def process(
         self, request: ViolationTrackerServiceRequest
     ) -> ViolationTrackerServiceResponse:
@@ -236,7 +235,7 @@ class ViolationTrackerService:
         Returns:
             ViolationTrackerServiceResponse with violations found and actions taken
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         violations: list[ViolationRecord] = []
         escalated_lessons: list[str] = []
 
@@ -317,6 +316,7 @@ class ViolationTrackerService:
     # Internal Methods
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _process_violation(
         self,
         match: ViolationMatch,
@@ -376,7 +376,7 @@ class ViolationTrackerService:
     ) -> None:
         """Write violation to audit log."""
         entry = {
-            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "timestamp_utc": datetime.now(UTC).isoformat(),
             "change_type": "lesson_violation",
             "trigger_source": "violation_tracker",
             "outcome": "detected",
@@ -472,7 +472,7 @@ class ViolationTrackerService:
 
         # Log escalation to audit
         entry = {
-            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "timestamp_utc": datetime.now(UTC).isoformat(),
             "change_type": "escalation",
             "trigger_source": "violation_tracker",
             "outcome": "escalated",
@@ -516,7 +516,7 @@ class ViolationTrackerService:
 
     def _calc_duration(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
-        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        return int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
     # =========================================================================
     # Utility Methods

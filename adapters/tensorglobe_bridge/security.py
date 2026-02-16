@@ -30,8 +30,9 @@ __dora_meta__ = {
 
 import hashlib
 import hmac
-import structlog
 from datetime import timedelta
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

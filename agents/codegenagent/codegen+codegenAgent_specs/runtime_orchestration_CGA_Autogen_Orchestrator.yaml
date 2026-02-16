@@ -1,0 +1,54 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Runtime Orchestration Cga Autogen Orchestrator"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "runtime_orchestration_CGA_Autogen_Orchestrator"
+# type: "controller"
+# status: "active"
+# ============================================================================
+
+# ============================================================
+# PATCH — CGA_Autogen_Orchestrator.py
+# Purpose: Route agents into orchestrator DAGs using construct_features
+# ============================================================
+
+filename: runtime/orchestration/CGA_Autogen_Orchestrator.py
+patch_type: orchestrator_expansion
+language: python
+description: |
+  Enables CGA to include feature-specific orchestration logic
+  based on construct_features in the agent schema.
+
+patch:
+  update_function: generate_orchestrators
+  recursive_enrichment_passes: 3
+  enriched_code: |
+    def generate_orchestrators():
+        schemas = load_yaml_schemas('schemas/agents/')
+        for agent_schema in schemas:
+            features = agent_schema.get("construct_features", {})
+            dag_code = emit_dag_from_spec(agent_schema)
+
+            if features.get("patchable_via_reflection", False):
+                dag_code += "\n# Reflection loop support enabled"
+
+            if features.get("self_healing_hooks", False):
+                dag_code += "\n# Auto-repair agent wiring embedded"
+
+            outfile = f'orchestrators/generated/{agent_schema["id"]}_orchestrator.py'
+            with open(outfile, 'w') as f:
+                f.write(dag_code)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "controller", "intelligence", "schema"]
+# keywords: ["autogen", "cga", "description", "filename", "language", "orchestration"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

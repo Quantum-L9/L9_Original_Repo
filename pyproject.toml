@@ -20,8 +20,10 @@ testpaths = ["tests"]
 explicit_package_bases = true
 mypy_path = "."
 ignore_missing_imports = true
-warn_return_any = false
-warn_unused_ignores = false
+warn_return_any = true
+warn_unused_ignores = true
+warn_unreachable = true
+disallow_untyped_defs = false
 python_version = "3.12"
 # Pydantic plugin - CRITICAL for understanding Field() defaults
 plugins = ["pydantic.mypy"]
@@ -46,9 +48,19 @@ ignore_errors = true
 
 [tool.ruff]
 exclude = [
+    # Archived / non-production
+    "_archived",
+    "**/archive",
+    "**/archive/**",
+    "**/*_archived*",
+    "**/*archive*/**",
+    "reports/_archived",
+    "private/kernels/00_system/_archived",
+    ".cursor/_archived_commands_backup_20260116",
+    # Non-code / generated / documentation
     "l9_private/kernels",
     "readme",
-    "_archived",
+    "reports",
     ".backup",
     "current_work",
     ".venv",
@@ -56,6 +68,7 @@ exclude = [
     "__pycache__",
     ".git",
     "*.egg-info",
+    "codegen",
 ]
 line-length = 88
 
@@ -75,24 +88,16 @@ select = [
 ignore = [
     "E402",   # Module level import not at top (DORA metadata pattern - ADR-0014)
     "F841",   # Unused variable (future-proofing)
-    "E501",   # Line too long (handled by Black)
-    "S110",   # try-except-pass (common pattern for optional features)
-    "S112",   # try-except-continue (common pattern for resilient loops)
-    "S603",   # subprocess without shell=True (false positive for safe invocations)
-    "S607",   # partial executable path (acceptable in controlled environments)
-    "S608",   # SQL injection (false positive for parameterized queries)
-    "S310",   # suspicious URL open (acceptable for research/API calls)
-    "S311",   # non-cryptographic random (acceptable for non-security uses)
-    "S108",   # hardcoded temp file (acceptable in containerized environments)
-    "S501",   # request without cert validation (acceptable for internal services)
+    "E501",   # Line too long (handled by formatter)
 ]
 
 [tool.ruff.lint.per-file-ignores]
+# Re-exports in __init__.py are intentional
 "__init__.py" = ["F401"]
-"tests/**/*.py" = ["F821", "F401", "B017", "PT011", "PT017"]
-".github/scripts/*.py" = ["S603", "S607"]
-"scripts/**/*.py" = ["S603", "S607"]
-"ci/**/*.py" = ["S603", "S607"]
+# Tests: assert IS the test mechanism
+"tests/**/*.py" = ["S101"]
+"**/tests/**/*.py" = ["S101"]
+"**/test_*.py" = ["S101"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["core", "agents", "memory", "runtime", "api", "tools", "world_model", "orchestration"]
@@ -100,12 +105,10 @@ known-first-party = ["core", "agents", "memory", "runtime", "api", "tools", "wor
 [tool.ruff.lint.flake8-type-checking]
 runtime-evaluated-base-classes = ["pydantic.BaseModel", "typing.Protocol"]
 
-[tool.black]
-line-length = 88
-target-version = ['py312']
-exclude = '''/(\.git|\.venv|venv|l9_private/kernels|readme|_archived)/'''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-skip = ["l9_private/kernels", "readme", "_archived", ".venv", "venv"]
+[tool.interrogate]
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+ignore-semiprivate = true
+fail-under = 40
+exclude = ["tests", "scripts", "ci", "tools", "l9_private", "_archived", ".venv"]

@@ -14,6 +14,7 @@ Cursor rule files (`.cursor/rules/*.mdc`) are documentation that AI agents read 
 - Service credentials
 
 This violates fundamental security principles:
+
 1. Credentials become stale and cause auth failures
 2. Credentials are visible in git history
 3. AI agents may leak credentials in responses
@@ -54,9 +55,10 @@ API_KEY=${L9_API_KEY}
 ### CI Enforcement
 
 `ci/check_no_hardcoded_credentials.py` runs on every PR and blocks merge if:
+
 - Password patterns found in `.cursor/rules/`
 - Connection strings with literal passwords
-- API key patterns (sk_, pk_, api_key=literal)
+- API key patterns (sk*, pk*, api_key=literal)
 
 ### Exceptions
 

@@ -623,25 +623,29 @@ def main() -> int:
     total_functions = sum(len(r.functions_processed) for r in results)
     total_classes = sum(len(r.classes_processed) for r in results)
 
-    print(f"\n{'[DRY RUN] ' if dry_run else ''}Docstring Injection Summary")
-    print("=" * 50)
-    print(f"Files with missing docstrings: {len(results)}")
-    print(f"Total injections needed: {total_injections}")
-    print(f"  - Functions/methods: {total_functions}")
-    print(f"  - Classes: {total_classes}")
+    logger.info("\n{'[dry run] ' if dry_run else ''}docstring injection summary")
+    logger.info("=" * 50)
+    logger.info("files with missing docstrings: {len(results)}")
+    logger.info(
+        "total injections needed: total injections", total_injections=total_injections
+    )
+    logger.info(
+        "  - functions/methods: total functions", total_functions=total_functions
+    )
+    logger.info("  - classes: total classes", total_classes=total_classes)
 
     if results and len(results) <= 20:
-        print("\nFiles:")
+        logger.info("\nfiles:")
         for r in results:
             mode = "[would inject]" if dry_run else "[injected]"
-            print(f"  {mode} {r.file}: {r.injections} docstrings")
+            logger.info("  mode {r.file}: {r.injections} docstrings", mode=mode)
             if r.functions_processed:
-                print(f"    Functions: {', '.join(r.functions_processed[:5])}")
+                logger.info("    functions: {', '.join(r.functions_processed[:5])}")
             if r.classes_processed:
-                print(f"    Classes: {', '.join(r.classes_processed[:5])}")
+                logger.info("    classes: {', '.join(r.classes_processed[:5])}")
 
     if dry_run:
-        print("\nRun with --execute to inject docstrings.")
+        logger.info("\nrun with --execute to inject docstrings.")
 
     return 0
 

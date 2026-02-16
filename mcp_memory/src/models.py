@@ -960,8 +960,8 @@ class CacheSetArgs(BaseModel):
 class CacheGetSessionContextArgs(BaseModel):
     """Validation model for cache_get_session_context MCP tool arguments.
 
-    Validates parameters for retrieving session context from the cache,
-    which stores recent conversation and task state.
+    Validates parameters for retrieving session context from the cache for any L9 agent.
+    Context is namespaced by caller (Cursor, L, etc.) so agents do not overwrite each other.
 
     Attributes:
         session_id: Session identifier. Defaults to daily session if not provided.
@@ -976,6 +976,26 @@ class CacheGetSessionContextArgs(BaseModel):
             extra: Specifies behavior for unexpected fields, set to "forbid" to disallow extra data.
         """
 
+        extra = "forbid"
+
+
+class CacheSetSessionContextArgs(BaseModel):
+    """Validation model for cache_set_session_context MCP tool arguments.
+
+    Validates parameters for storing session context in Redis cache for any L9 agent
+    (Cursor, L, Mac agent, etc.). Enables resume without amnesia across restarts or windows.
+
+    Attributes:
+        session_id: Session identifier. Defaults to daily session if not provided.
+        context: Dict with summary, files_touched, current_task, decisions, next_steps, etc.
+        ttl: Time-to-live in seconds (default 86400 = 24 hours).
+    """
+
+    session_id: str | None = None
+    context: dict  # summary, files_touched, current_task, decisions, next_steps
+    ttl: int = 86400  # 24 hours
+
+    class Config:
         extra = "forbid"
 
 

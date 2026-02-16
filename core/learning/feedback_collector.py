@@ -415,7 +415,7 @@ class FeedbackCollector:
             with open(self.meta_learning_log, "a") as f:
                 f.write(log_entry)
         except Exception:
-            pass
+            logger.debug("feedback_collector.meta_learning_log_write_failed")
 
     def _log_feedback(self, event: FeedbackEvent):
         """Log feedback event to telemetry"""
@@ -433,7 +433,7 @@ class FeedbackCollector:
             with open(self.feedback_log_path, "a") as f:
                 f.write(json.dumps(record) + "\n")
         except Exception:
-            pass
+            logger.debug("feedback_collector.feedback_log_write_failed")
 
     def _update_decision_outcome(self, decision_id: str, outcome: str):
         """Update outcome in original decision log"""
@@ -448,9 +448,7 @@ class FeedbackCollector:
                     decision = json.loads(line.strip())
                     if decision.get("decision_id") == decision_id:
                         decision["outcome"] = outcome
-                        decision["outcome_timestamp"] = datetime.now(
-                            UTC
-                        ).isoformat()
+                        decision["outcome_timestamp"] = datetime.now(UTC).isoformat()
                     decisions.append(decision)
                 except json.JSONDecodeError:
                     continue

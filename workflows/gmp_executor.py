@@ -26,7 +26,12 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Gmp Executor",
     "module_version": "1.0.0",
@@ -52,7 +57,7 @@ import json
 import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 
@@ -187,7 +192,7 @@ class GMPExecutor:
 
     def _run_shell(self, cmd: str, capture: bool = True) -> tuple[int, str, str]:
         """Run shell command."""
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S602 — shell required for GMP command execution
             cmd,
             shell=True,
             cwd=REPO_ROOT,
@@ -483,7 +488,7 @@ test_path = Path('{REPO_ROOT / test_file}')
 test_path.parent.mkdir(parents=True, exist_ok=True)
 test_path.write_text(tests)
 
-print(f'Generated {{len(tests.splitlines())}} lines')
+logger.info("generated {{len(tests.splitlines())}} lines")
 "'''
                 code, stdout, stderr = self._run_shell(cmd)
                 if code == 0:
@@ -841,7 +846,7 @@ from {module_path} import ...
                 gmp_id=f"GMP-{gmp_num}",
                 tier=tier,
                 task=task,
-                started_at=datetime.now().isoformat(),
+                started_at=datetime.now(tz=UTC).isoformat(),
                 current_step=STEP_ORDER[0],
             )
             self._save_state()

@@ -1,8 +1,8 @@
 # ADR-0073: Evidence-Based Claims
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Author:** Igor Beylin  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Author:** Igor Beylin
 
 ## Context
 
@@ -14,13 +14,13 @@ Claiming "it's fixed" without proof wastes time and erodes trust. When fixes are
 
 ### Evidence Requirements
 
-| Claim | Required Evidence |
-|-------|-------------------|
-| "Bug fixed" | Test passes, error no longer reproduces |
-| "Feature works" | Demo output, screenshot, or test result |
-| "Tests pass" | Actual pytest/jest output with exit code 0 |
-| "Deployed" | Health check response, logs showing startup |
-| "Performance improved" | Before/after metrics with numbers |
+| Claim                  | Required Evidence                           |
+| ---------------------- | ------------------------------------------- |
+| "Bug fixed"            | Test passes, error no longer reproduces     |
+| "Feature works"        | Demo output, screenshot, or test result     |
+| "Tests pass"           | Actual pytest/jest output with exit code 0  |
+| "Deployed"             | Health check response, logs showing startup |
+| "Performance improved" | Before/after metrics with numbers           |
 
 ### Evidence Format
 
@@ -31,7 +31,9 @@ Claiming "it's fixed" without proof wastes time and erodes trust. When fixes are
 
 **Evidence:**
 ```
+
 [Actual command output, test result, or screenshot]
+
 ```
 
 **Exit code:** 0 ✓
@@ -39,11 +41,11 @@ Claiming "it's fixed" without proof wastes time and erodes trust. When fixes are
 
 ### Anti-Patterns
 
-| Anti-Pattern | Why It's Wrong |
-|--------------|----------------|
-| "It should work now" | No proof provided |
-| "I tested it locally" | Where's the output? |
-| "Looks good to me" | Subjective, not evidence |
+| Anti-Pattern          | Why It's Wrong                |
+| --------------------- | ----------------------------- |
+| "It should work now"  | No proof provided             |
+| "I tested it locally" | Where's the output?           |
+| "Looks good to me"    | Subjective, not evidence      |
 | "Fixed!" (no details) | What was fixed? How verified? |
 
 ### Verification Checklist
@@ -73,26 +75,32 @@ fix(module): brief description
 
 ```markdown
 ## Changes
+
 [What changed]
 
 ## Verification
+
 [Command run and output]
 
 ## Test Results
+
 [pytest/jest output]
 ```
 
 ## Consequences
 
 ### Positive
+
 - Fixes are actually verified
 - Trust is maintained
 - Fewer "fixed but not really" issues
 - Clear audit trail
 
 ### Negative
+
 - Takes slightly longer to document
 - Requires running verification commands
 
 ## Related
+
 - ADR-0072: Diagnose Before Fix

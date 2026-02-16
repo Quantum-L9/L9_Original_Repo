@@ -28,10 +28,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging  # noqa: ADR-0019
 from dataclasses import dataclass
 
-logger = logging.getLogger(__name__)  # noqa: ADR-0019
+import structlog
+
+logger = structlog.get_logger(__name__)
 
 
 @dataclass
@@ -93,7 +94,7 @@ class ToolCapabilities:
         Enhancement: Considers tags + governance
         """
         try:
-            from runtime.tool_registry import get_tool_registry
+            from core.tools.base_registry import get_tool_registry
 
             registry = get_tool_registry()
             metadata = registry.get_tool_metadata(tool_id)

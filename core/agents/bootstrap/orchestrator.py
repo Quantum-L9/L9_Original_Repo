@@ -25,6 +25,8 @@ Version: 2.0.0 (View Pattern)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Master 7-Phase Controller",
@@ -47,7 +49,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
@@ -61,6 +62,8 @@ from .models import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from core.agents.schemas import AgentConfig
     from memory.substrate_service import MemorySubstrateService
 
@@ -131,6 +134,7 @@ class AgentBootstrapOrchestrator:
             l9_new_agent_init=self._new_agent_init_enabled,
         )
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         agent_id: str,
@@ -304,6 +308,7 @@ class AgentBootstrapOrchestrator:
                 duration_ms=duration,
             )
 
+    @must_stay_async("callers use await")
     async def _phase1_load_kernels(
         self, ctx: AgentBootstrapContext, kernel_paths: dict[str, str]
     ) -> PhaseResult:
@@ -551,6 +556,7 @@ class AgentBootstrapOrchestrator:
                 duration_ms=duration,
             )
 
+    @must_stay_async("callers use await")
     async def _phase7_verify_and_lock(
         self, ctx: AgentBootstrapContext, kernel_paths: dict[str, str]
     ) -> PhaseResult:
@@ -634,6 +640,7 @@ class AgentBootstrapOrchestrator:
     # Rollback & Cleanup
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _rollback_agent_init(
         self, agent_id: str, reason: str, phase: int
     ) -> None:
@@ -710,6 +717,7 @@ class AgentBootstrapOrchestrator:
     # Legacy API (Backward Compatibility)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def bootstrap_agent(
         self,
         config: AgentConfig,

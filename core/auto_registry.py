@@ -44,10 +44,13 @@ __dora_meta__ = {
 import importlib
 import inspect
 import pkgutil
-from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import structlog
+from functools import wraps
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -184,6 +187,7 @@ class AutoRegistry[T]:
                 return APIRouter()
         """
 
+        @wraps(self)
         def decorator(
             component: T | Callable[[], T],
         ) -> T | Callable[[], T]:

@@ -21,8 +21,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from pathlib import Path
-from typing import TextIO
+from typing import TYPE_CHECKING, TextIO
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def ensure_reports_dir(path: Path) -> None:

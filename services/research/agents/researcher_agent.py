@@ -26,11 +26,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from services.research.agents.base_agent import BaseAgent
 from services.research.graph_state import Evidence, ResearchStep
 
@@ -79,6 +80,7 @@ class ResearcherAgent(BaseAgent):
         """Set the graph persistence service for persisting findings to Neo4j."""
         self._graph_persistence = persistence
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         step: ResearchStep,
@@ -143,7 +145,7 @@ class ResearcherAgent(BaseAgent):
             source=step.get("step_id", "unknown"),
             content=response.get("findings", "No findings"),
             confidence=float(response.get("confidence", 0.5)),
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             metadata={
                 "key_facts": response.get("key_facts", []),
                 "sources": response.get("sources", []),
@@ -197,6 +199,7 @@ class ResearcherAgent(BaseAgent):
 
         return None
 
+    @must_stay_async("callers use await")
     async def synthesize_evidence(
         self,
         evidence_list: list[Evidence],

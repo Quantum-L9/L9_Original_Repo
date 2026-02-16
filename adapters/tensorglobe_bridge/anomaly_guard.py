@@ -30,14 +30,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
 import numpy as np
+import structlog
+
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -71,7 +73,7 @@ class AnomalySignal:
     severity: AnomalySeverity
     action_taken: str
     details: dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 class AnomalyDetector:
@@ -108,6 +110,7 @@ class AnomalyDetector:
         self._latency_std: float | None = None
         self._confidence_mean: float | None = None
 
+    @must_stay_async("callers use await")
     async def detect(
         self,
         request: Any,  # TensorRequest

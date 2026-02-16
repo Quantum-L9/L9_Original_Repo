@@ -11,6 +11,8 @@ Covers:
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Try to import the orchestrator - may fail if runtime path not in sys.path
 try:
     from runtime.websocket_orchestrator import WebSocketOrchestrator
@@ -29,12 +31,15 @@ class FakeWebSocket:
         self.accepted = False
         self.closed = False
 
+    @must_stay_async("callers use await")
     async def accept(self):
         self.accepted = True
 
+    @must_stay_async("callers use await")
     async def send_json(self, data):
         self.sent.append(data)
 
+    @must_stay_async("callers use await")
     async def close(self, code: int = 1000):
         self.closed = True
         self.close_code = code

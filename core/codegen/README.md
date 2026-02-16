@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -84,14 +84,15 @@ core/codegen/
 ├── spec/__init__.py
 ├── spec/spec_normalizer_v2.py
 ├── utilities.py
+├── wire_executor.py
 ```
 
 | File | Purpose |
 |------|---------|
 | `__init__.py` | Core module (PROTECTED) |
-| `utilities.py` | Single validation gate result |
-| `utilities.py` | Complete validation report |
-| `utilities.py` | 14-gate validation pipeline for generated code. |
+| `wire_executor.py` | Component |
+| `wire_executor.py` | Component |
+| `wire_executor.py` | Component |
 
 ### Naming Conventions
 
@@ -104,87 +105,71 @@ core/codegen/
 
 ## Key Components
 
-### `utilities.py` — ValidationGate
+### `wire_executor.py` — StepStatus
 
 ```python
-class ValidationGate:
-    """Single validation gate result"""
+class StepStatus:
+    """No description"""
 
     # Key methods:
 
 ```
 
-**Lines:** 49-57 in `utilities.py`
+**Lines:** 86-91 in `wire_executor.py`
 
-### `utilities.py` — ValidationReport
+### `wire_executor.py` — RefStatus
 
 ```python
-class ValidationReport:
-    """Complete validation report"""
+class RefStatus:
+    """No description"""
 
     # Key methods:
 
 ```
 
-**Lines:** 60-67 in `utilities.py`
+**Lines:** 94-97 in `wire_executor.py`
 
-### `utilities.py` — CodeValidator
-
-```python
-class CodeValidator:
-    """14-gate validation pipeline for generated code."""
-
-    # Key methods:
-
-    def __init__(self, ...): ...
-
-    async def validate_all(self, ...) -> dict[str, Any]: ...
-
-    async def _gate_1_syntax(self, ...) -> ValidationGate: ...
-
-    async def _gate_2_type_safety(self, ...) -> ValidationGate: ...
-
-    async def _gate_3_imports(self, ...) -> ValidationGate: ...
-
-```
-
-**Public Methods:** `__init__`, `validate_all`, `_gate_1_syntax`, `_gate_2_type_safety`, `_gate_3_imports`
-
-**Lines:** 70-344 in `utilities.py`
-
-### `utilities.py` — DORABlock
+### `wire_executor.py` — Reference
 
 ```python
-class DORABlock:
-    """DORA metadata block"""
+class Reference:
+    """No description"""
 
     # Key methods:
 
 ```
 
-**Lines:** 352-358 in `utilities.py`
+**Lines:** 101-106 in `wire_executor.py`
 
-### `utilities.py` — DORABlockGenerator
+### `wire_executor.py` — WireAction
 
 ```python
-class DORABlockGenerator:
-    """Generate DORA blocks for all files."""
+class WireAction:
+    """No description"""
 
     # Key methods:
 
-    def __init__(self, ...): ...
+```
 
-    async def add_dora_block(self, ...) -> DORABlock: ...
+**Lines:** 110-117 in `wire_executor.py`
 
-    def _calculate_file_hash(self, ...) -> str: ...
+### `wire_executor.py` — WireState
 
-    async def _append_dora_block_to_file(self, ...): ...
+```python
+class WireState:
+    """No description"""
+
+    # Key methods:
+
+    def to_dict(self, ...) -> dict: ...
+
+    def from_dict(self, ...) -> WireState: ...
 
 ```
 
-**Public Methods:** `__init__`, `add_dora_block`, `_calculate_file_hash`, `_append_dora_block_to_file`
+**Public Methods:** `to_dict`, `from_dict`
 
-**Lines:** 361-480 in `utilities.py`
+**Lines:** 121-139 in `wire_executor.py`
 
 
 ---
@@ -207,18 +192,23 @@ The following data models define the contracts for this subsystem:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `TEMPLATE_AGENT_CORE` | `'"""  \n{{metadata.name}} - L9 Agent\n{{...` | 65 |
-| `TEMPLATE_CONFIG` | `'"""  \n{{metadata.name}} - Configuratio...` | 305 |
-| `TEMPLATE_MODELS` | `'"""  \n{{metadata.name}} - Data Models\...` | 330 |
-| `TEMPLATE_TOOL_YAML` | `'# Tool Configuration for {{metadata.nam...` | 351 |
-| `TEMPLATE_TESTS` | `'"""  \nTests for {{metadata.name}}\n"""...` | 403 |
+| `REPO_ROOT` | `Path(__file__).parent.parent.parent` | 67 |
+| `REPORT_GENERATOR` | `REPO_ROOT / 'scripts' / 'generate_gmp_re...` | 68 |
+| `STATE_FILE` | `REPO_ROOT / '.wire_executor_state.json'` | 69 |
+| `PROTECTED_FILES` | `{'core/agents/executor.py', 'runtime/web...` | 72 |
+| `STEP_ORDER` | `['discovery', 'analysis', 'plan', 'execu...` | 146 |
+| `TEMPLATE_AGENT_CORE` | `'"""\n{{metadata.name}} - L9 Agent\n{{de...` | 64 |
+| `TEMPLATE_CONFIG` | `'"""\n{{metadata.name}} - Configuration\...` | 304 |
+| `TEMPLATE_MODELS` | `'"""\n{{metadata.name}} - Data Models\n"...` | 329 |
+
+*...and 2 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreCodegenRequest(BaseModel):
     """Request model for core_codegen operations."""
@@ -323,14 +313,21 @@ Generate code from a spec file
 
 Validate generated code
 
-- **File:** `cli.py:110`
+- **File:** `cli.py:120`
 - **Async:** No
 
 #### `def research(query)`
 
 Research a topic using Perplexity
 
-- **File:** `cli.py:155`
+- **File:** `cli.py:173`
+- **Async:** No
+
+#### `def main()`
+
+No description
+
+- **File:** `wire_executor.py:710`
 - **Async:** No
 
 
@@ -363,7 +360,7 @@ Core Codegen operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.codegen",
   "message": "Operation completed",

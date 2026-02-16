@@ -31,6 +31,7 @@ __dora_meta__ = {
             "GET /packet/{packet_id}",
             "GET /thread/{thread_id}",
             "GET /lineage/{packet_id}",
+            "GET /agent/{agent_id}/timeline",
             "POST /hybrid/search",
             "GET /facts",
             "GET /insights",
@@ -52,6 +53,7 @@ __dora_meta__ = {
 import json
 import os
 from collections.abc import AsyncGenerator
+from typing import Any
 from uuid import UUID
 
 import structlog
@@ -59,6 +61,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from api.auth import verify_api_key
+from api.dependencies import get_timeline_service
 from api.routes.registry import router_registry
 from core.decorators import must_stay_async
 from core.observability import (
@@ -79,6 +82,7 @@ from orchestrators.memory.orchestrator import MemoryOrchestrator
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def memory_governance_context_dependency(
     _: bool = Depends(verify_api_key),
 ) -> AsyncGenerator[None, None]:
@@ -166,6 +170,7 @@ async def memory_test(
 
 
 @router.post("/packet", response_model=PacketResponse)
+@must_stay_async("callers use await")
 async def create_packet(
     http_request: Request,
     request: PacketRequest,
@@ -390,7 +395,41 @@ async def get_lineage(
         raise HTTPException(status_code=500, detail=f"Get lineage failed: {e!s}") from e
 
 
+@router.get("/agent/{agent_id}/timeline")
+async def get_agent_timeline(
+    agent_id: str,
+    event_type: str | None = Query(None),
+    limit: int = Query(100, ge=1, le=1000),
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+    timeline_service: Any | None = Depends(get_timeline_service),  # noqa: B008 — FastAPI dependency injection
+):
+    """
+    Get recent memory events for an agent (PostgreSQL agent_memory_events).
+
+    Returns events newest-first. For causal chain analysis use POST /saga/correlate-timeline (Neo4j).
+    """
+    if timeline_service is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Timeline service not available.",
+        )
+    try:
+        events = await timeline_service.get_timeline_json(
+            agent_id=agent_id,
+            event_type=event_type,
+            limit=limit,
+        )
+        return {"agent_id": agent_id, "events": events, "count": len(events)}
+    except Exception as e:
+        logger.error(f"Get agent timeline failed: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Get agent timeline failed: {e!s}"
+        ) from e
+
+
 @router.post("/hybrid/search")
+@must_stay_async("callers use await")
 async def hybrid_search(
     http_request: Request,
     query: str = Query(..., min_length=1),
@@ -622,12 +661,13 @@ class CompactResponse(BaseModel):
 
 
 @router.post("/batch", response_model=BatchResponse)
+@must_stay_async("callers use await")
 async def batch_write(
     http_request: Request,
     request: BatchRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    orchestrator: MemoryOrchestrator = Depends(get_memory_orchestrator),
+    orchestrator: MemoryOrchestrator = Depends(get_memory_orchestrator),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Batch write multiple packets via MemoryOrchestrator.
@@ -692,7 +732,7 @@ async def batch_write(
 async def compact_storage(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    orchestrator: MemoryOrchestrator = Depends(get_memory_orchestrator),
+    orchestrator: MemoryOrchestrator = Depends(get_memory_orchestrator),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Compact/optimize memory storage via MemoryOrchestrator.
@@ -1044,6 +1084,7 @@ class WarmResponse(BaseModel):
 
 
 @router.post("/warm", response_model=WarmResponse)
+@must_stay_async("callers use await")
 async def warm_memory_for_query(
     request: WarmRequest,
     req: Request,

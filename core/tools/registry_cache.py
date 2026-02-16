@@ -48,13 +48,15 @@ __dora_meta__ = {
 # ============================================================================
 
 from collections import OrderedDict
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -65,11 +67,11 @@ async def invalidate_all_tool_caches() -> None:
     Defined at module level so tests can patch
     ``core.tools.registry_cache.invalidate_all_tool_caches``.
     """
-    from core.tools.dynamic_discovery import (
-        invalidate_all_tool_caches as _real_invalidate,
-    )
+    # Import at module level to allow patching, but use string import to avoid cycle
+    import importlib
 
-    await _real_invalidate()
+    module = importlib.import_module("core.tools.dynamic_discovery")
+    await module.invalidate_all_tool_caches()
 
 
 # =============================================================================
@@ -127,8 +129,8 @@ class CacheEntry:
 
     key: str
     value: Any
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    last_accessed_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    last_accessed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     access_count: int = 0
     ttl_expires_at: datetime | None = None
 

@@ -9,18 +9,18 @@ These rules are currently active on C1 via Hetzner Console.
 
 ### Inbound Rules
 
-| Description    | Protocol | Port  | Source        | Status |
-| -------------- | -------- | ----- | ------------- | ------ |
-| SSH            | TCP      | 22    | Any IPv4/IPv6 | ✅     |
-| Ping           | ICMP     | -     | Any IPv4/IPv6 | ✅     |
-| K8s API        | TCP      | 6443  | Any IPv4/IPv6 | ✅     |
-| L9 API         | TCP      | 30080 | Any IPv4/IPv6 | ✅     |
-| Grafana        | TCP      | 30300 | Any IPv4/IPv6 | ✅     |
-| PostgreSQL     | TCP      | 30432 | Any IPv4/IPv6 | ✅     |
-| Neo4j Browser  | TCP      | 30474 | Any IPv4/IPv6 | ✅     |
-| Neo4j Bolt     | TCP      | 30687 | Any IPv4/IPv6 | ✅     |
-| MCP Memory     | TCP      | 30902 | Any IPv4/IPv6 | ✅     |
-| Prometheus     | TCP      | 30909 | Any IPv4/IPv6 | ✅     |
+| Description   | Protocol | Port  | Source        | Status |
+| ------------- | -------- | ----- | ------------- | ------ |
+| SSH           | TCP      | 22    | Any IPv4/IPv6 | ✅     |
+| Ping          | ICMP     | -     | Any IPv4/IPv6 | ✅     |
+| K8s API       | TCP      | 6443  | Any IPv4/IPv6 | ✅     |
+| L9 API        | TCP      | 30080 | Any IPv4/IPv6 | ✅     |
+| Grafana       | TCP      | 30300 | Any IPv4/IPv6 | ✅     |
+| PostgreSQL    | TCP      | 30432 | Any IPv4/IPv6 | ✅     |
+| Neo4j Browser | TCP      | 30474 | Any IPv4/IPv6 | ✅     |
+| Neo4j Bolt    | TCP      | 30687 | Any IPv4/IPv6 | ✅     |
+| MCP Memory    | TCP      | 30902 | Any IPv4/IPv6 | ✅     |
+| Prometheus    | TCP      | 30909 | Any IPv4/IPv6 | ✅     |
 
 ### Outbound Rules
 
@@ -123,8 +123,8 @@ curl http://46.62.243.82:30902/health  # MCP Memory ✅
 
 ## History
 
-| Date       | Change                                    |
-| ---------- | ----------------------------------------- |
-| 2026-01-28 | Added all required ports (30080-30909)    |
+| Date       | Change                                           |
+| ---------- | ------------------------------------------------ |
+| 2026-01-28 | Added all required ports (30080-30909)           |
 | 2026-01-28 | Fixed docker port bindings (127.0.0.1 → 0.0.0.0) |
-| 2026-01-28 | Removed conflicting k8s NodePort services |
+| 2026-01-28 | Removed conflicting k8s NodePort services        |

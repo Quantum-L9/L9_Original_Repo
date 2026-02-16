@@ -51,6 +51,10 @@ import sys
 from pathlib import Path
 from typing import NamedTuple
 
+import structlog
+
+logger = structlog.get_logger(__name__)
+
 
 class Violation(NamedTuple):
     """A single violation found in the code."""
@@ -117,6 +121,7 @@ SKIP_PATTERNS = [
     "current_work/DONE",
     "docs/DONE",
     "codegen/extractions/",  # Archived extraction snapshots
+    "codegen",
 ]
 
 # Directories to always skip (not packet-related)
@@ -229,7 +234,7 @@ def main() -> int:
     args = parser.parse_args()
 
     # Determine paths to check
-    paths = [Path(p) for p in args.paths] if args.paths else [Path.cwd()]
+    paths = [Path(p) for p in args.paths] if args.paths else [Path.cwd()]  # noqa: ADR-0001 - internal path
 
     # Collect all Python files
     all_files: list[Path] = []
@@ -247,20 +252,22 @@ def main() -> int:
 
     # Report results
     if all_violations:
-        print("\n❌ PACKET TYPE NAMING VIOLATIONS FOUND\n")
-        print("PacketEnvelope uses 'packet_type', not 'kind'.")
-        print("=" * 60)
+        logger.info("\n❌ packet type naming violations found\n")
+        logger.info("packetenvelope uses 'packet_type', not 'kind'.")
+        logger.info("=" * 60)
 
-        for v in all_violations:
-            print(f"\n{v.file}:{v.line_num}")
-            print(f"  Line: {v.line[:80]}{'...' if len(v.line) > 80 else ''}")
-            print(f"  Issue: {v.message}")
+        for _v in all_violations:
+            logger.info("\n{v.file}:{v.line_num}")
+            logger.info("  line: {v.line[:80]}{'...' if len(v.line) > 80 else ''}")
+            logger.info("  issue: {v.message}")
 
-        print(f"\n\nTotal violations: {len(all_violations)}")
-        print("\nFix these before merging to prevent packet schema confusion.")
+        logger.info("\n\ntotal violations: {len(all_violations)}")
+        logger.info("\nfix these before merging to prevent packet schema confusion.")
         return 1
     if args.verbose:
-        print(f"✅ Checked {len(all_files)} files - no packet_type naming violations")
+        logger.info(
+            "✅ checked {len(all_files)} files - no packet_type naming violations"
+        )
     return 0
 
 

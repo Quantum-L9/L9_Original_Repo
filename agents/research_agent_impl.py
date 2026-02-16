@@ -41,7 +41,7 @@ import json
 import os
 import re
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -95,7 +95,7 @@ class ResearchResponse:
     extracted_concepts: list[str] = field(default_factory=list)
     code_snippets: list[str] = field(default_factory=list)
     architectural_insights: list[str] = field(default_factory=list)
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
 @dataclass
@@ -269,6 +269,7 @@ class PerplexityClient:
         self._client: ProductionPerplexityClient | None = None
         self.log = logger.bind(client="perplexity_compat")
 
+    @must_stay_async("callers use await")
     async def _get_client(self) -> ProductionPerplexityClient:
         """Get or create the production client."""
         if self._client is None:
@@ -436,7 +437,9 @@ class SynthesisEngine:
             if len(instances) >= 3:  # At least 3 variations agree
                 consensus[key] = {
                     "count": len(instances),
-                    "confidence": len(instances) / len(self.responses) if self.responses else 0.0,
+                    "confidence": len(instances) / len(self.responses)
+                    if self.responses
+                    else 0.0,
                     "variations": [i["variation"] for i in instances],
                 }
         return consensus
@@ -473,7 +476,7 @@ class SynthesisEngine:
             arch_confidence = 0.7
 
         return SynthesisResult(
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             total_variations=len(self.responses),
             consensus_patterns=consensus,
             unique_insights=unique,
@@ -534,6 +537,7 @@ class ResearchAgent:
     # Layer 2: Fast Synthesis (Super-Prompt Pack)
     # ========================================================================
 
+    @must_stay_async("callers use await")
     async def synthesize(
         self,
         topic: str,
@@ -609,6 +613,7 @@ class ResearchAgent:
     # Layer 1: Deep Research (Deep Workflows)
     # ========================================================================
 
+    @must_stay_async("callers use await")
     async def discover(
         self,
         topic: str,
@@ -692,6 +697,7 @@ class ResearchAgent:
 
         return result
 
+    @must_stay_async("callers use await")
     async def _stage_landscape_mapping(
         self,
         topic: str,
@@ -723,6 +729,7 @@ Return structured report with:
             "themes": self.processor.extract_concepts(response),
         }
 
+    @must_stay_async("callers use await")
     async def _stage_deep_dive(
         self,
         topic: str,
@@ -849,6 +856,7 @@ Artifacts: {", ".join(result.artifacts.keys())}"""
     # Layer 3: Spec Generation
     # ========================================================================
 
+    @must_stay_async("callers use await")
     async def generate_spec(
         self,
         synthesis: SynthesisResult | None = None,
@@ -911,7 +919,7 @@ Output ONLY valid YAML, no explanations."""
 
         # Save
         module_id = self._extract_module_id(yaml_content) or "unknown"
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
         output_path = CODEGEN_SPECS_DIR / f"{module_id}_{timestamp}.yaml"
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(yaml_content)
@@ -1018,14 +1026,14 @@ Output ONLY valid YAML, no explanations."""
 
         # This would call the CodeGenAgent
         # For now, return placeholder
-        # TODO(GMP-122): Integrate with agents.codegenagent.CodeGenAgent
+        # TODO(GMP-122): Integrate with core.agents.codegenagent.CodeGenAgent
 
         return CodeResult(
             output_dir=Path("codegen/extractions/"),
             files_generated=[],
             tests_generated=[],
             success=False,
-            error="CodeGenAgent integration not yet implemented. Use: python -m agents.codegenagent generate "
+            error="CodeGenAgent integration not yet implemented. Use: python -m core.agents.codegenagent generate "
             + str(spec_path),
         )
 
@@ -1033,6 +1041,7 @@ Output ONLY valid YAML, no explanations."""
     # End-to-End Pipeline
     # ========================================================================
 
+    @must_stay_async("callers use await")
     async def research_to_code(
         self,
         topic: str,
@@ -1056,7 +1065,7 @@ Output ONLY valid YAML, no explanations."""
             "topic": topic,
             "mode": mode,
             "domain": domain,
-            "started_at": datetime.now().isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
         }
 
         # Layer 1: Discovery (if deep or full)
@@ -1082,7 +1091,7 @@ Output ONLY valid YAML, no explanations."""
             code = await self.generate_code(spec.output_path)
             results["code"] = asdict(code)
 
-        results["completed_at"] = datetime.now().isoformat()
+        results["completed_at"] = datetime.now(UTC).isoformat()
 
         self.log.info("research_to_code_complete", results=results)
 
@@ -1094,6 +1103,7 @@ Output ONLY valid YAML, no explanations."""
 # ============================================================================
 
 
+@must_stay_async("callers use await")
 async def main():
     """CLI entry point."""
     import argparse

@@ -4,6 +4,7 @@ Verifies that MCP memory uses MemorySubstrateService.write_packet() when availab
 which routes through the full DAG pipeline (graph sync, fact extraction, etc.).
 """
 
+from datetime import UTC
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -14,6 +15,7 @@ from src.routes.memory_unified import (
     save_memory_handler,
 )
 
+from core.decorators import must_stay_async
 from core.schemas import PacketWriteResult
 
 # =============================================================================
@@ -22,6 +24,7 @@ from core.schemas import PacketWriteResult
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_save_memory_uses_main_pipeline_when_service_available():
     """Test that save_memory_handler uses main pipeline when substrate_service is provided."""
 
@@ -74,6 +77,7 @@ async def test_save_memory_uses_main_pipeline_when_service_available():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_save_memory_falls_back_to_direct_db_when_service_unavailable():
     """Test that save_memory_handler falls back to direct DB when substrate_service is None."""
 
@@ -222,9 +226,7 @@ async def test_save_via_main_pipeline_handles_ttl_correctly():
     call_args = mock_service.write_packet.call_args[0][0]
     assert call_args.ttl is not None
     # TTL should be approximately now + MEMORY_SHORT_TERM_HOURS
-    expected_ttl = datetime.now(timezone.utc) + timedelta(
-        hours=settings.MEMORY_SHORT_TERM_HOURS
-    )
+    expected_ttl = datetime.now(UTC) + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
     assert abs((call_args.ttl - expected_ttl).total_seconds()) < 5  # Within 5 seconds
 
 
@@ -311,6 +313,7 @@ async def test_save_via_direct_db_still_works():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_mcp_tool_call_passes_substrate_service():
     """Test that handle_tool_call passes substrate_service to save_memory_handler."""
 

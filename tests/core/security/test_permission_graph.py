@@ -14,6 +14,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
 if str(project_root) not in sys.path:
@@ -33,6 +35,7 @@ except ImportError as e:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_permission_check():
     """
     Contract: PermissionGraph can check permissions (mocked Neo4j).
@@ -61,6 +64,7 @@ async def test_permission_check():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_grant_permission():
     """
     Contract: PermissionGraph can grant permissions (mocked Neo4j).

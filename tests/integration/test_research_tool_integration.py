@@ -8,6 +8,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
+from core.decorators import must_stay_async
+
 pytestmark = pytest.mark.integration
 
 
@@ -23,6 +25,7 @@ class TestResearchToolIntegration:
         assert registry is not None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_tool_execution_returns_result(self):
         """Tool execution returns structured result."""
         from core.tools.base_registry import ToolMetadata, ToolRegistry, ToolType

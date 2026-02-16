@@ -20,25 +20,25 @@ task_categories:
     description: "Tasks that change source code"
     risk_level: medium
     requires_approval: false
-    
+
   - id: code_generation
     name: "Code Generation"
     description: "Tasks that create new code files"
     risk_level: medium
     requires_approval: false
-    
+
   - id: deployment
     name: "Deployment"
     description: "Tasks that deploy to production"
     risk_level: high
     requires_approval: true
-    
+
   - id: infrastructure
     name: "Infrastructure"
     description: "Tasks that modify infrastructure"
     risk_level: critical
     requires_approval: true
-    
+
   - id: analysis
     name: "Analysis"
     description: "Read-only analysis tasks"
@@ -62,31 +62,31 @@ task_dependencies:
       - task: "read_existing_code"
         category: analysis
         required: true
-        
+
       - task: "search_similar_patterns"
         category: analysis
         required: true
         depends_on: []
-        
+
       - task: "plan_changes"
         category: analysis
         required: true
         depends_on:
           - "read_existing_code"
           - "search_similar_patterns"
-          
+
       - task: "implement_changes"
         category: code_modification
         required: true
         depends_on:
           - "plan_changes"
-          
+
       - task: "verify_lints"
         category: testing
         required: true
         depends_on:
           - "implement_changes"
-          
+
       - task: "run_tests"
         category: testing
         required: true
@@ -100,36 +100,36 @@ task_dependencies:
       - task: "clarify_requirements"
         category: analysis
         required: true
-        
+
       - task: "search_existing_solutions"
         category: analysis
         required: true
-        
+
       - task: "design_approach"
         category: analysis
         required: true
         depends_on:
           - "clarify_requirements"
           - "search_existing_solutions"
-          
+
       - task: "implement_feature"
         category: code_generation
         required: true
         depends_on:
           - "design_approach"
-          
+
       - task: "add_tests"
         category: code_generation
         required: true
         depends_on:
           - "implement_feature"
-          
+
       - task: "update_documentation"
         category: code_modification
         required: false
         depends_on:
           - "implement_feature"
-          
+
       - task: "verify_integration"
         category: testing
         required: true
@@ -145,42 +145,42 @@ task_dependencies:
         category: analysis
         required: true
         description: "Lock TODO plan with file paths and actions"
-        
+
       - task: "phase_1_baseline"
         category: analysis
         required: true
         depends_on:
           - "phase_0_plan"
         description: "Verify current state before changes"
-        
+
       - task: "phase_2_implement"
         category: code_modification
         required: true
         depends_on:
           - "phase_1_baseline"
         description: "Execute the planned changes"
-        
+
       - task: "phase_3_enforce"
         category: testing
         required: true
         depends_on:
           - "phase_2_implement"
         description: "Run linters and type checks"
-        
+
       - task: "phase_4_validate"
         category: testing
         required: true
         depends_on:
           - "phase_3_enforce"
         description: "Run tests and verify behavior"
-        
+
       - task: "phase_5_verify"
         category: analysis
         required: true
         depends_on:
           - "phase_4_validate"
         description: "Recursive verification against plan"
-        
+
       - task: "phase_6_finalize"
         category: analysis
         required: true
@@ -195,37 +195,37 @@ task_dependencies:
       - task: "verify_tests_pass"
         category: testing
         required: true
-        
+
       - task: "verify_no_uncommitted"
         category: analysis
         required: true
-        
+
       - task: "create_deployment_plan"
         category: analysis
         required: true
         depends_on:
           - "verify_tests_pass"
           - "verify_no_uncommitted"
-          
+
       - task: "get_approval"
         category: deployment
         required: true
         depends_on:
           - "create_deployment_plan"
         requires_human: true
-        
+
       - task: "execute_deployment"
         category: deployment
         required: true
         depends_on:
           - "get_approval"
-          
+
       - task: "verify_deployment"
         category: testing
         required: true
         depends_on:
           - "execute_deployment"
-          
+
       - task: "rollback_if_needed"
         category: deployment
         required: false
@@ -243,20 +243,20 @@ common_blockers:
     affected_categories:
       - code_generation
       - feature_development
-      
+
   - blocker: "circular_dependency"
     description: "Import or dependency cycle detected"
     resolution: "Use TYPE_CHECKING pattern or restructure modules"
     affected_categories:
       - code_modification
-      
+
   - blocker: "approval_required"
     description: "High-risk operation needs human approval"
     resolution: "Request approval via escalation channel"
     affected_categories:
       - deployment
       - infrastructure
-      
+
   - blocker: "test_failure"
     description: "Tests failing after changes"
     resolution: "Fix failing tests or update expectations if behavior change is intentional"
@@ -272,22 +272,22 @@ cross_task_relations:
     target_task: "update_documentation"
     relation: "triggers"
     condition: "public_api_changed"
-    
+
   - source_task: "fix_bug"
     target_task: "add_regression_test"
     relation: "requires"
     condition: "always"
-    
+
   - source_task: "refactor_code"
     target_task: "verify_no_behavior_change"
     relation: "requires"
     condition: "always"
-    
+
   - source_task: "add_dependency"
     target_task: "update_requirements"
     relation: "triggers"
     condition: "always"
-    
+
   - source_task: "modify_schema"
     target_task: "create_migration"
     relation: "requires"

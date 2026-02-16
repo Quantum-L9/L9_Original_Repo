@@ -33,7 +33,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from collections import defaultdict
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 
 import structlog
 
@@ -139,7 +139,7 @@ class RateLimiter:
                 )
 
         # Fallback to in-memory
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         cutoff = now - timedelta(seconds=self._window_seconds)
 
         # Prune old calls
@@ -188,7 +188,7 @@ class RateLimiter:
                 )
 
         # Fallback to in-memory
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         cutoff = now - timedelta(seconds=self._window_seconds)
         current = len([t for t in self._calls[key] if t > cutoff])
         return max(0, limit - current)
@@ -216,7 +216,7 @@ class RateLimiter:
                 )
 
         # Fallback to in-memory
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         cutoff = now - timedelta(seconds=self._window_seconds)
         return len([t for t in self._calls[key] if t > cutoff])
 
@@ -287,7 +287,7 @@ class RateLimiter:
             await neo4j.create_event(
                 event_id=event_id,
                 event_type="rate_limit",
-                timestamp=datetime.now(timezone.utc).isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
                 properties={
                     "key": key,
                     "endpoint": endpoint,

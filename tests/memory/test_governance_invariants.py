@@ -20,6 +20,8 @@ import sys
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Add mcp_memory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "mcp_memory"))
 
@@ -33,6 +35,18 @@ try:
 except (ImportError, ModuleNotFoundError):
     MCP_AVAILABLE = False
     mcp_settings = None
+
+
+@pytest.fixture
+def cursor_auth():
+    """Provide mock Cursor auth headers for governance tests."""
+    return {"Authorization": "Bearer test-cursor-token", "X-Caller-ID": "cursor"}
+
+
+@pytest.fixture
+def l_auth():
+    """Provide mock L auth headers for governance tests."""
+    return {"Authorization": "Bearer test-l-token", "X-Caller-ID": "l-cto"}
 
 
 # =============================================================================
@@ -191,6 +205,7 @@ class TestProjectIsolation:
     """Invariant 3: Project isolation enforced at SQL level."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_search_respects_project_id(self, l_auth):
         """Search results MUST be filtered by project_id."""
         # This test validates that the project_id filter is applied
@@ -213,9 +228,10 @@ class TestProjectIsolation:
             "search_memory_handler must accept project_id parameter"
         )
 
-        # Verify default is 'l9'
-        assert sig.parameters["project_id"].default == "l9", (
-            "project_id default must be 'l9'"
+        # project_id defaults to None at the signature level; at runtime it
+        # falls back to the L9_PROJECT_ID env var (typically "l9").
+        assert sig.parameters["project_id"].default is None, (
+            "project_id signature default must be None (runtime defaults to L9_PROJECT_ID env)"
         )
 
 
@@ -229,6 +245,7 @@ class TestCallerIdentityEnforcement:
     """Invariant 4: Caller identity derived from token, not request body."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_request_body_creator_ignored(self, l_auth):
         """Creator/source in request body MUST be ignored, use token identity."""
         from mcp_memory.src.config import settings
@@ -282,6 +299,7 @@ class TestMandatoryAuditLogging:
         from mcp_memory.src.audit import AuditLogger
 
         # Create an execute function that always fails
+        @must_stay_async("callers use await")
         async def failing_execute(*args):
             raise Exception("DB unavailable")
 
@@ -320,6 +338,7 @@ class TestMandatoryAuditLogging:
         # Reset to ensure clean state
         reset_audit_logger()
 
+        @must_stay_async("callers use await")
         async def dummy_execute(*args):
             pass
 

@@ -8,6 +8,8 @@ Implements Decision 3 + Decision 6 from design clarifications.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Cursor Checkpoint Manager",
@@ -34,13 +36,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
 from agents.cursor.integrations.cursor_langgraph import CursorAgentState
-from memory.checkpoint.postgres_saver import L9PostgresSaver
+
+if TYPE_CHECKING:
+    from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
+    from memory.checkpoint.postgres_saver import L9PostgresSaver
 
 logger = structlog.get_logger(__name__)
 
@@ -70,6 +74,7 @@ class CursorCheckpointManager:
         self._memory_gateway = memory_gateway
         logger.info("CursorCheckpointManager initialized")
 
+    @must_stay_async("callers use await")
     async def checkpoint(
         self,
         thread_id: str,
@@ -130,6 +135,7 @@ class CursorCheckpointManager:
             "source": "dual",
         }
 
+    @must_stay_async("callers use await")
     async def restore(
         self,
         thread_id: str,

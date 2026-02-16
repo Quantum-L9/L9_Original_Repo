@@ -232,6 +232,18 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
   - Runs at 00:00 and 12:00 daily
   - Logs to `/opt/l9/logs/l9-backup-cron.log`
 
+- [ ] **Remove deprecated enrichment DAG fields from memory pipeline** (Tech Debt)
+  - Full removal: delete `enrichment_status`, `enrichment_error`, `enrichment_facts_count`, `write_tier_used`, `warnings` from:
+    - `core/schemas/packet_envelope_v2.py` — `PacketWriteResult` model (lines 451-473)
+    - `memory/ingestion.py` — ~50 lines of dead enrichment logic (lines 342-410)
+    - `mcp_memory/src/routes/memory_unified.py` — response dict keys + structlog fields (lines 313-334)
+  - Enrichment DAG is deprecated (`enable_enrichment=False` default, never set to `True`)
+  - Entity extraction was a stub (always returned `[]`)
+  - Semantic embedding already handled by `auto_embed=True`
+  - Graph enrichment already handled at read-time by `memory/hybrid_rag.py`
+  - Resilience patterns (circuit breaker, DLQ, saga) exist as independent modules
+  - Also consider: delete `memory/archive/enrichment_dag.py` and `memory/enrichment_dag.py` shim
+
 - [ ] **Test deployment script** locally: `./scripts/deploy_agent_executor.sh`
 - [ ] **Test server startup** to verify fail-loudly behavior (GMP-47 removed silent stubs)
 - [ ] **Test Slack integration** after deployment to verify agent_executor responds

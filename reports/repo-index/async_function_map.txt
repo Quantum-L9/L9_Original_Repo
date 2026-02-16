@@ -2,8 +2,8 @@
 # Async Function Map
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -15,6 +15,7 @@
 async __aenter__() @ clients/memory_client.py
 async __aenter__() @ clients/world_model_client.py
 async __aenter__() @ codegen/codegenAgent Spec/run_codegen_superprompt.py
+async __aenter__() @ codegen/codegen_agent_spec/run_codegen_superprompt.py
 async __aenter__() @ core/reasoning/toth_engine.py
 async __aenter__() @ core/reasoning/toth_engine.py
 async __aenter__() @ services/research/tools/perplexity_client.py
@@ -25,13 +26,16 @@ async __aenter__() @ tests/memory/test_ingestion_pipeline_audit.py
 async __aenter__() @ tests/services/test_tool_feedback_service.py
 async __aenter__() @ tests/services/test_tool_feedback_service.py
 async __aenter__() @ tests/services/test_tool_learning_engine.py
+async __aenter__() @ tests/test_retention_refcount.py
 async __aenter__() @ tests/world_model/test_world_model_repository_basic.py
 async __aexit__() @ codegen/codegenAgent Spec/run_codegen_superprompt.py
+async __aexit__() @ codegen/codegen_agent_spec/run_codegen_superprompt.py
 async __aexit__() @ services/research/tools/perplexity_client.py
 async __aexit__() @ tests/core/bootstrap/conftest.py
 async __aexit__() @ tests/core/bootstrap/conftest.py
 async __aexit__() @ tests/core/bootstrap/test_bootstrap_phases.py
 async __aexit__() @ tests/memory/test_ingestion_pipeline_audit.py
+async __aexit__() @ tests/test_retention_refcount.py
 async __aexit__(exc_type, exc, tb) @ core/reasoning/toth_engine.py
 async __aexit__(exc_type, exc, tb) @ tests/services/test_tool_feedback_service.py
 async __aexit__(exc_type, exc, tb) @ tests/services/test_tool_feedback_service.py
@@ -59,9 +63,11 @@ async _apply_change(change, allow_downtime) @ orchestrators/evolution/apply_engi
 async _apply_config_update(change) @ orchestrators/evolution/apply_engine.py
 async _apply_db_migration(change, allow_downtime) @ orchestrators/evolution/apply_engine.py
 async _apply_file_modify(change) @ orchestrators/evolution/apply_engine.py
+async _apply_reflective(mode_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
 async _apply_reflective(mode_outputs) @ domain_tensor_bridge/reasoning_engine.py
 async _apply_service_restart(change, allow_downtime) @ orchestrators/evolution/apply_engine.py
 async _apply_single_upgrade(upgrade, allow_downtime) @ orchestrators/evolution/orchestrator.py
+async _apply_symbolic(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
 async _apply_symbolic(context) @ domain_tensor_bridge/reasoning_engine.py
 async _assemble_result_step(context) @ memory/saga_patterns.py
 async _assess_governance_risk(plan) @ motifs/multimodal_plan_ranker.py
@@ -78,6 +84,7 @@ async _build_project_section(project_id, max_tokens) @ memory/context_builder.py
 async _build_session_section(session_id, max_tokens) @ memory/context_builder.py
 async _cache_l2_result(key, value) @ services/symbolic_computation/core/cache_manager.py
 async _cache_result(key, result) @ core/packet_envelope/scalability.py
+async _cache_thread_message(thread_uuid, role, text, user_id, event_id, tool_calls) @ memory/slack_ingest.py
 async _calculate_confidence(spec, blind_spots) @ core/codegen/gatekeeper/codegen_gatekeeper_v2.py
 async _calculate_confidence(spec, validation_result, blind_spots, research_findings) @ core/codegen/gatekeeper/codegen_gatekeeper.py
 async _calculate_motif_coverage(packet_id, plan) @ motifs/multimodal_plan_ranker.py
@@ -89,15 +96,17 @@ async _call_llm(prompt) @ memory/hierarchical_summarizer.py
 async _call_mock(prompt, reasoning_mode) @ core/reasoning/toth_engine.py
 async _call_openai(prompt, reasoning_mode) @ core/reasoning/toth_engine.py
 async _call_tensorglobe(request) @ adapters/tensorglobe_bridge/adapter.py
+async _can_execute_phase(phase) @ memory/consolidation/parallel_pipeline.py
 async _chain_of_thought(request) @ orchestrators/reasoning/orchestrator.py
+async _check_approval(decision) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
 async _check_approval(decision) @ domain_tensor_bridge/governance_bridge.py
 async _check_authority(action_envelope) @ core/eos/accountability_engine.py
+async _check_circuit() @ scripts/perplexity_audit_agent.py
 async _check_consolidation(result) @ memory/active_encoder.py
 async _check_constraints(action_envelope, context) @ core/eos/accountability_engine.py
 async _check_db_ready(url, max_retries) @ mcp_memory/src/main.py
 async _check_duplicate(substrate_service, event_id, thread_uuid, team_id, channel_id, ts, user_id) @ memory/slack_ingest.py
 async _check_evidence(action_envelope) @ core/eos/accountability_engine.py
-async _check_existing_strategy(neo4j_client, name) @ scripts/memory/seed_golden_strategies.py
 async _check_governance(action, risk_level, context) @ codegen/templates/python/dora-enterprise-template.py
 async _check_governance(tool_id, arguments, context) @ orchestrators/action_tool/validator.py
 async _check_governance_constraints(query, context) @ core/reasoning/l9_toth_adapter.py
@@ -124,7 +133,6 @@ async _create_file_snapshot(path) @ core/governance/cmts.py
 async _create_new_fact(learning) @ memory/active_encoder.py
 async _create_snapshot() @ core/packet_envelope/scalability.py
 async _create_task_node(state) @ orchestration/ws_task_router.py
-async _delete_strategy_by_name(neo4j_client, name) @ scripts/memory/seed_golden_strategies.py
 async _deliver_message(agent_id, message) @ core/coordination/agent_mediator.py
 async _deliver_queued_messages(agent_id) @ core/coordination/agent_mediator.py
 async _detect_blind_spots(spec) @ core/codegen/gatekeeper/codegen_gatekeeper_v2.py
@@ -160,7 +168,9 @@ async _ensure_redis() @ runtime/auth_rate_limiter.py
 async _ensure_redis() @ runtime/rate_limiter.py
 async _ensure_redis() @ runtime/task_queue.py
 async _ensure_session_exists(session_id, user_id) @ memory/graph_memory.py
+async _escalate_anomaly(anomaly) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
 async _escalate_anomaly(anomaly) @ domain_tensor_bridge/anomaly_handler.py
+async _escalate_to_anchor(anchor, trigger) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py
 async _escalate_to_anchor(anchor, trigger) @ domain_tensor_bridge/escalation_handler.py
 async _evaluate() @ core/observability/l9_integration.py
 async _evaluate_blueprint(blueprint, criteria, scores, context) @ orchestrators/meta/orchestrator.py
@@ -181,6 +191,7 @@ async _execute_escalate(failure, action) @ core/observability/failures.py
 async _execute_fallback(failure, action) @ core/observability/failures.py
 async _execute_gmp_task(task) @ runtime/gmp_worker.py
 async _execute_node(node, context, dry_run) @ orchestrators/pattern/orchestrator.py
+async _execute_phase(phase, agent_id, context) @ memory/consolidation/parallel_pipeline.py
 async _execute_plan_sequence(plan_id) @ core/agents/executor.py
 async _execute_project_context(context, max_results) @ memory/retrieval_strategy.py
 async _execute_python(payload) @ mac_agent/websocket_client.py
@@ -203,13 +214,17 @@ async _execute_with_retry(operation_name, operation_func) @ memory/checkpoint/po
 async _execute_with_retry(step, step_num, task_id, max_retries) @ mac_agent/executor.py
 async _execute_with_retry(tool_id, arguments, max_retries) @ orchestrators/action_tool/orchestrator.py
 async _execute_with_timeout() @ core/protocols/retry_protocols.py
-async _expand_mathematical(section) @ codegenagent/c_gmp_engine.py
-async _extract_entities(envelope) @ memory/enrichment_dag.py
+async _expand_mathematical(section) @ agents/codegenagent/c_gmp_engine.py
+async _expand_mathematical(section) @ agents/codegenagent/codegen_agent_engine.py
+async _expand_mathematical(section) @ core/agents/codegenagent/c_gmp_engine.py
+async _extract_entities(envelope) @ memory/archive/enrichment_dag.py
 async _extract_entities_step(context) @ memory/saga_patterns.py
 async _extract_facts(text) @ core/memory/virtual_context.py
 async _extract_semantic_structure(text, context) @ ir_engine/semantic_compiler.py
+async _extract_with_llm(text) @ memory/entity_extraction.py
 async _extract_with_llm(text) @ memory/hybrid_rag.py
 async _extraction_loop() @ core/integration/tool_pattern_extractor.py
+async _failing_acquire() @ tests/memory/test_substrate_service.py
 async _fake_fetch_all(query) @ tests/mcp_memory/test_query_temporal_parameterization.py
 async _fetch_aggregate(aggregate_id) @ core/packet_envelope/governance.py
 async _fetch_events(from_offset, batch_size) @ core/packet_envelope/scalability.py
@@ -262,8 +277,11 @@ async _generate_tests(spec, metadata, output_dir) @ core/codegen/compiler/module
 async _generate_tests(spec, module_dir) @ core/codegen/compiler/module_compiler.py
 async _generate_tool_yaml(spec, metadata, normalized, output_dir) @ core/codegen/compiler/module_compiler_v2.py
 async _generate_tools(spec, module_dir) @ core/codegen/compiler/module_compiler.py
+async _get_agent() @ SDK/SDK.py
 async _get_causal_chain(event_id) @ memory/hybrid_rag.py
 async _get_checkpoint_cached(aid) @ memory/substrate_repository_cached.py
+async _get_client() @ SDK/SDK.py
+async _get_client() @ SDK/SDK.py
 async _get_client() @ agents/research_agent_impl.py
 async _get_client() @ clients/memory_client.py
 async _get_client() @ clients/world_model_client.py
@@ -271,10 +289,14 @@ async _get_client() @ core/llm/llm_service.py
 async _get_columns(conn, schema_name, table_name) @ memory/schema_introspection.py
 async _get_db_pool(repository) @ core/tools/tool_embeddings.py
 async _get_direct_neighbors(entity_type, entity_id, limit) @ memory/hybrid_rag.py
+async _get_evaluator() @ SDK/SDK.py
+async _get_executor() @ SDK/SDK.py
+async _get_executor(dag_id) @ SDK/SDK.py
 async _get_extended_neighborhood(entity_type, entity_id, limit) @ memory/hybrid_rag.py
 async _get_from_redis(entity_id) @ memory/predictive_cache.py
 async _get_knowledge_facts_cached(lim, off) @ memory/substrate_repository_cached.py
 async _get_l2_result(key) @ services/symbolic_computation/core/cache_manager.py
+async _get_learning_engine() @ SDK/SDK.py
 async _get_lockout(key) @ runtime/auth_rate_limiter.py
 async _get_memory_events_cached(aid, lim, off) @ memory/substrate_repository_cached.py
 async _get_mock() @ tests/core/bootstrap/conftest.py
@@ -283,17 +305,22 @@ async _get_neo4j() @ core/tools/tool_graph.py
 async _get_none() @ tests/core/bootstrap/conftest.py
 async _get_none() @ tests/core/bootstrap/conftest.py
 async _get_openai_client() @ core/tools/tool_embeddings.py
+async _get_or_create_lock(agent_id) @ memory_cache/versioned_snapshots.py
 async _get_or_start_server(server_id) @ .backup/mcp-tools-20260131/mcp_client.py
 async _get_or_start_server(server_id) @ runtime/mcp_client.py
+async _get_orchestrator() @ SDK/SDK.py
 async _get_packet() @ core/observability/l9_integration.py
 async _get_packet_cached(pid) @ memory/substrate_repository_cached.py
 async _get_postgres_summary(last_hours) @ services/symbolic_computation/core/metrics.py
 async _get_redis() @ core/agents/idempotency_store.py
+async _get_reflection() @ SDK/SDK.py
 async _get_registry() @ orchestrators/action_tool/orchestrator.py
 async _get_registry() @ orchestrators/action_tool/validator.py
 async _get_repository() @ orchestrators/memory/housekeeping.py
+async _get_search_pipeline() @ SDK/SDK.py
 async _get_service() @ SDK/SDK.py
 async _get_session() @ memory/graph_client.py
+async _get_substrate() @ SDK/SDK.py
 async _get_substrate_service() @ orchestrators/memory/orchestrator.py
 async _get_tool_schemas() @ core/tools/dynamic_discovery.py
 async _get_unsummarized_items(tier, cutoff_time, config) @ memory/hierarchical_summarizer.py
@@ -356,10 +383,12 @@ async _insert_packet_with_connection(conn, envelope, thread_id, tags, ttl, paren
 async _insert_reasoning_block_with_connection(conn, block) @ memory/substrate_repository.py
 async _insert_semantic_embedding_with_connection(conn, embedding_id, vector, payload, agent_id, scope) @ memory/substrate_repository.py
 async _instantiate_agent(task) @ core/agents/executor.py
+async _invalidate_keys(keys) @ memory_cache/invalidation_hook.py
 async _judge_output(input_text, expected, actual) @ core/evaluation/evaluator.py
 async _link_facts_to_episode(episode_id, fact_ids) @ memory/active_encoder.py
 async _llm_extract_facts(text) @ core/memory/virtual_context.py
 async _load_context_node(state) @ orchestration/ws_task_router.py
+async _load_cursor_stack() @ agents/codegenagent/cursor_context_sync_engine.py
 async _load_from_graph(agent_id) @ core/integration/graph_to_wm_sync.py
 async _load_health_snapshots() @ services/tool_learning_engine.py
 async _load_reflection_seeds(seed_dir) @ world_model/runtime.py
@@ -375,13 +404,18 @@ async _make_request() @ services/research/tools/perplexity_client.py
 async _mark_event_inflight(event_id) @ memory/slack_ingest.py
 async _maybe_capture_strategy(plan, result, context) @ orchestration/plan_executor.py
 async _mcp_cache_call(tool_name, arguments) @ core/tools/dynamic_discovery.py
+async _memory_search(query, agent_id) @ workflows/dags/gmp/nodes/core.py
+async _memory_write(content, kind) @ workflows/dags/gmp/nodes/core.py
 async _merge_duplicate_group(group, packets) @ memory/deduplication.py
 async _message_listener() @ mac_agent/websocket_client.py
+async _mock_acquire() @ tests/memory/test_rls_isolation.py
+async _mock_acquire() @ tests/memory/test_rls_isolation.py
 async _mock_embed_text(_query) @ tests/memory/test_pipeline_alignment_fixes.py
 async _mock_embed_text(_query) @ tests/memory/test_pipeline_alignment_fixes.py
 async _mock_embed_text(_query) @ tests/memory/test_pipeline_alignment_fixes.py
 async _mock_fetch_all(sql) @ tests/memory/test_pipeline_alignment_fixes.py
 async _mock_fetch_all(sql) @ tests/memory/test_pipeline_alignment_fixes.py
+async _mock_transaction_cm() @ tests/memory/test_rls_isolation.py
 async _neo4j_available() @ memory/substrate_alignment.py
 async _neo4j_event_exists(event_id) @ memory/substrate_alignment.py
 async _noop_execute() @ tests/mcp_memory/test_mcp_server_governance.py
@@ -421,6 +455,7 @@ async _phase_simulate(result) @ orchestration/unified_controller.py
 async _phase_validate(graph) @ orchestration/orchestrator_kernel.py
 async _prepare_embedding(envelope) @ memory/ingestion.py
 async _process_approvals(report, from_date, to_date) @ core/compliance/audit_reporter.py
+async _process_batch(entities) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py
 async _process_batch(entities) @ domain_tensor_bridge/tensor_coordinator.py
 async _process_commands(report, from_date, to_date) @ core/compliance/audit_reporter.py
 async _process_event(event) @ workers/anomaly_response_monitor.py
@@ -438,6 +473,7 @@ async _query_audit_data() @ core/integration/tool_pattern_extractor.py
 async _query_history_neo4j(user_id, topic, time_range_days, limit) @ memory/graph_memory.py
 async _query_packets() @ core/observability/l9_integration.py
 async _rank_single_plan(packet_id, plan, context) @ motifs/multimodal_plan_ranker.py
+async _rate_limit() @ scripts/perplexity_audit_agent.py
 async _reactive_dispatch_loop() @ core/agents/executor.py
 async _read_config(key) @ orchestrators/evolution/apply_engine.py
 async _read_file(path) @ orchestrators/evolution/apply_engine.py
@@ -487,22 +523,26 @@ async _run_producer(task, context, previous_critique) @ collaborative_cells/code
 async _run_producer(task, context, previous_critique) @ collaborative_cells/reflection_cell.py
 async _run_producer(task, context, previous_critique) @ collaborative_cells/reviewer_cell.py
 async _run_pytest(working_dir, test_file, env_config) @ core/testing/test_executor.py
+async _run_refcount_aware_cleanup(agent_id, checkpoints) @ memory/retention_engine.py
 async _run_self_reflection(task, result, instance) @ core/agents/executor.py
 async _run_shell(cmd, cwd) @ workflows/nodes/deploy.py
 async _run_shell(cmd, cwd) @ workflows/nodes/extract.py
 async _run_shell(cmd, cwd) @ workflows/nodes/inject.py
 async _run_shell(cmd, cwd) @ workflows/nodes/validate.py
 async _run_summarization(batch_size, sleep_ms) @ memory/consolidation.py
-async _run_tier_1(envelope) @ memory/enrichment_dag.py
-async _run_tier_2(envelope) @ memory/enrichment_dag.py
-async _run_tier_3(envelope) @ memory/enrichment_dag.py
+async _run_tier_1(envelope) @ memory/archive/enrichment_dag.py
+async _run_tier_2(envelope) @ memory/archive/enrichment_dag.py
+async _run_tier_3(envelope) @ memory/archive/enrichment_dag.py
 async _run_ttl_expiration(batch_size, sleep_ms) @ memory/consolidation.py
 async _save_checkpoint_with_connection(conn, checkpoint_id, agent_id, graph_state, reason) @ memory/substrate_repository.py
+async _save_cursor_stack(stack) @ agents/codegenagent/cursor_context_sync_engine.py
 async _save_via_main_pipeline(user_id, content, kind, scope, duration, tags, importance, metadata, caller_id, creator, source, substrate_service) @ mcp_memory/src/routes/memory_unified.py
 async _scheduler_loop(interval_hours) @ memory/retention_engine.py
 async _score_candidates(candidates, request) @ memory/neo4j_strategy_memory.py
+async _score_entity(entity_id) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py
 async _score_entity(entity_id) @ domain_tensor_bridge/tensor_coordinator.py
 async _search_cache(query, limit, min_similarity, category_filter) @ memory/tool_router.py
+async _semantic_recall_via_pipeline() @ memory/working_memory_adapter.py
 async _semantic_search() @ core/observability/l9_integration.py
 async _send(data) @ mac_agent/websocket_client.py
 async _send_handshake() @ mac_agent/websocket_client.py
@@ -523,9 +563,9 @@ async _stage_landscape_mapping(topic, domain) @ agents/research_agent_impl.py
 async _start_task() @ core/observability/l9_integration.py
 async _store_artifacts(envelope) @ memory/ingestion.py
 async _store_embedding(tool, vector) @ memory/tool_router.py
-async _store_facts(facts) @ memory/insight_extraction.py
+async _store_facts(facts) @ memory/archive/insight_extraction.py
 async _store_in_redis(entity_id, entry) @ memory/predictive_cache.py
-async _store_insights(insights, source_packet) @ memory/insight_extraction.py
+async _store_insights(insights, source_packet) @ memory/archive/insight_extraction.py
 async _store_memory_event(envelope) @ memory/ingestion.py
 async _store_memory_event_with_connection(envelope, conn) @ memory/ingestion.py
 async _store_message_neo4j(message, previous_message_id) @ memory/graph_memory.py
@@ -543,12 +583,15 @@ async _sync_loop() @ core/integration/wm_to_graph_sync.py
 async _sync_to_graph(envelope) @ memory/ingestion.py
 async _take_screenshot(task_id, suffix) @ mac_agent/executor.py
 async _trace_causal_chain_step(context, neo4j) @ memory/saga_patterns.py
+async _transaction() @ tests/memory/test_ingestion_transaction.py
 async _tree_of_thought(request) @ orchestrators/reasoning/orchestrator.py
 async _trigger_critical_checkpoint(envelope) @ memory/ingestion.py
+async _trigger_emit_handlers(agent_id, files) @ agents/codegenagent/cursor_context_sync_engine.py
 async _trigger_escalation(lesson_id) @ workers/violation_tracker_service.py
 async _try_fallback() @ clients/memory_client.py
 async _update_existing_fact(existing, learning) @ memory/active_encoder.py
 async _update_lineage(envelope) @ memory/ingestion.py
+async _update_memory_context(agent_state) @ agents/codegenagent/cursor_context_sync_engine.py
 async _update_world_model(result, context) @ core/reasoning/l9_toth_adapter.py
 async _update_world_model(result, context) @ orchestration/plan_executor.py
 async _upsert_to_world_model(entity) @ core/integration/graph_to_wm_sync.py
@@ -609,23 +652,28 @@ async add_tags_batch(packet_ids, tags, tenant_id) @ memory/substrate_repository_
 async agent_health() @ api/agent_routes.py
 async agent_status() @ api/agent_routes.py
 async agent_ws_endpoint(websocket) @ api/server.py
+async analogical_enrichment_node(state, config) @ memory/substrate_dag.py
 async analyze(query) @ services/research/tools/perplexity_client.py
 async analyze_execution_patterns() @ agents/cursor/gmp_meta_learning.py
+async analyze_failure(failure_context, error, stack_trace) @ SDK/SDK.py
 async analyze_failure(failure_context, error, stack_trace) @ agents/reflection_agent.py
 async analyze_failure(request, authorization, _, agent) @ api/routes/reflection_agent.py
 async analyze_plan_evolution(plan_id) @ memory/execution_plan_snapshot.py
 async analyze_task_execution(context, patterns) @ core/agents/selfreflection.py
 async anonymize_aggregate(aggregate_data) @ core/packet_envelope/governance.py
-async api_request(method, endpoint) @ scripts/memory/audit_graphs_vps.py
 async api_request(method, endpoint) @ scripts/memory/index_architecture.py
 async api_request(method, endpoint) @ scripts/memory/index_tool_usage.py
 async api_request(method, endpoint) @ scripts/memory/load_indexes_to_neo4j_vps.py
 async append_event(event) @ core/packet_envelope/scalability.py
 async append_event(packet_type, payload, metadata, provenance, confidence) @ memory/state_manager.py
+async append_thread_message(thread_uuid, message, ttl) @ runtime/redis_client.py
 async apply(conn) @ memory/vector_search_config.py
 async apply(upgrade, allow_downtime) @ orchestrators/evolution/apply_engine.py
+async apply_analogical_reasoning(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
 async apply_analogical_reasoning(context) @ domain_tensor_bridge/reasoning_engine.py
+async apply_causal_logic(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py
 async apply_causal_logic(context) @ domain_tensor_bridge/causal_reasoner.py
+async apply_causal_reasoning(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
 async apply_causal_reasoning(context) @ domain_tensor_bridge/reasoning_engine.py
 async apply_importance_decay(dry_run) @ mcp_memory/src/routes/memory.py
 async apply_importance_decay(dry_run) @ mcp_memory/src/routes/memory_unified.py
@@ -671,15 +719,9 @@ async async_wrapper() @ core/packet_envelope/observability.py
 async async_wrapper() @ core/protocols/validation_protocols.py
 async async_wrapper() @ runtime/dora.py
 async audit_e2e_flow() @ tests/memory/test_e2e_memory_audit.py
-async audit_facts(limit) @ scripts/memory/audit_graphs_vps.py
 async audit_ingestion_pipeline() @ tests/memory/test_e2e_memory_audit.py
-async audit_memory_stats() @ scripts/memory/audit_graphs_vps.py
 async audit_neo4j() @ tests/memory/test_e2e_memory_audit.py
-async audit_neo4j_graphs() @ scripts/memory/audit_graphs.py
-async audit_neo4j_via_api() @ scripts/memory/audit_graphs_vps.py
-async audit_packets(limit) @ scripts/memory/audit_graphs_vps.py
 async audit_postgresql() @ tests/memory/test_e2e_memory_audit.py
-async audit_postgresql_graphs() @ scripts/memory/audit_graphs.py
 async audit_redis() @ tests/memory/test_e2e_memory_audit.py
 async audit_retrieval_pipeline() @ tests/memory/test_e2e_memory_audit.py
 async audit_slack_configuration() @ api/e2e_slack_audit.py
@@ -696,19 +738,18 @@ async audit_slack_security() @ api/e2e_slack_audit.py
 async audit_slack_security() @ tests/api/test_e2e_slack_audit.py
 async audit_slack_telemetry() @ api/e2e_slack_audit.py
 async audit_slack_telemetry() @ tests/api/test_e2e_slack_audit.py
-async audit_world_model() @ scripts/memory/audit_graphs.py
+async batch_compute_refcounts(packet_ids) @ memory/retention_refcount.py
 async batch_embed_and_store(items, text_key, agent_id) @ memory/substrate_semantic.py
 async batch_helpers(substrate_repo) @ tests/memory/test_batch_helpers.py
 async batch_ingest(items) @ core/protocols/memory_protocols.py
 async batch_store_embeddings(embeddings) @ memory/substrate_semantic.py
 async batch_write(http_request, request, authorization, _, orchestrator) @ api/memory/router.py
-async benchmark_batch_insert() @ scripts/benchmark_performance.py
 async benchmark_combined_impact() @ scripts/benchmark_caching_and_vector.py
-async benchmark_kernel_loading() @ scripts/benchmark_performance.py
 async benchmark_query_caching() @ scripts/benchmark_caching_and_vector.py
 async benchmark_vector_search() @ scripts/benchmark_caching_and_vector.py
 async bind_kernels_to_agent(instance, kernels, substrate_service) @ core/agents/bootstrap/phase_3_bind_kernels.py
 async bind_tools_and_capabilities(instance, substrate_service) @ core/agents/bootstrap/phase_5_bind_tools.py
+async bind_tools_to_agent(agent_id, agent_role, task_description, registry) @ core/agents/dynamic_tool_binding.py
 async board_reasoning(query, board_members, context) @ core/reasoning/l9_toth_adapter.py
 async bootstrap_agent() @ bootstrap/__main__.py
 async bootstrap_agent(config, kernel_dir) @ .backup/bootstrap-7phase/orchestrator.py
@@ -722,11 +763,14 @@ async broadcast(event, exclude) @ runtime/websocket_orchestrator.py
 async broadcast(from_agent, message, message_type, exclude) @ core/coordination/agent_mediator.py
 async broadcast(message, message_type) @ SDK/SDK.py
 async broadcast_task(task_payload, task_type, exclude_agents) @ orchestration/unified_controller.py
+async build(sections) @ memory/pipeline_router.py
 async build_context(project_id, session_id, agent_id, max_tokens, include_tiers, format_type) @ memory/context_builder.py
+async build_context(sections) @ memory/pipeline_router.py
 async build_from_specs(specs) @ world_model/runtime.py
 async build_world_model_context() @ memory/working_memory_adapter.py
 async cache_compiled_function(expr, func) @ services/symbolic_computation/core/cache_manager.py
 async cache_delete(key, authorization, _) @ api/memory/cache.py
+async cache_discovered_tools(agent_id, task_id, tools) @ core/agents/dynamic_tool_binding.py
 async cache_expression(expr, backend, result) @ services/symbolic_computation/core/cache_manager.py
 async cache_get(key, authorization, _) @ api/memory/cache.py
 async cache_health(authorization, _) @ api/memory/cache.py
@@ -740,7 +784,9 @@ async calculate_delay(attempt) @ core/protocols/retry_protocols.py
 async calibrate(req) @ core/calibration/service.py
 async calibrate_simple(confidence, task_id) @ core/calibration/service.py
 async call_deep_research(prompt, api_key) @ scripts/research/delegate_deep_research.py
+async call_embedding_similarity(entity_a, entity_b) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
 async call_embedding_similarity(entity_a, entity_b) @ domain_tensor_bridge/tensoraios_bridge.py
+async call_link_prediction(source, target) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
 async call_link_prediction(source, target) @ domain_tensor_bridge/tensoraios_bridge.py
 async call_llm(messages, temperature, json_mode) @ agents/base_agent.py
 async call_llm(messages, temperature, max_tokens, response_format) @ services/research/agents/base_agent.py
@@ -757,7 +803,6 @@ async can_graduate_to_next_level() @ agents/cursor/gmp_meta_learning.py
 async capture_dispatch(tool_id, arguments, context) @ tests/unit/test_guarded_execution.py
 async capture_execute(query) @ tests/services/test_tool_learning_engine.py
 async capture_persist(finding) @ tests/services/research/test_graph_persistence.py
-async capture_task(coro) @ tests/memory/test_tool_audit.py
 async ceo_reasoning(query, temporal_context, context) @ core/reasoning/l9_toth_adapter.py
 async challenge(graph, context) @ ir_engine/constraint_challenger.py
 async challenge_decision(decision, rationale, alternatives_considered) @ agents/architect_agent/architect_agent_b.py
@@ -772,6 +817,7 @@ async check() @ scripts/audit/tier1/audit_infrastructure_health.py
 async check() @ scripts/audit/tier1/audit_infrastructure_health.py
 async check() @ scripts/audit/tier1/audit_infrastructure_health.py
 async check(policy_key, unique_key) @ core/governance/rate_limit_policy.py
+async check(result) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
 async check(result) @ domain_tensor_bridge/governance_bridge.py
 async check_alignment(limit) @ memory/substrate_alignment.py
 async check_all_connections() @ mcp_memory/tests/test_all_layers.py
@@ -784,9 +830,9 @@ async check_approval(action) @ SDK/SDK.py
 async check_approval(request_id) @ core/governance/approval_manager.py
 async check_capability(caller_id, capability, resource_id) @ mcp_memory/src/safety/api.py
 async check_component(component_name) @ core/protocols/observability_protocols.py
-async check_embeddings_via_search(limit) @ scripts/memory/check_embeddings_via_api.py
 async check_executed(packet) @ core/agents/idempotency_store.py
 async check_executed_by_key(dedupe_key) @ core/agents/idempotency_store.py
+async check_governance(decision) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
 async check_governance(decision) @ domain_tensor_bridge/governance_bridge.py
 async check_health() @ core/protocols/observability_protocols.py
 async check_memory_pipeline_dry_run() @ tests/smoke_test.py
@@ -815,18 +861,21 @@ async cleanup_parentless_packets(max_age_hours, exclude_types) @ memory/housekee
 async cleanup_task() @ mcp_memory/src/routes/memory.py
 async cleanup_task() @ mcp_memory/src/routes/memory_unified.py
 async cleanup_test_strategies(neo4j_client) @ tests/memory/test_strategy_memory_integration.py
-async cleanup_trash_embeddings(database_url, dry_run, verbose) @ scripts/memory/cleanup_trash_embeddings.py
 async clear(repo_id, branch) @ memory_cache/working_memory_service.py
 async clear_cache() @ services/symbolic_computation/api/routes.py
 async clear_expired() @ memory/predictive_cache.py
+async clear_lessons() @ SDK/SDK.py
 async clear_lessons_learned(authorization, _, agent) @ api/routes/reflection_agent.py
 async clear_repo_graph() @ scripts/memory/load_indexes_to_neo4j_vps.py
+async clear_tool_cache(task_id) @ core/agents/dynamic_tool_binding.py
 async cli_approve(task_id) @ runtime/gmp_approval.py
 async cli_checkpoint_node(state) @ workflows/nodes/checkpoint.py
 async cli_list_pending() @ runtime/gmp_approval.py
 async cli_reject(task_id) @ runtime/gmp_approval.py
 async close() @ clients/memory_client.py
 async close() @ clients/world_model_client.py
+async close() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
+async close() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
 async close() @ core/aios/runtime.py
 async close() @ core/coordination/agent_mediator.py
 async close() @ core/di/container.py
@@ -858,14 +907,20 @@ async close_repository() @ memory/substrate_repository.py
 async close_service() @ memory/substrate_service.py
 async close_world_model_client() @ clients/world_model_client.py
 async close_world_model_service() @ world_model/service.py
+async cmd_batch(args) @ agents/codegenagent/__main__.py
+async cmd_generate(args) @ agents/codegenagent/__main__.py
+async cmd_preview(args) @ agents/codegenagent/__main__.py
 async commit_file(file_path, message) @ core/codegen/utilities.py
+async commit_snapshot(snapshot, force) @ memory_cache/versioned_snapshots.py
 async compact() @ orchestrators/memory/housekeeping.py
 async compact_storage(authorization, _, orchestrator) @ api/memory/router.py
+async compare_approaches(approach_a, approach_b, criteria) @ SDK/SDK.py
 async compare_approaches(approach_a, approach_b, criteria) @ agents/reflection_agent.py
 async compare_approaches(request, authorization, _, agent) @ api/routes/reflection_agent.py
 async compare_blueprints(blueprint_a, blueprint_b, criteria) @ orchestrators/meta/interface.py
 async compare_blueprints(blueprint_a, blueprint_b, criteria) @ orchestrators/meta/orchestrator.py
 async compare_to_baseline(current, baseline_version) @ core/evaluation/evaluator.py
+async compare_to_baseline(eval_set_name, agent_id, version) @ SDK/SDK.py
 async compare_to_baseline(request, body) @ api/routes/evaluation.py
 async compensate_step1(context) @ tests/memory/test_saga.py
 async compile(spec, output_dir) @ core/codegen/compiler/module_compiler_v2.py
@@ -876,6 +931,8 @@ async compile_only(text, context) @ orchestration/unified_controller.py
 async complete(prompt) @ core/llm/llm_service.py
 async complete(prompt) @ core/llm/llm_service.py
 async complete(prompt) @ core/protocols/service_protocols.py
+async complete(prompt) @ memory/llm_memory_ops.py
+async complete(prompt) @ memory/query_rewriter.py
 async complete_mutation(tracking_id, status, commit_sha, branch_name, pr_url, pr_number, files_created, files_modified, files_deleted, error_message) @ core/governance/cmts.py
 async compliance_node(state) @ workflows/dags/inspect_dag.py
 async compound_similar_memories(user_id, threshold) @ mcp_memory/src/routes/memory.py
@@ -884,6 +941,7 @@ async compute(expression, variables, backend) @ codegen/Symbolic CodeGen/Supplem
 async compute(expression, variables, backend) @ core/tools/symbolic_tool.py
 async compute(expression, variables, backend) @ services/symbolic_computation/computation.py
 async compute_metrics() @ core/observability/service.py
+async compute_refcount(packet_id, use_cache) @ memory/retention_refcount.py
 async confirm_intent(intent, user_context, slack_client) @ core/commands/__init__.py
 async confirm_intent(intent, user_context, slack_client) @ core/commands/intent_extractor.py
 async connect() @ core/protocols/substrate_protocols.py
@@ -899,6 +957,7 @@ async connect() @ tests/unit/test_substrate_protocols.py
 async consolidate(agent_id, conversation_text) @ core/memory/virtual_context.py
 async consolidate_graph_state(agent_id) @ core/memory/virtual_context.py
 async consolidate_reflections(min_reflections) @ world_model/runtime.py
+async coordinate_tensor_calls(entities) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py
 async coordinate_tensor_calls(entities) @ domain_tensor_bridge/tensor_coordinator.py
 async correlate_timeline(start_time, end_time, event_type, limit) @ memory/saga_patterns.py
 async correlate_timeline(start_time, end_time, event_type, limit) @ memory/substrate_service.py
@@ -907,8 +966,7 @@ async create_agent_collaborations(driver) @ scripts/memory/bootstrap_neo4j_schem
 async create_agent_hierarchy(driver) @ scripts/memory/bootstrap_neo4j_schema.py
 async create_checkpoint(agent_id, state, reason) @ memory/agent_persistence.py
 async create_config(application, environment) @ agents/coder_agent/coder_agent_b.py
-async create_directives(tx, directives) @ scripts/load_agent_world_model.py
-async create_entities(tx, entities) @ scripts/load_agent_world_model.py
+async create_entity(entity_type, entity_id, properties) @ SDK/SDK.py
 async create_entity(entity_type, entity_id, properties) @ memory/graph_client.py
 async create_entity(request, authorization, _) @ api/memory/graph.py
 async create_eos_hypergraph_client() @ core/eos/hypergraph_client.py
@@ -926,23 +984,21 @@ async create_node(labels, properties) @ core/protocols/memory_protocols.py
 async create_node(node_type, data) @ tests/mocks/world_model_mocks.py
 async create_node(t, data) @ tests/conftest.py
 async create_packet(http_request, request, authorization, _) @ api/memory/router.py
-async create_relations(tx, relations) @ scripts/load_agent_world_model.py
 async create_relationship(from_node_id, to_node_id, rel_type, properties) @ core/protocols/memory_protocols.py
+async create_relationship(from_type, from_id, to_type, to_id, rel_type, properties) @ SDK/SDK.py
 async create_relationship(from_type, from_id, to_type, to_id, rel_type, properties) @ memory/graph_client.py
 async create_relationship(request, authorization, _) @ api/memory/graph.py
 async create_resource(resource_id, resource_type, properties) @ core/security/permission_graph.py
-async create_responsibilities(tx, responsibilities) @ scripts/load_agent_world_model.py
 async create_role(role_id, description, permissions) @ core/security/permission_graph.py
 async create_runtime_with_substrate(substrate_service, engine, config) @ world_model/runtime.py
 async create_schema_constraints(driver) @ scripts/memory/bootstrap_neo4j_schema.py
+async create_snapshot(description) @ SDK/SDK.py
 async create_snapshot(description, created_by, tenant_id, org_id, user_id, role) @ world_model/service.py
 async create_snapshot(plan_id, checkpoint_id, status, steps, current_step_index, execution_context, metadata) @ memory/execution_plan_snapshot.py
 async create_snapshot(request) @ api/world_model_api.py
-async create_sops(tx, sops) @ scripts/load_agent_world_model.py
 async create_substrate_service(database_url, embedding_provider_type) @ memory/substrate_service.py
 async create_tables() @ agents/cursor/gmp_meta_learning.py
 async create_test_plan(feature, code) @ agents/qa_agent.py
-async create_tool_capabilities(tx, tool_caps) @ scripts/load_agent_world_model.py
 async create_tool_safety_guards(driver) @ scripts/memory/bootstrap_neo4j_schema.py
 async create_user(user_id, properties) @ core/security/permission_graph.py
 async create_warming_service(config, graph_client) @ memory/warming_service.py
@@ -957,16 +1013,19 @@ async decrement_rate_limit(key, amount) @ runtime/redis_client.py
 async deduplicate_packets(packets) @ memory/deduplication.py
 async deep_research(prompt, timeout) @ agents/research_agent_impl.py
 async deep_research(query) @ services/research/tools/perplexity_client.py
+async delete() @ tests/test_integration_phase0.py
 async delete(blob_id) @ memory/blob_store.py
+async delete(key) @ SDK/SDK.py
 async delete(key) @ core/protocols/memory_protocols.py
 async delete(key) @ tests/mocks/orchestrator_mocks.py
 async delete(key, raw) @ runtime/redis_client.py
-async delete_all_strategies(neo4j_client) @ scripts/memory/seed_golden_strategies.py
 async delete_branch() @ core/codegen/utilities.py
 async delete_checkpoint(agent_id) @ memory/substrate_repository.py
 async delete_embedding(id) @ core/protocols/memory_protocols.py
+async delete_entity(entity_id) @ SDK/SDK.py
 async delete_entity(entity_id, tenant_id, org_id, user_id, role) @ world_model/repository.py
 async delete_entity(entity_id, tenant_id, org_id, user_id, role) @ world_model/service.py
+async delete_entity(entity_type, entity_id) @ SDK/SDK.py
 async delete_entity(entity_type, entity_id) @ memory/graph_client.py
 async delete_entity(entity_type, entity_id, authorization, _) @ api/memory/graph.py
 async delete_expired_memories(dry_run) @ mcp_memory/src/routes/memory.py
@@ -981,9 +1040,6 @@ async delete_old_checkpoints(agent_id, keep_last) @ memory/substrate_repository.
 async delete_secret(key) @ core/protocols/secrets_protocols.py
 async delete_strategy(strategy_id) @ memory/neo4j_strategy_memory.py
 async delete_tool_embedding(tool_name, repository) @ core/tools/tool_embeddings.py
-async delete_trash_embeddings() @ scripts/memory/delete_trash_via_service.py
-async delete_trash_embeddings(database_url, dry_run, verbose) @ scripts/memory/delete_trash_embeddings.py
-async delete_trash_embeddings_from_sql() @ scripts/memory/execute_cleanup_and_reindex.py
 async deliberate(task, initial_graph, context) @ ir_engine/deliberation_cell.py
 async deploy_files_node(state) @ workflows/nodes/deploy.py
 async deprecate_fact(fact_id, reason) @ memory/state_manager.py
@@ -996,11 +1052,12 @@ async design(requirements, constraints, existing_systems) @ collaborative_cells/
 async design_component(component_name, requirements, interfaces) @ agents/architect_agent/architect_agent_a.py
 async detect(request, response) @ adapters/tensorglobe_bridge/anomaly_guard.py
 async detect_all_gaps(mentioned_entities, entity_graph) @ memory/gap_detector.py
-async detect_anomalies(packet, historical_window) @ memory/insight_extraction.py
+async detect_anomalies(packet, historical_window) @ memory/archive/insight_extraction.py
 async detect_circular_dependencies() @ core/tools/tool_graph.py
 async detect_entity_gaps(mentioned_entities, entity_graph) @ memory/gap_detector.py
 async detect_failures() @ core/observability/service.py
 async detect_orphaned_packets(agent_id) @ memory/reasoning_replay.py
+async detect_patterns_phase(agent_id, context) @ memory/consolidation/parallel_pipeline.py
 async detect_relationship_gaps(mentioned_entities, entity_graph) @ memory/gap_detector.py
 async disconnect() @ core/protocols/substrate_protocols.py
 async disconnect() @ memory/graph_client.py
@@ -1011,6 +1068,7 @@ async disconnect() @ runtime/redis_client.py
 async disconnect() @ tests/unit/test_memory_substrate_container.py
 async disconnect() @ tests/unit/test_substrate_protocols.py
 async discover(request, authorization, _, agent) @ api/routes/research_agent.py
+async discover(topic, domain, stages) @ SDK/SDK.py
 async discover(topic, domain, stages) @ agents/research_agent_impl.py
 async discover_tools(query, top_k, use_hybrid) @ core/tools/semantic_discovery.py
 async discover_tools_for_task(task_payload, top_k, min_similarity, max_tokens, use_hybrid, task_id) @ core/tools/dynamic_discovery.py
@@ -1024,6 +1082,7 @@ async dispatch_tool_call(tool_id, arguments, context) @ tests/core/bootstrap/tes
 async dispatch_tool_call(tool_id, arguments, context) @ tests/unit/test_guarded_execution.py
 async do_operation(data) @ tests/core/test_resilience_mixin.py
 async download_media(media_id, mime_type) @ api/webhook_waba.py
+async draft(account, to, subject, body) @ SDK/SDK.py
 async draft_email(request, account, _) @ email_agent/router.py
 async draft_work_node(state) @ orchestration/long_plan_graph.py
 async dummy_execute() @ tests/memory/test_governance_invariants.py
@@ -1075,6 +1134,7 @@ async enqueue_ws_event(event) @ orchestrators/ws_bridge.py
 async enrich(entities, strategy, max_related) @ memory/hybrid_rag.py
 async enrich(envelope, preload_state) @ memory/substrate_dag.py
 async enrich(superprompt) @ runtime/superprompt_emitter.py
+async enrich_context(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/context_enricher.py
 async enrich_context(packet) @ domain_tensor_bridge/context_enricher.py
 async enrich_context(query, domain_id, reasoning_modes) @ tests/core/bootstrap/test_executor.py
 async enrich_entities(entity_ids, entity_type) @ memory/saga_patterns.py
@@ -1085,6 +1145,8 @@ async ensure_bootstrap() @ api/startup_guard.py
 async ensure_governance_context(operation) @ memory/governance_gate.py
 async ensure_migrations_table() @ memory/migration_runner.py
 async eos_status() @ api/routes/tensor_bridge.py
+async episodic_summarize(episodes) @ memory/llm_memory_ops.py
+async escalate_to_anchor(decision, reason) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
 async escalate_to_anchor(decision, reason) @ domain_tensor_bridge/governance_bridge.py
 async escalate_to_igor(decision_packet, approval_manager, agent_id, task_id) @ core/governance/approval_gate.py
 async eval_health(request) @ api/routes/evaluation.py
@@ -1100,6 +1162,7 @@ async evaluate_expression(expr, variables, backend) @ services/symbolic_computat
 async evaluate_expression(request, evaluator, validator) @ services/symbolic_computation/api/routes.py
 async evaluate_formula(formula, params) @ codegen/code-gen-files/examples_symbolic_computation.py
 async evaluate_simple(confidence, tool_id, task_id) @ core/calibration/service.py
+async evaluate_with_conflict_resolution(request) @ core/governance/engine.py
 async event_queue_health(event_queue) @ core/coordination/event_queue.py
 async evict_expired_ttl() @ memory/housekeeping.py
 async evict_to_archival(agent_id, context, strategy) @ core/memory/virtual_context.py
@@ -1122,6 +1185,7 @@ async execute(args) @ services/research/tools/tool_wrappers.py
 async execute(args) @ services/research/tools/tool_wrappers.py
 async execute(args) @ services/research/tools/tool_wrappers.py
 async execute(args) @ services/research/tools/tool_wrappers.py
+async execute(command_text, context) @ SDK/SDK.py
 async execute(context) @ memory/governance_hooks.py
 async execute(context) @ memory/governance_hooks.py
 async execute(context) @ memory/governance_hooks.py
@@ -1130,6 +1194,7 @@ async execute(context) @ memory/governance_hooks.py
 async execute(context) @ tests/unit/test_governance_hooks.py
 async execute(ctx) @ tests/unit/test_governance_hooks.py
 async execute(ctx) @ tests/unit/test_governance_hooks.py
+async execute(mode, hypothesis, evidence, context) @ SDK/SDK.py
 async execute(neo4j_client, template_name) @ memory/cypher_templates.py
 async execute(plan, context) @ orchestration/plan_executor.py
 async execute(query) @ core/protocols/connection_protocols.py
@@ -1137,6 +1202,7 @@ async execute(query) @ mcp_memory/src/db.py
 async execute(query) @ tests/core/bootstrap/conftest.py
 async execute(query) @ tests/core/bootstrap/test_bootstrap_phases.py
 async execute(query) @ tests/services/test_tool_learning_engine.py
+async execute(query) @ tests/test_retention_refcount.py
 async execute(query) @ tests/world_model/test_wm_scope.py
 async execute(query) @ tests/world_model/test_world_model_repository_basic.py
 async execute(query, user_id, thread_id) @ services/research/graph_runtime.py
@@ -1179,6 +1245,7 @@ async execute_read(query) @ tests/core/eos/test_eos_clients.py
 async execute_reasoning(context) @ core/agents/executor.py
 async execute_reasoning(context) @ core/aios/runtime.py
 async execute_reasoning(context) @ tests/core/bootstrap/test_executor.py
+async execute_reasoning(context, modes) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
 async execute_reasoning(context, modes) @ domain_tensor_bridge/reasoning_engine.py
 async execute_reasoning(request, authorization, _, orchestrator) @ api/routes/reasoning.py
 async execute_recovery(failure, recovery_actions) @ core/observability/failures.py
@@ -1203,7 +1270,9 @@ async exists(agent_id) @ core/agents/graph_state/agent_graph_loader.py
 async exists(blob_id) @ memory/blob_store.py
 async exists(key) @ core/protocols/memory_protocols.py
 async exists(key) @ tests/mocks/orchestrator_mocks.py
-async expand_code_blocks(meta) @ codegenagent/c_gmp_engine.py
+async expand_code_blocks(meta) @ agents/codegenagent/c_gmp_engine.py
+async expand_code_blocks(meta) @ agents/codegenagent/codegen_agent_engine.py
+async expand_code_blocks(meta) @ core/agents/codegenagent/c_gmp_engine.py
 async expensive_operation(value) @ tests/memory/test_query_cache_and_vector.py
 async expire(key, ttl) @ core/protocols/memory_protocols.py
 async expire_soon(repo_id, branch, seconds) @ memory_cache/working_memory_service.py
@@ -1221,19 +1290,23 @@ async export_identity_facts() @ memory/identity_tier.py
 async extract() @ tests/api/test_factory_path_safety.py
 async extract() @ tests/scripts/test_factory_extract_cli.py
 async extract(schema, output_dir, glue, overwrite, dry_run) @ codegen/code-gen-files/extractor.py
+async extract(schema_yaml, output_dir, overwrite, dry_run) @ SDK/SDK.py
+async extract(text, payload, metadata_context) @ memory/entity_extraction.py
 async extract_agent(body) @ api/routes/factory.py
 async extract_agent(schema_path, output_dir, glue_path, overwrite, dry_run) @ codegen/code-gen-files/extractor.py
 async extract_agent_file(schema_file, output_dir, glue_file, overwrite, dry_run, strict) @ api/routes/factory.py
 async extract_entities(text, context) @ memory/hybrid_rag.py
 async extract_files_node(state) @ workflows/nodes/extract.py
-async extract_from_packet(envelope, store_results) @ memory/insight_extraction.py
+async extract_from_packet(envelope, store_results) @ memory/archive/insight_extraction.py
 async extract_insights(query, summary, evidence, quality_score) @ services/research/insight_extractor.py
 async extract_insights_node(state, config) @ memory/substrate_dag.py
 async extract_intent(nlp_prompt, openai_client) @ core/commands/__init__.py
 async extract_intent(nlp_prompt, openai_client) @ core/commands/intent_extractor.py
 async extract_intent_endpoint(request, _) @ api/routes/commands.py
+async extract_patterns(examples) @ SDK/SDK.py
 async extract_patterns(examples) @ agents/reflection_agent.py
 async extract_patterns(request, authorization, _, agent) @ api/routes/reflection_agent.py
+async extract_semantics_phase(agent_id, context) @ memory/consolidation/parallel_pipeline.py
 async extract_session_learnings(user_id, session_id, session_summary, key_decisions, errors_encountered, successes) @ mcp_memory/src/routes/memory.py
 async extract_session_learnings(user_id, session_id, session_summary, key_decisions, errors_encountered, successes, caller_id, creator, source) @ mcp_memory/src/routes/memory_unified.py
 async extract_tasks_from_plan(plan_id) @ orchestration/long_plan_graph.py
@@ -1260,6 +1333,7 @@ async fetch_and_enrich(query, limit, min_similarity) @ memory/substrate_service.
 async fetch_and_enrich(query, postgres_pool, neo4j_client, semantic_service, limit) @ memory/saga_patterns.py
 async fetch_facts(subject, predicate, source_packet, limit) @ clients/memory_client.py
 async fetch_facts(subject, predicate, source_packet, limit) @ memory/retrieval.py
+async fetch_highest_leverage_tasks(pool, query) @ memory/intake_leverage.py
 async fetch_insights(packet_id, insight_type, limit) @ clients/memory_client.py
 async fetch_insights(packet_id, insight_type, limit) @ memory/retrieval.py
 async fetch_lineage(packet_id, direction, max_depth) @ clients/memory_client.py
@@ -1270,15 +1344,20 @@ async fetch_packets(packet_types, limit, since) @ world_model/runtime.py
 async fetch_thread(thread_id, limit, order) @ clients/memory_client.py
 async fetch_thread(thread_id, limit, order) @ memory/retrieval.py
 async fetchrow(query) @ tests/world_model/test_world_model_repository_basic.py
+async fetchval(query) @ tests/test_retention_refcount.py
 async final_review_node(state) @ orchestration/long_plan_graph.py
 async finalize_node(state) @ services/research/research_graph.py
+async find_analogies(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/analogical_reasoner.py
 async find_analogies(context) @ domain_tensor_bridge/analogical_reasoner.py
 async find_duplicate_agents(driver) @ scripts/agents/neo4j_merge_agent_nodes.py
 async find_path(source, target, max_depth) @ memory/graph_client.py
 async find_related_topics(topic, limit) @ memory/graph_memory.py
+async find_relevant_tools() @ core/tools/semantic_discovery.py
 async find_relevant_tools(query, limit, min_similarity, category_filter) @ memory/tool_router.py
 async find_relevant_tools(query, top_k, exclude_categories, min_similarity, repository) @ core/tools/tool_embeddings.py
+async find_similar_fixes(category, adr_id) @ memory/substrate_service.py
 async find_tools(query, limit) @ memory/tool_router.py
+async find_tools_hybrid() @ core/tools/semantic_discovery.py
 async find_tools_hybrid(query, top_k, semantic_weight, keyword_weight, min_similarity, repository) @ core/tools/tool_embeddings.py
 async find_tools_keyword(query, top_k, min_rank, repository) @ core/tools/tool_embeddings.py
 async find_trash_embeddings_via_search(dry_run, verbose) @ scripts/memory/cleanup_trash_embeddings_via_api.py
@@ -1291,6 +1370,8 @@ async flush() @ core/observability/exporters.py
 async flush() @ core/observability/jaeger_exporter.py
 async flush() @ core/tools/tool_audit.py
 async flush() @ services/tool_feedback_service.py
+async form_concepts_phase(agent_id, context) @ memory/consolidation/parallel_pipeline.py
+async forward(account, msg_id, to, body) @ SDK/SDK.py
 async forward_email(request, account, _) @ email_agent/router.py
 async func() @ tests/unit/test_instrumentation_decorators.py
 async func() @ tests/unit/test_instrumentation_decorators.py
@@ -1303,11 +1384,15 @@ async gather_context_node(state) @ orchestration/long_plan_graph.py
 async gc_unused_tags(min_usage) @ memory/housekeeping.py
 async general_exception_handler(request, exc) @ mcp_memory/src/main.py
 async generate(prompt, temperature, max_tokens) @ codegen/codegenAgent Spec/run_codegen_superprompt.py
+async generate(prompt, temperature, max_tokens) @ codegen/codegen_agent_spec/run_codegen_superprompt.py
 async generate(request) @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py
 async generate(request) @ services/symbolic_computation/computation.py
 async generate_artifact_with_llm(artifact_type, goal, constraints, context, max_tokens) @ orchestration/long_plan_graph.py
-async generate_batch(meta_paths, parallel) @ codegenagent/c_gmp_engine.py
-async generate_batch(pattern, directory, dry_run, stop_on_error) @ codegenagent/codegen_agent.py
+async generate_batch(meta_paths, parallel) @ agents/codegenagent/c_gmp_engine.py
+async generate_batch(meta_paths, parallel) @ agents/codegenagent/codegen_agent_engine.py
+async generate_batch(meta_paths, parallel) @ core/agents/codegenagent/c_gmp_engine.py
+async generate_batch(pattern, directory, dry_run, stop_on_error) @ agents/codegenagent/codegen_agent.py
+async generate_batch(pattern, directory, dry_run, stop_on_error) @ core/agents/codegenagent/codegen_agent.py
 async generate_code(expr, variables, language, function_name) @ services/symbolic_computation/core/code_generator.py
 async generate_code(expression, variables, language, function_name) @ services/symbolic_computation/tools/symbolic_tool.py
 async generate_code(expression, variables, language, function_name, compile) @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py
@@ -1318,13 +1403,19 @@ async generate_code(spec, output_dir, options) @ core/codegen/gatekeeper/codegen
 async generate_code(spec_path) @ agents/research_agent_impl.py
 async generate_daily_report(date) @ core/compliance/audit_reporter.py
 async generate_embedding(text, payload, agent_id) @ memory/substrate_semantic.py
-async generate_from_contract(contract, dry_run) @ codegenagent/codegen_agent.py
-async generate_from_meta(meta_path) @ codegenagent/c_gmp_engine.py
-async generate_from_meta(meta_path, dry_run) @ codegenagent/codegen_agent.py
-async generate_from_spec(spec_path, dry_run) @ codegenagent/codegen_agent.py
+async generate_from_contract(contract, dry_run) @ agents/codegenagent/codegen_agent.py
+async generate_from_contract(contract, dry_run) @ core/agents/codegenagent/codegen_agent.py
+async generate_from_meta(meta_path) @ agents/codegenagent/c_gmp_engine.py
+async generate_from_meta(meta_path) @ agents/codegenagent/codegen_agent_engine.py
+async generate_from_meta(meta_path) @ core/agents/codegenagent/c_gmp_engine.py
+async generate_from_meta(meta_path, dry_run) @ agents/codegenagent/codegen_agent.py
+async generate_from_meta(meta_path, dry_run) @ core/agents/codegenagent/codegen_agent.py
+async generate_from_spec(spec_path, dry_run) @ agents/codegenagent/codegen_agent.py
+async generate_from_spec(spec_path, dry_run) @ core/agents/codegenagent/codegen_agent.py
 async generate_from_synthesis(synthesis_path, module_name, api_key) @ codegen/scripts/generate_spec.py
 async generate_heuristics() @ agents/cursor/gmp_meta_learning.py
 async generate_improvements(blueprint, evaluation) @ orchestrators/meta/adapter.py
+async generate_improvements(current_performance, goals) @ SDK/SDK.py
 async generate_improvements(current_performance, goals) @ agents/reflection_agent.py
 async generate_improvements(request, authorization, _, agent) @ api/routes/reflection_agent.py
 async generate_module_spec(module_description, synthesis, api_key, output_path, validate) @ codegen/scripts/generate_spec.py
@@ -1335,12 +1426,17 @@ async generate_spec(module_name, module_description, semaphore) @ scripts/batch/
 async generate_spec(prompt, model, temperature, max_tokens) @ codegen/scripts/generate_spec.py
 async generate_spec(request, authorization, _, agent) @ api/routes/research_agent.py
 async generate_spec(synthesis, topic, description) @ agents/research_agent_impl.py
+async generate_spec(topic, description) @ SDK/SDK.py
 async generate_with_limit(spec_path) @ orchestration/quantum_swarm_loader.py
+async generate_with_symbolic_verification(intent, target_behavior, input_code, invariants, constraints, variables) @ agents/codegenagent/codegen_agent.py
+async get(account, msg_id) @ SDK/SDK.py
 async get(config) @ memory/checkpoint/postgres_saver.py
 async get(config) @ memory/checkpoint/postgres_saver.py
 async get(k) @ tests/conftest.py
+async get(key) @ SDK/SDK.py
 async get(key) @ core/protocols/memory_protocols.py
 async get(key) @ tests/mocks/orchestrator_mocks.py
+async get(key) @ tests/test_integration_phase0.py
 async get(key, raw) @ runtime/redis_client.py
 async get_accountability_engine() @ config/di_async_config.py
 async get_active_facts(subject, min_confidence) @ memory/state_manager.py
@@ -1355,8 +1451,11 @@ async get_agent_capabilities(agent_name) @ core/worldmodel/service.py
 async get_agent_flags() @ memory/state_manager.py
 async get_agent_mediator() @ core/coordination/agent_mediator.py
 async get_agent_status(agent_id) @ core/protocols/agent_protocols.py
+async get_agent_timeline(agent_id, event_type, limit, authorization, _, timeline_service) @ api/memory/router.py
+async get_agent_tools(agent_id, task_description) @ core/agents/dynamic_tool_binding.py
 async get_all_agents(driver) @ scripts/agents/neo4j_merge_agent_nodes.py
 async get_all_tools() @ core/tools/tool_graph.py
+async get_analytics() @ SDK/SDK.py
 async get_analytics(engine) @ api/routes/gmp_learning.py
 async get_anomaly_monitor() @ api/routes/workers.py
 async get_api_dependents(api_name) @ core/tools/tool_graph.py
@@ -1364,6 +1463,7 @@ async get_applied_migrations() @ memory/migration_runner.py
 async get_approvals_summary() @ core/worldmodel/service.py
 async get_approvals_summary(request, _) @ api/routes/worldmodel.py
 async get_async(name) @ core/singleton_registry.py
+async get_autonomy_level() @ SDK/SDK.py
 async get_autonomy_level(engine) @ api/routes/gmp_learning.py
 async get_baseline(agent_id, eval_set_name, version) @ core/evaluation/evaluator.py
 async get_blast_radius(api_name) @ core/tools/tool_graph.py
@@ -1393,10 +1493,12 @@ async get_decision_ancestors(packet_id, max_depth) @ memory/reasoning_replay.py
 async get_discovery_stats() @ core/tools/dynamic_discovery.py
 async get_dlq_async() @ memory/dead_letter_queue.py
 async get_domain_context(domain, limit, authorization, _) @ api/memory/graph.py
+async get_dynamic_tool_bundle(agent_id, task_description) @ core/agents/dynamic_tool_binding.py
 async get_edges(nid) @ tests/conftest.py
 async get_edges(node_id, direction) @ tests/mocks/world_model_mocks.py
 async get_email(request, account, _) @ email_agent/router.py
 async get_embedding_provider() @ core/di/container.py
+async get_embeddings(entity_ids) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
 async get_embeddings(entity_ids) @ domain_tensor_bridge/tensoraios_bridge.py
 async get_enabled_features() @ api/routes/upgrades.py
 async get_entity(entity_id) @ SDK/SDK.py
@@ -1404,6 +1506,7 @@ async get_entity(entity_id) @ api/world_model_api.py
 async get_entity(entity_id) @ clients/world_model_client.py
 async get_entity(entity_id, tenant_id, org_id, user_id, role) @ world_model/repository.py
 async get_entity(entity_id, tenant_id, org_id, user_id, role) @ world_model/service.py
+async get_entity(entity_type, entity_id) @ SDK/SDK.py
 async get_entity(entity_type, entity_id) @ memory/graph_client.py
 async get_entity(entity_type, entity_id, authorization, _) @ api/memory/graph.py
 async get_entity_count(tenant_id, org_id, user_id, role) @ world_model/repository.py
@@ -1423,6 +1526,7 @@ async get_evidence(evidence_id) @ core/eos/accountability_engine.py
 async get_execution_record(packet) @ core/agents/idempotency_store.py
 async get_executor_info() @ examples/fastapi_lifespan_di_bootstrap.py
 async get_fact_history(fact_text, tenant_id) @ memory/substrate_repository.py
+async get_facts(subject, predicate, limit) @ SDK/SDK.py
 async get_facts(subject, predicate, source_packet, limit, authorization, _) @ api/memory/router.py
 async get_facts_as_of(point_in_time, tier, limit) @ memory/substrate_repository.py
 async get_facts_by_packet(packet_id, limit) @ memory/substrate_repository.py
@@ -1444,6 +1548,7 @@ async get_graduation_status(engine) @ api/routes/gmp_learning.py
 async get_graph_memory(neo4j_client) @ memory/graph_memory.py
 async get_health() @ api/routes/observability.py
 async get_help() @ api/routes/commands.py
+async get_heuristics() @ SDK/SDK.py
 async get_heuristics(engine) @ api/routes/gmp_learning.py
 async get_hybrid_rag_pipeline(semantic_service, neo4j_client) @ memory/hybrid_rag.py
 async get_identity_context(categories, max_facts, format_type) @ memory/identity_tier.py
@@ -1455,6 +1560,7 @@ async get_importance_stats() @ memory/importance_manager.py
 async get_indexes(schema_name) @ memory/schema_introspection.py
 async get_infrastructure_status() @ core/worldmodel/service.py
 async get_infrastructure_status(request, _) @ api/routes/worldmodel.py
+async get_insights(packet_id, insight_type, limit) @ SDK/SDK.py
 async get_insights(packet_id, insight_type, limit, authorization, _) @ api/memory/router.py
 async get_integrations() @ core/worldmodel/service.py
 async get_integrations(request, _) @ api/routes/worldmodel.py
@@ -1469,6 +1575,7 @@ async get_latest_snapshot(tenant_id, org_id, user_id, role) @ world_model/reposi
 async get_latest_snapshot(tenant_id, org_id, user_id, role) @ world_model/service.py
 async get_latest_snapshot_for_plan(plan_id) @ memory/execution_plan_snapshot.py
 async get_legacy_relationships(driver) @ scripts/agents/neo4j_unify_relationships.py
+async get_lessons_learned() @ SDK/SDK.py
 async get_lessons_learned(authorization, _, agent) @ api/routes/reflection_agent.py
 async get_lineage(packet_id, direction, max_depth, authorization, _) @ api/memory/router.py
 async get_memory_events(agent_id, event_type, limit) @ memory/substrate_repository.py
@@ -1481,6 +1588,7 @@ async get_memory_substrate_service() @ memory/substrate_service.py
 async get_metrics() @ api/routes/observability.py
 async get_metrics_summary(last_hours) @ services/symbolic_computation/core/metrics.py
 async get_metrics_summary(last_hours, metrics) @ services/symbolic_computation/api/routes.py
+async get_modes() @ SDK/SDK.py
 async get_modules_status(request, _) @ api/routes/modules.py
 async get_mutation(tracking_id) @ core/governance/cmts.py
 async get_mutation_stats(subsystem) @ core/governance/cmts.py
@@ -1495,7 +1603,9 @@ async get_neo4j_relationship_types() @ memory/schema_introspection.py
 async get_node(nid) @ tests/conftest.py
 async get_node(node_id) @ core/protocols/memory_protocols.py
 async get_node(node_id) @ tests/mocks/world_model_mocks.py
+async get_optimal_batch_size(db_pool) @ memory/consolidation/adaptive_batching.py
 async get_or_create_runtime(substrate_service) @ world_model/runtime.py
+async get_packet(packet_id) @ SDK/SDK.py
 async get_packet(packet_id) @ core/protocols/substrate_protocols.py
 async get_packet(packet_id) @ memory/substrate_repository.py
 async get_packet(packet_id) @ memory/substrate_repository_cached.py
@@ -1504,6 +1614,7 @@ async get_packet(packet_id) @ tests/unit/test_service_adapters.py
 async get_packet(packet_id) @ tests/unit/test_substrate_protocols.py
 async get_packet(packet_id, authorization, _) @ api/memory/router.py
 async get_packet_as_cloudevent(packet_id) @ core/packet_envelope/integration.py
+async get_packets_batch(packet_ids) @ memory/substrate_repository.py
 async get_packets_by_thread_batch(thread_ids, tenant_id, limit) @ memory/substrate_repository_batch_helpers.py
 async get_packets_with_children_batch(parent_ids, tenant_id) @ memory/substrate_repository_batch_helpers.py
 async get_packets_with_metadata(repository, packet_ids, tenant_id) @ memory/substrate_repository_batch_helpers.py
@@ -1514,6 +1625,7 @@ async get_pool(pool) @ world_model/repository.py
 async get_postgres_tables(schema_name) @ memory/schema_introspection.py
 async get_proactive_suggestions(current_context, user_id, include_error_fixes, include_preferences, top_k, allowed_scopes) @ mcp_memory/src/routes/memory.py
 async get_proactive_suggestions(current_context, user_id, include_error_fixes, include_preferences, top_k, allowed_scopes) @ mcp_memory/src/routes/memory_unified.py
+async get_rate_limit(key) @ SDK/SDK.py
 async get_rate_limit(key) @ runtime/redis_client.py
 async get_rate_limit(key, authorization, _) @ api/memory/cache.py
 async get_reasoning_modes(authorization, _) @ api/routes/reasoning.py
@@ -1527,12 +1639,15 @@ async get_redis_client() @ core/agents/idempotency_store.py
 async get_redis_client() @ memory/slack_ingest.py
 async get_redis_client(client) @ runtime/redis_client.py
 async get_relationship_types() @ memory/schema_introspection.py
+async get_relationships(entity_type, entity_id, rel_type, direction) @ SDK/SDK.py
 async get_relationships(entity_type, entity_id, rel_type, direction) @ memory/graph_client.py
 async get_relationships(entity_type, entity_id, rel_type, direction, authorization, _) @ api/memory/graph.py
 async get_relevant_tools(agent_id, principal_id, query, top_k) @ core/tools/registry_adapter.py
 async get_remaining(key, limit) @ runtime/rate_limiter.py
 async get_repository() @ core/di/container.py
 async get_research_status(thread_id, runtime) @ services/research/research_api.py
+async get_run(run_id) @ SDK/SDK.py
+async get_runs_for_graph(graph_id) @ SDK/SDK.py
 async get_runs_for_graph(graph_id, _) @ api/routes/simulation.py
 async get_saga_executor() @ memory/substrate_service.py
 async get_saga_executor(postgres_pool, neo4j_client, redis_client, semantic_service) @ memory/saga.py
@@ -1546,17 +1661,20 @@ async get_semantic_facts_by_subject(subject, tier, limit) @ memory/substrate_rep
 async get_semantic_facts_by_tier(tier, limit) @ memory/substrate_repository.py
 async get_service() @ core/di/container.py
 async get_service(service) @ memory/substrate_service.py
+async get_session_context(session_id) @ SDK/SDK.py
 async get_session_context(session_id, authorization, _) @ api/memory/cache.py
 async get_session_graph(session_id, authorization, _) @ api/memory/graph.py
 async get_simulation_run(run_id, _) @ api/routes/simulation.py
 async get_size() @ memory/dead_letter_queue.py
 async get_slack_validator(request) @ api/routes/slack.py
+async get_snapshot(agent_id) @ memory_cache/versioned_snapshots.py
 async get_snapshot(aggregate_id) @ core/packet_envelope/scalability.py
 async get_snapshot(schema_name) @ memory/schema_introspection.py
 async get_snapshot(snapshot_id) @ memory/execution_plan_snapshot.py
 async get_snapshots_for_plan(plan_id) @ memory/execution_plan_snapshot.py
 async get_spans(limit, status, name_prefix) @ api/routes/observability.py
 async get_state(agent_id) @ core/protocols/agent_protocols.py
+async get_state(dag_id, thread_id) @ SDK/SDK.py
 async get_state_history(agent_id, limit) @ core/protocols/agent_protocols.py
 async get_state_version() @ api/world_model_api.py
 async get_state_version() @ clients/world_model_client.py
@@ -1571,18 +1689,24 @@ async get_status(thread_id) @ services/research/graph_runtime.py
 async get_strategy_by_id(strategy_id) @ memory/neo4j_strategy_memory.py
 async get_success_rates(tool_names, task_type) @ services/tool_feedback_service.py
 async get_summary_for_context(schema_name) @ memory/schema_introspection.py
+async get_system_metrics(db_pool) @ memory/consolidation/adaptive_batching.py
 async get_tables(schema_name, include_views) @ memory/schema_introspection.py
+async get_task_context(task_id) @ SDK/SDK.py
 async get_task_context(task_id) @ runtime/redis_client.py
 async get_task_context(task_id, authorization, _) @ api/memory/cache.py
+async get_template(template_name) @ SDK/SDK.py
 async get_template(template_name) @ api/routes/factory.py
 async get_temporal_events(entity, start, end) @ memory/graph_client.py
 async get_test_failure_context(task_id) @ core/agents/adaptive_prompting.py
 async get_test_results_summary(task_id) @ core/governance/approvals.py
 async get_test_suggestions(code) @ collaborative_cells/reviewer_cell.py
+async get_thread(thread_id, limit) @ SDK/SDK.py
 async get_thread(thread_id, limit, order, authorization, _) @ api/memory/router.py
+async get_thread_context(thread_uuid) @ runtime/redis_client.py
 async get_tier_stats() @ memory/retrieval.py
 async get_tier_summary() @ memory/context_builder.py
 async get_timeline_json(agent_id, event_type, limit) @ memory/timeline_service.py
+async get_tool_binding_status() @ core/agents/dynamic_tool_binding.py
 async get_tool_dependencies(tool_name) @ core/tools/tool_graph.py
 async get_tool_embedding(tool_name, repository) @ core/tools/tool_embeddings.py
 async get_tool_metrics(agent_id, period) @ core/tools/tool_audit.py
@@ -1605,11 +1729,14 @@ async get_users_with_role(role_id) @ core/security/permission_graph.py
 async get_verdict(verdict_id) @ core/eos/accountability_engine.py
 async get_version() @ memory/schema_introspection.py
 async get_version() @ memory/schema_introspection.py
+async get_version(agent_id) @ memory_cache/versioned_snapshots.py
 async get_violation_counts(_api_key) @ api/routes/workers.py
 async get_violation_tracker() @ api/routes/workers.py
 async get_warmed_context(entity_ids) @ memory/warming_service.py
 async get_warming_metrics(req, authorization, _) @ api/memory/router.py
 async get_workers_health(_api_key) @ api/routes/workers.py
+async get_working_memory(key) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
+async get_working_memory(key) @ domain_tensor_bridge/l9_memory_adapter.py
 async get_working_memory(key) @ domain_tensor_bridge/memory_bridge.py
 async get_world_model_context(agent_id, request, _) @ api/routes/worldmodel.py
 async get_world_model_context(agent_name) @ core/worldmodel/service.py
@@ -1628,20 +1755,27 @@ async grant_permission_to_role(role_id, permission_id) @ core/security/permissio
 async grant_role(user_id, role_id) @ core/security/permission_graph.py
 async grant_role(user_id, role_id) @ core/security/permission_graph.py
 async graph_client() @ tests/memory/test_substrate_alignment.py
+async graph_enriched_search(query, agent_id, limit, min_similarity, scope) @ memory/retrieval.py
 async graph_health(authorization, _) @ api/memory/graph.py
 async graph_sync_node(state, config) @ memory/substrate_dag.py
 async guarded_execute(agent, tool_id, arguments, context, principal_id) @ core/tools/registry_adapter.py
+async handle_anomaly(anomaly) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
 async handle_anomaly(anomaly) @ domain_tensor_bridge/anomaly_handler.py
 async handle_command(command) @ core/packet_envelope/scalability.py
 async handle_conversation_task(agent_id, data) @ runtime/websocket_orchestrator.py
 async handle_error(exception, correlation_id, metadata) @ core/protocols/error_handling_protocols.py
 async handle_error(exception, correlation_id, metadata) @ core/protocols/error_handling_protocols.py
+async handle_escalation(trigger) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py
 async handle_escalation(trigger) @ domain_tensor_bridge/escalation_handler.py
 async handle_event(event) @ core/packet_envelope/scalability.py
+async handle_event(event) @ memory_cache/invalidation_hook.py
+async handle_generic_domain(packet, domain) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
 async handle_generic_domain(packet, domain) @ domain_tensor_bridge/domain_packet_handler.py
 async handle_incoming(agent_id, data) @ runtime/websocket_orchestrator.py
+async handle_mortgageos_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
 async handle_mortgageos_packet(packet) @ domain_tensor_bridge/domain_packet_handler.py
 async handle_multi_request(text, context) @ orchestration/unified_controller.py
+async handle_plastos_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
 async handle_plastos_packet(packet) @ domain_tensor_bridge/domain_packet_handler.py
 async handle_request(text, context) @ orchestration/unified_controller.py
 async handle_slack_commands(payload, substrate_service, slack_client, aios_base_url) @ memory/slack_ingest.py
@@ -1689,6 +1823,7 @@ async hset(name, key, value) @ tests/mocks/orchestrator_mocks.py
 async http_exception_handler(request, exc) @ mcp_memory/src/main.py
 async hybrid_search(http_request, query, top_k, min_score, agent_id, authorization, _) @ api/memory/router.py
 async hybrid_search(query, filters, top_k) @ memory/substrate_semantic.py
+async hybrid_search(query, top_k, filters) @ SDK/SDK.py
 async hybrid_search(query, top_k, filters, agent_id, min_score) @ clients/memory_client.py
 async hybrid_search(query, top_k, filters, agent_id, min_score, rrf_k, temporal_half_life_days, use_cross_encoder) @ memory/retrieval.py
 async hybrid_search(semantic_service, neo4j_client, query, limit, strategy) @ memory/hybrid_rag.py
@@ -1705,6 +1840,7 @@ async incr(k) @ tests/conftest.py
 async incr(key) @ tests/mocks/orchestrator_mocks.py
 async increment(policy_key, unique_key) @ core/governance/rate_limit_policy.py
 async increment_contradiction_count(fact_id) @ memory/substrate_repository.py
+async increment_rate_limit(key, ttl) @ SDK/SDK.py
 async increment_rate_limit(key, ttl) @ runtime/redis_client.py
 async increment_rate_limit(key, ttl, authorization, _) @ api/memory/cache.py
 async increment_usage(tool_name) @ tests/mocks/orchestrator_mocks.py
@@ -1715,9 +1851,12 @@ async index_gmp_report(report_data, substrate_service) @ scripts/memory/index_gm
 async index_preferences(preferences, substrate_service, dry_run) @ scripts/memory/index_preferences.py
 async index_tool_usage_to_neo4j(tool_stats, dry_run) @ scripts/memory/index_tool_usage.py
 async infer(hypothesis, evidence) @ SDK/SDK.py
+async ingest(content, kind, metadata) @ SDK/SDK.py
 async ingest(content, metadata) @ core/protocols/memory_protocols.py
 async ingest(data) @ tests/conftest.py
 async ingest(data) @ tests/mocks/memory_mocks.py
+async ingest(envelope) @ memory/pipeline_router.py
+async ingest(envelope) @ memory/pipeline_router.py
 async ingest(packet_in, embed, generate_tags) @ memory/ingestion.py
 async ingest_batch(packets) @ memory/ingestion.py
 async ingest_batch(request) @ core/packet_envelope/scalability.py
@@ -1727,6 +1866,7 @@ async ingest_packet(envelope, idempotency_key) @ memory/substrate_dag_wrapper.py
 async ingest_packet(packet) @ tests/core/eos/test_eos_clients.py
 async ingest_packet(packet_in, service) @ memory/ingestion.py
 async ingest_packet_legacy(packet_data) @ core/packet_envelope/integration.py
+async ingest_to_memory(transcript_path, messages, chunks, dry_run) @ scripts/memory/ingest_chat_transcript.py
 async init_db() @ api/db.py
 async init_db() @ mcp_memory/src/db.py
 async init_event_driven_coordination(app_state) @ core/coordination/event_queue.py
@@ -1738,11 +1878,18 @@ async init_runtime(database_url) @ services/research/graph_runtime.py
 async init_service(database_url) @ memory/substrate_service.py
 async init_tool_router(tools, embedding_provider, repository) @ memory/tool_router.py
 async init_world_model_engine(spec_paths, initial_state) @ world_model/engine.py
+async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
+async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
+async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
+async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
+async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
+async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
 async initialize() @ config/di_async_config.py
 async initialize() @ core/protocols/connection_protocols.py
 async initialize() @ core/worldmodel/service.py
 async initialize() @ domain_tensor_bridge/agent_controller.py
 async initialize() @ domain_tensor_bridge/governance_bridge.py
+async initialize() @ domain_tensor_bridge/l9_memory_adapter.py
 async initialize() @ domain_tensor_bridge/memory_bridge.py
 async initialize() @ domain_tensor_bridge/reasoning_engine.py
 async initialize() @ domain_tensor_bridge/tensoraios_bridge.py
@@ -1761,6 +1908,7 @@ async initialize_state(initial_state) @ world_model/engine.py
 async initialized_service(mock_database_url) @ tests/test_wiring_integrity.py
 async inject_files_node(state) @ workflows/nodes/inject.py
 async inner_func() @ tests/unit/test_instrumentation_decorators.py
+async inner_task() @ tests/governance/test_governance_propagation.py
 async insert_embedding(source, content, vector) @ api/db.py
 async insert_episodic_event(observation, event_timestamp, event_type, entities, context, outcome, severity, source_packet_id, parent_event_id, session_id, agent_id, tenant_id, org_id, user_id) @ memory/substrate_repository.py
 async insert_knowledge_fact(subject, predicate, object_value, confidence, source_packet, fact_id) @ memory/substrate_repository.py
@@ -1773,7 +1921,6 @@ async insert_packet(envelope) @ memory/substrate_repository_cached.py
 async insert_reasoning_block(block) @ memory/substrate_repository.py
 async insert_semantic_embedding(vector, payload, agent_id, scope) @ memory/substrate_repository.py
 async insert_semantic_fact(fact_text, triplet, embedding, importance, tags, tier, source, source_packet_id, confidence, agent_id, tenant_id, org_id, user_id) @ memory/substrate_repository.py
-async inspect_embeddings(database_url, limit, agent_id, sample) @ scripts/memory/inspect_embeddings.py
 async instantiate_agent(config, substrate_service) @ core/agents/bootstrap/phase_2_instantiate.py
 async instrument_agent_executor(executor_service) @ core/observability/l9_integration.py
 async instrument_aios_runtime(runtime_service) @ core/observability/l9_integration.py
@@ -1782,6 +1929,8 @@ async instrument_memory_substrate(substrate_service) @ core/observability/l9_int
 async instrument_tool_registry(tool_registry) @ core/observability/l9_integration.py
 async intake_node(state, config) @ memory/substrate_dag.py
 async invalidate_all_tool_caches() @ core/tools/dynamic_discovery.py
+async invalidate_all_tool_caches() @ core/tools/registry_cache.py
+async invalidate_cache(packet_id) @ memory/retention_refcount.py
 async invalidate_tool_cache(task_id) @ core/tools/dynamic_discovery.py
 async invoke(role, prompt, input_data, context) @ orchestrators/pattern/cell_adapter.py
 async invoke(role, prompt, input_data, context) @ orchestrators/pattern/cell_adapter.py
@@ -1791,8 +1940,11 @@ async is_approved(task_id) @ core/governance/approvals.py
 async is_auth_blocked(ip, now) @ mcp_memory/src/rate_limiter.py
 async is_rate_limited(ip, now) @ mcp_memory/src/rate_limiter.py
 async is_region_allowed(region, operation) @ mcp_memory/src/safety/api.py
+async is_safe_to_delete(packet_id) @ memory/retention_refcount.py
 async kernel_read(kernel_name, property) @ runtime/l_tools.py
+async keys(pattern) @ SDK/SDK.py
 async keys(pattern) @ tests/mocks/orchestrator_mocks.py
+async keys(pattern) @ tests/test_integration_phase0.py
 async keys(pattern, raw) @ runtime/redis_client.py
 async keyword_search(query, top_k, packet_type) @ memory/retrieval.py
 async l_read(packet_id) @ tests/memory/test_cross_client_consistency.py
@@ -1813,29 +1965,34 @@ async list(config, filter, before, limit) @ memory/checkpoint/postgres_saver.py
 async list(config, filter, before, limit) @ memory/checkpoint/postgres_saver.py
 async list_checkpoints(agent_id, limit) @ memory/agent_persistence.py
 async list_checkpoints(agent_id, limit) @ memory/substrate_repository.py
+async list_dags() @ SDK/SDK.py
 async list_di_services() @ examples/fastapi_lifespan_di_bootstrap.py
 async list_embedded_tools() @ memory/tool_router.py
+async list_entities(entity_type, limit, offset) @ SDK/SDK.py
 async list_entities(entity_type, min_confidence, limit, offset) @ api/world_model_api.py
 async list_entities(entity_type, min_confidence, limit, offset) @ clients/world_model_client.py
 async list_entities(entity_type, min_confidence, limit, offset, tenant_id, org_id, user_id, role) @ world_model/repository.py
 async list_entities(entity_type, min_confidence, limit, offset, tenant_id, org_id, user_id, role) @ world_model/service.py
+async list_eval_sets() @ SDK/SDK.py
 async list_eval_sets(request) @ api/routes/evaluation.py
 async list_kernels_endpoint(api_key) @ api/server.py
 async list_pending_gmp_tasks() @ runtime/gmp_approval.py
 async list_pending_tasks() @ runtime/gmp_worker.py
 async list_reasoning_modes() @ api/routes/tensor_bridge.py
 async list_sessions(limit, authorization, _) @ api/memory/cache.py
+async list_snapshots(limit) @ SDK/SDK.py
 async list_snapshots(limit) @ api/world_model_api.py
 async list_snapshots(limit) @ clients/world_model_client.py
 async list_snapshots(limit, tenant_id, org_id, user_id, role) @ world_model/repository.py
 async list_snapshots(limit, tenant_id, org_id, user_id, role) @ world_model/service.py
 async list_strategies(limit, min_score) @ memory/neo4j_strategy_memory.py
-async list_strategies(neo4j_client) @ scripts/memory/seed_golden_strategies.py
+async list_templates() @ SDK/SDK.py
 async list_templates() @ api/routes/factory.py
 async list_tools(request, authorization) @ api/routes/mcp.py
 async list_tools(request, caller) @ mcp_memory/src/main.py
 async list_tools(server_id) @ .backup/mcp-tools-20260131/mcp_client.py
 async list_tools(server_id) @ runtime/mcp_client.py
+async list_updates(insight_type, min_confidence, limit) @ SDK/SDK.py
 async list_updates(insight_type, min_confidence, limit) @ api/world_model_api.py
 async list_updates(insight_type, min_confidence, limit) @ clients/world_model_client.py
 async list_updates(insight_type, min_confidence, since, limit, tenant_id, org_id, user_id, role) @ world_model/repository.py
@@ -1865,7 +2022,6 @@ async load_quantum_swarm(capsule_path) @ orchestration/quantum_swarm_loader.py
 async load_quantum_swarm(capsule_path) @ orchestration/quantum_swarm_loader.py
 async load_reflection_memory_yaml(path, write_to_substrate) @ world_model/seed_loader.py
 async load_route_handlers() @ scripts/memory/load_indexes_to_neo4j_vps.py
-async load_seed_data() @ scripts/load_agent_world_model.py
 async load_seed_library(seed_dir, write_to_substrate) @ world_model/runtime.py
 async load_snapshot(snapshot_id, tenant_id, org_id, user_id, role) @ world_model/repository.py
 async log(agent_id, level, message, metadata) @ services/research/memory_adapter.py
@@ -1874,11 +2030,13 @@ async log_approval(task_id, approved_by, approved, reason, timestamp) @ core/com
 async log_audit(action, details) @ SDK/SDK.py
 async log_command(command_id, command_type, user_id, action, risk_level, raw_text, result, error, timestamp) @ core/compliance/audit_log.py
 async log_command_to_audit(substrate_service, command_id, command_type, user_id, action, risk_level, raw_text, result, error) @ core/compliance/audit_log.py
+async log_decision(decision, context) @ core/governance/policy_engine.py
 async log_error(context) @ core/protocols/error_handling_protocols.py
 async log_error(context) @ core/protocols/error_handling_protocols.py
 async log_error_to_graph(error, context, parent_error_id, source) @ core/error_tracking.py
 async log_event(event_type, aggregate_id, user_id, details, proof_hash) @ core/packet_envelope/governance.py
 async log_execution(entry) @ core/tools/tool_audit.py
+async log_execution(result) @ SDK/SDK.py
 async log_execution(result) @ agents/cursor/gmp_meta_learning.py
 async log_execution(result, engine) @ api/routes/gmp_learning.py
 async log_kernel_evolution(event_type, agent_id, kernel_ids, previous_hashes, new_hashes, modified_kernels, trigger, success, errors, metadata) @ core/memory/runtime.py
@@ -1911,40 +2069,31 @@ async main() @ scripts/audit/tier1/audit_code_integrity.py
 async main() @ scripts/audit/tier1/audit_infrastructure_health.py
 async main() @ scripts/batch/batch_generate_specs.py
 async main() @ scripts/benchmark_caching_and_vector.py
-async main() @ scripts/benchmark_performance.py
-async main() @ scripts/load_agent_world_model.py
-async main() @ scripts/memory/audit_graphs.py
-async main() @ scripts/memory/audit_graphs_vps.py
 async main() @ scripts/memory/bootstrap_neo4j_schema.py
-async main() @ scripts/memory/delete_trash_via_service.py
-async main() @ scripts/memory/execute_cleanup_and_reindex.py
 async main() @ scripts/memory/generate_delete_sql.py
 async main() @ scripts/memory/ingest_repo_indexes.py
 async main() @ scripts/memory/load_gmp_reports_to_graph.py
 async main() @ scripts/memory/load_indexes_to_neo4j_vps.py
 async main() @ scripts/memory/migrate_kernels_to_graph.py
-async main() @ scripts/memory/seed_golden_strategies.py
+async main() @ scripts/perplexity_audit_agent.py
 async main() @ scripts/research/delegate_deep_research.py
 async main() @ scripts/research/factory_extract.py
-async main() @ scripts/research/test_research_factory.py
 async main() @ tests/api/test_e2e_slack_audit.py
 async main() @ tests/memory/test_e2e_memory_audit.py
 async main() @ workflows/harvest_deploy.py
 async main() @ world_model/seed_loader.py
-async main(dry_run, verbose) @ scripts/memory/cleanup_trash_embeddings.py
 async main(dry_run, verbose) @ scripts/memory/cleanup_trash_embeddings_via_api.py
-async main(dry_run, verbose) @ scripts/memory/delete_trash_embeddings.py
 async main(dry_run, verbose) @ scripts/memory/index_architecture.py
 async main(dry_run, verbose) @ scripts/memory/index_error_patterns.py
 async main(dry_run, verbose) @ scripts/memory/index_gmp_reports.py
 async main(dry_run, verbose) @ scripts/memory/index_preferences.py
 async main(dry_run, verbose) @ scripts/memory/index_tool_usage.py
-async main(limit, agent_id, sample) @ scripts/memory/inspect_embeddings.py
 async maintenance_cycle() @ memory/warming_service.py
 async make_request() @ mcp_memory/tests/test_rate_limiting_enforcement.py
 async mark_executed(packet, result) @ core/agents/idempotency_store.py
 async mark_executed_by_key(dedupe_key, result) @ core/agents/idempotency_store.py
 async mark_migration_applied(migration_name) @ memory/migration_runner.py
+async mark_soft_expired(packet_id) @ memory/retention_refcount.py
 async maybe_apply_strategy(task_id, task_kind, goal_description, context_embedding, tags, min_confidence) @ orchestration/plan_executor.py
 async mcp_call_tool(server_id, tool_name, arguments) @ runtime/l_tools.py
 async mcp_call_tool(server_id, tool_name, arguments) @ runtime/mcp_tools.py
@@ -1980,6 +2129,7 @@ async memory_hybrid_search(query, top_k, filters) @ runtime/l_tools.py
 async memory_query_packets(filters, limit) @ runtime/l_tools.py
 async memory_search() @ tests/runtime/test_tool_registry.py
 async memory_search() @ tests/runtime/test_tool_registry.py
+async memory_search() @ tests/tools/test_tool_registry_mcp.py
 async memory_search(agent_id, query, segment, limit, substrate_service) @ core/tools/memory_tools.py
 async memory_search(query) @ tests/runtime/test_tool_registry.py
 async memory_search(query, segment, limit) @ runtime/l_tools.py
@@ -2013,6 +2163,12 @@ async mock_fail() @ tests/core/test_fail_closed_registry.py
 async mock_ingest(packet_in) @ tests/smoke_email.py
 async mock_mcp_search(query, scopes) @ tests/memory/test_cross_client_consistency.py
 async mock_mcp_search_with_filter(query, allowed_scopes) @ tests/memory/test_cross_client_consistency.py
+async mock_redis_delete(key) @ tests/api/test_slack_idempotency.py
+async mock_redis_get(key) @ tests/api/test_slack_idempotency.py
+async mock_redis_get(key) @ tests/api/test_slack_idempotency.py
+async mock_redis_setnx(key, value) @ tests/api/test_slack_idempotency.py
+async mock_redis_setnx(key, value) @ tests/api/test_slack_idempotency.py
+async mock_repository() @ tests/test_retention_refcount.py
 async mock_run_query(query, params) @ tests/integration/test_unified_graph.py
 async mock_search() @ tests/memory/test_cross_client_consistency.py
 async mock_sleep(delay) @ tests/memory/test_checkpoint_retry.py
@@ -2070,6 +2226,8 @@ async perform_health_check() @ services/symbolic_computation/health_check.py
 async persist_evidence_as_findings(evidence_list, source_query, source_agent) @ services/research/graph_persistence.py
 async persist_finding(finding) @ services/research/graph_persistence.py
 async pg_pool() @ mcp_memory/tests/test_all_layers.py
+async phase1(agent_id, context) @ tests/test_integration_phase0.py
+async phase2(agent_id, context) @ tests/test_integration_phase0.py
 async plan_only(text, context) @ orchestration/unified_controller.py
 async planning_node(state) @ services/research/research_graph.py
 async poll_and_execute() @ mac_agent/runner.py
@@ -2081,8 +2239,11 @@ async post_result_async(user, task, result, slack_client) @ api/slack_client.py
 async postgres_exception_handler(request, exc) @ mcp_memory/src/main.py
 async prepare_changes_node(state) @ orchestration/long_plan_graph.py
 async prepare_dynamic_tools() @ core/agents/agent_instance.py
-async preview(meta_path) @ codegenagent/codegen_agent.py
-async preview_spec(spec_path) @ codegenagent/codegen_agent.py
+async preview(meta_path) @ agents/codegenagent/codegen_agent.py
+async preview(meta_path) @ core/agents/codegenagent/codegen_agent.py
+async preview_spec(spec_path) @ agents/codegenagent/codegen_agent.py
+async preview_spec(spec_path) @ core/agents/codegenagent/codegen_agent.py
+async procedural_consolidate(traces) @ memory/llm_memory_ops.py
 async process() @ tests/unit/test_substrate_protocols.py
 async process(data) @ orchestrators/action_tool/validator.py
 async process(data) @ orchestrators/memory/housekeeping.py
@@ -2098,11 +2259,14 @@ async process_anomalies(request, _api_key) @ api/routes/workers.py
 async process_batch(modules) @ scripts/batch/batch_generate_specs.py
 async process_command_async() @ api/routes/slack.py
 async process_contract(contract, contract_type, research_enabled) @ core/codegen/gatekeeper/codegen_gatekeeper.py
+async process_domain_packet(packet) @ SDK/SDK.py
 async process_domain_packet(request) @ api/routes/tensor_bridge.py
 async process_file_attachments(files) @ services/slack_files.py
 async process_forever() @ core/coordination/event_queue.py
 async process_module(module_name, api_key, dry_run) @ scripts/research/delegate_deep_research.py
 async process_one() @ runtime/task_queue.py
+async process_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
+async process_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
 async process_packet(packet) @ domain_tensor_bridge/agent_controller.py
 async process_packet(packet) @ domain_tensor_bridge/agent_controller.py
 async process_sub_batch(packets) @ core/packet_envelope/scalability.py
@@ -2112,14 +2276,22 @@ async publish(event) @ core/coordination/event_queue.py
 async push(packet, failure_reason, failure_count) @ memory/dead_letter_queue.py
 async put(config, checkpoint, metadata, new_versions) @ memory/checkpoint/postgres_saver.py
 async put(config, checkpoint, metadata, new_versions) @ memory/checkpoint/postgres_saver.py
+async query(account, query_str, limit) @ SDK/SDK.py
+async query(category, file_content, file_path) @ scripts/perplexity_audit_agent.py
 async query(pattern) @ world_model/runtime.py
 async query(prompt, model, temperature, max_tokens, timeout) @ agents/research_agent_impl.py
 async query(prompt, session_id) @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
+async query(query) @ memory/pipeline_router.py
 async query(query) @ world_model/engine.py
 async query(query_type, params) @ tests/mocks/world_model_mocks.py
+async query_causal_factors(entity_id) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
 async query_causal_factors(entity_id) @ domain_tensor_bridge/world_model_bridge.py
+async query_causal_graph(entity_id, depth) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
+async query_causal_graph(entity_id, depth) @ domain_tensor_bridge/l9_memory_adapter.py
 async query_causal_graph(entity_id, depth) @ domain_tensor_bridge/memory_bridge.py
 async query_emails(request, account, _) @ email_agent/router.py
+async query_episodic_memory(filters) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
+async query_episodic_memory(filters) @ domain_tensor_bridge/l9_memory_adapter.py
 async query_episodic_memory(filters) @ domain_tensor_bridge/memory_bridge.py
 async query_failure_packets(database_url, limit) @ scripts/memory/index_error_patterns.py
 async query_history(user_id, topic, limit) @ memory/graph_memory.py
@@ -2130,9 +2302,12 @@ async query_mutations(query) @ core/governance/cmts.py
 async query_packet(packet_id) @ core/packet_envelope/scalability.py
 async query_packets(packet_types, limit, since, agent_id, tenant_id, org_id, user_id, role) @ memory/substrate_service.py
 async query_preference_packets(database_url, limit) @ scripts/memory/index_preferences.py
+async query_semantic_graph(query) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
+async query_semantic_graph(query) @ domain_tensor_bridge/l9_memory_adapter.py
 async query_semantic_graph(query) @ domain_tensor_bridge/memory_bridge.py
 async query_temporal(user_id, since, until, kinds, operation) @ mcp_memory/src/routes/memory.py
 async query_temporal(user_id, since, until, kinds, operation, allowed_scopes) @ mcp_memory/src/routes/memory_unified.py
+async query_temporal_patterns(entity_id, window_days) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
 async query_temporal_patterns(entity_id, window_days) @ domain_tensor_bridge/world_model_bridge.py
 async query_tool_usage_stats(database_url) @ scripts/memory/index_tool_usage.py
 async query_user_history(user_id, topic, time_range_days, limit) @ memory/graph_memory.py
@@ -2142,6 +2317,8 @@ async quick_refine(graph, focus) @ ir_engine/deliberation_cell.py
 async quick_search(query) @ services/research/tools/perplexity_client.py
 async rank_plans(packet_id, plans, context) @ motifs/multimodal_plan_ranker.py
 async rate_limit_context(policy_key, unique_key) @ core/governance/rate_limit_policy.py
+async read_agent_state(agent_id) @ agents/codegenagent/cursor_context_sync_engine.py
+async read_agent_state(agent_id) @ agents/codegenagent/cursor_context_sync_engine.py
 async reason(query, reasoning_mode) @ core/reasoning/toth_engine.py
 async reason_with_context(query, reasoning_mode, context) @ core/reasoning/l9_toth_adapter.py
 async reasoning_node(state, config) @ memory/substrate_dag.py
@@ -2151,6 +2328,8 @@ async recall_similar(query_vector, top_k, embedding_type) @ memory/substrate_sem
 async recall_task_history(num_tasks) @ core/tools/base_registry.py
 async reconstruct_chain(packet_id, max_depth) @ memory/reasoning_replay.py
 async record_approval_feedback(request, req, _) @ api/routes/commands.py
+async record_audit_failure(category, error, file_path) @ memory/substrate_service.py
+async record_batch_result(batch_size, duration_ms, success) @ memory/consolidation/adaptive_batching.py
 async record_compilation(expr, language, duration_ms, success) @ services/symbolic_computation/core/metrics.py
 async record_contradiction(subject, predicate, conflicting_objects, source_packet) @ memory/state_manager.py
 async record_evaluation(expr, backend, duration_ms, success, cache_hit) @ services/symbolic_computation/core/metrics.py
@@ -2203,6 +2382,7 @@ async redis_set_task_context(task_id, context, ttl_seconds) @ runtime/redis_tool
 async refactor(code, file_path, goals) @ collaborative_cells/coder_cell.py
 async refactor(code, goals) @ agents/coder_agent/coder_agent_a.py
 async refine_goal(query) @ services/research/agents/planner_agent.py
+async reflect(history, focus, goals) @ SDK/SDK.py
 async reflect(request, authorization, _, agent) @ api/routes/reflection_agent.py
 async reflect_on_execution(execution_history, current_state, goals) @ collaborative_cells/reflection_cell.py
 async reflect_on_failure(failure_context, error_message, stack_trace) @ collaborative_cells/reflection_cell.py
@@ -2218,10 +2398,11 @@ async reflection_agent_reflect(history, focus, goals) @ agents/reflection_agent.
 async reflection_agent_reflect_executor(history, focus, goals) @ core/tools/reflection_tools.py
 async reflection_agent_status(authorization, _, agent) @ api/routes/reflection_agent.py
 async refresh(agent_id) @ core/agents/graph_state/graph_hydrator.py
+async refresh_agent_tools(agent_id, task_description) @ core/agents/dynamic_tool_binding.py
 async register(agent_id, websocket, metadata) @ runtime/websocket_orchestrator.py
 async register_agent(agent, metadata) @ core/protocols/agent_protocols.py
+async register_default_phases(pipeline) @ memory/consolidation/parallel_pipeline.py
 async register_l9_tools() @ core/tools/tool_graph.py
-async register_l_tools() @ core/tools/registry_adapter.py
 async register_l_tools() @ core/tools/tool_graph.py
 async register_memory_tools(tool_registry, substrate_service) @ core/tools/memory_tools.py
 async register_route(event_kind, handler) @ core/coordination/event_queue.py
@@ -2231,7 +2412,6 @@ async register_tool(tool_id, tool_def) @ core/tools/registry_cache.py
 async register_tool_learning_jobs(scheduler) @ services/tool_learning_scheduler.py
 async register_tool_with_metadata(name, description, category, scope, risk_level, is_destructive, requires_confirmation, external_apis, internal_dependencies, agent_id) @ core/tools/tool_graph.py
 async regression_analysis(old_code, new_code, change_description) @ agents/qa_agent.py
-async reindex_content() @ scripts/memory/execute_cleanup_and_reindex.py
 async reject(request_id, rejected_by, reason) @ core/governance/approval_manager.py
 async reject_gmp_task(task_id) @ runtime/gmp_approval.py
 async reject_task(task_id, rejected_by, reason, tool_name, task_type, context) @ core/governance/approvals.py
@@ -2242,6 +2422,7 @@ async remove_pending_task(task_id) @ runtime/gmp_worker.py
 async remove_tags_batch(packet_ids, tags, tenant_id) @ memory/substrate_repository_batch_helpers.py
 async repair_broken_lineage(packet_id) @ memory/reasoning_replay.py
 async replay_chain(start_packet_id, end_packet_id, include_reasoning) @ memory/retrieval.py
+async reply(account, msg_id, body) @ SDK/SDK.py
 async reply_email(request, account, _) @ email_agent/router.py
 async report_node(state) @ workflows/dags/inspect_dag.py
 async report_node(state) @ workflows/nodes/report.py
@@ -2263,6 +2444,7 @@ async research_reasoning(hypothesis, evidence, context) @ core/reasoning/l9_toth
 async research_status(authorization, _, orchestrator) @ api/routes/research.py
 async research_test(authorization, _) @ api/routes/research.py
 async research_to_code(request, authorization, _, agent) @ api/routes/research_agent.py
+async research_to_code(topic, mode, domain) @ SDK/SDK.py
 async research_to_code(topic, mode, domain) @ agents/research_agent_impl.py
 async reset(key) @ runtime/rate_limiter.py
 async reset_agent_state(preserve) @ memory/state_manager.py
@@ -2273,7 +2455,9 @@ async restore(thread_id) @ memory/checkpoint/cursor_checkpoint_manager.py
 async restore_checkpoint(agent_id, checkpoint_id, validate_integrity) @ memory/agent_persistence.py
 async restore_from_snapshot(request) @ api/world_model_api.py
 async restore_from_snapshot(snapshot_id, tenant_id, org_id, user_id, role) @ world_model/service.py
+async restore_snapshot(snapshot_id) @ SDK/SDK.py
 async resume(thread_id) @ services/research/graph_runtime.py
+async resume_dag(dag_id, thread_id, updates) @ SDK/SDK.py
 async resume_research(thread_id, runtime) @ services/research/research_api.py
 async resume_thread(thread_id) @ agents/cursor/integrations/cursor_executor.py
 async retrieve(blob_id) @ memory/blob_store.py
@@ -2286,6 +2470,7 @@ async retrieve(query, top_k, filters) @ core/protocols/memory_protocols.py
 async retrieve_blob(blob_id) @ tests/mocks/memory_mocks.py
 async retrieve_context(repo_id, branch, query, context_type) @ agents/cursor/cursor_retrieval_kernel.py
 async retrieve_memory(memory_id) @ core/protocols/memory_protocols.py
+async retrieve_multiquery(retriever, queries) @ memory/retrieval_multiquery.py
 async retrieve_strategies(request, limit) @ memory/neo4j_strategy_memory.py
 async retrieve_strategies(request, limit) @ memory/strategymemory.py
 async retrieve_strategies(request, limit) @ memory/strategymemory.py
@@ -2295,17 +2480,22 @@ async review_design(design, requirements) @ agents/architect_agent/architect_age
 async review_test_results(test_output, expected_behavior) @ agents/qa_agent.py
 async revoke_role(user_id, role_id) @ core/security/permission_graph.py
 async revoke_role(user_id, role_id) @ core/security/permission_graph.py
+async rewrite(query) @ memory/pipeline_router.py
+async rewrite(query) @ memory/query_rewriter.py
 async rollback(upgrade_id) @ orchestrators/evolution/apply_engine.py
 async rollback_mutation(tracking_id, rollback_commit_sha) @ core/governance/cmts.py
+async rollback_snapshot(agent_id, target_version) @ memory_cache/versioned_snapshots.py
 async rollback_to_baseline() @ core/codegen/utilities.py
 async rollback_upgrade(upgrade_id) @ orchestrators/evolution/interface.py
 async rollback_upgrade(upgrade_id) @ orchestrators/evolution/orchestrator.py
 async root() @ mcp_memory/src/main.py
 async rotate_secret(key) @ core/protocols/secrets_protocols.py
 async route(event, context) @ orchestration/ws_task_router.py
+async route(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
 async route(packet) @ domain_tensor_bridge/packet_router.py
 async route(request) @ ir_engine/simulation_router.py
 async route_event(event) @ core/coordination/event_queue.py
+async route_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
 async route_packet(packet) @ domain_tensor_bridge/packet_router.py
 async route_task(task, constraints) @ core/protocols/agent_protocols.py
 async routing_node(state) @ workflows/dags/inspect_dag.py
@@ -2316,10 +2506,13 @@ async run() @ mac_agent/websocket_client.py
 async run() @ services/research/agents/base_agent.py
 async run(agent_id, config, kernel_paths) @ core/agents/bootstrap/orchestrator.py
 async run(dry_run) @ codegen/codegenAgent Spec/run_codegen_superprompt.py
+async run(dry_run) @ codegen/codegen_agent_spec/run_codegen_superprompt.py
 async run(envelope) @ core/protocols/substrate_protocols.py
-async run(envelope) @ memory/enrichment_dag.py
+async run(envelope) @ memory/archive/enrichment_dag.py
 async run(envelope) @ memory/substrate_dag.py
 async run(envelope) @ tests/unit/test_substrate_protocols.py
+async run(eval_set_name, agent_id, version) @ SDK/SDK.py
+async run(graph_data, scenario_params, mode) @ SDK/SDK.py
 async run(modules, dry_run) @ scripts/batch/batch_generate_specs.py
 async run(query, context) @ services/research/agents/planner_agent.py
 async run(query, evidence, summary) @ services/research/agents/critic_agent.py
@@ -2344,28 +2537,31 @@ async run_all_tests() @ tests/smoke_email.py
 async run_architect_cell(ir_graph, context) @ orchestration/cell_orchestrator.py
 async run_async_tests() @ tests/smoke_test.py
 async run_async_tests() @ tests/smoke_test_root.py
-async run_audit() @ scripts/memory/audit_graphs_vps.py
 async run_cascade(cutoff_time) @ memory/hierarchical_summarizer.py
 async run_cleanup(agent_id) @ memory/retention_engine.py
 async run_cleanup_all(agent_ids) @ memory/retention_engine.py
+async run_codegen(spec_paths) @ scripts/perplexity_audit_agent.py
 async run_coder_cell(plan, context) @ orchestration/cell_orchestrator.py
 async run_consolidation() @ api/server.py
+async run_consolidation(agent_id, max_parallelism) @ memory/consolidation/parallel_pipeline.py
 async run_consolidation(batch_size, sleep_between_batches_ms) @ memory/consolidation.py
 async run_consolidation(dry_run, batch_size, sleep_between_batches_ms) @ orchestrators/memory/housekeeping.py
 async run_consolidation(request, authorization, _) @ api/memory/router.py
+async run_dag(dag_id) @ SDK/SDK.py
 async run_decay_pass(reference_time) @ memory/neural_decay_scheduler.py
 async run_eval(agent_id, eval_set_name, version) @ core/evaluation/evaluator.py
 async run_evaluation(request, body) @ api/routes/evaluation.py
 async run_extraction() @ core/integration/tool_pattern_extractor.py
 async run_forever(on_iteration) @ world_model/runtime.py
 async run_full_audit() @ api/e2e_slack_audit.py
-async run_full_audit() @ scripts/memory/audit_graphs.py
 async run_full_audit() @ tests/api/test_e2e_slack_audit.py
 async run_full_audit() @ tests/memory/test_e2e_memory_audit.py
+async run_full_audit(categories, scope) @ scripts/perplexity_audit_agent.py
 async run_full_gc() @ memory/housekeeping.py
 async run_gc() @ clients/memory_client.py
 async run_gc(authorization, _) @ api/memory/router.py
 async run_harvest_deploy(source_document, harvest_directory, working_directory, extraction_patterns, file_mappings, validation_checks, plan_document, workflow_id) @ workflows/harvest_deploy.py
+async run_incremental_audit(changed_files) @ scripts/perplexity_audit_agent.py
 async run_inspect(target) @ workflows/dags/inspect_dag.py
 async run_memory_audit() @ scripts/memory/load_indexes_to_neo4j_vps.py
 async run_migration(dry_run) @ scripts/agents/neo4j_merge_agent_nodes.py
@@ -2380,6 +2576,7 @@ async run_pipeline(task, context, skip_simulation) @ orchestration/orchestrator_
 async run_probes() @ scripts/audit/run_all.py
 async run_pruning() @ tests/conftest.py
 async run_pruning() @ tests/mocks/memory_mocks.py
+async run_query(cypher, parameters) @ SDK/SDK.py
 async run_query(query, parameters) @ memory/graph_client.py
 async run_query(request, authorization, _) @ api/memory/graph.py
 async run_quick_research(query, model) @ agents/research_agent/research_sdk.py
@@ -2427,11 +2624,15 @@ async scan_for_violations(request, _api_key) @ api/routes/workers.py
 async score_blueprint(blueprint, criteria, context) @ orchestrators/meta/adapter.py
 async search(query) @ core/protocols/service_protocols.py
 async search(query) @ memory/service_adapter.py
+async search(query, agent_id, limit, min_similarity, scope, force_mode) @ memory/retrieval.py
+async search(query, limit, min_similarity) @ SDK/SDK.py
 async search(query, limit, min_similarity, strategy, enrich_top_n) @ memory/hybrid_rag.py
+async search(query, top_k) @ memory/pipeline_router.py
+async search(query, top_k) @ memory/retrieval_multiquery.py
 async search(query, top_k) @ tests/mocks/memory_mocks.py
 async search(query, top_k, agent_id) @ core/protocols/substrate_protocols.py
-async search(query, top_k, agent_id) @ memory/substrate_semantic.py
 async search(query, top_k, agent_id) @ tests/unit/test_substrate_protocols.py
+async search(query, top_k, agent_id, tags_include, tags_boost, tag_boost_factor) @ memory/substrate_semantic.py
 async search(request) @ services/research/tools/perplexity_client.py
 async search_memories(query, memory_type, top_k) @ core/protocols/memory_protocols.py
 async search_memory() @ tests/core/observability/test_observability_integration.py
@@ -2455,25 +2656,27 @@ async search_packets_by_type(packet_type, agent_id, limit) @ memory/substrate_se
 async search_packets_by_type(packet_type, agent_id, limit) @ tests/core/bootstrap/test_executor.py
 async search_packets_by_type(packet_type, agent_id, limit, since) @ memory/substrate_repository.py
 async search_packets_by_type(packet_type, limit) @ tests/core/eos/test_eos_clients.py
-async search_semantic_memory(query_embedding, top_k, agent_id) @ memory/substrate_repository.py
+async search_semantic_memory(query_embedding, top_k, agent_id, tags_include, tags_boost, tag_boost_factor) @ memory/substrate_repository.py
 async search_semantic_memory(query_vector, limit, agent_id) @ memory/substrate_repository_cached.py
 async search_similar(query_embedding, top_k, threshold) @ core/protocols/memory_protocols.py
 async search_tools(query, top_k, min_similarity) @ .backup/mcp-tools-20260131/semantic_tool_search.py
 async search_tools(query, top_k, min_similarity) @ core/tools/semantic_tool_search.py
 async security_audit(code) @ collaborative_cells/reviewer_cell.py
 async security_review(design) @ agents/architect_agent/architect_agent_b.py
-async seed_golden_strategies(neo4j_client, force) @ scripts/memory/seed_golden_strategies.py
 async segment_preview(body) @ api/agent_routes.py
 async select_best(candidates, min_score) @ ir_engine/simulation_router.py
 async select_strategy(conversation, task_type, knowledge_base_available) @ core/observability/context_strategies.py
+async semantic_distill(content) @ memory/llm_memory_ops.py
 async semantic_embed_node(state, config) @ memory/substrate_dag.py
 async semantic_recall_for_intent() @ memory/working_memory_adapter.py
 async semantic_search(http_request, request, authorization, _) @ api/memory/router.py
 async semantic_search(query, agent_id, project_id, top_k, substrate_service) @ memory/semantic_search.py
 async semantic_search(query, top_k, agent_id) @ clients/memory_client.py
-async semantic_search(query, top_k, agent_id) @ memory/retrieval.py
+async semantic_search(query, top_k, agent_id, tags, tag_boost_factor) @ memory/retrieval.py
+async semantic_search(query, top_k, tags) @ SDK/SDK.py
 async semantic_search(request) @ memory/substrate_service.py
 async semantic_search(request) @ tests/unit/test_service_adapters.py
+async send(account, to, subject, body) @ SDK/SDK.py
 async send_email(request, account, _) @ email_agent/router.py
 async send_insights_for_update(insights) @ clients/world_model_client.py
 async send_json(data) @ tests/runtime/test_websocket_orchestrator_basic.py
@@ -2488,18 +2691,25 @@ async service() @ tests/memory/test_substrate_api.py
 async service() @ tests/memory/test_vector_search.py
 async services_health() @ api/server.py
 async set(k, v) @ tests/conftest.py
+async set(key, value) @ tests/test_integration_phase0.py
 async set(key, value, ex, px) @ tests/mocks/orchestrator_mocks.py
+async set(key, value, ttl) @ SDK/SDK.py
 async set(key, value, ttl) @ core/protocols/memory_protocols.py
 async set(key, value, ttl, ex, raw) @ runtime/redis_client.py
 async set_flag(flag_name, value, ttl) @ memory/state_manager.py
 async set_rate_limit(key, value, ttl) @ runtime/redis_client.py
 async set_secret(key, value) @ core/protocols/secrets_protocols.py
 async set_session_context(request, authorization, _) @ api/memory/cache.py
+async set_session_context(session_id, context, ttl) @ SDK/SDK.py
 async set_session_scope(conn, tenant_id, org_id, user_id, role) @ world_model/repository.py
 async set_session_scope(tenant_id, org_id, user_id, role) @ memory/substrate_service.py
 async set_state(agent_id, state) @ core/protocols/agent_protocols.py
+async set_task_context(task_id, context, ttl) @ SDK/SDK.py
 async set_task_context(task_id, context, ttl) @ runtime/redis_client.py
 async set_task_context(task_id, context, ttl, authorization, _) @ api/memory/cache.py
+async set_thread_context(thread_uuid, messages, ttl) @ runtime/redis_client.py
+async set_working_memory(key, value, ttl_seconds) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
+async set_working_memory(key, value, ttl_seconds) @ domain_tensor_bridge/l9_memory_adapter.py
 async set_working_memory(key, value, ttl_seconds) @ domain_tensor_bridge/memory_bridge.py
 async setnx(key, value, ttl, raw) @ runtime/redis_client.py
 async should_fail_hardening_disabled_async(env, hardening_enabled) @ mcp_memory/src/main.py
@@ -2538,8 +2748,12 @@ async single() @ tests/core/bootstrap/conftest.py
 async size() @ runtime/task_queue.py
 async slack_commands(request, validator, x_slack_signature, x_slack_request_timestamp) @ api/routes/slack.py
 async slack_events(request, validator, x_slack_signature, x_slack_request_timestamp) @ api/routes/slack.py
+async slack_file_fetch(file_id, save_locally, enrich) @ runtime/l_tools.py
+async slack_file_list(channel, user, count, ts_from, ts_to, types) @ runtime/l_tools.py
+async slack_file_upload(channel, file_path, title, initial_comment, thread_ts) @ runtime/l_tools.py
 async slack_health(request) @ api/routes/slack.py
 async slack_send(channel, text, thread_ts) @ runtime/l_tools.py
+async slow_discovery() @ tests/tools/test_tool_search_meta.py
 async slow_enrich() @ tests/memory/test_unified_pipeline.py
 async slow_operation(x) @ tests/memory/test_query_cache_and_vector.py
 async slow_query(delay) @ scripts/benchmark_caching_and_vector.py
@@ -2554,6 +2768,7 @@ async start() @ core/integration/graph_to_wm_sync.py
 async start() @ core/integration/tool_pattern_extractor.py
 async start() @ core/integration/wm_to_graph_sync.py
 async start() @ core/tools/tool_audit.py
+async start() @ memory_cache/invalidation_hook.py
 async start() @ runtime/gmp_worker.py
 async start() @ runtime/mcp_client.py
 async start(from_offset) @ core/packet_envelope/scalability.py
@@ -2596,6 +2811,7 @@ async stop() @ core/integration/tool_pattern_extractor.py
 async stop() @ core/integration/wm_to_graph_sync.py
 async stop() @ core/packet_envelope/scalability.py
 async stop() @ core/tools/tool_audit.py
+async stop() @ memory_cache/invalidation_hook.py
 async stop() @ runtime/gmp_worker.py
 async stop() @ runtime/mcp_client.py
 async stop(timeout) @ world_model/runtime.py
@@ -2614,6 +2830,8 @@ async store_blob(content) @ tests/conftest.py
 async store_blob(content) @ tests/mocks/memory_mocks.py
 async store_conversation(messages, user_id, session_id) @ memory/graph_memory.py
 async store_embedding(vector, metadata, embedding_type) @ memory/substrate_semantic.py
+async store_episodic_event(event) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
+async store_episodic_event(event) @ domain_tensor_bridge/l9_memory_adapter.py
 async store_episodic_event(event) @ domain_tensor_bridge/memory_bridge.py
 async store_eval_result(result) @ core/evaluation/evaluator.py
 async store_insights_node(state) @ services/research/research_graph.py
@@ -2632,6 +2850,7 @@ async submit_insights(request) @ api/world_model_api.py
 async submit_task(payload, _) @ api/agent_routes.py
 async submit_task_result(task_id, payload) @ api/webhook_mac_agent.py
 async subscribe(agent_id, handler) @ core/coordination/event_queue.py
+async substrate_repo() @ tests/memory/test_batch_helpers.py
 async substrate_service() @ tests/memory/test_substrate_alignment.py
 async suggest_improvements(blueprint, evaluation) @ orchestrators/meta/interface.py
 async suggest_improvements(blueprint, evaluation) @ orchestrators/meta/orchestrator.py
@@ -2644,16 +2863,22 @@ async sync_all_tool_embeddings(repository) @ core/tools/tool_embeddings.py
 async sync_causal_edges() @ core/integration/wm_to_graph_sync.py
 async sync_causal_links() @ core/integration/wm_to_graph_sync.py
 async sync_causal_nodes() @ core/integration/wm_to_graph_sync.py
+async sync_cursor_context(agent_id, files) @ agents/codegenagent/cursor_context_sync_engine.py
+async sync_cursor_context(agent_id, files) @ agents/codegenagent/cursor_context_sync_engine.py
 async sync_decisions() @ core/integration/wm_to_graph_sync.py
 async sync_outcomes() @ core/integration/wm_to_graph_sync.py
 async sync_to_db(tenant_id, org_id, user_id, role) @ world_model/knowledge_ingestor.py
 async synthesize(request, authorization, _, agent) @ api/routes/research_agent.py
+async synthesize(topic, context) @ SDK/SDK.py
 async synthesize(topic, context) @ agents/research_agent_impl.py
+async synthesize(traces) @ memory/procedural_synthesis.py
+async synthesize_decision(reasoning_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
 async synthesize_decision(reasoning_outputs) @ domain_tensor_bridge/decision_synthesizer.py
 async synthesize_evidence(evidence_list, query) @ services/research/agents/researcher_agent.py
 async task_loop() @ .backup/mcp-tools-20260131/background_tasks.py
 async task_loop() @ runtime/background_tasks.py
 async tensor_bridge_health() @ api/routes/tensor_bridge.py
+async tensor_inference(input_data, mode) @ SDK/SDK.py
 async tensor_inference(request) @ api/routes/tensor_bridge.py
 async test_abductive_reasoning(toth_engine) @ tests/test_toth_integration.py
 async test_acknowledge_removes_entry() @ tests/memory/test_dag_orchestrator_resilience.py
@@ -2674,9 +2899,10 @@ async test_agent_without_kernels_attribute() @ tests/unit/test_guarded_execution
 async test_aios_error_handled(executor, mock_aios, sample_task) @ tests/core/bootstrap/test_executor.py
 async test_all_client_methods_mocked() @ tests/clients/test_memory_client.py
 async test_all_decorators_together() @ tests/unit/test_instrumentation_decorators.py
-async test_all_graphs() @ scripts/memory/test_all_graphs_access.py
 async test_all_layers_available() @ mcp_memory/tests/test_all_layers.py
+async test_all_modes_applied(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_all_modes_applied(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
+async test_all_three_tiers_queried(mock_ingestion, mock_retrieval) @ tests/memory/test_pipeline_router.py
 async test_allowed_tool_not_blocked(mock_agent) @ tests/unit/test_guarded_execution.py
 async test_allows_valid_task(executor) @ tests/core/bootstrap/test_executor_governance.py
 async test_analyze_problematic_task(problematic_task_context) @ tests/integration/test_kernel_evolution_flow.py
@@ -2695,13 +2921,17 @@ async test_audit_trail_tracks_executions() @ tests/integration/test_l_cto_memory
 async test_auto_capture_on_successful_execution(strategy_memory_service, cleanup_test_strategies) @ tests/memory/test_strategy_memory_integration.py
 async test_auto_capture_skipped_below_threshold(strategy_memory_service) @ tests/memory/test_strategy_memory_integration.py
 async test_auto_capture_skipped_when_strategy_used(strategy_memory_service, cleanup_test_strategies) @ tests/memory/test_strategy_memory_integration.py
+async test_auto_flush_on_buffer_full(audit_service) @ tests/tools/test_tool_audit.py
+async test_batch_compute_refcounts(mock_repository) @ tests/test_retention_refcount.py
 async test_batch_ingestion_success() @ tests/upgrades/test_packet_envelope_phases.py
 async test_batch_ingestion_validation_failure() @ tests/upgrades/test_packet_envelope_phases.py
+async test_batch_processing(coordinator) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py
 async test_batch_processing(coordinator) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py
 async test_benign_queries_allowed() @ tests/memory/test_substrate_alignment.py
 async test_bidirectional_edges(world_model) @ tests/world_model/test_wm_integrity.py
 async test_bind_kernels_sets_bound_state() @ tests/core/bootstrap/test_bootstrap_phases.py
 async test_bind_tools_completes() @ tests/core/bootstrap/test_bootstrap_phases.py
+async test_bind_tools_static_when_disabled(mock_discovery_disabled) @ tests/tools/test_dynamic_tool_binding.py
 async test_blob_deletion(memory_adapter) @ tests/memory/test_blob_offload.py
 async test_blob_offloading(memory_adapter) @ tests/memory/test_blob_offload.py
 async test_blob_retrieval(memory_adapter) @ tests/memory/test_blob_offload.py
@@ -2723,12 +2953,17 @@ async test_bootstrap_registers_postgres_client() @ tests/unit/test_di_bootstrap.
 async test_bootstrap_succeeds_when_key_exists() @ tests/api/test_bootstrap_fail_fast.py
 async test_bootstrap_uses_env_variables() @ tests/unit/test_di_bootstrap.py
 async test_broadcast_exclude() @ tests/runtime/test_websocket_orchestrator_basic.py
+async test_budget_default_from_init() @ tests/tools/test_semantic_discovery.py
+async test_budget_limits_results() @ tests/tools/test_semantic_discovery.py
+async test_build_context_with_builder(mock_ingestion, mock_retrieval) @ tests/memory/test_pipeline_router.py
+async test_build_context_without_builder(mock_ingestion, mock_retrieval) @ tests/memory/test_pipeline_router.py
 async test_c_code_generation(codegen) @ codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py
 async test_c_code_generation(codegen) @ services/symbolic_computation/test_symbolic_computation.py
 async test_cache_disabled() @ tests/memory/test_query_cache_and_vector.py
 async test_cache_hit(cache_mock) @ tests/services/symbolic_computation/test_expression_evaluator.py
 async test_cache_invalidation() @ tests/memory/test_query_cache_and_vector.py
 async test_cache_invalidation(mock_neo4j_driver, sample_graph_result) @ tests/integration/test_graph_state_integration.py
+async test_cache_invalidation_on_write(mock_cache, mock_event_bus) @ tests/test_integration_phase0.py
 async test_cache_memory_efficiency() @ tests/memory/test_query_cache_and_vector.py
 async test_cache_miss_then_store(evaluator, cache_mock) @ tests/services/symbolic_computation/test_expression_evaluator.py
 async test_cache_speedup() @ tests/memory/test_query_cache_and_vector.py
@@ -2740,6 +2975,7 @@ async test_candidate_limit_enforced(candidate_graphs) @ tests/ir_engine/test_ir_
 async test_cascade_delete(world_model) @ tests/world_model/test_wm_integrity.py
 async test_case_insensitive_prohibited_action() @ tests/unit/test_guarded_execution.py
 async test_category_filter() @ tests/memory/test_tool_router.py
+async test_causal_factors_queried(enricher, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py
 async test_causal_factors_queried(enricher, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py
 async test_cell_adapter_invoke(mock_cell_result) @ tests/orchestrators/test_pattern_orchestrator.py
 async test_ceo_reasoning(l9_adapter, test_context) @ tests/test_toth_integration.py
@@ -2764,6 +3000,7 @@ async test_circuit_closed_allows_request() @ tests/memory/test_dag_orchestrator_
 async test_circuit_open_also_dlqs_packet() @ tests/memory/test_dag_orchestrator_resilience.py
 async test_circuit_open_rejects_immediately() @ tests/memory/test_dag_orchestrator_resilience.py
 async test_clear_results(validated_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
+async test_clear_tool_cache_callable() @ tests/tools/test_dynamic_tool_binding.py
 async test_close_disconnects_repository(valid_config) @ tests/unit/test_memory_substrate_container.py
 async test_close_handles_no_repository() @ tests/unit/test_memory_substrate_container.py
 async test_combined_score_calculation() @ tests/memory/test_hybrid_rag.py
@@ -2775,9 +3012,15 @@ async test_complex_state_recovery(adapter) @ tests/performance/test_restart_reco
 async test_compliance_audit_logging() @ tests/upgrades/test_packet_envelope_phases.py
 async test_compute(engine) @ codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py
 async test_compute(engine) @ services/symbolic_computation/test_symbolic_computation.py
+async test_compute_refcount_no_references(mock_repository) @ tests/test_retention_refcount.py
+async test_compute_refcount_with_checkpoints(mock_repository) @ tests/test_retention_refcount.py
+async test_compute_refcount_with_facts(mock_repository) @ tests/test_retention_refcount.py
+async test_compute_refcount_with_lineage(mock_repository) @ tests/test_retention_refcount.py
 async test_concurrent_enrichments(enrichment_dag, sample_envelope) @ tests/memory/test_enrichment_dag.py
+async test_concurrent_flush_and_log_no_entry_loss() @ tests/tools/test_tool_audit_flush.py
 async test_concurrent_metric_recording() @ tests/integration/test_tool_observability_integration.py
 async test_concurrent_reasoning() @ tests/test_toth_integration.py
+async test_confidence_calculation(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_confidence_calculation(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_confidence_capped_at_95() @ tests/workers/test_anomaly_classifier.py
 async test_confidence_increases_with_matches() @ tests/workers/test_anomaly_classifier.py
@@ -2795,8 +3038,11 @@ async test_container_initialization(fresh_container, mock_redis_client, mock_neo
 async test_container_shutdown(fresh_container, mock_redis_client, mock_neo4j_client, mock_memory_substrate) @ tests/config/test_di_async_config.py
 async test_container_shutdown_when_not_initialized(fresh_container) @ tests/config/test_di_async_config.py
 async test_context_injection_retrieves_relevant_memories() @ mcp_memory/tests/test_memory.py
-async test_core_writes_plus_enrichment_success(mock_repository, mock_semantic_service, mock_dag, sample_packet_in) @ tests/memory/test_unified_pipeline.py
-async test_core_writes_work_without_enrichment(mock_repository, mock_semantic_service, sample_packet_in) @ tests/memory/test_unified_pipeline.py
+async test_context_lost_in_thread_pool() @ tests/governance/test_governance_propagation.py
+async test_context_propagates_via_copy_context() @ tests/governance/test_governance_propagation.py
+async test_context_survives_asyncio_create_task() @ tests/governance/test_governance_propagation.py
+async test_core_writes_plus_enrichment_success(mock_repository, mock_semantic_service, mock_dag, sample_packet_in, gov_ctx) @ tests/memory/test_unified_pipeline.py
+async test_core_writes_work_without_enrichment(mock_repository, mock_semantic_service, sample_packet_in, gov_ctx) @ tests/memory/test_unified_pipeline.py
 async test_create_checkpoint(agent_persistence_service) @ tests/memory/test_agent_persistence.py
 async test_create_evolution_plan(problematic_task_context) @ tests/integration/test_kernel_evolution_flow.py
 async test_create_snapshot() @ tests/unit/test_execution_plan_snapshot.py
@@ -2824,7 +3070,7 @@ async test_daily_analysis_creates_alerts(monkeypatch) @ tests/services/test_tool
 async test_daily_analysis_with_no_snapshots(monkeypatch) @ tests/services/test_tool_learning_engine.py
 async test_database_connection() @ tests/docker/test_stack_smoke.py
 async test_decay_preview_no_repository() @ tests/memory/test_hierarchical_consolidation.py
-async test_decision_written_to_packetstore_v2() @ tests/integration/test_cursor_langgraph_integration.py
+async test_decision_written_to_packet_store_v2() @ tests/integration/test_cursor_langgraph_integration.py
 async test_deductive_reasoning(toth_engine) @ tests/test_toth_integration.py
 async test_deduplicate_packets() @ tests/unit/test_deduplication.py
 async test_deduplication() @ tests/memory/test_hybrid_rag.py
@@ -2846,11 +3092,18 @@ async test_detect_relationship_gaps_finds_missing_relationships(detector, sample
 async test_detect_relationship_gaps_no_gap_when_connected(detector, sample_entity_graph) @ tests/memory/test_predictive_warming.py
 async test_detect_unapproved_high_risk() @ tests/integration/test_compliance_audit.py
 async test_developer_scope_shared_workspace() @ tests/memory/test_cross_client_consistency.py
+async test_different_event_ids_both_processed() @ tests/api/test_slack_idempotency.py
 async test_directive_compliance_check(mock_neo4j_driver, sample_graph_result) @ tests/integration/test_graph_state_integration.py
 async test_disabled_policies_are_skipped(temp_policy_dir) @ tests/core/governance/test_engine.py
 async test_discover_tools_empty_payload_returns_empty() @ tests/unit/test_dynamic_tool_discovery.py
 async test_discover_tools_for_task_returns_openai_format(mock_tool_embedding_results) @ tests/unit/test_dynamic_tool_discovery.py
+async test_discover_tools_hybrid(service) @ tests/tools/test_semantic_discovery.py
+async test_discover_tools_raises_on_backend_error(service) @ tests/tools/test_semantic_discovery.py
 async test_discover_tools_respects_token_budget(mock_tool_embedding_results) @ tests/unit/test_dynamic_tool_discovery.py
+async test_discover_tools_returns_empty_on_no_results(service) @ tests/tools/test_semantic_discovery.py
+async test_discover_tools_semantic_only(service) @ tests/tools/test_semantic_discovery.py
+async test_discovery_exception_returns_error() @ tests/tools/test_tool_search_meta.py
+async test_discovery_timeout_handled() @ tests/tools/test_tool_search_meta.py
 async test_dispatch_failure_propagates(mock_agent) @ tests/unit/test_guarded_execution.py
 async test_dispatch_tool_call_rejects_unknown_args_before_executor_runs() @ tests/unit/test_registry_adapter_sanitization.py
 async test_dlq_push_on_all_tiers_failed(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
@@ -2904,19 +3157,24 @@ async test_emit_executor_trace_with_errors(temp_python_file) @ tests/runtime/tes
 async test_emit_executor_trace_with_file_update(temp_python_file) @ tests/runtime/test_dora_auto_update.py
 async test_emit_packet_raises_on_failure() @ tests/core/test_fail_closed_executor.py
 async test_emits_reasoning_packet_on_success() @ tests/agents/test_l_cto_memory_emission.py
+async test_empty_buffer_flush_is_noop() @ tests/tools/test_tool_audit_flush.py
 async test_empty_checkpoint_load(adapter) @ tests/performance/test_restart_recovery.py
+async test_empty_context(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_empty_context(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_empty_context(mock_agent) @ tests/unit/test_guarded_execution.py
+async test_empty_entities(coordinator) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py
 async test_empty_entities(coordinator) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py
 async test_empty_graph_simulation(empty_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
 async test_empty_input_handling(batch_helpers) @ tests/memory/test_batch_helpers.py
 async test_empty_payload(enrichment_dag) @ tests/memory/test_enrichment_dag.py
 async test_empty_query() @ tests/test_toth_integration.py
+async test_empty_query_handled(mock_discover_tools_empty) @ tests/tools/test_tool_search_meta.py
 async test_end_to_end_codegen() @ codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py
 async test_end_to_end_codegen() @ services/symbolic_computation/test_symbolic_computation.py
 async test_end_to_end_computation() @ codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py
 async test_end_to_end_computation() @ services/symbolic_computation/test_symbolic_computation.py
 async test_end_to_end_flow(problematic_task_context) @ tests/integration/test_kernel_evolution_flow.py
+async test_end_to_end_memory_lifecycle(mock_substrate, mock_cache) @ tests/test_integration_phase0.py
 async test_end_to_end_record_and_retrieve(strategy_memory_service, cleanup_test_strategies) @ tests/memory/test_strategy_memory_integration.py
 async test_endpoint_requires_api_key() @ tests/integration/test_kernel_hot_reload.py
 async test_endpoint_response_structure() @ tests/integration/test_kernel_hot_reload.py
@@ -2933,12 +3191,13 @@ async test_enrich_requires_packet_type(mock_repository) @ tests/memory/test_unif
 async test_enrich_success() @ tests/memory/test_substrate_dag_native.py
 async test_enrich_unavailable_neo4j() @ tests/memory/test_hybrid_rag.py
 async test_enrich_validates_packet_id() @ tests/memory/test_substrate_dag_native.py
+async test_enriched_context_structure(enricher, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py
 async test_enriched_context_structure(enricher, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py
-async test_enrichment_disabled_returns_disabled_status(mock_repository, mock_semantic_service, sample_packet_in) @ tests/memory/test_unified_pipeline.py
-async test_enrichment_exception_does_not_block_core(mock_repository, mock_semantic_service, sample_packet_in) @ tests/memory/test_unified_pipeline.py
-async test_enrichment_failure_logged_with_error(mock_repository, mock_semantic_service, sample_packet_in) @ tests/memory/test_unified_pipeline.py
-async test_enrichment_success_adds_knowledge_facts_table(mock_repository, mock_semantic_service, mock_dag, sample_packet_in) @ tests/memory/test_unified_pipeline.py
-async test_enrichment_timeout_logs_and_continues(mock_repository, mock_semantic_service, sample_packet_in) @ tests/memory/test_unified_pipeline.py
+async test_enrichment_disabled_returns_disabled_status(mock_repository, mock_semantic_service, sample_packet_in, gov_ctx) @ tests/memory/test_unified_pipeline.py
+async test_enrichment_exception_does_not_block_core(mock_repository, mock_semantic_service, sample_packet_in, gov_ctx) @ tests/memory/test_unified_pipeline.py
+async test_enrichment_failure_logged_with_error(mock_repository, mock_semantic_service, sample_packet_in, gov_ctx) @ tests/memory/test_unified_pipeline.py
+async test_enrichment_success_adds_knowledge_facts_table(mock_repository, mock_semantic_service, mock_dag, sample_packet_in, gov_ctx) @ tests/memory/test_unified_pipeline.py
+async test_enrichment_timeout_logs_and_continues(mock_repository, mock_semantic_service, sample_packet_in, gov_ctx) @ tests/memory/test_unified_pipeline.py
 async test_ensure_agent_exists_calls_shared_query() @ tests/integration/test_unified_graph.py
 async test_ensure_agent_exists_method() @ tests/integration/test_unified_graph.py
 async test_ensure_agent_exists_neo4j_unavailable() @ tests/integration/test_unified_graph.py
@@ -2950,6 +3209,7 @@ async test_envelope_with_model_dump() @ tests/core/test_resilience_mixin.py
 async test_eos_deny_does_not_call_tensorglobe(adapter, valid_tensor_request, mock_accountability) @ tests/adapters/tensorglobe_bridge/test_adapter.py
 async test_eos_gate_allow(adapter, sample_request, mock_accountability) @ tests/adapters/tensorglobe_bridge/test_tensorglobe_eos_gating.py
 async test_eos_gate_deny(adapter, sample_request, mock_accountability) @ tests/adapters/tensorglobe_bridge/test_tensorglobe_eos_gating.py
+async test_episodic_memory_queried(enricher, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py
 async test_episodic_memory_queried(enricher, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py
 async test_erasure_request_flow() @ tests/upgrades/test_packet_envelope_phases.py
 async test_erasure_requires_approval() @ tests/upgrades/test_packet_envelope_phases.py
@@ -2957,6 +3217,7 @@ async test_error_handling(executor) @ tests/integration/test_l_bootstrap.py
 async test_error_handling_and_packet_emission(executor, mock_substrate_service, mock_aios_runtime) @ tests/integration/test_l_cto_end_to_end.py
 async test_error_handling_parse_error_message(normalizer) @ tests/test_spec_normalizer_v2.py
 async test_error_handling_validation_error_message(normalizer) @ tests/test_spec_normalizer_v2.py
+async test_escalation_to_igor(governance_with_igor) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
 async test_escalation_to_igor(governance_with_igor) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py
 async test_evaluate_constant(evaluator) @ tests/services/symbolic_computation/test_expression_evaluator.py
 async test_evaluate_multi_variable(evaluator) @ tests/services/symbolic_computation/test_expression_evaluator.py
@@ -3007,7 +3268,9 @@ async test_executor_terminates_on_final_answer(executor, mock_aios, sample_task)
 async test_executor_terminates_on_max_iterations(mock_aios, mock_tool_registry, mock_substrate, mock_agent_registry) @ tests/core/bootstrap/test_executor.py
 async test_exhausted_retries_enqueue_to_dlq() @ tests/core/test_resilience_mixin.py
 async test_exhausted_retries_raises(retryable_saver) @ tests/memory/test_checkpoint_retry.py
+async test_expand_code_blocks(temp_dir, engine) @ tests/core/agents/codegenagent/test_c_gmp_engine.py
 async test_expand_code_blocks(temp_dir, engine) @ tests/services/symbolic_computation/test_c_gmp_engine.py
+async test_expand_mathematical(engine) @ tests/core/agents/codegenagent/test_c_gmp_engine.py
 async test_expand_mathematical(engine) @ tests/services/symbolic_computation/test_c_gmp_engine.py
 async test_explain_decision_graph_viz_format(reasoning_replay_pipeline, memory_substrate_service) @ tests/memory/test_reasoning_replay.py
 async test_explain_decision_invalid_format(reasoning_replay_pipeline, memory_substrate_service) @ tests/memory/test_reasoning_replay.py
@@ -3027,12 +3290,23 @@ async test_extraction_pipeline_handles_empty_payload(memory_substrate_service) @
 async test_extraction_pipeline_with_reasoning_block(memory_substrate_service) @ tests/memory/test_extraction_pipeline.py
 async test_failed_auth_block_expires() @ mcp_memory/tests/test_rate_limiter.py
 async test_failed_auth_blocking() @ mcp_memory/tests/test_rate_limiting_enforcement.py
+async test_failed_verification(codegen_agent, mock_failed_pipeline_result) @ tests/core/agents/codegenagent/test_symbolic_verification.py
 async test_failure_path_emits_error_packet(executor, mock_aios, mock_substrate, sample_task) @ tests/core/bootstrap/test_executor.py
 async test_failure_records_with_circuit_breaker() @ tests/memory/test_dag_orchestrator_resilience.py
+async test_fallback_routing(router, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py
 async test_fallback_routing(router, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py
 async test_feedback_updates_score(strategy_memory_service, neo4j_client, cleanup_test_strategies) @ tests/memory/test_strategy_memory_integration.py
 async test_fetch_and_enrich_convenience() @ tests/memory/test_saga.py
 async test_find_related_topics_neo4j() @ tests/memory/test_graph_memory.py
+async test_flag_off_is_default(adapter, mock_substrate) @ tests/memory/test_pipeline_router_wiring.py
+async test_flag_off_uses_inline_formula() @ tests/memory/test_importance_recipe_wiring.py
+async test_flag_off_uses_original_path(adapter, mock_substrate) @ tests/memory/test_pipeline_router_wiring.py
+async test_flag_on_delegates_to_pipeline_method(adapter, mock_substrate) @ tests/memory/test_pipeline_router_wiring.py
+async test_flag_on_would_use_recipe_path() @ tests/memory/test_importance_recipe_wiring.py
+async test_flush_empty_buffer_is_noop(audit_service) @ tests/tools/test_tool_audit.py
+async test_flush_failure_preserves_ordering() @ tests/tools/test_tool_audit_flush.py
+async test_flush_failure_retains_all_entries() @ tests/tools/test_tool_audit_flush.py
+async test_flush_retries_on_failure(audit_service, mock_substrate) @ tests/tools/test_tool_audit.py
 async test_fork_preserves_checkpoints(adapter) @ tests/performance/test_restart_recovery.py
 async test_full_alignment_check(substrate_service, graph_client) @ tests/memory/test_substrate_alignment.py
 async test_full_analyze_flow() @ tests/integration/test_igor_commands.py
@@ -3052,14 +3326,18 @@ async test_full_resilience_flow_success() @ tests/memory/test_dag_orchestrator_r
 async test_full_warming_pipeline() @ tests/memory/test_predictive_warming.py
 async test_full_workflow_async(temp_python_file) @ tests/runtime/test_dora_auto_update.py
 async test_gaps_sorted_by_severity(detector, sample_entity_graph) @ tests/memory/test_predictive_warming.py
+async test_generate_batch_parallel(temp_dir, engine) @ tests/core/agents/codegenagent/test_c_gmp_engine.py
 async test_generate_batch_parallel(temp_dir, engine) @ tests/services/symbolic_computation/test_c_gmp_engine.py
+async test_generate_batch_sequential(temp_dir, engine) @ tests/core/agents/codegenagent/test_c_gmp_engine.py
 async test_generate_batch_sequential(temp_dir, engine) @ tests/services/symbolic_computation/test_c_gmp_engine.py
 async test_generate_c_simple(generator) @ tests/services/symbolic_computation/test_code_generator.py
 async test_generate_code(engine) @ codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py
 async test_generate_code(engine) @ services/symbolic_computation/test_symbolic_computation.py
 async test_generate_daily_report_without_substrate() @ tests/integration/test_compliance_audit.py
 async test_generate_fortran_simple(generator) @ tests/services/symbolic_computation/test_code_generator.py
+async test_generate_from_meta(temp_dir, engine) @ tests/core/agents/codegenagent/test_c_gmp_engine.py
 async test_generate_from_meta(temp_dir, engine) @ tests/services/symbolic_computation/test_c_gmp_engine.py
+async test_generate_from_meta_not_found(engine) @ tests/core/agents/codegenagent/test_c_gmp_engine.py
 async test_generate_from_meta_not_found(engine) @ tests/services/symbolic_computation/test_c_gmp_engine.py
 async test_generate_gmp_spec(problematic_task_context) @ tests/integration/test_kernel_evolution_flow.py
 async test_generate_python_multi_var(generator) @ tests/services/symbolic_computation/test_code_generator.py
@@ -3076,6 +3354,7 @@ async test_generate_tasks_from_query_leading_trailing_spaces() @ tests/core/agen
 async test_generate_tasks_from_query_multiple_keywords() @ tests/core/agents/test_executor.py
 async test_generate_tasks_from_query_none_query() @ tests/core/agents/test_executor.py
 async test_generate_tasks_from_query_unrecognized_query() @ tests/core/agents/test_executor.py
+async test_generate_without_input_code(codegen_agent, mock_pipeline_result) @ tests/core/agents/codegenagent/test_symbolic_verification.py
 async test_get_adaptive_context_for_tool() @ tests/integration/test_closed_loop_learning.py
 async test_get_agent_capabilities() @ tests/integration/test_world_model.py
 async test_get_agent_capabilities(hypergraph_client, mock_neo4j) @ tests/core/eos/test_eos_clients.py
@@ -3094,6 +3373,7 @@ async test_get_entry_returns_none_if_not_found() @ tests/memory/test_dag_orchest
 async test_get_findings_by_type_empty(persistence) @ tests/services/research/test_graph_persistence.py
 async test_get_findings_by_type_success(persistence) @ tests/services/research/test_graph_persistence.py
 async test_get_graph_memory_singleton() @ tests/memory/test_graph_memory.py
+async test_get_handler_for_type(router) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py
 async test_get_handler_for_type(router) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py
 async test_get_hybrid_rag_pipeline() @ tests/memory/test_hybrid_rag.py
 async test_get_infrastructure_status() @ tests/integration/test_world_model.py
@@ -3119,23 +3399,32 @@ async test_get_secret_caching(monkeypatch) @ tests/core/protocols/test_secrets_p
 async test_get_secret_from_env(monkeypatch) @ tests/core/protocols/test_secrets_protocols.py
 async test_get_secret_not_found() @ tests/core/protocols/test_secrets_protocols.py
 async test_get_snapshot() @ tests/unit/test_execution_plan_snapshot.py
+async test_get_stats() @ tests/memory/test_tool_router.py
 async test_get_success_rates_fallback(monkeypatch) @ tests/services/test_tool_feedback_service.py
+async test_get_tool_binding_status_reports_disabled(mock_discovery_disabled) @ tests/tools/test_dynamic_tool_binding.py
 async test_get_tool_context() @ tests/memory/test_tool_router.py
 async test_get_tool_router_singleton() @ tests/memory/test_tool_router.py
 async test_get_tools_for_task() @ tests/memory/test_tool_router.py
 async test_get_warmed_context_returns_memory_context(sample_entity_graph) @ tests/memory/test_predictive_warming.py
 async test_get_with_retry(retryable_saver, mock_repository, valid_config) @ tests/memory/test_checkpoint_retry.py
+async test_get_working_memory(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
 async test_get_working_memory(memory_bridge) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py
 async test_get_world_model_context() @ tests/integration/test_world_model.py
+async test_governance_blocked(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_governance_blocked(controller, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_governance_blocks_and_logs_violations() @ tests/integration/test_l_cto_memory_governance_integration.py
 async test_governance_blocks_authority_violation(executor, mock_substrate_service, mock_aios_runtime) @ tests/integration/test_l_cto_end_to_end.py
 async test_governance_blocks_dangerous_task(executor, mock_substrate_service, mock_aios_runtime) @ tests/integration/test_l_cto_end_to_end.py
+async test_governance_check(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_governance_check(controller, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
+async test_governance_check_logged(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
 async test_governance_check_logged(governance) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py
+async test_governance_rejects_empty_caller_id() @ tests/governance/test_governance_propagation.py
 async test_governance_validation_before_memory_write() @ tests/integration/test_l_cto_memory_governance_integration.py
 async test_governance_validation_blocks_on_import_error(executor) @ tests/core/bootstrap/test_executor_governance.py
 async test_governance_violation_detected() @ tests/workers/test_anomaly_classifier.py
+async test_governance_with_policy_conflicts(mock_governance_engine) @ tests/test_integration_phase0.py
+async test_graceful_error_on_exception(codegen_agent) @ tests/core/agents/codegenagent/test_symbolic_verification.py
 async test_graduation_flow() @ tests/cursor/test_gmp_meta_learning.py
 async test_grant_permission() @ tests/core/security/test_permission_graph.py
 async test_graph_hydrator_tool_approval_check() @ tests/core/bootstrap/test_graph_state.py
@@ -3171,6 +3460,7 @@ async test_handle_tensor_request_invalid_schema(adapter, valid_tensor_request) @
 async test_handle_tensor_request_invalid_signature(adapter, valid_tensor_request) @ tests/adapters/tensorglobe_bridge/test_adapter.py
 async test_handle_tensor_request_non_critical_anomaly_continues(adapter, valid_tensor_request, valid_tensor_response) @ tests/adapters/tensorglobe_bridge/test_adapter.py
 async test_handle_tensor_request_timeout_handled(adapter, valid_tensor_request) @ tests/adapters/tensorglobe_bridge/test_adapter.py
+async test_happy_path_packet_dispatch(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_happy_path_packet_dispatch(controller, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_hash_chain_linking(ledger_writer, mock_substrate) @ tests/core/eos/test_eos_clients.py
 async test_health_after_startup() @ tests/workers/test_anomaly_classifier.py
@@ -3180,6 +3470,7 @@ async test_health_check(engine) @ services/symbolic_computation/test_symbolic_co
 async test_health_endpoint_degraded_when_startup_fails() @ tests/unit/test_startup_readiness.py
 async test_health_endpoint_includes_startup_status() @ tests/unit/test_startup_readiness.py
 async test_high_risk_requires_confirmation() @ tests/integration/test_igor_commands.py
+async test_high_risk_triggers_escalation(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
 async test_high_risk_triggers_escalation(governance) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py
 async test_high_volume_metrics_recording() @ tests/integration/test_tool_observability_integration.py
 async test_hook_result_allowed_field() @ tests/unit/test_governance_hooks.py
@@ -3212,12 +3503,14 @@ async test_inductive_reasoning(toth_engine) @ tests/test_toth_integration.py
 async test_ingest_audit_packet_handles_error() @ tests/memory/test_tool_audit.py
 async test_ingest_audit_packet_logs_partial_failure() @ tests/memory/test_tool_audit.py
 async test_ingest_audit_packet_success() @ tests/memory/test_tool_audit.py
+async test_ingest_delegates_to_ingestion_service(mock_ingestion, mock_retrieval) @ tests/memory/test_pipeline_router.py
 async test_ingest_empty_payload(memory_adapter) @ tests/memory/test_memory_ingestion.py
 async test_ingest_multiple_packets(memory_adapter) @ tests/memory/test_memory_ingestion.py
 async test_ingest_null_fields(memory_adapter) @ tests/memory/test_memory_ingestion.py
 async test_ingest_oversized_payload(memory_adapter) @ tests/memory/test_memory_ingestion.py
 async test_ingest_packet_canonical_entrypoint() @ tests/memory/test_ingestion_pipeline_audit.py
 async test_ingest_preserves_data(memory_adapter) @ tests/memory/test_memory_ingestion.py
+async test_ingest_propagates_caller_context(mock_ingestion, mock_retrieval) @ tests/memory/test_pipeline_router.py
 async test_ingest_with_metadata(memory_adapter) @ tests/memory/test_memory_ingestion.py
 async test_ingestion_assigns_packet_id(memory_adapter) @ tests/memory/test_memory_ingestion.py
 async test_ingestion_assigns_timestamp(memory_adapter) @ tests/memory/test_memory_ingestion.py
@@ -3232,6 +3525,7 @@ async test_ingestion_uses_transaction_for_core_writes(gov_ctx) @ tests/memory/te
 async test_init_tool_router() @ tests/memory/test_tool_router.py
 async test_initialization_error_propagates(fresh_container) @ tests/config/test_di_async_config.py
 async test_initialize_observability_creates_service() @ tests/core/observability/test_observability_integration.py
+async test_initialized_status(controller) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py
 async test_initialized_status(controller) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py
 async test_insert_semantic_embedding_includes_scope_and_tenant_fields() @ tests/memory/test_pipeline_alignment_fixes.py
 async test_instantiate_agent_creates_instance() @ tests/core/bootstrap/test_bootstrap_phases.py
@@ -3261,7 +3555,9 @@ async test_invalid_reasoning_mode() @ tests/test_toth_integration.py
 async test_invalidate_all_tool_caches_deletes_matching_keys() @ tests/unit/test_dynamic_tool_discovery.py
 async test_invalidate_all_tool_caches_returns_zero_when_no_keys() @ tests/unit/test_dynamic_tool_discovery.py
 async test_invalidate_all_tool_caches_returns_zero_when_redis_unavailable() @ tests/unit/test_dynamic_tool_discovery.py
+async test_invariants_passed_to_pipeline(codegen_agent, mock_pipeline_result) @ tests/core/agents/codegenagent/test_symbolic_verification.py
 async test_is_dynamic_discovery_enabled_checks_settings() @ tests/unit/test_dynamic_tool_discovery.py
+async test_is_safe_to_delete(mock_repository) @ tests/test_retention_refcount.py
 async test_kernel_absorption() @ tests/config/test_l_cto_yaml.py
 async test_kernel_activation_creates_agent_config() @ tests/integration/test_l_cto_end_to_end.py
 async test_kernel_loaded_in_agent_config(executor, agent_registry) @ tests/integration/test_l_cto_end_to_end.py
@@ -3304,6 +3600,7 @@ async test_log_command_with_substrate() @ tests/integration/test_compliance_audi
 async test_log_command_with_substrate() @ tests/integration/test_igor_commands.py
 async test_log_command_without_substrate() @ tests/integration/test_compliance_audit.py
 async test_log_command_without_substrate() @ tests/integration/test_igor_commands.py
+async test_log_execution_buffers(audit_service) @ tests/tools/test_tool_audit.py
 async test_log_kernel_evolution_creates_event() @ tests/integration/test_kernel_hot_reload.py
 async test_log_kernel_evolution_handles_substrate_unavailable() @ tests/integration/test_kernel_hot_reload.py
 async test_log_memory_event(adapter, mock_repository) @ tests/test_memory_adapter.py
@@ -3321,13 +3618,19 @@ async test_log_tool_invocation_with_result_summary() @ tests/memory/test_tool_au
 async test_logged_async_function() @ tests/unit/test_instrumentation_decorators.py
 async test_logged_with_args() @ tests/unit/test_instrumentation_decorators.py
 async test_logged_with_result() @ tests/unit/test_instrumentation_decorators.py
+async test_logs_audit_entry_on_success(audit_service, mock_executor, mock_substrate) @ tests/tools/test_tool_audit.py
+async test_logs_error_on_failure(codegen_agent) @ tests/core/agents/codegenagent/test_symbolic_verification.py
+async test_logs_verification_started(codegen_agent, mock_pipeline_result) @ tests/core/agents/codegenagent/test_symbolic_verification.py
 async test_long_plan_execution(mock_substrate) @ tests/integration/test_l_bootstrap.py
+async test_low_confidence_triggers_escalation(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
 async test_low_confidence_triggers_escalation(governance) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py
+async test_low_confidence_warning(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_low_confidence_warning(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_low_risk_no_confirmation() @ tests/integration/test_igor_commands.py
 async test_lru_cache_basic() @ tests/memory/test_query_cache_and_vector.py
 async test_main_pipeline_preserves_mcp_scope_in_payload() @ mcp_memory/tests/test_main_pipeline_integration.py
 async test_maintenance_cycle() @ tests/memory/test_predictive_warming.py
+async test_mark_soft_expired(mock_repository) @ tests/test_retention_refcount.py
 async test_math_backend(evaluator) @ tests/services/symbolic_computation/test_expression_evaluator.py
 async test_mcp_call_context_injection(client, mock_env) @ mcp_memory/tests/test_mcp_server_smoke.py
 async test_mcp_call_save_memory(client, mock_env) @ mcp_memory/tests/test_mcp_server_smoke.py
@@ -3340,8 +3643,8 @@ async test_mcp_list_servers_success() @ tests/tools/test_mcp_tools.py
 async test_mcp_list_tools_available_server() @ tests/tools/test_mcp_tools.py
 async test_mcp_list_tools_unavailable_server() @ tests/tools/test_mcp_tools.py
 async test_mcp_rate_limiter_instance() @ mcp_memory/tests/test_rate_limiting_enforcement.py
-async test_mcp_returns_200_on_enrichment_failure() @ tests/memory/test_unified_pipeline.py
-async test_mcp_returns_enrichment_fields_on_success() @ tests/memory/test_unified_pipeline.py
+async test_mcp_returns_200_on_enrichment_failure(gov_ctx) @ tests/memory/test_unified_pipeline.py
+async test_mcp_returns_enrichment_fields_on_success(gov_ctx) @ tests/memory/test_unified_pipeline.py
 async test_mcp_search_handler_blocks_cross_project_request(monkeypatch) @ tests/memory/test_pipeline_alignment_fixes.py
 async test_mcp_search_handler_enforces_tenant_project_scope_predicates(monkeypatch) @ tests/memory/test_pipeline_alignment_fixes.py
 async test_mcp_search_handler_legacy_null_tenant_gate(monkeypatch) @ tests/memory/test_pipeline_alignment_fixes.py
@@ -3366,6 +3669,7 @@ async test_memory_write_error() @ tests/tools/test_memory_tools.py
 async test_memory_write_node_no_repo() @ tests/test_memory_substrate_basic.py
 async test_memory_write_packet_contract() @ tests/memory/test_memory_adapter_basic.py
 async test_memory_write_success() @ tests/tools/test_memory_tools.py
+async test_memory_write_without_governance_raises() @ tests/governance/test_governance_propagation.py
 async test_metadata_creator_preserved_on_read() @ tests/memory/test_cross_client_consistency.py
 async test_metrics_failure_does_not_block_audit() @ tests/integration/test_tool_observability_integration.py
 async test_metrics_recorded_on_fallback(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
@@ -3382,6 +3686,7 @@ async test_mock_chat() @ tests/unit/test_service_adapters.py
 async test_mock_complete() @ tests/unit/test_service_adapters.py
 async test_mock_embed() @ tests/unit/test_service_adapters.py
 async test_mock_embed_custom() @ tests/unit/test_service_adapters.py
+async test_mock_results_without_tensoraios() @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py
 async test_mock_results_without_tensoraios() @ domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py
 async test_moderate_performance_detected() @ tests/workers/test_anomaly_classifier.py
 async test_moderate_recommends_remediate() @ tests/workers/test_anomaly_classifier.py
@@ -3413,6 +3718,7 @@ async test_no_dlq_gracefully_handles_failure() @ tests/memory/test_dag_orchestra
 async test_no_dlq_still_raises_error() @ tests/core/test_resilience_mixin.py
 async test_no_evolution_for_clean_execution(successful_task_context) @ tests/integration/test_kernel_evolution_flow.py
 async test_no_patterns_fire_when_no_issues(task, instance) @ tests/integration/test_governance_tracking_e2e.py
+async test_no_results_returns_empty_list(mock_discover_tools_empty) @ tests/tools/test_tool_search_meta.py
 async test_node(state, config) @ tests/memory/test_substrate_dag_native.py
 async test_node_creation(world_model) @ tests/world_model/test_wm_nodes.py
 async test_node_creation_flow() @ tests/integration/test_world_model_repository_integration.py
@@ -3422,6 +3728,7 @@ async test_node_has_id(world_model) @ tests/world_model/test_wm_nodes.py
 async test_node_has_timestamps(world_model) @ tests/world_model/test_wm_nodes.py
 async test_node_type_preserved(world_model) @ tests/world_model/test_wm_nodes.py
 async test_node_update(world_model) @ tests/world_model/test_wm_nodes.py
+async test_normal_decision_approved(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
 async test_normal_decision_approved(governance) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py
 async test_normalize_from_json_file(normalizer, minimal_spec_dict) @ tests/test_spec_normalizer_v2.py
 async test_normalize_from_missing_file(normalizer) @ tests/test_spec_normalizer_v2.py
@@ -3450,6 +3757,7 @@ async test_orchestrator_init() @ tests/core/bootstrap/test_bootstrap_phases.py
 async test_orchestrator_phase_failure_raises() @ tests/core/bootstrap/test_bootstrap_phases.py
 async test_orchestrator_phase_failure_triggers_rollback(orchestrator, sample_config, sample_kernel_paths, mock_services) @ tests/core/agents/bootstrap/test_orchestrator.py
 async test_orchestrator_rollback_deletes_agent_node(orchestrator, mock_services) @ tests/core/agents/bootstrap/test_orchestrator.py
+async test_original_path_normalizes_hits(adapter, mock_substrate) @ tests/memory/test_pipeline_router_wiring.py
 async test_outbound_packet_stored(mock_substrate_service) @ tests/api/test_slack_adapter.py
 async test_packet_has_required_fields() @ tests/integration/test_tool_observability_integration.py
 async test_packet_has_ttl() @ tests/integration/test_tool_observability_integration.py
@@ -3457,6 +3765,7 @@ async test_packet_tags_include_tool_info() @ tests/integration/test_tool_observa
 async test_packet_ttl_is_24_hours_from_now() @ tests/memory/test_tool_audit.py
 async test_packet_type_is_tool_audit() @ tests/integration/test_tool_observability_integration.py
 async test_packets_emitted_with_required_fields(executor, mock_aios, mock_substrate, sample_task) @ tests/core/bootstrap/test_executor.py
+async test_parallel_consolidation_pipeline(mock_substrate, mock_embedder) @ tests/test_integration_phase0.py
 async test_parse_invalid_json(normalizer) @ tests/test_spec_normalizer_v2.py
 async test_parse_invalid_yaml(normalizer) @ tests/test_spec_normalizer_v2.py
 async test_parse_json_non_dict(normalizer) @ tests/test_spec_normalizer_v2.py
@@ -3466,6 +3775,7 @@ async test_parse_yaml_non_dict(normalizer) @ tests/test_spec_normalizer_v2.py
 async test_partial_match_prohibited_action() @ tests/unit/test_guarded_execution.py
 async test_pass_1_plan_queries() @ core/schemas/tests/test_research_factory.py
 async test_pass_2_build_superprompts() @ core/schemas/tests/test_research_factory.py
+async test_passes_query_to_discovery(mock_discover_tools) @ tests/tools/test_tool_search_meta.py
 async test_patterns_correlate_timeline() @ tests/memory/test_saga.py
 async test_patterns_enrich_entities() @ tests/memory/test_saga.py
 async test_patterns_fetch_and_enrich() @ tests/memory/test_saga.py
@@ -3482,6 +3792,7 @@ async test_persist_finding_normalizes_invalid_type(persistence) @ tests/services
 async test_persist_finding_success(persistence, sample_finding) @ tests/services/research/test_graph_persistence.py
 async test_persist_finding_validates_content(persistence) @ tests/services/research/test_graph_persistence.py
 async test_pgvector_extension(pg_pool) @ mcp_memory/tests/test_all_layers.py
+async test_pipeline_method_exists(adapter) @ tests/memory/test_pipeline_router_wiring.py
 async test_planning_node(mock_get_adapter, mock_planner_class, mock_state) @ tests/test_research_graph.py
 async test_policy_priority_ordering(temp_policy_dir) @ tests/core/governance/test_engine.py
 async test_post_message_failure() @ tests/test_slack_adapter.py
@@ -3499,9 +3810,11 @@ async test_prepare_dynamic_tools_disabled_returns_zero(agent_config, agent_task)
 async test_proactive_suggestions() @ mcp_memory/tests/test_memory.py
 async test_process_detects_violations(mock_service) @ tests/workers/test_violation_tracker.py
 async test_process_increments_violation_count(mock_service) @ tests/workers/test_violation_tracker.py
+async test_process_packet_creates_controller(mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_process_packet_creates_controller(mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_process_returns_ok_on_no_violations(mock_service) @ tests/workers/test_violation_tracker.py
 async test_process_triggers_escalation_at_threshold(mock_service) @ tests/workers/test_violation_tracker.py
+async test_processes_when_redis_unavailable() @ tests/api/test_slack_idempotency.py
 async test_processing_log_records_events(mock_openai_client, incremental_response, simple_valid_graph) @ tests/ir_engine/test_ir_semantic_incremental.py
 async test_proposal_to_gmp_spec() @ tests/integration/test_kernel_evolution_flow.py
 async test_provenance_validation_in_async() @ tests/memory/test_packet_validation_v2.py
@@ -3511,15 +3824,22 @@ async test_pruning_no_op_under_limit(memory_adapter) @ tests/memory/test_pruning
 async test_pruning_returns_stats(memory_adapter) @ tests/memory/test_pruning.py
 async test_put_success(retryable_saver, mock_repository, valid_config, valid_checkpoint, valid_metadata) @ tests/memory/test_checkpoint_retry.py
 async test_put_with_retry(retryable_saver, mock_repository, valid_config, valid_checkpoint, valid_metadata) @ tests/memory/test_checkpoint_retry.py
+async test_query_causal_graph(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
 async test_query_causal_graph(memory_bridge) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py
+async test_query_episodic_memory(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
 async test_query_episodic_memory(memory_bridge) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py
 async test_query_history_convenience() @ tests/memory/test_graph_memory.py
 async test_query_history_fallback() @ tests/memory/test_graph_memory.py
 async test_query_history_neo4j() @ tests/memory/test_graph_memory.py
 async test_query_history_no_topic() @ tests/memory/test_graph_memory.py
 async test_query_ingests_pre_post(client, auth_headers, mock_gmail_client, mock_memory_ingest) @ tests/email_agent/test_email_router.py
+async test_query_passes_expansions_to_retrieval(mock_ingestion, mock_retrieval, mock_rewriter) @ tests/memory/test_pipeline_router.py
+async test_query_semantic_graph(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
 async test_query_semantic_graph(memory_bridge) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py
+async test_query_succeeds_when_rewriter_fails(mock_ingestion, mock_retrieval) @ tests/memory/test_pipeline_router.py
 async test_query_temporal_uses_parameterized_kinds(monkeypatch) @ tests/mcp_memory/test_query_temporal_parameterization.py
+async test_query_uses_rewritten_query(mock_ingestion, mock_retrieval, mock_rewriter) @ tests/memory/test_pipeline_router.py
+async test_raises_and_logs_error(audit_service, mock_substrate) @ tests/tools/test_tool_audit.py
 async test_ranked_candidates_have_correct_ranks(candidate_graphs) @ tests/ir_engine/test_ir_simulation_router_integration.py
 async test_ranked_candidates_include_selection_reason(candidate_graphs) @ tests/ir_engine/test_ir_simulation_router_integration.py
 async test_rate_limit_blocks_after_limit() @ mcp_memory/tests/test_rate_limiter.py
@@ -3537,7 +3857,11 @@ async test_reactive_dispatch() @ tests/integration/test_l_bootstrap.py
 async test_read_model_event_handling() @ tests/upgrades/test_packet_envelope_phases.py
 async test_real_dag_enrichment_extracts_facts() @ tests/memory/test_unified_pipeline.py
 async test_real_neo4j_bootstrap() @ tests/integration/test_graph_state_integration.py
+async test_real_pipeline_handles_invalid_expression(real_codegen_agent) @ tests/core/agents/codegenagent/test_symbolic_verification.py
+async test_real_pipeline_initialization(real_codegen_agent) @ tests/core/agents/codegenagent/test_symbolic_verification.py
+async test_real_simple_verification(real_codegen_agent) @ tests/core/agents/codegenagent/test_symbolic_verification.py
 async test_reason_with_context(l9_adapter, test_context) @ tests/test_toth_integration.py
+async test_reasoner_failure_handling(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_reasoner_failure_handling(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_reasoning_caching(toth_engine) @ tests/test_toth_integration.py
 async test_reasoning_graph_construction() @ tests/test_toth_integration.py
@@ -3563,6 +3887,7 @@ async test_redis_decr(redis) @ tests/orchestrators/test_rate_limit_persistence.p
 async test_redis_dequeue_task_empty_queue() @ tests/tools/test_redis_tools.py
 async test_redis_dequeue_task_with_item() @ tests/tools/test_redis_tools.py
 async test_redis_enqueue_task_success() @ tests/tools/test_redis_tools.py
+async test_redis_exception_does_not_crash_handler() @ tests/api/test_slack_idempotency.py
 async test_redis_get_existing_key() @ tests/tools/test_redis_tools.py
 async test_redis_get_missing_key() @ tests/tools/test_redis_tools.py
 async test_redis_get_unavailable() @ tests/tools/test_redis_tools.py
@@ -3574,11 +3899,14 @@ async test_redis_set_get(redis_client) @ mcp_memory/tests/test_all_layers.py
 async test_redis_set_with_ttl() @ tests/tools/test_redis_tools.py
 async test_redis_set_without_ttl() @ tests/tools/test_redis_tools.py
 async test_redis_task_queue(redis_client) @ mcp_memory/tests/test_all_layers.py
+async test_refactor_requires_input_code(codegen_agent, mock_pipeline_result) @ tests/core/agents/codegenagent/test_symbolic_verification.py
+async test_refcount_caching(mock_repository) @ tests/test_retention_refcount.py
 async test_reflection_includes_patterns_observed(failed_task_context) @ tests/integration/test_kernel_evolution_flow.py
 async test_register_and_is_connected() @ tests/runtime/test_websocket_orchestrator_basic.py
 async test_register_tool_calls_invalidate_all() @ tests/unit/test_dynamic_tool_discovery.py
 async test_register_tool_calls_invalidate_all_tool_caches() @ tests/unit/test_dynamic_tool_discovery.py
 async test_register_tool_ensures_agent_first() @ tests/integration/test_unified_graph.py
+async test_register_tool_invalidates_cache() @ tests/tools/test_registry_cache.py
 async test_register_tool_mock() @ tests/core/tools/test_tool_graph.py
 async test_register_tool_neo4j_unavailable() @ tests/core/tools/test_tool_graph_unified.py
 async test_register_tool_uses_can_execute() @ tests/core/tools/test_tool_graph_unified.py
@@ -3589,6 +3917,7 @@ async test_relationships_created() @ tests/integration/test_world_model.py
 async test_remove_tags_batch(batch_helpers, sample_packets) @ tests/memory/test_batch_helpers.py
 async test_repair_broken_lineage(reasoning_replay_pipeline, memory_substrate_service) @ tests/memory/test_reasoning_replay.py
 async test_repeated_evaluation_uses_cache(evaluator, cache) @ tests/services/symbolic_computation/test_integration.py
+async test_replay_three_times_one_response() @ tests/api/test_slack_idempotency.py
 async test_reply_error_handled(mock_slack_client) @ tests/api/test_slack_adapter.py
 async test_reply_posted_successfully(mock_slack_client) @ tests/api/test_slack_adapter.py
 async test_repository_search_semantic_memory_fails_closed_without_governance_context() @ tests/memory/test_pipeline_alignment_fixes.py
@@ -3597,16 +3926,17 @@ async test_repository_uses_rls_connection_when_available() @ tests/memory/test_r
 async test_request_body_creator_ignored(l_auth) @ tests/memory/test_governance_invariants.py
 async test_request_matching_allow_policy_is_approved(temp_policy_dir, simple_allow_policy) @ tests/core/governance/test_engine.py
 async test_request_matching_deny_policy_is_denied(temp_policy_dir, simple_deny_policy) @ tests/core/governance/test_engine.py
-async test_research_endpoint() @ scripts/research/test_research_factory.py
 async test_research_hypothesis_validation_scenario(l9_adapter) @ tests/test_toth_integration.py
 async test_research_node(mock_get_adapter, mock_get_registry, mock_researcher_class, mock_state) @ tests/test_research_graph.py
 async test_research_reasoning(l9_adapter, test_context) @ tests/test_toth_integration.py
+async test_response_format(controller) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py
 async test_response_format(controller) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py
 async test_restart_recovery(adapter) @ tests/performance/test_restart_recovery.py
 async test_restore_checkpoint(agent_persistence_service) @ tests/memory/test_agent_persistence.py
 async test_restore_checkpoint_not_found(agent_persistence_service) @ tests/memory/test_agent_persistence.py
 async test_result_contains_metrics(validated_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
 async test_result_stored_after_routing(validated_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
+async test_retention_with_refcount_integration(mock_substrate, mock_repository) @ tests/test_integration_phase0.py
 async test_retries_exhausted_returns_error() @ tests/memory/test_dag_orchestrator_resilience.py
 async test_retrieval_latency(strategy_memory_service, cleanup_test_strategies) @ tests/memory/test_strategy_memory_integration.py
 async test_retrieval_pipeline_audit(memory_service) @ tests/memory/test_e2e_memory_audit.py
@@ -3624,14 +3954,22 @@ async test_retry_succeeds_on_second_attempt() @ tests/core/test_resilience_mixin
 async test_retry_succeeds_on_second_attempt() @ tests/memory/test_dag_orchestrator_resilience.py
 async test_retry_succeeds_on_third_attempt() @ tests/core/test_resilience_mixin.py
 async test_retry_succeeds_on_third_attempt() @ tests/memory/test_dag_orchestrator_resilience.py
+async test_returns_dict(mock_discover_tools) @ tests/tools/test_tool_search_meta.py
+async test_returns_error_when_pipeline_unavailable(codegen_agent) @ tests/core/agents/codegenagent/test_symbolic_verification.py
+async test_returns_matching_tools(mock_discover_tools) @ tests/tools/test_tool_search_meta.py
+async test_returns_tool_output(audit_service, mock_executor, mock_substrate) @ tests/tools/test_tool_audit.py
+async test_returns_tools_key(mock_discover_tools) @ tests/tools/test_tool_search_meta.py
 async test_rls_connection_available_in_context() @ tests/memory/test_rls_isolation.py
 async test_rls_scope_set_in_transaction() @ tests/memory/test_rls_isolation.py
 async test_rollback_requires_igor() @ tests/integration/test_igor_commands.py
 async test_rotate_secret_not_supported() @ tests/core/protocols/test_secrets_protocols.py
 async test_roundtrip_parse_serialize(normalizer, valid_spec_dict) @ tests/test_spec_normalizer_v2.py
+async test_route_by_domain(router) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py
 async test_route_by_domain(router) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py
+async test_route_by_packet_kind(router, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py
 async test_route_by_packet_kind(router, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py
 async test_route_with_no_engine_uses_stub(validated_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
+async test_routing_decision(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_routing_decision(controller, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_run_calls_emission() @ tests/agents/test_l_cto_memory_emission.py
 async test_run_cascade_dry_run() @ tests/memory/test_hierarchical_consolidation.py
@@ -3675,10 +4013,13 @@ async test_search_returns_similar() @ mcp_memory/tests/test_memory.py
 async test_search_semantic_memory_applies_project_and_scope_filters() @ tests/memory/test_pipeline_alignment_fixes.py
 async test_search_timing_recorded() @ tests/memory/test_hybrid_rag.py
 async test_search_with_vector_results() @ tests/memory/test_hybrid_rag.py
+async test_sections_have_correct_tier_labels(mock_ingestion, mock_retrieval) @ tests/memory/test_pipeline_router.py
 async test_seed_and_retrieve_golden_strategy(neo4j_client, strategy_memory_service) @ tests/memory/test_strategy_memory_integration.py
 async test_seed_golden_strategies_dry_run() @ tests/memory/test_strategy_memory_integration.py
 async test_select_best_returns_highest_scoring(validated_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
 async test_select_best_returns_none_below_threshold() @ tests/ir_engine/test_ir_simulation_router_integration.py
+async test_selection_rationale_captured(codegen_agent, mock_pipeline_result) @ tests/core/agents/codegenagent/test_symbolic_verification.py
+async test_selective_modes(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_selective_modes(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_self_modify_governance(mock_neo4j_driver) @ tests/integration/test_graph_state_integration.py
 async test_self_reflection_does_not_fail_task() @ tests/integration/test_kernel_evolution_flow.py
@@ -3700,6 +4041,7 @@ async test_set_session_scope(service) @ tests/memory/test_substrate_service.py
 async test_set_session_scope_executes_rls_call() @ tests/world_model/test_wm_scope.py
 async test_set_session_scope_with_exception(service) @ tests/memory/test_substrate_service.py
 async test_set_tensor_bridge(executor) @ tests/core/bootstrap/test_executor.py
+async test_set_working_memory(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
 async test_set_working_memory(memory_bridge) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py
 async test_shared_tenant_isolation_works() @ tests/memory/test_cross_client_consistency.py
 async test_should_fail_hardening_disabled_async() @ tests/memory/test_mcp_hardening_startup.py
@@ -3710,10 +4052,20 @@ async test_simple_evaluation(evaluator) @ codegen/Symbolic CodeGen/Supplemental 
 async test_simple_evaluation(evaluator) @ services/symbolic_computation/test_symbolic_computation.py
 async test_simulate_candidates_returns_ranked_list(candidate_graphs) @ tests/ir_engine/test_ir_simulation_router_integration.py
 async test_simulation_with_custom_timeout(validated_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
+async test_single_entity(coordinator) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py
 async test_single_entity(coordinator) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py
 async test_size_raises_on_redis_failure() @ tests/runtime/test_fail_closed_task_queue.py
 async test_slack_events_ack_success_with_rate_limiter(monkeypatch, slack_signing_secret, slack_signature_generator, fresh_slack_timestamp) @ tests/api/test_slack_routes.py
 async test_slack_events_failure_surfaces_to_slack(monkeypatch, slack_signing_secret, slack_signature_generator, fresh_slack_timestamp) @ tests/api/test_slack_routes.py
+async test_slack_file_fetch_invalid_file_id() @ tests/runtime/test_slack_tools.py
+async test_slack_file_fetch_missing_token() @ tests/runtime/test_slack_tools.py
+async test_slack_file_fetch_success() @ tests/runtime/test_slack_tools.py
+async test_slack_file_list_empty_channel() @ tests/runtime/test_slack_tools.py
+async test_slack_file_list_missing_token() @ tests/runtime/test_slack_tools.py
+async test_slack_file_list_success() @ tests/runtime/test_slack_tools.py
+async test_slack_file_upload_file_not_found() @ tests/runtime/test_slack_tools.py
+async test_slack_file_upload_missing_token(tmp_path) @ tests/runtime/test_slack_tools.py
+async test_slack_file_upload_success(tmp_path) @ tests/runtime/test_slack_tools.py
 async test_slack_send_dm(mock_env_with_token, mock_slack_client) @ tests/runtime/test_slack_tools.py
 async test_slack_send_empty_text(mock_env_with_token, mock_slack_client) @ tests/runtime/test_slack_tools.py
 async test_slack_send_generic_exception(mock_env_with_token, mock_slack_client) @ tests/runtime/test_slack_tools.py
@@ -3729,9 +4081,11 @@ async test_snapshot_contains_required_fields() @ tests/memory/test_consolidation
 async test_snapshot_limits_responsibilities() @ tests/memory/test_consolidation_graph.py
 async test_spawn_test_agent_convenience() @ tests/integration/test_recursive_self_testing.py
 async test_sql_injection_blocked() @ tests/memory/test_substrate_alignment.py
+async test_start_creates_flush_task(audit_service) @ tests/tools/test_tool_audit.py
 async test_start_when_disabled() @ tests/integration/test_graph_wm_sync.py
 async test_start_when_disabled() @ tests/integration/test_tool_patterns.py
 async test_stats_after_embedding() @ tests/memory/test_tool_router.py
+async test_stop_cancels_task_and_flushes(audit_service) @ tests/tools/test_tool_audit.py
 async test_stop_when_not_running() @ tests/integration/test_graph_wm_sync.py
 async test_stop_when_not_running() @ tests/integration/test_tool_patterns.py
 async test_store_conversation() @ tests/memory/test_graph_memory.py
@@ -3757,6 +4111,8 @@ async test_success_on_first_attempt(retryable_saver) @ tests/memory/test_checkpo
 async test_success_records_with_circuit_breaker() @ tests/core/test_resilience_mixin.py
 async test_success_records_with_circuit_breaker() @ tests/memory/test_dag_orchestrator_resilience.py
 async test_success_without_circuit_breaker() @ tests/core/test_resilience_mixin.py
+async test_successful_flush_clears_buffer() @ tests/tools/test_tool_audit_flush.py
+async test_successful_optimization(codegen_agent, mock_pipeline_result) @ tests/core/agents/codegenagent/test_symbolic_verification.py
 async test_summarizer_stores_to_semantic_facts() @ tests/memory/test_hierarchical_consolidation.py
 async test_sync_agent_not_found() @ tests/integration/test_graph_wm_sync.py
 async test_sync_agent_success() @ tests/integration/test_graph_wm_sync.py
@@ -3788,14 +4144,15 @@ async test_tool_dispatch_integration(executor, mock_tool_registry, mock_aios_run
 async test_tool_duration_recorded_in_histogram() @ tests/integration/test_tool_observability_integration.py
 async test_tool_evaluate(tool) @ tests/services/symbolic_computation/test_integration.py
 async test_tool_execution(executor, mock_tool_registry) @ tests/integration/test_l_bootstrap.py
-async test_tool_execution_returns_dict() @ tests/tools/test_tool_discovery.py
 async test_tool_execution_returns_result() @ tests/integration/test_research_tool_integration.py
 async test_tool_failure_records_both_packet_and_metrics() @ tests/integration/test_tool_observability_integration.py
 async test_tool_generate_code(tool) @ tests/services/symbolic_computation/test_integration.py
 async test_tool_invocation_records_both_packet_and_metrics() @ tests/integration/test_tool_observability_integration.py
 async test_tool_registry() @ tests/config/test_l_cto_yaml.py
 async test_tool_result_is_in_next_aios_context(executor, mock_aios, mock_tool_registry, sample_task) @ tests/core/bootstrap/test_executor.py
-async test_tools_discoverable_via_executor() @ tests/tools/test_tool_discovery.py
+async test_tool_search_e2e_with_mock() @ tests/e2e/test_tool_wiring_e2e.py
+async test_tool_search_returns_openai_format() @ tests/e2e/test_tool_wiring_e2e.py
+async test_tools_discoverable_via_registry() @ tests/tools/test_tool_discovery.py
 async test_topic_extraction_on_store() @ tests/memory/test_graph_memory.py
 async test_trace_span_decorator() @ tests/core/observability/test_observability_integration.py
 async test_trace_tool_call_decorator() @ tests/core/observability/test_observability_integration.py
@@ -3818,6 +4175,7 @@ async test_unknown_message_type_handled() @ tests/integration/test_ws_task_routi
 async test_unmatched_request_is_denied_by_default(temp_policy_dir, simple_allow_policy) @ tests/core/governance/test_engine.py
 async test_unregister_clears_state() @ tests/runtime/test_websocket_orchestrator_basic.py
 async test_unregister_tool_calls_invalidate_all() @ tests/unit/test_dynamic_tool_discovery.py
+async test_unregister_tool_invalidates_cache() @ tests/tools/test_registry_cache.py
 async test_update_packets_status_batch(batch_helpers, sample_packets) @ tests/memory/test_batch_helpers.py
 async test_update_responsibility_not_found() @ tests/core/bootstrap/test_agent_self_modify.py
 async test_update_responsibility_success() @ tests/core/bootstrap/test_agent_self_modify.py
@@ -3831,6 +4189,8 @@ async test_upgrade_engine_phase_sequence() @ tests/upgrades/test_packet_envelope
 async test_upsert_entity_uses_pool_and_fetchrow(monkeypatch) @ tests/world_model/test_world_model_repository_basic.py
 async test_upsert_handles_missing_wm_service() @ tests/integration/test_graph_wm_sync.py
 async test_upsert_to_world_model_integration() @ tests/integration/test_graph_wm_sync.py
+async test_valid_intents(codegen_agent, mock_pipeline_result) @ tests/core/agents/codegenagent/test_symbolic_verification.py
+async test_valid_packet_processed(controller) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py
 async test_valid_packet_processed(controller) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py
 async test_valid_task_instantiates_agent(executor, mock_aios, sample_task) @ tests/core/bootstrap/test_executor.py
 async test_validate_agent_config_missing_id() @ tests/core/bootstrap/test_bootstrap_phases.py
@@ -3844,11 +4204,12 @@ async test_validate_proposal_with_dependencies() @ tests/integration/test_recurs
 async test_validate_then_evaluate(validator, evaluator) @ tests/services/symbolic_computation/test_integration.py
 async test_validation_does_not_mutate_task(mock_aios, mock_tool_registry, mock_substrate, mock_agent_registry) @ tests/core/bootstrap/test_executor.py
 async test_validation_error_propagates_in_async() @ tests/memory/test_packet_validation_v2.py
+async test_validation_failure(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_validation_failure(controller, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_validator_callable_from_async_context() @ tests/memory/test_packet_validation_v2.py
-async test_vector_search_performance(substrate_repo) @ tests/memory/test_query_cache_and_vector.py
+async test_vector_search_performance() @ tests/memory/test_query_cache_and_vector.py
 async test_vector_search_step_uses_top_k_signature() @ tests/memory/test_pipeline_alignment_fixes.py
-async test_vector_search_with_optimization(substrate_repo) @ tests/memory/test_query_cache_and_vector.py
+async test_vector_search_with_optimization() @ tests/memory/test_query_cache_and_vector.py
 async test_verify_lineage_integrity_valid(reasoning_replay_pipeline, memory_substrate_service) @ tests/memory/test_reasoning_replay.py
 async test_verify_returns_signature() @ tests/core/bootstrap/test_bootstrap_phases.py
 async test_verify_returns_signature(mock_instance, mock_kernels, mock_substrate) @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
@@ -3862,6 +4223,7 @@ async test_verify_ws_token_rejects_invalid_token() @ tests/api/test_websocket_au
 async test_verify_ws_token_rejects_missing_token() @ tests/api/test_websocket_auth.py
 async test_verify_ws_token_with_param_token() @ tests/api/test_websocket_auth.py
 async test_verify_ws_token_with_query_token() @ tests/api/test_websocket_auth.py
+async test_versioned_snapshot_optimistic_locking(mock_cache) @ tests/test_integration_phase0.py
 async test_view_fails_with_no_kernels() @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
 async test_view_fails_without_agent_id() @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
 async test_view_fails_without_identity() @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
@@ -3874,6 +4236,7 @@ async test_warm_for_query_detects_and_warms_gaps(sample_entity_graph) @ tests/me
 async test_wildcard_pattern_matching(temp_policy_dir) @ tests/core/governance/test_engine.py
 async test_window_tracks_request_count() @ mcp_memory/tests/test_rate_limiting_enforcement.py
 async test_wire_governance_completes() @ tests/core/bootstrap/test_bootstrap_phases.py
+async test_without_dependencies(mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py
 async test_without_dependencies(mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py
 async test_world_model_instantiation() @ tests/smoke_test_root.py
 async test_write_action_entry(ledger_writer, mock_substrate) @ tests/core/eos/test_eos_clients.py
@@ -3891,6 +4254,7 @@ async tool_call_wrapper(tool_name, tool_func, agent_id) @ .backup/mcp-tools-2026
 async tool_call_wrapper(tool_name, tool_func, agent_id) @ runtime/tool_call_wrapper.py
 async tool_graph_health(request) @ api/tools/router.py
 async tool_router_find(query, top_k, exclude_categories) @ core/tools/base_registry.py
+async tool_search(query, top_k) @ runtime/tool_search_meta.py
 async tools_detect_circular_deps() @ runtime/l_tools.py
 async tools_get_api_dependents(api_name) @ runtime/l_tools.py
 async tools_get_blast_radius(api_name) @ runtime/l_tools.py
@@ -3923,7 +4287,9 @@ async transaction(tenant_id, org_id, user_id, role) @ memory/substrate_repositor
 async transaction(tenant_id, org_id, user_id, role) @ tests/unit/test_substrate_protocols.py
 async transition_state(agent_id, from_state, to_state) @ core/protocols/agent_protocols.py
 async traverse(source, depth, relationship_types) @ memory/graph_client.py
+async trigger_audit_loop(packets) @ agents/codegenagent/cursor_context_sync_engine.py
 async trigger_heuristic_generation(engine) @ api/routes/gmp_learning.py
+async trigger_session_start(session_id) @ agents/codegenagent/cursor_context_sync_engine.py
 async trigger_world_model_update(insights, tenant_id, org_id, user_id, role) @ memory/substrate_service.py
 async ttl_remaining(repo_id, branch) @ memory_cache/working_memory_service.py
 async twilio_webhook(request, x_twilio_signature) @ api/webhook_twilio.py
@@ -3943,6 +4309,7 @@ async update_from_insights(insights) @ orchestrators/world_model/orchestrator.py
 async update_from_insights(insights, tenant_id, org_id, user_id, role) @ world_model/service.py
 async update_from_packet(packet) @ world_model/engine.py
 async update_from_packet(packet) @ world_model/runtime.py
+async update_importance(packet_id, delta, reason) @ memory/pipeline_router.py
 async update_infrastructure_status(infra_name, new_status) @ core/worldmodel/service.py
 async update_node(node_id, data) @ tests/mocks/world_model_mocks.py
 async update_observability_metrics() @ api/server.py
@@ -3957,12 +4324,14 @@ async upgrade_health() @ api/routes/upgrades.py
 async upload_file(channel, file_path, filename, title) @ api/slack_client.py
 async upsert_checkpoint(agent_id, checkpoint_data) @ memory/substrate_repository_cached.py
 async upsert_embedding(id, embedding, metadata) @ core/protocols/memory_protocols.py
+async upsert_entity(entity_id, attributes, entity_type, confidence) @ SDK/SDK.py
 async upsert_entity(entity_id, attributes, entity_type, confidence, tenant_id, org_id, user_id, role) @ world_model/repository.py
 async upsert_entity(entity_id, attributes, entity_type, confidence, tenant_id, org_id, user_id, role) @ world_model/service.py
 async upsert_entity(name, entity_type, attrs, workspace_id) @ memory/graph_client.py
 async upsert_relationship(src, rel, tgt, confidence, source_packet) @ memory/graph_client.py
 async validate(data, schema) @ core/protocols/validation_protocols.py
 async validate(data, schema) @ core/protocols/validation_protocols.py
+async validate(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
 async validate(packet) @ domain_tensor_bridge/packet_router.py
 async validate_agent_blueprint(agent_config, substrate_service) @ core/agents/bootstrap/phase_0_validate.py
 async validate_all(files, spec) @ core/codegen/utilities.py
@@ -3982,6 +4351,7 @@ async validate_reasoning(result) @ core/reasoning/toth_engine.py
 async validate_required(data, required_fields) @ core/protocols/validation_protocols.py
 async validate_required(data, required_fields) @ core/protocols/validation_protocols.py
 async validate_schema(body) @ api/routes/factory.py
+async validate_schema(schema_yaml, strict) @ SDK/SDK.py
 async validate_tool(tool_id, arguments, context) @ orchestrators/action_tool/validator.py
 async validate_type(value, expected_type) @ core/protocols/validation_protocols.py
 async validate_type(value, expected_type) @ core/protocols/validation_protocols.py
@@ -4061,7 +4431,10 @@ async write_packet(packet_in) @ tests/unit/test_service_adapters.py
 async write_packet(packet_in, tenant_id, org_id, user_id, role, audit_mode) @ memory/substrate_service.py
 async write_packet(packet_type, payload, metadata, provenance, confidence) @ clients/memory_client.py
 async write_packet_to_substrate(packet) @ world_model/seed_loader.py
+async write_sync_output(agent_id, patch) @ agents/codegenagent/cursor_context_sync_engine.py
 async write_tests(code, framework) @ agents/coder_agent/coder_agent_b.py
 async write_verdict_entry(verdict_id, action_id, decision, agent_id, risk_class, justification) @ core/eos/ledger_writer.py
+async writepacket() @ tests/test_integration_phase0.py
+async writer() @ tests/tools/test_tool_audit_flush.py
 
-# Total: 4051 async functions
+# Total: 4424 async functions

@@ -1,0 +1,70 @@
+# =============================================================================
+# L9 CI/Hook Allowlist — Single Source of Truth
+# =============================================================================
+#
+# All pre-commit gates, CI checks, and auto_fix_adr.py read from this file.
+# When adding an exclusion, document WHY (not just the path).
+#
+# Format: Each section maps to a specific CI gate or check.
+# =============================================================================
+
+# Gate 5 (AI Security): Files that legitimately contain attack patterns for DEFENSE
+ai_security_allowlist:
+  - path: core/agents/prompt_builder.py
+    reason: "Lists jailbreak patterns to REJECT — defense, not injection"
+
+# Gate 8 (Anti-patterns): Files that contain /Users/ib-mac as DETECTION patterns
+hardcoded_path_allowlist:
+  - path: workers/violation_patterns.py
+    reason: "Contains hardcoded path as a pattern to DETECT, not a violation"
+
+# Gate 9 (ADR): Files exempt from specific ADR checks
+adr_exemptions:
+  # ADR-0019 (print → structlog): CLI tools that legitimately use print()
+  adr_0019_print_allowed_dirs:
+    - ci/
+    - scripts/
+    - tools/
+    - workflows/
+    - agents/cursor/
+    - mcp_memory/
+    - local_dashboard/
+    - bootstrap/
+    - examples/
+
+  # ADR-0041 (eval/exec): Files with legitimate eval/exec usage
+  adr_0041_eval_allowed:
+    - ci/
+    - tools/
+    - scripts/
+    - services/symbolic_computation/
+
+  # ADR-0087 (f-string SQL): Files with safe table-name interpolation
+  # NOTE: Prefer parameterized queries. This is for table/column names only.
+  adr_0087_safe_interpolation: []
+
+# auto_fix_adr.py: Directories to skip entirely (never scan)
+auto_fix_skip_dirs:
+  - .venv
+  - venv
+  - .git
+  - __pycache__
+  - node_modules
+  - _archived
+  - .backup
+  - current_work
+  - .cursor
+  - private
+
+# auto_fix_adr.py: Protected files (never modify)
+auto_fix_protected_files:
+  - core/agents/executor.py
+  - runtime/websocket_orchestrator.py
+  - memory/substrate_service.py
+  - api/server.py
+
+# Gitleaks: Additional path allowlist (supplements .gitleaks.toml)
+# NOTE: Primary gitleaks config is in .gitleaks.toml
+gitleaks_notes:
+  - "docker-compose.yml and docker-compose.prod.yml use ${VAR} env substitution"
+  - "reports/repo-index/ contains auto-generated example DSNs with masked passwords"

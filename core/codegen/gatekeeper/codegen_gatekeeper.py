@@ -42,7 +42,8 @@ import httpx
 from pydantic import BaseModel, Field
 
 # L9 imports (matching existing patterns)
-from core.agents.base_agent import AgentResponse, BaseAgent
+from agents.base_agent import AgentResponse, BaseAgent
+# from core.agents.base_agent import AgentResponse, BaseAgent
 
 
 class ContractType(str, Enum):
@@ -77,7 +78,7 @@ class ResearchFinding(BaseModel):
     answer: str = Field(..., description="Research answer")
     sources: list[str] = Field(default_factory=list, description="Source URLs")
     confidence: float = Field(..., ge=0, le=100, description="Confidence in answer")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class NormalizedSpec(BaseModel):
@@ -96,7 +97,7 @@ class NormalizedSpec(BaseModel):
     research_findings: list[ResearchFinding] = Field(default_factory=list)
     generation_strategy: str = Field(..., description="Recommended generation strategy")
     metadata: dict[str, Any] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class CodeGenOutput(BaseModel):

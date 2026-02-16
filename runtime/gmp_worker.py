@@ -39,7 +39,7 @@ __dora_meta__ = {
 import asyncio
 import contextlib
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -137,6 +137,7 @@ class GMPWorker:
                 logger.error(f"Error in GMP worker loop: {e}", exc_info=True)
                 await asyncio.sleep(self.poll_interval)
 
+    @must_stay_async("callers use await")
     async def _execute_gmp_task(self, task: QueuedTask) -> None:
         """
         Execute a GMP task.
@@ -170,6 +171,7 @@ class GMPWorker:
         except Exception as e:
             logger.error(f"Failed to execute GMP task {task_id}: {e}", exc_info=True)
 
+    @must_stay_async("callers use await")
     async def _run_gmp(
         self,
         gmp_markdown: str,
@@ -191,7 +193,7 @@ class GMPWorker:
         Returns:
             Result dictionary with success, output, error, and execution details
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Validate inputs
         if not gmp_markdown:
@@ -216,8 +218,7 @@ class GMPWorker:
         cursor_dir.mkdir(parents=True, exist_ok=True)
 
         gmp_file = (
-            cursor_dir
-            / f"gmp_task_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.md"
+            cursor_dir / f"gmp_task_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.md"
         )
 
         try:
@@ -267,14 +268,14 @@ class GMPWorker:
                     "output": None,
                     "traceback": None,
                     "duration_seconds": (
-                        datetime.now(timezone.utc) - start_time
+                        datetime.now(UTC) - start_time
                     ).total_seconds(),
                 }
 
             stdout_str = stdout.decode("utf-8", errors="replace") if stdout else ""
             stderr_str = stderr.decode("utf-8", errors="replace") if stderr else ""
 
-            duration = (datetime.now(timezone.utc) - start_time).total_seconds()
+            duration = (datetime.now(UTC) - start_time).total_seconds()
 
             if proc.returncode == 0:
                 logger.info(
@@ -319,9 +320,7 @@ class GMPWorker:
                 "error": str(e),
                 "output": None,
                 "traceback": str(e),
-                "duration_seconds": (
-                    datetime.now(timezone.utc) - start_time
-                ).total_seconds(),
+                "duration_seconds": (datetime.now(UTC) - start_time).total_seconds(),
             }
         finally:
             # Optionally clean up GMP file after execution
@@ -361,6 +360,7 @@ async def stop_gmp_worker() -> None:
         _gmp_worker = None
 
 
+@must_stay_async("callers use await")
 async def store_pending_task(task: QueuedTask) -> None:
     """
     Store a pending GMP task (not yet approved).
@@ -373,6 +373,7 @@ async def store_pending_task(task: QueuedTask) -> None:
     logger.debug(f"Stored pending GMP task {task.task_id}")
 
 
+@must_stay_async("callers use await")
 async def get_pending_task(task_id: str) -> QueuedTask | None:
     """
     Get a pending GMP task by ID.
@@ -387,6 +388,7 @@ async def get_pending_task(task_id: str) -> QueuedTask | None:
         return _pending_gmp_tasks.get(task_id)
 
 
+@must_stay_async("callers use await")
 async def list_pending_tasks() -> list[QueuedTask]:
     """
     List all pending GMP tasks.
@@ -398,6 +400,7 @@ async def list_pending_tasks() -> list[QueuedTask]:
         return list(_pending_gmp_tasks.values())
 
 
+@must_stay_async("callers use await")
 async def remove_pending_task(task_id: str) -> bool:
     """
     Remove a pending task (after approval or rejection).
@@ -434,7 +437,7 @@ async def approve_and_enqueue(task_id: str) -> bool:
     # Update payload to mark as approved
     task.payload["approved_by_igor"] = True
     task.payload["status"] = "approved"
-    task.payload["approved_at"] = datetime.now(timezone.utc).isoformat()
+    task.payload["approved_at"] = datetime.now(UTC).isoformat()
 
     # Remove from pending
     await remove_pending_task(task_id)

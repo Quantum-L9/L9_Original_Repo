@@ -1,0 +1,163 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Meta"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-15T23:28:53Z"
+# updated_at: "2026-01-15T23:28:53Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "meta"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ===============================
+# MetaContract: CodeGenAgent v1.0
+# ===============================
+# Self-declared responsibilities and interface for CodeGenAgent
+# Module-Spec-v2.4 format
+
+schema_version: "2.4"
+
+metadata:
+  module_id: codegen_agent
+  name: CodeGenAgent
+  version: 1.0.0
+  description: |
+    Central orchestrator for L9's meta-driven code generation pipeline.
+    Transforms YAML specifications into executable Python modules through
+    a phased pipeline: MetaLoader → IR Compiler → Python Compiler → File Emitter.
+  
+  author: L9 System
+  created: 2026-01-15
+  updated: 2026-01-15
+  
+  tags:
+    - codegen
+    - orchestration
+    - meta-driven
+    - yaml-to-code
+
+inputs:
+  - meta.yaml (YAML specification file)
+  - MetaContract (validated contract object)
+  - Directory path (for batch generation)
+
+outputs:
+  - Generated Python files
+  - PacketEnvelope (kind=RESULT or kind=ERROR)
+  - Rollback registration
+  - Telemetry stats
+  - Compliance audit report
+
+responsibilities:
+  - Interpret meta.yaml schema (Module-Spec-v2.4 and Research-Factory-v6.0)
+  - Validate structure and expectations via PipelineValidator
+  - Compile meta to intermediate representation (IR)
+  - Generate Python code from IR
+  - Emit structured files via FileEmitter
+  - Register rollback snapshots via RollbackHook
+  - Record telemetry via CodeGenTelemetry
+  - Audit compliance via ComplianceAuditor
+  - Sync context with Cursor via CursorContextSyncEngine
+
+dependencies:
+  internal:
+    - agents.codegenagent.meta_loader
+    - agents.codegenagent.file_emitter
+    - agents.codegenagent.c_gmp_engine
+    - agents.codegenagent.pipeline_validator
+    - agents.codegenagent.compliance_auditor
+    - agents.codegenagent.telemetry_codegen
+    - agents.codegenagent.rollback_hook
+    - agents.codegenagent.cursor_sync
+  external:
+    - ir_engine.meta_ir
+    - ir_engine.compile_meta_to_ir
+    - ir_engine.ir_to_python
+
+wiring:
+  entrypoints:
+    - /api/codegen/meta (HTTP POST)
+    - CTOAgent.build_request (internal)
+    - ReflectionAgent.regenerate_module (internal)
+  
+  consumers:
+    - cursor-agent
+    - ReflectionAgent
+    - QAAgent
+  
+  triggers:
+    - on_meta_submit
+    - on_batch_request
+    - on_preview_request
+
+runtime:
+  async_support: true
+  timeout_seconds: 300
+  rate_limit: 10/minute
+  
+  feature_flags:
+    L9_ENABLE_SYMBOLIC_PIPELINE: true
+    L9_ENABLE_STRICT_VALIDATION: false
+    L9_ENABLE_COMPLIANCE_AUDIT: true
+    L9_ENABLE_TELEMETRY: true
+
+api:
+  classes:
+    - name: CodeGenAgent
+      methods:
+        - generate_from_meta(meta_path, dry_run) -> GenerationResult
+        - generate_from_contract(contract, dry_run) -> GenerationResult
+        - preview(meta_path) -> DryRunResult
+        - generate_batch(pattern, directory, dry_run) -> BatchResult
+        - validate_spec(meta_path) -> ValidationResult
+        - list_available_specs(pattern, format_filter) -> List[Dict]
+        - generate_with_symbolic_verification(...) -> SymbolicVerificationResult
+  
+  dataclasses:
+    - GenerationResult
+    - DryRunResult
+    - BatchResult
+    - SymbolicVerificationResult
+
+testing:
+  required_tests:
+    - unit tests for each public method
+    - integration tests with file system
+    - mock tests for IR compilation
+  
+  coverage_target: 85%
+  
+  test_files:
+    - tests/agents/codegenagent/test_codegen_agent.py
+    - tests/agents/codegenagent/test_meta_loader.py
+    - tests/agents/codegenagent/test_file_emitter.py
+
+governance:
+  approval_required: false
+  dangerous_operations:
+    - file_write (mitigated by rollback)
+    - batch_generation (mitigated by dry_run)
+  
+  audit_logging: true
+  escalation_path: Igor
+
+batch_generation:
+  hook: codegen/batch_spec_generator_patch.py
+  inputs:
+    - meta.yaml
+    - capsule_template.yaml
+  outputs:
+    - batch_spec_manifest.yaml
+    - generated_specs/*.yaml
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "api-config", "intelligence", "pipeline", "schema", "utility"]
+# keywords: ["api", "dependencies", "inputs", "meta", "metadata", "outputs"]
+# last_modified: "2026-01-15T23:28:53Z"
+# ============================================================================

@@ -3,10 +3,15 @@ from __future__ import annotations
 import asyncio
 import importlib
 import sys
-from pathlib import Path
 from types import ModuleType
+from typing import TYPE_CHECKING
 
 import pytest
+
+from core.decorators import must_stay_async
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class DummySchema:
@@ -54,6 +59,7 @@ def _install_fake_research_factory() -> None:
         def __init__(self, strict_validation: bool = False) -> None:
             self.strict_validation = strict_validation
 
+        @must_stay_async("callers use await")
         async def extract(
             self,
             *,

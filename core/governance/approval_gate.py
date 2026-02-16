@@ -10,6 +10,8 @@ Uses existing ApprovalManager infrastructure.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Approval Gate",
@@ -32,13 +34,16 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from typing import Any
+from datetime import UTC
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from core.governance.approval_manager import ApprovalManager, ApprovalStatus
-from core.schemas import PacketEnvelope
 from core.schemas.capabilities import Capability, ToolName
+
+if TYPE_CHECKING:
+    from core.schemas import PacketEnvelope
 
 logger = structlog.get_logger(__name__)
 
@@ -83,6 +88,7 @@ def is_high_impact_decision(decision: dict[str, Any]) -> bool:
     # Check governance bypass flag
     try:
         from config.settings import settings
+
         if getattr(settings, "l_cto_governance_bypass", False):
             logger.warning(
                 "approval_gate.governance_bypass_active",
@@ -92,7 +98,7 @@ def is_high_impact_decision(decision: dict[str, Any]) -> bool:
             return False  # No approval needed when bypass is active
     except ImportError:
         pass
-    
+
     # Check decision type
     decision_type = decision.get("type", "")
 
@@ -147,6 +153,7 @@ def is_high_impact_decision(decision: dict[str, Any]) -> bool:
     return confidence < 0.7
 
 
+@must_stay_async("callers use await")
 async def escalate_to_igor(
     decision_packet: PacketEnvelope | None,
     approval_manager: ApprovalManager,
@@ -238,7 +245,7 @@ def handle_governance_result(
 
         reasoning_block = StructuredReasoningBlock(
             step_id=str(uuid4()),
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             reasoning_type="governance",
             content=f"Decision approved by Igor: {escalation_result.rationale}",
             confidence=0.9,
@@ -266,7 +273,7 @@ def handle_governance_result(
 
         reasoning_block = StructuredReasoningBlock(
             step_id=str(uuid4()),
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             reasoning_type="governance",
             content=f"Decision rejected: {escalation_result.rationale}",
             confidence=0.9,

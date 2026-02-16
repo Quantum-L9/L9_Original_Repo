@@ -36,13 +36,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any
+from datetime import UTC, datetime
+from typing import Any
 
 import structlog
-
-if TYPE_CHECKING:
-    pass
 
 logger = structlog.get_logger(__name__)
 
@@ -70,13 +67,13 @@ def post_execution_introspection(agent: Any) -> dict[str, Any]:
     if kernel_state is None or not hasattr(kernel_state, "initialized"):
         logger.warning("introspection.no_kernel_state")
         return {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(tz=UTC).isoformat(),
             "valid": False,
             "error": "No kernel_state available for introspection",
         }
 
     audit = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(tz=UTC).isoformat(),
         "session_id": kernel_state.session_id,
         "valid": True,
         # 1. Decision audit
@@ -302,7 +299,7 @@ def export_session_memory(kernel_state: Any) -> dict[str, Any]:
     audit = post_execution_introspection(mock)
 
     return {
-        "export_timestamp": datetime.now().isoformat(),
+        "export_timestamp": datetime.now(tz=UTC).isoformat(),
         "export_version": "1.0.0",
         # Session metadata
         "session": {
@@ -366,7 +363,7 @@ def record_confidence_outcome(
         "predicted": predicted_confidence,
         "actual": 1.0 if actual_outcome else 0.0,
         "error": abs(predicted_confidence - (1.0 if actual_outcome else 0.0)),
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(tz=UTC).isoformat(),
     }
 
     logger.debug(

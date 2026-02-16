@@ -15,13 +15,34 @@ Usage:
     await pipeline.run_consolidation(agent_id="agent_123")
 """
 
+__dora_meta__ = {
+    "component_name": "Parallel Pipeline",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.996629+00:00",
+    "updated_at": "2026-02-13T23:37:34.996629+00:00",
+    "layer": "core",
+    "domain": "memory",
+    "module_name": "memory.consolidation.parallel_pipeline",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
+
 import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import UTC, datetime, timezone
-from typing import Dict, List, Optional
+from datetime import UTC, datetime
 
 import structlog
+
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -118,6 +139,7 @@ class ParallelConsolidationPipeline:
         self.phases[name] = phase
         logger.info(f"Registered consolidation phase: {name}")
 
+    @must_stay_async("callers use await")
     async def _can_execute_phase(self, phase: ConsolidationPhase) -> bool:
         """
         Check if a phase's dependencies are satisfied.
@@ -130,6 +152,7 @@ class ParallelConsolidationPipeline:
         """
         return all(dep in self._completed_phases for dep in phase.dependencies)
 
+    @must_stay_async("callers use await")
     async def _execute_phase(
         self, phase: ConsolidationPhase, agent_id: str, context: dict
     ) -> PhaseResult:
@@ -202,6 +225,7 @@ class ParallelConsolidationPipeline:
                 error=error_msg,
             )
 
+    @must_stay_async("callers use await")
     async def run_consolidation(
         self, agent_id: str, max_parallelism: int = 3
     ) -> dict[str, PhaseResult]:
@@ -276,7 +300,7 @@ class ParallelConsolidationPipeline:
                         )
                     else:
                         results[phase.name] = result
-                        if result.success:
+                        if isinstance(result, PhaseResult) and result.success:
                             self._completed_phases.add(phase.name)
 
         total_duration_ms = int(
@@ -307,6 +331,7 @@ class ParallelConsolidationPipeline:
 
 
 # Example usage and default phase registration
+@must_stay_async("callers use await")
 async def register_default_phases(pipeline: ParallelConsolidationPipeline):
     """
     Register the standard L9 consolidation phases.

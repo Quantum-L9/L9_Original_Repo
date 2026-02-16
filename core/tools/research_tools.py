@@ -16,6 +16,8 @@ GMP: wire_research_lcto_integration
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Research Tools",
@@ -37,11 +39,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from runtime.tool_registry import register_tool
+if TYPE_CHECKING:
+    from runtime.tool_registry import register_tool
+else:
+    # Runtime import via core.decorators proxy to avoid circular dependency
+    from core.decorators import register_tool
 
 logger = structlog.get_logger(__name__)
 
@@ -77,6 +83,7 @@ def _get_research_agent():
 
 
 @register_tool(category="research", priority=10, description="run_research_query tool")
+@must_stay_async("callers use await")
 async def run_research_query(
     query: str,
     user_id: str = "l_agent",
@@ -164,6 +171,7 @@ async def run_research_query(
 @register_tool(
     category="research", priority=10, description="research_agent_synthesize tool"
 )
+@must_stay_async("callers use await")
 async def research_agent_synthesize(
     topic: str,
     context: dict[str, Any] | None = None,
@@ -230,6 +238,7 @@ async def research_agent_synthesize(
 @register_tool(
     category="research", priority=10, description="research_agent_discover tool"
 )
+@must_stay_async("callers use await")
 async def research_agent_discover(
     topic: str,
     domain: str = "general",
@@ -306,6 +315,7 @@ async def research_agent_discover(
 @register_tool(
     category="research", priority=10, description="research_agent_generate_spec tool"
 )
+@must_stay_async("callers use await")
 async def research_agent_generate_spec(
     topic: str,
     description: str | None = None,

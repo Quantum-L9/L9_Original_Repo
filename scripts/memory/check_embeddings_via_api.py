@@ -40,6 +40,8 @@ import httpx
 import structlog
 from dotenv import load_dotenv
 
+from core.decorators import must_stay_async
+
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -51,6 +53,7 @@ VPS_URL = os.getenv("VPS_MEMORY_URL", "https://157.180.73.53:9001")
 API_KEY = os.getenv("L9_EXECUTOR_API_KEY")
 
 
+@must_stay_async("callers use await")
 async def check_embeddings_via_search(limit: int = 20):
     """Check embeddings by doing semantic searches and inspecting results."""
     if not API_KEY:
@@ -71,14 +74,14 @@ async def check_embeddings_via_search(limit: int = 20):
         "decision",
     ]
 
-    print("\n" + "=" * 60)
-    print("CHECKING EMBEDDINGS VIA SEMANTIC SEARCH")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info("checking embeddings via semantic search")
+    logger.info("=" * 60)
 
-    async with httpx.AsyncClient(verify=False, timeout=30.0) as client:
+    async with httpx.AsyncClient(verify=False, timeout=30.0) as client:  # noqa: S501 — internal VPS service, cert validation not required
         for query in test_queries:
-            print(f"\n🔍 Query: '{query}'")
-            print("-" * 60)
+            logger.info("\n🔍 query: 'query'", query=query)
+            logger.info("-" * 60)
 
             try:
                 response = await client.post(
@@ -94,7 +97,7 @@ async def check_embeddings_via_search(limit: int = 20):
                 if response.status_code == 200:
                     result = response.json()
                     hits = result.get("hits", [])
-                    print(f"  Found {len(hits)} results")
+                    logger.info("  found {len(hits)} results")
 
                     for i, hit in enumerate(hits[:3], 1):
                         payload = hit.get("payload", {})
@@ -106,25 +109,27 @@ async def check_embeddings_via_search(limit: int = 20):
                             or str(payload)[:200]
                         )
 
-                        print(f"\n  [{i}] Score: {score:.3f}")
-                        print(f"      Type: {payload.get('type', 'unknown')}")
-                        print(f"      Agent: {payload.get('agent_id', 'unknown')}")
-                        print(f"      Text: {text[:150]}...")
+                        logger.info("\n  [i] score: {score:.3f}", i=i)
+                        logger.info("      type: {payload.get('type', 'unknown')}")
+                        logger.info("      agent: {payload.get('agent_id', 'unknown')}")
+                        logger.info("      text: {text[:150]}...")
                 else:
-                    print(f"  ❌ Error: {response.status_code} - {response.text[:200]}")
+                    logger.error(
+                        "  ❌ error: {response.status_code} - {response.text[:200]}"
+                    )
 
             except Exception as e:
-                print(f"  ❌ Exception: {e}")
+                logger.info("  ❌ exception: e", e=e)
 
-    print("\n" + "=" * 60)
-    print("SUMMARY")
-    print("=" * 60)
-    print("\nIf you see:")
-    print("  - Empty/error messages → Trash embeddings from Slack glitch")
-    print("  - Meaningful content → Embeddings are valid")
-    print("  - Very short text (< 20 chars) → Likely noise")
-    print("  - JSON dumps → Unstructured data got embedded")
-    print("\n")
+    logger.info("\n" + "=" * 60)
+    logger.info("summary")
+    logger.info("=" * 60)
+    logger.info("\nif you see:")
+    logger.error("  - empty/error messages → trash embeddings from slack glitch")
+    logger.info("  - meaningful content → embeddings are valid")
+    logger.info("  - very short text (< 20 chars) → likely noise")
+    logger.info("  - json dumps → unstructured data got embedded")
+    logger.info("\n")
 
 
 if __name__ == "__main__":

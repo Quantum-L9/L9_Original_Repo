@@ -10,6 +10,8 @@ from fastapi.testclient import TestClient
 from src.main import app
 from src.mcp_server import MCPToolCall, handle_tool_call
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Test Fixtures
 # =============================================================================
@@ -39,6 +41,7 @@ def mock_caller_c():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_e2e_save_memory(mock_caller_c):
     """Test complete save_memory flow: validation → handler → database."""
 
@@ -96,6 +99,7 @@ async def test_e2e_save_memory(mock_caller_c):
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_e2e_search_memory(mock_caller_c):
     """Test complete search_memory flow: validation → handler → vector search."""
 
@@ -163,6 +167,7 @@ async def test_e2e_governance_cursor_cannot_write_l_private(mock_caller_c):
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_e2e_governance_l_can_write_l_private(mock_caller_l):
     """Test that L-CTO (L) can write to l-private scope."""
 
@@ -246,6 +251,7 @@ async def test_e2e_validation_fail_fast_missing_required():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_e2e_error_handling_database_error(mock_caller_c):
     """Test that database errors are caught and handled gracefully."""
 
@@ -267,7 +273,9 @@ async def test_e2e_error_handling_database_error(mock_caller_c):
         mock_execute.side_effect = asyncpg.PostgresError("Connection failed")
 
         # Should raise HTTPException with 500 status
-        with pytest.raises(Exception):  # Will be HTTPException in actual handler
+        with pytest.raises(  # noqa: B017 — intentionally testing broad exception handling
+            Exception
+        ):  # noqa: B017 — intentionally testing broad exception handling
             await handle_tool_call(
                 tool=tool_call, user_id="test-user", caller=mock_caller_c
             )

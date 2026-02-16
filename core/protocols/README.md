@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -118,7 +118,7 @@ class SpanKind:
 
 ```
 
-**Lines:** 59-68 in `observability_protocols.py`
+**Lines:** 61-70 in `observability_protocols.py`
 
 ### `observability_protocols.py` — SpanStatus
 
@@ -130,7 +130,7 @@ class SpanStatus:
 
 ```
 
-**Lines:** 71-76 in `observability_protocols.py`
+**Lines:** 73-78 in `observability_protocols.py`
 
 ### `observability_protocols.py` — SpanEmitter
 
@@ -152,7 +152,7 @@ class SpanEmitter:
 
 **Public Methods:** `start_span`, `finish_span`, `emit_span`, `add_span_event`
 
-**Lines:** 80-152 in `observability_protocols.py`
+**Lines:** 82-154 in `observability_protocols.py`
 
 ### `observability_protocols.py` — MetricsCollector
 
@@ -174,7 +174,7 @@ class MetricsCollector:
 
 **Public Methods:** `increment_counter`, `set_gauge`, `record_histogram`, `get_metrics`
 
-**Lines:** 156-215 in `observability_protocols.py`
+**Lines:** 158-217 in `observability_protocols.py`
 
 ### `observability_protocols.py` — TraceContext
 
@@ -198,7 +198,7 @@ class TraceContext:
 
 **Public Methods:** `trace_id`, `span_id`, `parent_span_id`, `to_headers`, `from_headers`
 
-**Lines:** 219-267 in `observability_protocols.py`
+**Lines:** 221-269 in `observability_protocols.py`
 
 
 ---
@@ -216,16 +216,16 @@ class TraceContext:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `T` | `TypeVar('T')` | 44 |
-| `P` | `TypeVar('P')` | 45 |
-| `T` | `TypeVar('T', bound=Callable[..., Any])` | 534 |
+| `T` | `TypeVar('T')` | 47 |
+| `P` | `TypeVar('P')` | 48 |
+| `T` | `TypeVar('T', bound=Callable[..., Any])` | 544 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreProtocolsRequest(BaseModel):
     """Request model for core_protocols operations."""
@@ -316,7 +316,7 @@ CORE_PROTOCOLS_ENABLED=true
 
 Decorator for async functions to add automatic retry behavior.
 
-- **File:** `retry_protocols.py:340`
+- **File:** `retry_protocols.py:359`
 - **Async:** No
 - **Returns:** `Callable[[Callable[..., Awaitable[T]]], Callable[..., Awaitable[T]]]`
 
@@ -324,14 +324,14 @@ Decorator for async functions to add automatic retry behavior.
 
 Async context manager for error handling with automatic retry logic.
 
-- **File:** `error_handling_protocols.py:458`
+- **File:** `error_handling_protocols.py:465`
 - **Async:** Yes
 
 #### `def validate_input(schema, validator) -> Callable[[T], T]`
 
 Decorator for automatic input validation of async functions.
 
-- **File:** `validation_protocols.py:537`
+- **File:** `validation_protocols.py:547`
 - **Async:** No
 - **Returns:** `Callable[[T], T]`
 
@@ -339,7 +339,7 @@ Decorator for automatic input validation of async functions.
 
 Decorator for applying rate limiting to async functions.
 
-- **File:** `rate_limiting_protocols.py:469`
+- **File:** `rate_limiting_protocols.py:475`
 - **Async:** No
 - **Returns:** `Callable[[Callable[..., Coroutine[Any, Any, Any]]], Callable[..., Coroutine[Any, Any, Any]]]`
 
@@ -373,7 +373,7 @@ Core Protocols operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.protocols",
   "message": "Operation completed",

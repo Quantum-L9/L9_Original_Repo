@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -233,15 +233,15 @@ The following data models define the contracts for this subsystem:
 
 ### Exported Symbols (`__all__`)
 
-`CausalEdge`, `CausalGraph`, `CausalLink`, `CausalMapper`, `CausalNode`, `CausalPath`, `CausalQuery`, `CausalQueryResult`, `CausalRelationType`, `CausalStrength`
+`CausalLink`, `CausalMapper`, `CausalNode`, `CausalPath`, `CausalQueryResult`, `CausalRelationType`, `CausalStrength`, `ConstraintSet`, `Decision`, `Entity`
 
-*...and 61 more*
+*...and 41 more*
 
 ### Module Constants
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `SUPPORTED_PACKET_TYPES` | `frozenset(['ir_graph', 'execution_plan',...` | 96 |
+| `SUPPORTED_PACKET_TYPES` | `frozenset(['ir_graph', 'execution_plan',...` | 97 |
 | `PACKET_TYPE_IR_GRAPH` | `'ir_graph'` | 88 |
 | `PACKET_TYPE_EXECUTION_PLAN` | `'execution_plan'` | 89 |
 | `PACKET_TYPE_REFLECTION` | `'reflection'` | 90 |
@@ -257,7 +257,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class WorldModelRequest(BaseModel):
     """Request model for world_model operations."""
@@ -345,11 +345,11 @@ WORLD_MODEL_ENABLED=true
 
 ### Public Functions
 
-#### `def get_world_model_service() -> WorldModelService`
+#### `def get_world_model_service(service) -> WorldModelService`
 
-Get or create singleton service.
+Get world model service singleton, or use injected instance.
 
-- **File:** `service.py:659`
+- **File:** `service.py:665`
 - **Async:** No
 - **Returns:** `WorldModelService`
 
@@ -357,14 +357,14 @@ Get or create singleton service.
 
 Close service and cleanup.
 
-- **File:** `service.py:667`
+- **File:** `service.py:690`
 - **Async:** Yes
 
 #### `def get_world_model_service_api(engine, runtime) -> WorldModelServiceAPI`
 
 Get or create singleton service API.
 
-- **File:** `world_model_service.py:932`
+- **File:** `world_model_service.py:936`
 - **Async:** No
 - **Returns:** `WorldModelServiceAPI`
 
@@ -372,7 +372,7 @@ Get or create singleton service API.
 
 Reset the singleton service API.
 
-- **File:** `world_model_service.py:958`
+- **File:** `world_model_service.py:962`
 - **Async:** No
 - **Returns:** `None`
 
@@ -380,7 +380,7 @@ Reset the singleton service API.
 
 Create a WorldModelRuntime wired to the Memory Substrate.
 
-- **File:** `runtime.py:1949`
+- **File:** `runtime.py:1995`
 - **Async:** Yes
 - **Returns:** `WorldModelRuntime`
 
@@ -414,7 +414,7 @@ World Model operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "world_model",
   "message": "Operation completed",

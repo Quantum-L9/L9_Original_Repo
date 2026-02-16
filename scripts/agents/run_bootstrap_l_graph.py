@@ -41,12 +41,20 @@ import asyncio
 import os
 import sys
 
+import structlog
+
+from core.decorators import must_stay_async
+
 # Add project root to path
+
+logger = structlog.get_logger(__name__)
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from neo4j import AsyncGraphDatabase
 
 
+@must_stay_async("callers use await")
 async def main():
     """
     Performs the main execution flow for bootstrapping L's agent graph in Neo4j, including environment setup and database initialization.
@@ -65,10 +73,10 @@ async def main():
     neo4j_password = os.getenv("NEO4J_PASSWORD")
 
     if not neo4j_password:
-        print("ERROR: NEO4J_PASSWORD environment variable not set")
+        logger.error("error: neo4j_password environment variable not set")
         sys.exit(1)
 
-    print(f"Connecting to Neo4j at {neo4j_uri}...")
+    logger.info("connecting to neo4j at neo4j uri...", neo4j_uri=neo4j_uri)
 
     driver = AsyncGraphDatabase.driver(
         neo4j_uri,
@@ -80,7 +88,7 @@ async def main():
         async with driver.session() as session:
             result = await session.run("RETURN 1 as test")
             await result.single()
-        print("✅ Connected to Neo4j")
+        logger.info("✅ connected to neo4j")
 
         # Run bootstrap
         from core.agents.graph_state.bootstrap_l_graph import (
@@ -88,38 +96,38 @@ async def main():
             verify_l_graph,
         )
 
-        print("\n🚀 Running bootstrap_l_graph()...")
+        logger.info("\n🚀 running bootstrap_l_graph()...")
         stats = await bootstrap_l_graph(driver)
 
-        print("\n📊 Bootstrap Results:")
-        print(f"   Agent:           {stats['agent']}")
-        print(f"   Responsibilities: {stats['responsibilities']}")
-        print(f"   Directives:       {stats['directives']}")
-        print(f"   SOPs:            {stats['sops']}")
-        print(f"   Tools:           {stats['tools']}")
-        print(f"   Relationships:   {stats['relationships']}")
+        logger.info("\n📊 bootstrap results:")
+        logger.info("   agent:           {stats['agent']}")
+        logger.info("   responsibilities: {stats['responsibilities']}")
+        logger.info("   directives:       {stats['directives']}")
+        logger.info("   sops:            {stats['sops']}")
+        logger.info("   tools:           {stats['tools']}")
+        logger.info("   relationships:   {stats['relationships']}")
 
         # Verify
-        print("\n🔍 Verifying L's graph...")
+        logger.info("\n🔍 verifying l's graph...")
         verification = await verify_l_graph(driver)
 
         if verification["valid"]:
-            print("✅ L's graph is VALID")
-            print(f"   Agent ID:        {verification['agent_id']}")
-            print(f"   Designation:     {verification['designation']}")
-            print(f"   Responsibilities: {verification['responsibility_count']}")
-            print(f"   Directives:      {verification['directive_count']}")
-            print(f"   SOPs:            {verification['sop_count']}")
-            print(f"   Tools:           {verification['tool_count']}")
-            print(f"   Supervisor:      {verification['supervisor_id']}")
+            logger.info("✅ l's graph is valid")
+            logger.info("   agent id:        {verification['agent_id']}")
+            logger.info("   designation:     {verification['designation']}")
+            logger.info("   responsibilities: {verification['responsibility_count']}")
+            logger.info("   directives:      {verification['directive_count']}")
+            logger.info("   sops:            {verification['sop_count']}")
+            logger.info("   tools:           {verification['tool_count']}")
+            logger.info("   supervisor:      {verification['supervisor_id']}")
         else:
-            print(f"❌ L's graph is INVALID: {verification.get('error')}")
+            logger.error("❌ l's graph is invalid: {verification.get('error')}")
             sys.exit(1)
 
     finally:
         await driver.close()
 
-    print("\n✅ Bootstrap complete!")
+    logger.info("\n✅ bootstrap complete!")
 
 
 if __name__ == "__main__":

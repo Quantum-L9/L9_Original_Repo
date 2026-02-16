@@ -7,21 +7,46 @@ to enable isolated testing of bootstrap phases without external services.
 
 from __future__ import annotations
 
+__dora_meta__ = {
+    "component_name": "Conftest",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.998150+00:00",
+    "updated_at": "2026-02-13T23:37:34.998150+00:00",
+    "layer": "core",
+    "domain": "core",
+    "module_name": "tests.core.bootstrap.conftest",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
 # Pre-import memory.graph_client to ensure it's available for lazy imports
 # This MUST happen before any bootstrap modules are imported
 import importlib.util
+
+import structlog
+
+from core.decorators import must_stay_async
+
+logger = structlog.get_logger(__name__)
 
 # Force-load memory.graph_client into sys.modules
 # (fixes pytest import resolution for lazy imports inside bootstrap phases)
 try:
     spec = importlib.util.find_spec("memory.graph_client")
     if spec:
-        import memory.graph_client
+        pass
 except Exception:
-    pass  # Ignore if unavailable - tests will fail gracefully
+    logger.debug("test_bootstrap_conftest.graph_client_preload_failed")
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -54,14 +79,17 @@ class MockNeo4jSession:
     def __init__(self):
         self.queries_run = []
 
+    @must_stay_async("callers use await")
     async def run(self, query: str, params: dict | None = None):
         """Record query and return mock result."""
         self.queries_run.append({"query": query, "params": params})
         return MockNeo4jResult()
 
+    @must_stay_async("callers use await")
     async def __aenter__(self):
         return self
 
+    @must_stay_async("callers use await")
     async def __aexit__(self, *args):
         pass
 
@@ -73,6 +101,7 @@ class MockNeo4jResult:
         self._records = records or []
         self._index = 0
 
+    @must_stay_async("callers use await")
     async def single(self):
         """Return single record or None."""
         if self._records:
@@ -82,6 +111,7 @@ class MockNeo4jResult:
     def __aiter__(self):
         return self
 
+    @must_stay_async("callers use await")
     async def __anext__(self):
         if self._index >= len(self._records):
             raise StopAsyncIteration
@@ -108,6 +138,7 @@ class MockSubstrateService:
         self.tool_registry = MagicMock()
         self.packets_written = []
 
+    @must_stay_async("callers use await")
     async def write_packet(self, packet: Any) -> None:
         """Record packet write."""
         self.packets_written.append(packet)
@@ -123,12 +154,15 @@ class MockPostgresPool:
 class MockPostgresConnection:
     """Mock asyncpg connection."""
 
+    @must_stay_async("callers use await")
     async def execute(self, query: str):
         return None
 
+    @must_stay_async("callers use await")
     async def __aenter__(self):
         return self
 
+    @must_stay_async("callers use await")
     async def __aexit__(self, *args):
         pass
 
@@ -160,6 +194,7 @@ def mock_neo4j_client():
 def mock_neo4j_none():
     """Fixture that returns None for Neo4j client (offline mode)."""
 
+    @must_stay_async("callers use await")
     async def _get_none():
         return None
 
@@ -172,12 +207,14 @@ def patch_neo4j_client(mock_neo4j_client):
     Patch get_neo4j_client to return mock client.
 
     Usage:
+        @must_stay_async("callers use await")
         async def test_something(patch_neo4j_client):
             with patch_neo4j_client:
                 # Neo4j calls will use mock
                 pass
     """
 
+    @must_stay_async("callers use await")
     async def _get_mock():
         return mock_neo4j_client
 
@@ -193,12 +230,14 @@ def patch_neo4j_offline():
     Patch get_neo4j_client to return None (offline mode).
 
     Usage:
+        @must_stay_async("callers use await")
         async def test_offline(patch_neo4j_offline):
             with patch_neo4j_offline:
                 # Neo4j will appear offline
                 pass
     """
 
+    @must_stay_async("callers use await")
     async def _get_none():
         return None
 
@@ -247,5 +286,5 @@ def mock_bootstrap_instance(mock_agent_config):
         config=mock_agent_config,
         kernel_state="LOADING",
         status="INITIALIZING",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )

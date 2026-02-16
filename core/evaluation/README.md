@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -136,7 +136,7 @@ class EvaluationResult:
 
 **Public Methods:** `task_success_rate`
 
-**Lines:** 68-89 in `evaluator.py`
+**Lines:** 68-90 in `evaluator.py`
 
 ### `evaluator.py` — Evaluator
 
@@ -160,7 +160,7 @@ class Evaluator:
 
 **Public Methods:** `__init__`, `define_eval_set`, `run_eval`, `_compute_tool_accuracy`, `_judge_output`
 
-**Lines:** 92-451 in `evaluator.py`
+**Lines:** 93-460 in `evaluator.py`
 
 ### `evaluator.py` — RegressionError
 
@@ -172,7 +172,7 @@ class RegressionError:
 
 ```
 
-**Lines:** 454-457 in `evaluator.py`
+**Lines:** 463-466 in `evaluator.py`
 
 
 ---
@@ -202,7 +202,7 @@ class RegressionError:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreEvaluationRequest(BaseModel):
     """Request model for core_evaluation operations."""
@@ -301,7 +301,7 @@ Load all default evaluation sets into an evaluator instance.
 
 Block PRs that regress eval scores
 
-- **File:** `evaluator.py:460`
+- **File:** `evaluator.py:469`
 - **Async:** Yes
 - **Returns:** `None`
 
@@ -335,7 +335,7 @@ Core Evaluation operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.evaluation",
   "message": "Operation completed",

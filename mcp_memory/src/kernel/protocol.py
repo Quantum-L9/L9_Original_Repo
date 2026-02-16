@@ -35,7 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -89,7 +89,7 @@ class PacketEnvelopeV2:
 
     # Auto-generated (immutable)
     packet_id: str = field(default_factory=lambda: str(uuid4()))
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Optional fields
     confidence: float = 1.0  # [0, 1]

@@ -23,6 +23,8 @@ Version: 1.0.0
 Based on: .cursor-commands/commands/wire.md v10.2.0
 """
 
+import structlog
+
 from workflows.session.interface import (
     GateType,
     NodeType,
@@ -31,6 +33,8 @@ from workflows.session.interface import (
     SessionNode,
 )
 from workflows.session.registry import register_session_dag
+
+logger = structlog.get_logger(__name__)
 
 # =============================================================================
 # PROTECTED FILES — Require /gmp escalation
@@ -687,4 +691,4 @@ def get_wire_dag() -> SessionDAG:
 
 # Generate Mermaid diagram for documentation
 if __name__ == "__main__":
-    print(WIRE_DAG.to_markdown())
+    logger.info("output", value=WIRE_DAG.to_markdown())

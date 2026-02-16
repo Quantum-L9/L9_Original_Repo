@@ -43,7 +43,7 @@ __dora_meta__ = {
 
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -220,7 +220,7 @@ class MistakePrevention:
             if matches:
                 # Track occurrence
                 rule.occurrences += 1
-                rule.last_triggered = datetime.now(timezone.utc)
+                rule.last_triggered = datetime.now(UTC)
 
                 # Create violation for each match
                 for match in matches[:3]:  # Limit to first 3 matches

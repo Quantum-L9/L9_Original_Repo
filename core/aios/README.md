@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -105,19 +105,19 @@ class AIOSRuntime:
 
     def __init__(self, ...): ...
 
+    async def close(self, ...) -> None: ...
+
     def model(self, ...) -> str: ...
 
     def temperature(self, ...) -> float: ...
 
     def _get_client(self, ...) -> AsyncOpenAI: ...
 
-    async def execute_reasoning(self, ...) -> AIOSResult: ...
-
 ```
 
-**Public Methods:** `__init__`, `model`, `temperature`, `_get_client`, `execute_reasoning`
+**Public Methods:** `__init__`, `close`, `model`, `temperature`, `_get_client`
 
-**Lines:** 96-375 in `runtime.py`
+**Lines:** 98-385 in `runtime.py`
 
 
 ---
@@ -133,14 +133,14 @@ class AIOSRuntime:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `DEFAULT_SYSTEM_PROMPT` | `"You are L, an AI assistant operating wi...` | 67 |
+| `DEFAULT_SYSTEM_PROMPT` | `"You are L, an AI assistant operating wi...` | 69 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreAiosRequest(BaseModel):
     """Request model for core_aios operations."""
@@ -232,7 +232,7 @@ CORE_AIOS_ENABLED=true
 
 Factory function to create an AIOS runtime.
 
-- **File:** `runtime.py:383`
+- **File:** `runtime.py:393`
 - **Async:** No
 - **Returns:** `AIOSRuntime`
 
@@ -266,7 +266,7 @@ Core Aios operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.aios",
   "message": "Operation completed",

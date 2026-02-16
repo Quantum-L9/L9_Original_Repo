@@ -158,7 +158,8 @@ class FalsePositiveDetector:
             for filepath in files:
                 try:
                     content_parts.append(filepath.read_text())
-                except Exception:
+                except Exception as e:
+                    logger.debug("audit.file_skipped", error=str(e))
                     continue
             self._codebase_content = "\n".join(content_parts)
         return self._codebase_content
@@ -179,7 +180,8 @@ class FalsePositiveDetector:
                 for pattern in patterns:
                     matches = re.findall(pattern, content)
                     self._registry_patterns.update(matches)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     def _scan_protocol_implementations(self, files: list[Path]):
@@ -201,7 +203,8 @@ class FalsePositiveDetector:
                                         item, (ast.FunctionDef, ast.AsyncFunctionDef)
                                     ):
                                         self._protocol_implementations.add(item.name)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     def _build_inheritance_map(self, files: list[Path]):
@@ -224,7 +227,8 @@ class FalsePositiveDetector:
                                 if base_name not in self._inheritance_map:
                                     self._inheritance_map[base_name] = []
                                 self._inheritance_map[base_name].append(node.name)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     def check_dynamic_access(self, symbol: str, content: str) -> str | None:
@@ -337,7 +341,8 @@ class FalsePositiveDetector:
 
                             if base_name in ("BaseModel", "BaseSettings"):
                                 self._pydantic_models.add(node.name)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     def _scan_response_models(self, files: list[Path]):
@@ -352,7 +357,8 @@ class FalsePositiveDetector:
                 # Also look for -> ClassName in route handlers
                 matches = re.findall(r"async def \w+\([^)]*\)\s*->\s*(\w+)", content)
                 self._response_models.update(matches)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     def check_pydantic_model(self, class_name: str | None) -> bool:
@@ -469,7 +475,7 @@ class FalsePositiveDetector:
                     )
                     return resolved
             except Exception:
-                pass
+                logger.debug("resolve_dead_code.serialization_check_failed")
 
         return resolved
 
@@ -603,8 +609,8 @@ def main():
     output_file = REPO_ROOT / args.output
 
     if not input_file.exists():
-        print(f"Error: Input file not found: {input_file}")
-        print("Run Phase 1 first: python scripts/audit/find_dead_code.py")
+        logger.error("error: input file not found: input file", input_file=input_file)
+        logger.info("run phase 1 first: python scripts/audit/find_dead_code.py")
         return 1
 
     result = resolve_dead_code_refs(
@@ -614,12 +620,12 @@ def main():
     )
 
     # Print summary
-    print("\n" + "=" * 60)
-    print("DEAD CODE AUDIT - PHASE 2 RESOLUTION")
-    print("=" * 60)
-    print(f"Input findings: {result.total_input_findings}")
-    print(f"False positives eliminated: {result.false_positives_eliminated}")
-    print(f"Remaining findings: {result.remaining_findings}")
+    logger.info("\n" + "=" * 60)
+    logger.info("dead code audit - phase 2 resolution")
+    logger.info("=" * 60)
+    logger.info("input findings: {result.total_input_findings}")
+    logger.info("false positives eliminated: {result.false_positives_eliminated}")
+    logger.info("remaining findings: {result.remaining_findings}")
 
     # Breakdown by false positive reason
     fp_reasons: dict[str, int] = {}
@@ -629,12 +635,12 @@ def main():
             fp_reasons[reason] = fp_reasons.get(reason, 0) + 1
 
     if fp_reasons:
-        print("\nFalse positives by reason:")
+        logger.info("\nfalse positives by reason:")
         for reason, count in sorted(fp_reasons.items(), key=lambda x: -x[1]):
-            print(f"  {reason}: {count}")
+            logger.info("  reason: count", reason=reason, count=count)
 
-    print(f"\nOutput: {output_file}")
-    print("=" * 60)
+    logger.info("\noutput: output file", output_file=output_file)
+    logger.info("=" * 60)
 
     return 0
 

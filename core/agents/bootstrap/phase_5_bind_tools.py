@@ -7,6 +7,8 @@ Purpose: Load tool definitions, register in Neo4j, create tool→governance mapp
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Phase 5 Bind Tools",
@@ -29,7 +31,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import structlog
@@ -56,6 +58,7 @@ class ToolDefinition:
     is_destructive: bool = False
 
 
+@must_stay_async("callers use await")
 async def get_agent_capabilities(agent_id: str) -> list[ToolDefinition]:
     """
     Get tool definitions available to this agent.
@@ -173,7 +176,7 @@ async def bind_tools_and_capabilities(
                         "risk_level": tool_def.risk_level,
                         "requires_approval": tool_def.requires_igor_approval,
                         "is_destructive": tool_def.is_destructive,
-                        "registered_at": datetime.now(timezone.utc).isoformat(),
+                        "registered_at": datetime.now(UTC).isoformat(),
                     },
                 )
 
@@ -189,7 +192,7 @@ async def bind_tools_and_capabilities(
                     {
                         "instance_id": instance.instance_id,
                         "tool_id": tool_def.tool_id,
-                        "bound_at": datetime.now(timezone.utc).isoformat(),
+                        "bound_at": datetime.now(UTC).isoformat(),
                         "requires_approval": tool_def.requires_igor_approval,
                     },
                 )

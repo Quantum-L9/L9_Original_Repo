@@ -1,8 +1,8 @@
 # ADR-0077: No Silent Changes
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Author:** Igor Beylin  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Author:** Igor Beylin
 
 ## Context
 
@@ -23,13 +23,13 @@ Example incident: Agent added `database_write` and `database_migrate` to `high_r
 
 ### Disclosure Requirements
 
-| Change Type | Disclosure Required |
-|-------------|---------------------|
-| Adding placeholder | "I'm adding X as placeholder because [reason]" |
-| Removing code | "I'm removing X because [reason]" |
-| Reformatting | "I'm also reformatting [section] for consistency" |
-| Adding TODO | "I'm adding TODO for [future work]" |
-| Changing defaults | "I'm changing default from X to Y because [reason]" |
+| Change Type        | Disclosure Required                                 |
+| ------------------ | --------------------------------------------------- |
+| Adding placeholder | "I'm adding X as placeholder because [reason]"      |
+| Removing code      | "I'm removing X because [reason]"                   |
+| Reformatting       | "I'm also reformatting [section] for consistency"   |
+| Adding TODO        | "I'm adding TODO for [future work]"                 |
+| Changing defaults  | "I'm changing default from X to Y because [reason]" |
 
 ### Placeholder Rules
 
@@ -40,29 +40,32 @@ Before adding ANY placeholder:
 3. If adding: State "I'm adding X as a placeholder because [justifiable reason]"
 
 Valid reasons for placeholders:
+
 - Interface completeness (required by contract)
 - Test stub (needed for test to compile)
 - Configuration template (user will fill in)
 
 Invalid reasons:
+
 - "We might need this later"
 - "Good to have"
 - "I think this would be useful"
 
 ### Anti-Patterns
 
-| Anti-Pattern | Why It's Wrong |
-|--------------|----------------|
-| Adding unused config keys | Confuses future maintainers |
-| "While I was there, I also..." | Scope creep, hidden changes |
-| Aspirational tools in policy | Claims capabilities that don't exist |
-| Silent reformatting | Obscures real changes in diff |
+| Anti-Pattern                   | Why It's Wrong                       |
+| ------------------------------ | ------------------------------------ |
+| Adding unused config keys      | Confuses future maintainers          |
+| "While I was there, I also..." | Scope creep, hidden changes          |
+| Aspirational tools in policy   | Claims capabilities that don't exist |
+| Silent reformatting            | Obscures real changes in diff        |
 
 ## Implementation
 
 ### Commit Message Requirements
 
 Every commit must list:
+
 - What was added (if anything)
 - What was removed (if anything)
 - What was changed (and why)
@@ -85,6 +88,7 @@ Removed:
 ### Code Review Signals
 
 Flag for review if:
+
 - New config keys don't have corresponding code
 - New imports aren't used
 - New functions aren't called
@@ -93,14 +97,17 @@ Flag for review if:
 ## Consequences
 
 ### Positive
+
 - Changes are traceable
 - No surprise behavior
 - Trust maintained
 - Easy code review
 
 ### Negative
+
 - More verbose commit messages
 - Can't "quickly fix" things noticed along the way
 
 ## Related
+
 - ADR-0074: Surgical Edits Only

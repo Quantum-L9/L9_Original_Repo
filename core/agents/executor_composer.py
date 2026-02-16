@@ -106,16 +106,16 @@ class ExecutorConfig:
             >>> config.default_agent_id
             'l-cto'
         """
-        env = env or os.environ
+        resolved_env: dict[str, str] = dict(env) if env else dict(os.environ)
 
         return cls(
-            default_agent_id=env.get("DEFAULT_AGENT_ID", "l-cto"),
-            max_iterations=int(env.get("AGENT_MAX_ITERATIONS", "10")),
-            enable_persistence=env.get("AGENT_ENABLE_PERSISTENCE", "true").lower()
+            default_agent_id=resolved_env.get("DEFAULT_AGENT_ID", "l-cto"),
+            max_iterations=int(resolved_env.get("AGENT_MAX_ITERATIONS", "10")),
+            enable_persistence=resolved_env.get("AGENT_ENABLE_PERSISTENCE", "true").lower()
             == "true",
-            enable_approval_gates=env.get("AGENT_ENABLE_APPROVAL_GATES", "true").lower()
+            enable_approval_gates=resolved_env.get("AGENT_ENABLE_APPROVAL_GATES", "true").lower()
             == "true",
-            fallback_agent_id=env.get("FALLBACK_AGENT_ID", "l9-standard-v1"),
+            fallback_agent_id=resolved_env.get("FALLBACK_AGENT_ID", "l9-standard-v1"),
         )
 
 
@@ -234,7 +234,10 @@ class ExecutorComposer:
             >>> result = await executor.start_agent_task(task)
         """
         # Step 1: Load config from environment
-        self._config = ExecutorConfig.from_env(self._env)
+        resolved_env: dict[str, str] = (
+            dict(self._env) if self._env else dict(os.environ)
+        )
+        self._config = ExecutorConfig.from_env(resolved_env)
 
         logger.info(
             "executor_composer.config_loaded",
@@ -326,6 +329,9 @@ class ExecutorComposer:
             Uses get_optional() for optional dependencies (persistence, approval)
             to avoid failing if they're not registered.
         """
+        if self._di_container is None:
+            raise RuntimeError("DI container not initialized")
+
         # Import protocol types for resolution
         # Note: Actual protocol locations may vary, adjust imports as needed
         try:

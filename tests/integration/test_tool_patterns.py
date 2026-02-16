@@ -19,6 +19,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Test ToolPatternExtractor Class
 # =============================================================================
@@ -323,6 +325,7 @@ def test_get_tool_pattern_extractor():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_store_patterns_integration():
     """Test that _store_patterns calls WorldModelService correctly."""
     from core.integration.tool_pattern_extractor import ToolPatternExtractor

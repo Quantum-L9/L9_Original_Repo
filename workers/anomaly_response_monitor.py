@@ -39,7 +39,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import NAMESPACE_DNS, uuid4, uuid5
 
@@ -80,16 +80,14 @@ class TelemetryEvent(BaseModel):
     source: str
     event_type: str
     data: dict[str, Any] = Field(default_factory=dict)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class AnomalyResponseMonitorRequest(BaseModel):
     """Input request for AnomalyResponseMonitor."""
 
     request_id: str = Field(
-        default_factory=lambda: str(
-            uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc)))
-        )
+        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.now(UTC))))
     )
     telemetry_events: list[TelemetryEvent] = Field(
         default_factory=list,
@@ -97,7 +95,7 @@ class AnomalyResponseMonitorRequest(BaseModel):
     )
     context: dict[str, Any] = Field(default_factory=dict)
     source_id: str = Field(default="telemetry_collector")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"extra": "forbid"}
 
@@ -297,6 +295,7 @@ class AnomalyResponseMonitor:
             provider_fn: Async function that returns List[TelemetryEvent]
 
         Example:
+            @must_stay_async("callers use await")
             async def prometheus_provider() -> List[TelemetryEvent]:
                 # Query Prometheus for high error rates
                 return [TelemetryEvent(...)]
@@ -316,6 +315,7 @@ class AnomalyResponseMonitor:
     # Main API
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def process(
         self, request: AnomalyResponseMonitorRequest
     ) -> AnomalyResponseMonitorResponse:
@@ -328,7 +328,7 @@ class AnomalyResponseMonitor:
         Returns:
             AnomalyResponseMonitorResponse with processing results
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         processed_anomalies: list[ProcessedAnomaly] = []
 
         try:
@@ -387,6 +387,7 @@ class AnomalyResponseMonitor:
     # Internal Methods
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _process_event(self, event: TelemetryEvent) -> ProcessedAnomaly | None:
         """
         Process a single telemetry event.
@@ -508,7 +509,7 @@ class AnomalyResponseMonitor:
 
     def _calc_duration(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
-        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        return int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
     # =========================================================================
     # Health Check

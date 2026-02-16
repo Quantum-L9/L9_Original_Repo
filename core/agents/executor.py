@@ -52,8 +52,8 @@ __dora_meta__ = {
 
 import json
 import os
-from datetime import datetime, timezone
-from typing import Any, Protocol
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import UUID, uuid4
 
 import structlog
@@ -76,13 +76,29 @@ from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerCon
 from core.schemas import PacketEnvelopeIn
 from core.tools.tool_graph import ToolGraph
 from core.worldmodel.insight_emitter import get_insight_emitter
-from memory.agent_persistence import AgentPersistenceService
 from runtime.dora import emit_executor_trace, update_dora_block_in_file
+
+# GMP-LCTO-FIXES: Import governance context for tool dispatch propagation
+try:
+    from memory.governance_gate import (
+        MemoryGovernanceContext,
+        governance_context,
+    )
+    from memory.governance_gate import (
+        _governance_context as governance_context_var,
+    )
+
+    _has_governance_gate = True
+except ImportError:
+    _has_governance_gate = False
+    governance_context_var = None  # type: ignore
+    governance_context = None  # type: ignore
+    MemoryGovernanceContext = None  # type: ignore
 
 # Optional: Calibration Services (Bayesian Upgrade - GMP-32)
 # Uses simplified interface that adapts to L9 executor patterns
 try:
-    from core.calibration import (
+    from core.calibration import (  # noqa: F401 — availability check
         CalibrationService,
         GatingPolicyService,
     )
@@ -154,7 +170,6 @@ except ImportError:
 # Prompt defense imports (GMP-60: Runtime hardening)
 try:
     from core.agents.prompt_defense import (
-        InjectionDetectionResult,
         detect_prompt_injection,
         get_blocked_response,
         should_block_request,
@@ -179,9 +194,14 @@ except ImportError:
 
 from core.decorators import must_stay_async
 
+if TYPE_CHECKING:
+    from memory.agent_persistence import AgentPersistenceService
+
 # Stage 5: Predictive Memory Warming (optional - graceful degradation)
 try:
-    from memory.warming_service import MemoryWarmingService
+    from memory.warming_service import (
+        MemoryWarmingService,  # noqa: F401 — availability check
+    )
 
     _has_memory_warming = True
 except ImportError:
@@ -476,14 +496,16 @@ class AgentExecutorService:
         # Idempotency cache (two-tier: in-memory + substrate-backed)
         # Tier 1: In-memory fast cache (cleared on process restart)
         self._processed_tasks: dict[str, ExecutionResult] = {}
-        
+
         # Tier 2: Substrate-backed durable cache (persists across restarts)
         # GMP Phase 0 Enhancement: Uses Redis for cross-restart idempotency
         self._idempotency_store: IdempotencyStore | None = None
         if _has_idempotency_store and IdempotencyStore is not None:
             try:
                 self._idempotency_store = IdempotencyStore(substrate_service)
-                logger.info("agent.executor.idempotency_store: substrate-backed enabled")
+                logger.info(
+                    "agent.executor.idempotency_store: substrate-backed enabled"
+                )
             except Exception as e:
                 logger.warning(
                     "agent.executor.idempotency_store: init failed, using in-memory only",
@@ -704,7 +726,7 @@ class AgentExecutorService:
                 "kernel_agent_state": getattr(
                     self._kernel_aware_agent, "kernel_state", None
                 ),
-                "shutdown_timestamp": datetime.now(timezone.utc).isoformat(),
+                "shutdown_timestamp": datetime.now(UTC).isoformat(),
             }
 
             checkpoint_id = await self._agent_persistence.create_checkpoint(
@@ -771,7 +793,7 @@ class AgentExecutorService:
         Returns:
             ExecutionResult or DuplicateTaskResponse if duplicate
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         task_id_str = str(task.id)
 
         # Log start
@@ -784,17 +806,19 @@ class AgentExecutorService:
 
         # Idempotency check (two-tier: in-memory fast check + substrate durable check)
         dedupe_key = task.get_dedupe_key()
-        
+
         # Tier 1: Fast in-memory check
         if dedupe_key in self._processed_tasks:
             logger.info("agent.executor.duplicate: task_id=%s (in-memory)", task_id_str)
             return DuplicateTaskResponse(task_id=task.id)
-        
+
         # Tier 2: Substrate-backed check (survives restarts)
         if self._idempotency_store is not None:
             try:
                 if await self._idempotency_store.check_executed_by_key(dedupe_key):
-                    logger.info("agent.executor.duplicate: task_id=%s (substrate)", task_id_str)
+                    logger.info(
+                        "agent.executor.duplicate: task_id=%s (substrate)", task_id_str
+                    )
                     return DuplicateTaskResponse(task_id=task.id)
             except Exception as e:
                 # Non-fatal: continue with execution if substrate check fails
@@ -865,7 +889,7 @@ class AgentExecutorService:
                         result=blocked_message,
                         iterations=0,
                         duration_ms=int(
-                            (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+                            (datetime.now(UTC) - start_time).total_seconds() * 1000
                         ),
                         error="Prompt injection detected",
                     )
@@ -1061,7 +1085,7 @@ class AgentExecutorService:
             # Cache result for idempotency (two-tier)
             # Tier 1: In-memory fast cache
             self._processed_tasks[dedupe_key] = result
-            
+
             # Tier 2: Substrate-backed durable cache
             if self._idempotency_store is not None:
                 try:
@@ -1070,7 +1094,7 @@ class AgentExecutorService:
                         {
                             "task_id": task_id_str,
                             "status": result.status,
-                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                         },
                     )
                 except Exception as e:
@@ -1482,7 +1506,7 @@ class AgentExecutorService:
                 payload = task.payload or {}
                 slack_info = payload.get("slack", {})
                 user_id = slack_info.get("user_id") or payload.get("user_id")
-                
+
                 runtime_prompt = build_runtime_prompt(
                     task_payload=payload,
                     memory_context=memory_context,
@@ -1611,7 +1635,7 @@ class AgentExecutorService:
         Returns:
             ExecutionResult
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Pre-execution governance validation
         try:
@@ -1648,7 +1672,7 @@ class AgentExecutorService:
                     error=f"Authority violation: {authority_check.get('violation')}",
                     iterations=0,
                     duration_ms=int(
-                        (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+                        (datetime.now(UTC) - start_time).total_seconds() * 1000
                     ),
                     governance_blocks=instance.governance_blocks,
                 )
@@ -1677,7 +1701,7 @@ class AgentExecutorService:
                     error=f"Safety violation: {safety_check.get('violation')}",
                     iterations=0,
                     duration_ms=int(
-                        (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+                        (datetime.now(UTC) - start_time).total_seconds() * 1000
                     ),
                     governance_blocks=instance.governance_blocks,
                 )
@@ -1693,7 +1717,7 @@ class AgentExecutorService:
                 error="Governance validation unavailable. Execution blocked.",
                 iterations=0,
                 duration_ms=int(
-                    (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+                    (datetime.now(UTC) - start_time).total_seconds() * 1000
                 ),
                 governance_blocks=instance.governance_blocks,
             )
@@ -1710,7 +1734,7 @@ class AgentExecutorService:
                 error=f"Governance validation failed: {e}",
                 iterations=0,
                 duration_ms=int(
-                    (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+                    (datetime.now(UTC) - start_time).total_seconds() * 1000
                 ),
                 governance_blocks=instance.governance_blocks,
             )
@@ -1745,12 +1769,21 @@ class AgentExecutorService:
         # GMP-78-FIX: If dynamic discovery is enabled, skip semantic pool (uses prepare_dynamic_tools instead)
         _use_semantic_pool = False
         try:
-            from core.tools.dynamic_discovery import is_dynamic_discovery_enabled
-            _use_semantic_pool = not is_dynamic_discovery_enabled()
-        except ImportError:
-            _use_semantic_pool = True  # Fall back to semantic pool if dynamic discovery unavailable
+            # Use runtime import to avoid circular dependency
+            import importlib
 
-        if _use_semantic_pool and user_message and hasattr(self._tool_registry, "get_relevant_tools"):
+            module = importlib.import_module("core.tools.dynamic_discovery")
+            _use_semantic_pool = not module.is_dynamic_discovery_enabled()
+        except ImportError:
+            _use_semantic_pool = (
+                True  # Fall back to semantic pool if dynamic discovery unavailable
+            )
+
+        if (
+            _use_semantic_pool
+            and user_message
+            and hasattr(self._tool_registry, "get_relevant_tools")
+        ):
             try:
                 # principal_id may be in task context or payload
                 principal_id = (
@@ -1780,6 +1813,40 @@ class AgentExecutorService:
                     error=str(e),
                 )
                 # Don't block - let prepare_dynamic_tools() handle tool discovery later
+
+        # DTB: Cross-domain analogical reasoning (feature-flagged)
+        if os.getenv("L9_ENABLE_DTB", "false").lower() == "true" and user_message:
+            try:
+                from domain_tensor_bridge.analogical_reasoner import AnalogicalReasoner
+
+                dtb_reasoner = AnalogicalReasoner()
+                dtb_context = {
+                    "domain": instance.task.agent_id,
+                    "query": user_message,
+                    "task_type": instance.task.payload.get("task_type", "general"),
+                }
+                analogies = await dtb_reasoner.find_analogies(dtb_context)
+                if analogies:
+                    analogy_hints = "; ".join(
+                        f"{a.source_domain}->{a.target_domain}: {a.pattern} ({a.confidence:.0%})"
+                        for a in analogies
+                    )
+                    instance.add_system_context(
+                        f"[DTB cross-domain insights] {analogy_hints}"
+                    )
+                    logger.info(
+                        "agent.executor.dtb.analogies_found",
+                        task_id=str(instance.task.id),
+                        analogy_count=len(analogies),
+                    )
+            except ImportError:
+                pass  # DTB not installed — skip silently
+            except Exception as e:
+                logger.debug(
+                    "agent.executor.dtb.analogies_failed",
+                    task_id=str(instance.task.id),
+                    error=str(e),
+                )
 
         # Transition to reasoning
         instance.transition_to(ExecutorState.REASONING)
@@ -1879,9 +1946,11 @@ class AgentExecutorService:
             if _has_calibration and self._calibration_service is not None:
                 try:
                     raw_confidence = getattr(aios_result, "confidence", 0.8)
-                    calibration_result = await self._calibration_service.calibrate_simple(
-                        confidence=raw_confidence,
-                        task_id=str(instance.task.id),
+                    calibration_result = (
+                        await self._calibration_service.calibrate_simple(
+                            confidence=raw_confidence,
+                            task_id=str(instance.task.id),
+                        )
                     )
                     # Attach calibrated confidence to result
                     aios_result.calibrated_confidence = (
@@ -2038,7 +2107,7 @@ class AgentExecutorService:
             error = f"Max iterations exceeded ({max_iterations})"
 
         # Calculate duration
-        duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
         # Determine final status
         if instance.state == ExecutorState.COMPLETED:
@@ -2219,9 +2288,7 @@ class AgentExecutorService:
                         },
                     )
             except Exception as gate_err:
-                logger.warning(
-                    "agent.executor.gating_check_failed: %s", str(gate_err)
-                )
+                logger.warning("agent.executor.gating_check_failed: %s", str(gate_err))
 
         # Check if tool requires Igor approval
         catalog = await ToolGraph.get_l_tool_catalog()
@@ -2301,13 +2368,29 @@ class AgentExecutorService:
                     error="Tool registry missing guarded_execute enforcement",
                 )
 
-            # Use guarded execution (kernel-aware)
-            result = await self._tool_registry.guarded_execute(
-                agent=agent,
-                tool_id=tool_call.tool_id,
-                arguments=tool_call.arguments,
-                context=context,
-            )
+            # GMP-LCTO-FIXES: Capture governance context from caller's ContextVar
+            # and propagate it into tool execution. ContextVar doesn't auto-propagate
+            # across async task boundaries, so we must explicitly re-set it.
+            captured_gov_ctx = None
+            if _has_governance_gate and governance_context_var is not None:
+                captured_gov_ctx = governance_context_var.get()
+
+            # Use guarded execution (kernel-aware) with governance context propagation
+            if captured_gov_ctx is not None and governance_context is not None:
+                async with governance_context(captured_gov_ctx):
+                    result = await self._tool_registry.guarded_execute(
+                        agent=agent,
+                        tool_id=tool_call.tool_id,
+                        arguments=tool_call.arguments,
+                        context=context,
+                    )
+            else:
+                result = await self._tool_registry.guarded_execute(
+                    agent=agent,
+                    tool_id=tool_call.tool_id,
+                    arguments=tool_call.arguments,
+                    context=context,
+                )
 
             # Persist task result after execution
             await self._persist_task_result(
@@ -2319,7 +2402,7 @@ class AgentExecutorService:
                     "status": "completed" if result.success else "failed",
                     "error": result.error,
                     "duration_ms": result.duration_ms or 0,
-                    "completed_at": datetime.now(timezone.utc).isoformat(),
+                    "completed_at": datetime.now(UTC).isoformat(),
                 },
             )
 
@@ -2815,7 +2898,7 @@ class AgentExecutorService:
         Returns:
             ExecutionResult with error
         """
-        duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
         # Emit error packet
         await self._emit_packet(

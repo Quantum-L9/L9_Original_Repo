@@ -17,12 +17,12 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 import yaml
 
+from core.decorators import must_stay_async
 from core.governance.engine import GovernanceEngineService
 from core.governance.loader import InvalidPolicyError, PolicyLoadError
 from core.governance.schemas import (
@@ -31,6 +31,9 @@ from core.governance.schemas import (
     EvaluationRequest,
     PolicyEffect,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # =============================================================================
 # Fixtures
@@ -152,6 +155,7 @@ def test_engine_loads_policies_from_manifests(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_request_matching_allow_policy_is_approved(
     temp_policy_dir: Path,
     simple_allow_policy: dict,
@@ -187,6 +191,7 @@ async def test_request_matching_allow_policy_is_approved(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_request_matching_deny_policy_is_denied(
     temp_policy_dir: Path,
     simple_deny_policy: dict,
@@ -222,6 +227,7 @@ async def test_request_matching_deny_policy_is_denied(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_unmatched_request_is_denied_by_default(
     temp_policy_dir: Path,
     simple_allow_policy: dict,
@@ -261,6 +267,7 @@ async def test_unmatched_request_is_denied_by_default(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_engine_evaluates_conditional_policies(
     temp_policy_dir: Path,
     conditional_policy: dict,
@@ -351,6 +358,7 @@ def test_invalid_yaml_prevents_startup(temp_policy_dir: Path) -> None:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_policy_priority_ordering(temp_policy_dir: Path) -> None:
     """
     Contract: Higher priority policies are evaluated first (first-match-wins).
@@ -402,6 +410,7 @@ async def test_policy_priority_ordering(temp_policy_dir: Path) -> None:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_wildcard_pattern_matching(temp_policy_dir: Path) -> None:
     """
     Contract: Wildcard patterns match correctly.
@@ -624,6 +633,7 @@ def test_condition_operators() -> None:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_disabled_policies_are_skipped(temp_policy_dir: Path) -> None:
     """
     Contract: Disabled policies do not match.

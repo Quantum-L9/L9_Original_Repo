@@ -40,7 +40,7 @@ import subprocess
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -138,7 +138,7 @@ def run_vulture(
 
     # Use python -m vulture to avoid PATH issues
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             [sys.executable, "-m", "vulture", "--version"],
             capture_output=True,
             text=True,
@@ -154,7 +154,7 @@ def run_vulture(
     file_paths = [str(f) for f in files]
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             [
                 sys.executable,
                 "-m",
@@ -230,7 +230,7 @@ def run_ruff(files: list[Path]) -> list[DeadCodeFinding]:
 
     # Use python -m ruff to avoid PATH issues
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             [sys.executable, "-m", "ruff", "--version"],
             capture_output=True,
             text=True,
@@ -249,7 +249,7 @@ def run_ruff(files: list[Path]) -> list[DeadCodeFinding]:
     file_paths = [str(f) for f in files]
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             [
                 sys.executable,
                 "-m",
@@ -423,7 +423,8 @@ def find_field_usages(field: DataclassFieldInfo, all_files: list[Path]) -> list[
                         continue
                     usages.append(f"{rel_path}:{i}")
 
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     return usages
@@ -490,7 +491,8 @@ def find_unwired_routers(repo_root: Path) -> list[DeadCodeFinding]:
                     if rel_path not in router_files:
                         router_files[rel_path] = []
                     router_files[rel_path].append((i, var_name))
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Check if routers are mounted (search for include_router calls)
@@ -517,7 +519,8 @@ def find_unwired_routers(repo_root: Path) -> list[DeadCodeFinding]:
                 # Also track imports to resolve names
                 for match in import_pattern.finditer(content):
                     mounted_routers.add(match.group(2))
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     # Report unmounted routers
@@ -608,7 +611,8 @@ def find_unwired_services(repo_root: Path) -> list[DeadCodeFinding]:
                     if match_no_parent:
                         class_name = match_no_parent.group(1)
                         service_classes[class_name] = (rel_path, i, "")
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Build inheritance map: parent -> [child classes]
@@ -622,7 +626,7 @@ def find_unwired_services(repo_root: Path) -> list[DeadCodeFinding]:
             inheritance_map[first_parent].append(class_name)
 
     # Search for instantiations
-    for class_name, (def_file, def_line, parent_class) in service_classes.items():
+    for class_name, (def_file, def_line, _parent_class) in service_classes.items():
         instantiation_found = False
 
         # Patterns: ClassName(), ClassName.create(), get_instance(ClassName), app.state.X = ClassName()
@@ -661,7 +665,8 @@ def find_unwired_services(repo_root: Path) -> list[DeadCodeFinding]:
                             break
                     if instantiation_found:
                         break
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
         # If base class not instantiated, check if ANY subclass is instantiated
@@ -677,7 +682,8 @@ def find_unwired_services(repo_root: Path) -> list[DeadCodeFinding]:
                         if subclass_pattern.search(content):
                             instantiation_found = True
                             break
-                    except Exception:
+                    except Exception as e:
+                        logger.debug("audit.file_skipped", error=str(e))
                         continue
 
         if not instantiation_found:
@@ -741,7 +747,8 @@ def find_unwired_tools(repo_root: Path) -> list[DeadCodeFinding]:
                         if rel_path not in tool_arrays:
                             tool_arrays[rel_path] = []
                         tool_arrays[rel_path].append((i, var_name))
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Check if tools are registered (search for register_tool calls referencing these arrays)
@@ -764,7 +771,8 @@ def find_unwired_tools(repo_root: Path) -> list[DeadCodeFinding]:
                     registered_arrays.add(var_name)
                 if re.search(rf"register.*{var_name}", content, re.IGNORECASE):
                     registered_arrays.add(var_name)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Report unregistered tool arrays
@@ -785,7 +793,7 @@ def find_unwired_tools(repo_root: Path) -> list[DeadCodeFinding]:
                             is_legitimate = True
                             break
                 except Exception:
-                    pass
+                    logger.debug("find_dead_code.legitimate_check_failed")
 
                 if not is_legitimate:
                     findings.append(
@@ -841,7 +849,8 @@ def find_unwired_pydantic_models(repo_root: Path) -> list[DeadCodeFinding]:
                     if match:
                         model_name = match.group(1)
                         pydantic_models[model_name] = (rel_path, i)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     # Search for usages in route definitions and type hints
@@ -885,7 +894,8 @@ def find_unwired_pydantic_models(repo_root: Path) -> list[DeadCodeFinding]:
                             break
                     if usage_found:
                         break
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
         if not usage_found:
@@ -946,7 +956,8 @@ def find_unwired_dependencies(repo_root: Path) -> list[DeadCodeFinding]:
                 if match:
                     func_name = match.group(1)
                     dep_functions[func_name] = (rel_path, i)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Search for Depends() usage
@@ -959,7 +970,8 @@ def find_unwired_dependencies(repo_root: Path) -> list[DeadCodeFinding]:
             content = filepath.read_text()
             for match in depends_pattern.finditer(content):
                 used_deps.add(match.group(1))
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Report unused dependency functions
@@ -1032,7 +1044,8 @@ def find_unwired_app_state(repo_root: Path) -> list[DeadCodeFinding]:
                         continue
 
                     state_vars[var_name] = (rel_path, i)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Search for usages of each app.state variable across the codebase
@@ -1056,7 +1069,8 @@ def find_unwired_app_state(repo_root: Path) -> list[DeadCodeFinding]:
                     global_match = re.match(r"^(\w+)\s*=\s*None", line)
                     if global_match:
                         module_globals.add(global_match.group(1))
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Search for singleton getter functions like get_housekeeping_engine()
@@ -1068,7 +1082,8 @@ def find_unwired_app_state(repo_root: Path) -> list[DeadCodeFinding]:
                 getter_name = match.group(1)
                 # Normalize: get_housekeeping_engine -> housekeeping_engine
                 singleton_getters.add(getter_name)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     for var_name, (def_file, def_line) in list(state_vars.items()):
@@ -1115,7 +1130,8 @@ def find_unwired_app_state(repo_root: Path) -> list[DeadCodeFinding]:
                     ):
                         usage_found = True
                         break
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
         if not usage_found:
@@ -1170,7 +1186,8 @@ def find_export_discrepancies(repo_root: Path) -> list[DeadCodeFinding]:
     for filepath in python_files:
         try:
             all_content += filepath.read_text(encoding="utf-8", errors="ignore") + "\n"
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     for scan_dir in scan_dirs:
@@ -1189,7 +1206,8 @@ def find_export_discrepancies(repo_root: Path) -> list[DeadCodeFinding]:
                 module_content = module_path.read_text(
                     encoding="utf-8", errors="ignore"
                 )
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
             # Extract __all__ from module
@@ -1204,7 +1222,8 @@ def find_export_discrepancies(repo_root: Path) -> list[DeadCodeFinding]:
 
             try:
                 init_content = init_path.read_text(encoding="utf-8", errors="ignore")
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
             # Extract __all__ from __init__.py
@@ -1400,7 +1419,7 @@ def find_unwired_kernels(repo_root: Path) -> list[DeadCodeFinding]:
                 for match in re.finditer(r'["\']([^"\']+\.ya?ml)["\']', order_content):
                     registered_kernels.add(match.group(1))
         except Exception:
-            pass
+            logger.debug("find_dead_code.kernel_order_parse_failed")
 
     # Report unregistered kernel files
     for kernel_file in kernel_files:
@@ -1470,7 +1489,8 @@ def find_unwired_agents(repo_root: Path) -> list[DeadCodeFinding]:
                 # Check for string references
                 if f'"{agent_name}"' in content or f"'{agent_name}'" in content:
                     referenced_agents.add(agent_name)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Report unreferenced agent configs
@@ -1538,7 +1558,8 @@ def find_unwired_orchestrators(repo_root: Path) -> list[DeadCodeFinding]:
                     ):
                         continue
                     orch_classes[class_name] = (rel_path, i)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Search for instantiations
@@ -1566,7 +1587,8 @@ def find_unwired_orchestrators(repo_root: Path) -> list[DeadCodeFinding]:
                     ):
                         instantiation_found = True
                         break
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
         if not instantiation_found:
@@ -1635,7 +1657,8 @@ def find_unwired_event_handlers(repo_root: Path) -> list[DeadCodeFinding]:
                             ):
                                 continue  # It's a route handler, not an event handler
                         handlers[func_name] = (rel_path, i, event_type, content)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Search for on_event registrations AND direct calls
@@ -1675,7 +1698,8 @@ def find_unwired_event_handlers(repo_root: Path) -> list[DeadCodeFinding]:
                 call_matches = list(re.finditer(rf"\b{func_name}\s*\(", content))
                 if len(call_matches) > 1:  # More than just definition
                     registered_or_called.add(func_name)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Report unregistered handlers
@@ -1732,7 +1756,8 @@ def find_unwired_background_tasks(repo_root: Path) -> list[DeadCodeFinding]:
                 if match:
                     func_name = match.group(1)
                     bg_funcs[func_name] = (rel_path, i)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Search for add_task calls AND regular function calls
@@ -1753,7 +1778,8 @@ def find_unwired_background_tasks(repo_root: Path) -> list[DeadCodeFinding]:
                     scheduled_or_called.add(func_name)
                 if re.search(rf"\b{func_name}\s*\(", content):
                     scheduled_or_called.add(func_name)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Report unscheduled background tasks
@@ -1798,7 +1824,8 @@ def find_unwired_middleware(repo_root: Path) -> list[DeadCodeFinding]:
                 if match:
                     class_name = match.group(1)
                     middleware_classes[class_name] = (rel_path, i)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Search for add_middleware calls
@@ -1810,7 +1837,8 @@ def find_unwired_middleware(repo_root: Path) -> list[DeadCodeFinding]:
             content = filepath.read_text()
             for match in add_middleware_pattern.finditer(content):
                 added.add(match.group(1))
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Report unadded middleware
@@ -1858,7 +1886,8 @@ def find_unwired_websocket_routes(repo_root: Path) -> list[DeadCodeFinding]:
                 if match:
                     ws_path = match.group(1)
                     ws_routes.append((rel_path, i, ws_path))
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     # Check if the file's router is mounted (reuse router mounting logic)
@@ -2244,13 +2273,15 @@ def print_findings_by_confidence_tier(findings: list[DeadCodeFinding]) -> None:
     low = [f for f in findings if f.confidence < 0.70]
 
     if high:
-        print(f"\n🔴 HIGH CONFIDENCE ({len(high)} findings) — Almost certainly issues:")
+        logger.info(
+            "\n🔴 high confidence ({len(high)} findings) — almost certainly issues:"
+        )
         for f in high[:10]:
             print(
                 f"  [{f.confidence:.0%}] {f.symbol} ({f.symbol_type}) @ {f.file}:{f.line}"
             )
         if len(high) > 10:
-            print(f"  ... and {len(high) - 10} more")
+            logger.info("  ... and {len(high) - 10} more")
 
     if medium:
         print(
@@ -2261,16 +2292,18 @@ def print_findings_by_confidence_tier(findings: list[DeadCodeFinding]) -> None:
                 f"  [{f.confidence:.0%}] {f.symbol} ({f.symbol_type}) @ {f.file}:{f.line}"
             )
         if len(medium) > 10:
-            print(f"  ... and {len(medium) - 10} more")
+            logger.info("  ... and {len(medium) - 10} more")
 
     if low:
-        print(f"\n🟢 LOW CONFIDENCE ({len(low)} findings) — Possible false positives:")
+        logger.info(
+            "\n🟢 low confidence ({len(low)} findings) — possible false positives:"
+        )
         for f in low[:5]:
             print(
                 f"  [{f.confidence:.0%}] {f.symbol} ({f.symbol_type}) @ {f.file}:{f.line}"
             )
         if len(low) > 5:
-            print(f"  ... and {len(low) - 5} more")
+            logger.info("  ... and {len(low) - 5} more")
 
 
 # =============================================================================
@@ -2319,7 +2352,7 @@ Examples:
         help="Number of parallel workers (default: 8)",
     )
     # Generate timestamped default filename
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(tz=UTC).strftime("%Y%m%d_%H%M%S")
     default_output = f"reports/dead_code_audit_{timestamp}.json"
 
     parser.add_argument(
@@ -2391,34 +2424,34 @@ Examples:
         output_file.write_text(json.dumps(result.to_dict(), indent=2))
 
     # Print summary
-    print("\n" + "=" * 70)
+    logger.info("\n" + "=" * 70)
     if args.wiring_only:
-        print("L9 WIRING INTEGRITY AUDIT")
+        logger.info("l9 wiring integrity audit")
     else:
-        print("L9 DEAD CODE & WIRING INTEGRITY AUDIT")
-    print("=" * 70)
-    print(f"Files scanned: {result.total_files_scanned}")
-    print(f"Total findings: {len(result.findings)}")
+        logger.info("l9 dead code & wiring integrity audit")
+    logger.info("=" * 70)
+    logger.info("files scanned: {result.total_files_scanned}")
+    logger.info("total findings: {len(result.findings)}")
     if not args.wiring_only:
-        print(f"Dataclass fields analyzed: {len(result.dataclass_fields)}")
+        logger.info("dataclass fields analyzed: {len(result.dataclass_fields)}")
 
     # Breakdown by type
     by_type: dict[str, int] = {}
     for finding in result.findings:
         by_type[finding.symbol_type] = by_type.get(finding.symbol_type, 0) + 1
 
-    print("\n📊 Findings by type:")
+    logger.info("\n📊 findings by type:")
     for symbol_type, count in sorted(by_type.items(), key=lambda x: -x[1]):
-        print(f"  {symbol_type}: {count}")
+        logger.info("  symbol type: count", symbol_type=symbol_type, count=count)
 
     # Breakdown by source
     by_source: dict[str, int] = {}
     for finding in result.findings:
         by_source[finding.source] = by_source.get(finding.source, 0) + 1
 
-    print("\n📦 Findings by source:")
+    logger.info("\n📦 findings by source:")
     for source, count in sorted(by_source.items(), key=lambda x: -x[1]):
-        print(f"  {source}: {count}")
+        logger.info("  source: count", source=source, count=count)
 
     # L9-specific wiring breakdown
     l9_types = [
@@ -2429,24 +2462,24 @@ Examples:
     ]
     l9_findings = [f for f in result.findings if f.symbol_type in l9_types]
     if l9_findings:
-        print(f"\n🎯 L9-SPECIFIC WIRING ISSUES: {len(l9_findings)}")
+        logger.info("\n🎯 l9-specific wiring issues: {len(l9_findings)}")
         for t in l9_types:
             count = len([f for f in l9_findings if f.symbol_type == t])
             if count > 0:
-                print(f"  {t}: {count}")
+                logger.info("  t: count", t=t, count=count)
 
     # Confidence tier breakdown
     print_findings_by_confidence_tier(result.findings)
 
     if result.errors:
-        print(f"\n❌ Errors: {len(result.errors)}")
+        logger.error("\n❌ errors: {len(result.errors)}")
         for err in result.errors[:3]:
-            print(f"  - {err}")
+            logger.info("  - err", err=err)
 
-    print(f"\n📄 Output: {output_file}")
+    logger.info("\n📄 output: output file", output_file=output_file)
     if args.format == "sarif":
-        print("   (SARIF format - import into GitHub Code Scanning or VS Code)")
-    print("=" * 70)
+        logger.info("   (sarif format - import into github code scanning or vs code)")
+    logger.info("=" * 70)
 
     return 0 if not result.errors else 1
 

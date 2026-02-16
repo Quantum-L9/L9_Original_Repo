@@ -43,7 +43,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -136,13 +136,13 @@ class IRNodeBase(BaseModel):
     """Base class for all IR nodes."""
 
     node_id: UUID = Field(default_factory=uuid4)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def update_timestamp(self) -> None:
         """Update the updated_at timestamp."""
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)
 
 
 class IntentNode(IRNodeBase):
@@ -272,8 +272,8 @@ class IRGraph(BaseModel):
     """
 
     graph_id: UUID = Field(default_factory=uuid4)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     status: IRStatus = Field(default=IRStatus.DRAFT)
 
     # Core nodes
@@ -295,21 +295,21 @@ class IRGraph(BaseModel):
         """Add an intent node to the graph."""
         self.intents[intent.node_id] = intent
         self._log_event("intent_added", {"intent_id": str(intent.node_id)})
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)
         return intent.node_id
 
     def add_constraint(self, constraint: ConstraintNode) -> UUID:
         """Add a constraint node to the graph."""
         self.constraints[constraint.node_id] = constraint
         self._log_event("constraint_added", {"constraint_id": str(constraint.node_id)})
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)
         return constraint.node_id
 
     def add_action(self, action: ActionNode) -> UUID:
         """Add an action node to the graph."""
         self.actions[action.node_id] = action
         self._log_event("action_added", {"action_id": str(action.node_id)})
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)
         return action.node_id
 
     def get_intent(self, intent_id: UUID) -> IntentNode | None:
@@ -329,7 +329,7 @@ class IRGraph(BaseModel):
         if intent_id in self.intents:
             del self.intents[intent_id]
             self._log_event("intent_removed", {"intent_id": str(intent_id)})
-            self.updated_at = datetime.now(timezone.utc)
+            self.updated_at = datetime.now(UTC)
             return True
         return False
 
@@ -338,7 +338,7 @@ class IRGraph(BaseModel):
         if constraint_id in self.constraints:
             del self.constraints[constraint_id]
             self._log_event("constraint_removed", {"constraint_id": str(constraint_id)})
-            self.updated_at = datetime.now(timezone.utc)
+            self.updated_at = datetime.now(UTC)
             return True
         return False
 
@@ -347,7 +347,7 @@ class IRGraph(BaseModel):
         if action_id in self.actions:
             del self.actions[action_id]
             self._log_event("action_removed", {"action_id": str(action_id)})
-            self.updated_at = datetime.now(timezone.utc)
+            self.updated_at = datetime.now(UTC)
             return True
         return False
 
@@ -407,14 +407,14 @@ class IRGraph(BaseModel):
         old_status = self.status
         self.status = status
         self._log_event("status_changed", {"old": old_status, "new": status})
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)
 
     def _log_event(self, event_type: str, details: dict[str, Any]) -> None:
         """Log a processing event."""
         self.processing_log.append(
             {
                 "event": event_type,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "details": details,
             }
         )
@@ -459,7 +459,7 @@ class IRValidationResult(BaseModel):
     errors: list[ValidationError] = Field(default_factory=list)
     warnings: list[ValidationError] = Field(default_factory=list)
     info: list[ValidationError] = Field(default_factory=list)
-    validated_at: datetime = Field(default_factory=datetime.utcnow)
+    validated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     validator_version: str = Field(default="1.0.0")
 
     def add_error(self, code: str, message: str, node_id: UUID | None = None) -> None:

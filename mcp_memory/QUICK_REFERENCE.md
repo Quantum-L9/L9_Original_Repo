@@ -1,6 +1,6 @@
 # MCP Memory - Quick Reference
 
-**Updated:** 2026-01-16 | **Status:** Active
+**Updated:** 2026-02-13 | **Status:** Active
 
 ## CLI Commands
 
@@ -30,13 +30,13 @@ python3 agents/cursor/cursor_memory_client.py stats
 
 ## Endpoints
 
-| Endpoint     | Method |
-| ------------ | ------ |
-| `/health`    | GET    |
-| `/mcp/tools` | GET    |
-| `/mcp/call`  | POST   |
+| Endpoint     | Method | Auth         |
+| ------------ | ------ | ------------ |
+| `/health`    | GET    | None         |
+| `/mcp/tools` | GET    | Bearer token |
+| `/mcp/call`  | POST   | Bearer token |
 
-**URL:** `https://157.180.73.53:9001` or `https://l9.quantumaipartners.com:9001`
+**URL:** `https://157.180.73.53:9001` or `https://l9.quantumaipartners.com`
 
 ## Env Vars (Local .env)
 
@@ -54,12 +54,22 @@ L9_EXECUTOR_API_KEY=<MCP_API_KEY_C from VPS>
 
 ## Pipeline
 
-Writes to 6 tables: `packet_store`, `agent_memory_events`, `reasoning_traces`, `semantic_memory`, `knowledge_facts`, `graph_checkpoints`
+Writes to 4 tables: `packet_store`, `memory_embeddings`, `knowledge_facts`, `reasoning_traces`
 
+**Pipeline:** `main_dag`
 **Latency:** 650-1800ms
 
 ## Troubleshooting
 
-**Governance error:** VPS needs rebuild: `docker-compose build --no-cache l9-api && docker-compose up -d`
-**401 Unauthorized:** Check `L9_EXECUTOR_API_KEY` in local `.env`
-**Logs:** `docker logs l9-api --tail 50`
+| Problem | Cause | Fix |
+| ------- | ----- | --- |
+| **502 Bad Gateway** | Caddy routing to wrong port | Check Caddyfile, ensure routes to `127.0.0.1:8000` |
+| **401 Unauthorized** | Invalid/missing API key | Verify `L9_EXECUTOR_API_KEY` in local `.env` matches VPS `MCP_API_KEY_C` |
+| **429 Rate Limit** | >60 req/min | Wait 60 seconds; check `docker compose logs l9-api \| grep rate` |
+| **Auth blocked** | 5 failed auth attempts | Fix API key, wait 5 minutes for block to expire |
+| **Search empty** | Embedding not indexed | Wait 2-5 seconds after save before searching |
+| **Governance error** | VPS needs rebuild | `docker-compose build --no-cache l9-api && docker-compose up -d` |
+
+## Source of Truth
+
+`memory/MCP-MEMORY-CAPSULE.md` — full architecture, Caddy config, Neo4j posture, deployment protocol.

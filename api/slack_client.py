@@ -49,6 +49,8 @@ import aiofiles
 import httpx
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 SLACK_API_BASE = "https://slack.com/api"
@@ -92,6 +94,7 @@ class SlackAPIClient:
         self.bot_token = bot_token
         self.http_client = http_client
 
+    @must_stay_async("callers use await")
     async def post_message(
         self,
         channel: str,
@@ -180,6 +183,7 @@ class SlackAPIClient:
         except Exception as e:
             raise SlackClientError(f"HTTP error posting to Slack: {e}") from e
 
+    @must_stay_async("callers use await")
     async def upload_file(
         self,
         channel: str,
@@ -263,6 +267,7 @@ class SlackAPIClient:
         except Exception as e:
             raise SlackClientError(f"HTTP error uploading file to Slack: {e}") from e
 
+    @must_stay_async("callers use await")
     async def get_file_info(self, file_id: str) -> dict[str, Any]:
         """
         Get file metadata from Slack using files.info API.
@@ -327,6 +332,7 @@ class SlackAPIClient:
             ) from e
 
 
+@must_stay_async("callers use await")
 async def post_result_async(
     user: str,
     task: dict,
@@ -350,7 +356,7 @@ async def post_result_async(
     # Create client if not provided
     http_client_owned = False  # Track if we created the client (ADR-0084)
     http_client = None
-    
+
     if slack_client is None:
         slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
         slack_app_enabled = os.getenv("SLACK_APP_ENABLED", "true").lower() == "true"
@@ -621,6 +627,104 @@ async def post_result_async(
         # Close HTTP client if we created it (ADR-0084: Resource cleanup)
         if http_client_owned and http_client:
             await http_client.aclose()
+
+
+# ============================================================================
+# Slack Message Formatting Helpers (harvested from Emma slack_messages.py)
+# ============================================================================
+
+
+def format_task_message(task: dict) -> str:
+    """
+    Format task details for Slack message display.
+
+    Renders a task dict as a Slack-formatted string with bold title,
+    status, and ID. Compatible with Slack mrkdwn.
+
+    Args:
+        task: Dict with 'title', 'status', and 'task_id' keys
+
+    Returns:
+        Slack mrkdwn formatted string
+    """
+    title = task.get("title", "Untitled")
+    status = task.get("status", "unknown")
+    task_id = task.get("task_id", "N/A")
+    return f"*{title}* ({status})\nID: {task_id}"
+
+
+def format_list_message(title: str, items: list[str]) -> str:
+    """
+    Format a titled list for Slack message display.
+
+    Args:
+        title: Section title (rendered bold)
+        items: List of string items to display
+
+    Returns:
+        Slack mrkdwn formatted string with title and items
+    """
+    if not items:
+        return f"*{title}*\n_None_"
+    return f"*{title}*\n" + "\n".join(f"• {item}" for item in items)
+
+
+# ============================================================================
+# Slack Block Kit Helpers (harvested from Emma slack_blocks.py)
+# ============================================================================
+
+
+def build_approval_blocks(
+    task_id: str,
+    approval_id: str,
+    description: str | None = None,
+) -> list[dict]:
+    """
+    Generate Slack Block Kit elements for Igor approval requests.
+
+    Creates an interactive approval UI with Approve/Reject buttons
+    for high-risk tool calls requiring Igor's authorization.
+
+    Args:
+        task_id: Unique identifier for the task requiring approval
+        approval_id: Unique identifier for the approval action
+        description: Optional description of what's being approved
+
+    Returns:
+        List of Slack Block Kit block dicts ready for `blocks` parameter
+    """
+    text_content = f"*Approval Required*\nTask ID: `{task_id}`"
+    if description:
+        text_content += f"\n{description}"
+
+    return [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": text_content,
+            },
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Approve"},
+                    "style": "primary",
+                    "value": approval_id,
+                    "action_id": "approve_task",
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Reject"},
+                    "style": "danger",
+                    "value": approval_id,
+                    "action_id": "reject_task",
+                },
+            ],
+        },
+    ]
 
 
 # ============================================================================

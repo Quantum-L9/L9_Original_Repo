@@ -7,10 +7,10 @@ Parses chat transcripts (ChatGPT, Claude, etc.) and ingests them into
 the L9 memory substrate (PostgreSQL + pgvector).
 
 Features:
-- Parses "You said:" / "ChatGPT said:" / "Human:" / "Assistant:" formats
+- Parses You said: / ChatGPT said: / Human: / Assistant: formats
 - Creates conversation records with message sequence
 - Chunks messages for embedding (configurable chunk size)
-- Stores in packetstore with proper lineage
+- Stores in packet_store with proper lineage
 
 Usage:
     python scripts/memory/ingest_chat_transcript.py <transcript_path>
@@ -23,6 +23,8 @@ Examples:
 """
 
 from __future__ import annotations
+
+from core.decorators import must_stay_async
 
 # ============================================================================
 __dora_meta__ = {
@@ -275,6 +277,7 @@ def chunk_messages(
     return chunks
 
 
+@must_stay_async("callers use await")
 async def ingest_to_memory(
     transcript_path: str,
     messages: list[Message],
@@ -530,12 +533,12 @@ def main():
     )
 
     # Summary
-    print(f"\n{'DRY RUN: ' if args.dry_run else ''}Ingestion Summary")
-    print(f"{'=' * 40}")
-    print(f"Conversation ID: {conversation_id}")
-    print(f"Messages:        {msg_count}")
-    print(f"Chunks:          {chunk_count}")
-    print(f"Source:          {transcript_path}")
+    logger.info("\n{'dry run: ' if args.dry_run else ''}ingestion summary")
+    logger.info("{'=' * 40}")
+    logger.info("conversation id: conversation id", conversation_id=conversation_id)
+    logger.info("messages:        msg count", msg_count=msg_count)
+    logger.info("chunks:          chunk count", chunk_count=chunk_count)
+    logger.info("source:          transcript path", transcript_path=transcript_path)
 
 
 if __name__ == "__main__":
@@ -549,9 +552,29 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["memory.substrate_repository"],
-    "tags": ["api", "async", "cli", "dataclass", "debugging", "filesystem", "logging", "memory-substrate", "messaging", "operations"],
-    "keywords": ["buffer", "chat", "chunk", "deterministic", "flush", "format", "generate", "ingest"],
-    "business_value": "the L9 memory substrate (PostgreSQL + pgvector). Parses "You said:" / "ChatGPT said:" / "Human:" / "Assistant:" formats Creates conversation records with message sequence Chunks messages for embedding",
+    "tags": [
+        "api",
+        "async",
+        "cli",
+        "dataclass",
+        "debugging",
+        "filesystem",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "operations",
+    ],
+    "keywords": [
+        "buffer",
+        "chat",
+        "chunk",
+        "deterministic",
+        "flush",
+        "format",
+        "generate",
+        "ingest",
+    ],
+    "business_value": "the L9 memory substrate (PostgreSQL + pgvector). Parses You said: / ChatGPT said: / Human: / Assistant: formats Creates conversation records with message sequence Chunks messages for embedding",
     "last_modified": "2026-01-31T22:21:56Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

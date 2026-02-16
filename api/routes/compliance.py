@@ -28,7 +28,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import structlog
@@ -37,6 +37,7 @@ from pydantic import BaseModel
 
 from api.dependencies import get_substrate_service, verify_api_key
 from core.compliance.audit_reporter import ComplianceReporter
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -79,13 +80,14 @@ class AuditLogExportResponse(BaseModel):
 
 
 @router.get("/report/daily", response_model=ComplianceReportResponse)
+@must_stay_async("callers use await")
 async def get_daily_compliance_report(
     date: str | None = Query(
         None,
         description="Date in YYYY-MM-DD format (defaults to today)",
     ),
     _api_key: str = Depends(verify_api_key),
-    substrate_service=Depends(get_substrate_service),
+    substrate_service=Depends(get_substrate_service),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Generate a daily compliance report.
@@ -107,7 +109,7 @@ async def get_daily_compliance_report(
     report_date: datetime | None = None
     if date:
         try:
-            report_date = datetime.strptime(date, "%Y-%m-%d")
+            report_date = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=UTC)
         except ValueError:
             raise HTTPException(
                 status_code=400,
@@ -139,6 +141,7 @@ async def get_daily_compliance_report(
 
 
 @router.get("/report", response_model=ComplianceReportResponse)
+@must_stay_async("callers use await")
 async def get_compliance_report(
     from_date: str = Query(
         ...,
@@ -149,7 +152,7 @@ async def get_compliance_report(
         description="End date in YYYY-MM-DD format",
     ),
     _api_key: str = Depends(verify_api_key),
-    substrate_service=Depends(get_substrate_service),
+    substrate_service=Depends(get_substrate_service),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Generate a compliance report for a date range.
@@ -164,8 +167,10 @@ async def get_compliance_report(
         ComplianceReportResponse with report data
     """
     try:
-        from_dt = datetime.strptime(from_date, "%Y-%m-%d")
-        to_dt = datetime.strptime(to_date, "%Y-%m-%d") + timedelta(days=1)
+        from_dt = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=UTC)
+        to_dt = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=UTC) + timedelta(
+            days=1
+        )
     except ValueError:
         raise HTTPException(
             status_code=400,
@@ -204,6 +209,7 @@ async def get_compliance_report(
 
 
 @router.get("/audit-log", response_model=AuditLogExportResponse)
+@must_stay_async("callers use await")
 async def export_audit_log(
     from_date: str = Query(
         ...,
@@ -218,7 +224,7 @@ async def export_audit_log(
         description="Export format (json only for now)",
     ),
     _api_key: str = Depends(verify_api_key),
-    substrate_service=Depends(get_substrate_service),
+    substrate_service=Depends(get_substrate_service),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Export raw audit log entries for a date range.
@@ -235,8 +241,10 @@ async def export_audit_log(
         AuditLogExportResponse with entries
     """
     try:
-        from_dt = datetime.strptime(from_date, "%Y-%m-%d")
-        to_dt = datetime.strptime(to_date, "%Y-%m-%d") + timedelta(days=1)
+        from_dt = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=UTC)
+        to_dt = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=UTC) + timedelta(
+            days=1
+        )
     except ValueError:
         raise HTTPException(
             status_code=400,

@@ -15,6 +15,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Reasoning Replay Pipeline",
@@ -39,13 +41,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import UTC, datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import structlog
 
-from memory.substrate_repository import SubstrateRepository
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -108,6 +111,7 @@ class ReasoningReplayPipeline:
         """Set or update repository reference."""
         self._repository = repository
 
+    @must_stay_async("callers use await")
     async def reconstruct_chain(
         self,
         packet_id: UUID,
@@ -187,6 +191,7 @@ class ReasoningReplayPipeline:
             is_complete=is_complete,
         )
 
+    @must_stay_async("callers use await")
     async def get_decision_ancestors(
         self,
         packet_id: UUID,
@@ -315,6 +320,7 @@ class ReasoningReplayPipeline:
 
         raise ValueError(f"Unsupported format: {format}")
 
+    @must_stay_async("callers use await")
     async def verify_lineage_integrity(self, packet_id: UUID) -> bool:
         """
         Verify lineage integrity for a packet.
@@ -369,6 +375,7 @@ class ReasoningReplayPipeline:
             logger.error("Lineage integrity check failed", error=str(e), exc_info=True)
             return False
 
+    @must_stay_async("callers use await")
     async def detect_orphaned_packets(self, agent_id: str) -> list[UUID]:
         """
         Detect orphaned packets (packets with broken lineage references).

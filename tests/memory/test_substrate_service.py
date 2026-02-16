@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.substrate_repository import SubstrateRepository
 from memory.substrate_semantic import EmbeddingProvider, StubEmbeddingProvider
 from memory.substrate_service import MemorySubstrateService
@@ -14,7 +15,11 @@ def mock_repository() -> MagicMock:
 
 @pytest.fixture
 def mock_embedding_provider() -> MagicMock:
-    return MagicMock(spec=EmbeddingProvider)
+    mock = MagicMock(spec=EmbeddingProvider)
+    mock.dimensions = 1536
+    mock.embed_text = AsyncMock(return_value=[0.1] * 1536)
+    mock.embed_batch = AsyncMock(return_value=[[0.1] * 1536])
+    return mock
 
 
 @pytest.fixture
@@ -40,7 +45,7 @@ def test_memory_substrate_service_initialization_without_embedding_provider(
     mock_repository: MagicMock,
 ) -> None:
     with pytest.raises(
-        RuntimeError, match="Embedding provider required; missing embedding context."
+        RuntimeError, match=r"Embedding provider required; missing embedding context\."
     ):
         MemorySubstrateService(repository=mock_repository, embedding_provider=None)
 
@@ -49,7 +54,8 @@ def test_memory_substrate_service_initialization_with_stub_provider(
     mock_repository: MagicMock,
 ) -> None:
     with pytest.raises(
-        RuntimeError, match="StubEmbeddingProvider is not allowed in enforcement mode."
+        RuntimeError,
+        match=r"StubEmbeddingProvider is not allowed in enforcement mode\.",
     ):
         MemorySubstrateService(
             repository=mock_repository, embedding_provider=StubEmbeddingProvider()
@@ -84,15 +90,23 @@ async def test_set_session_scope(service: MemorySubstrateService) -> None:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_set_session_scope_with_exception(
     service: MemorySubstrateService,
 ) -> None:
+    from contextlib import asynccontextmanager
+
     tenant_id = "tenant-uuid"
     org_id = "org-uuid"
     user_id = "user-uuid"
     role = "end_user"
 
-    service._repository.acquire = AsyncMock(side_effect=Exception("Database error"))
+    @asynccontextmanager
+    async def _failing_acquire():
+        raise Exception("Database error")
+        yield  # noqa: unreachable — required for generator protocol
+
+    service._repository.acquire = _failing_acquire
 
     with pytest.raises(RuntimeError):
         await service.set_session_scope(tenant_id, org_id, user_id, role)

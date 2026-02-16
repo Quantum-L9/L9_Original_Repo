@@ -15,6 +15,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.neo4j_strategy_memory import (
     Neo4jStrategyMemoryService,
     create_neo4j_strategy_memory,
@@ -197,6 +198,7 @@ class TestRetrieveStrategies:
         assert result == []
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_retrieve_strategies_filters_by_confidence(
         self,
         strategy_memory_service: Neo4jStrategyMemoryService,
@@ -371,6 +373,7 @@ class TestHybridScoring:
     """Tests for hybrid scoring algorithm."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_hybrid_scoring_weights(
         self,
         strategy_memory_service: Neo4jStrategyMemoryService,
@@ -580,6 +583,7 @@ class TestExponentialSmoothing:
     """Tests for performance score exponential smoothing."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_exponential_smoothing_formula(
         self,
         strategy_memory_service: Neo4jStrategyMemoryService,

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -133,7 +133,7 @@ class AgentConfig:
 
 **Public Methods:** `from_env`
 
-**Lines:** 86-133 in `websocket_client.py`
+**Lines:** 85-132 in `websocket_client.py`
 
 ### `websocket_client.py` — EventType
 
@@ -145,7 +145,7 @@ class EventType:
 
 ```
 
-**Lines:** 141-150 in `websocket_client.py`
+**Lines:** 140-149 in `websocket_client.py`
 
 ### `websocket_client.py` — TaskExecutor
 
@@ -169,7 +169,7 @@ class TaskExecutor:
 
 **Public Methods:** `__init__`, `running_count`, `execute`, `_execute_shell`, `_execute_browser`
 
-**Lines:** 244-595 in `websocket_client.py`
+**Lines:** 243-596 in `websocket_client.py`
 
 ### `websocket_client.py` — MacAgentClient
 
@@ -193,7 +193,7 @@ class MacAgentClient:
 
 **Public Methods:** `__init__`, `run`, `shutdown`, `is_connected`, `_connect_and_run`
 
-**Lines:** 603-1036 in `websocket_client.py`
+**Lines:** 604-1038 in `websocket_client.py`
 
 
 ---
@@ -209,16 +209,16 @@ class MacAgentClient:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `L9_BASE_URL` | `config.l9_base_url` | 63 |
-| `L9_API_KEY` | `config.l9_api_key` | 64 |
-| `POLL_INTERVAL` | `4` | 65 |
+| `L9_BASE_URL` | `config.l9_base_url` | 65 |
+| `L9_API_KEY` | `config.l9_api_key` | 66 |
+| `POLL_INTERVAL` | `4` | 67 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class MacAgentRequest(BaseModel):
     """Request model for mac_agent operations."""
@@ -310,7 +310,7 @@ MAC_AGENT_ENABLED=true
 
 Execute a shell command locally (legacy support).
 
-- **File:** `runner.py:68`
+- **File:** `runner.py:70`
 - **Async:** No
 - **Returns:** `tuple[str, str]`
 
@@ -318,7 +318,7 @@ Execute a shell command locally (legacy support).
 
 Execute automation steps using Playwright.
 
-- **File:** `runner.py:107`
+- **File:** `runner.py:110`
 - **Async:** Yes
 - **Returns:** `dict`
 
@@ -326,7 +326,7 @@ Execute automation steps using Playwright.
 
 Format execution result as string for API.
 
-- **File:** `runner.py:131`
+- **File:** `runner.py:134`
 - **Async:** No
 - **Returns:** `str`
 
@@ -334,14 +334,14 @@ Format execution result as string for API.
 
 Main polling loop (file-based task system).
 
-- **File:** `runner.py:153`
+- **File:** `runner.py:157`
 - **Async:** Yes
 
 #### `def main()`
 
 Entry point.
 
-- **File:** `runner.py:367`
+- **File:** `runner.py:371`
 - **Async:** No
 
 
@@ -374,7 +374,7 @@ Mac Agent operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "mac_agent",
   "message": "Operation completed",

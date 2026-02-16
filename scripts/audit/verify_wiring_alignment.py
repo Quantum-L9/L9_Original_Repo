@@ -48,9 +48,14 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+import structlog
+
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
+
+
+logger = structlog.get_logger(__name__)
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 
@@ -287,63 +292,51 @@ def scan_repository() -> VerificationResult:
 
 def print_summary(result: VerificationResult, verbose: bool = False) -> None:
     """Print verification summary."""
-    print("=" * 70)
-    print("L9 WIRING ALIGNMENT VERIFICATION")
-    print("=" * 70)
-    print()
-
+    logger.info("=" * 70)
+    logger.info("l9 wiring alignment verification")
+    logger.info("=" * 70)
     # Status
     status = "✅ GREEN" if result.is_green else "❌ VIOLATIONS FOUND"
-    print(f"Status: {status}")
-    print(f"Files scanned: {result.total_scanned}")
-    print(f"Paths verified: {len(result.verified_paths)}")
-    print()
-
+    logger.info("status: status", status=status)
+    logger.info("files scanned: {result.total_scanned}")
+    logger.info("paths verified: {len(result.verified_paths)}")
     # Broken docs
     if result.broken_docs:
-        print("-" * 70)
-        print(f"BROKEN PATH REFERENCES ({len(result.broken_docs)}):")
-        print("-" * 70)
-        for item in result.broken_docs[:20]:
-            print(f"  ❌ {item['path']}")
-            print(f"     Source: {item['source']}:{item['line']}")
+        logger.info("-" * 70)
+        logger.info("broken path references ({len(result.broken_docs)}):")
+        logger.info("-" * 70)
+        for _item in result.broken_docs[:20]:
+            logger.info("  ❌ {item['path']}")
+            logger.info("     source: {item['source']}:{item['line']}")
         if len(result.broken_docs) > 20:
-            print(f"  ... and {len(result.broken_docs) - 20} more")
-        print()
-
+            logger.info("  ... and {len(result.broken_docs) - 20} more")
     # Deprecated refs
     if result.deprecated_refs:
-        print("-" * 70)
-        print(f"DEPRECATED PATH REFERENCES ({len(result.deprecated_refs)}):")
-        print("-" * 70)
-        for item in result.deprecated_refs[:20]:
-            print(f"  ⚠️  {item['path']} → {item['replacement']}")
-            print(f"     Source: {item['source']}:{item['line']}")
+        logger.info("-" * 70)
+        logger.info("deprecated path references ({len(result.deprecated_refs)}):")
+        logger.info("-" * 70)
+        for _item in result.deprecated_refs[:20]:
+            logger.info("  ⚠️  {item['path']} → {item['replacement']}")
+            logger.info("     source: {item['source']}:{item['line']}")
         if len(result.deprecated_refs) > 20:
-            print(f"  ... and {len(result.deprecated_refs) - 20} more")
-        print()
-
+            logger.info("  ... and {len(result.deprecated_refs) - 20} more")
     # Missing canonical
     if result.missing_canonical:
-        print("-" * 70)
-        print(f"MISSING CANONICAL FILES ({len(result.missing_canonical)}):")
-        print("-" * 70)
+        logger.info("-" * 70)
+        logger.info("missing canonical files ({len(result.missing_canonical)}):")
+        logger.info("-" * 70)
         for path in result.missing_canonical:
-            print(f"  ❌ {path}")
-        print()
-
+            logger.info("  ❌ path", path=path)
     # Verified paths (verbose)
     if verbose and result.verified_paths:
-        print("-" * 70)
-        print(f"VERIFIED PATHS ({len(result.verified_paths)}):")
-        print("-" * 70)
+        logger.info("-" * 70)
+        logger.info("verified paths ({len(result.verified_paths)}):")
+        logger.info("-" * 70)
         for path in result.verified_paths[:50]:
-            print(f"  ✅ {path}")
+            logger.info("  ✅ path", path=path)
         if len(result.verified_paths) > 50:
-            print(f"  ... and {len(result.verified_paths) - 50} more")
-        print()
-
-    print("=" * 70)
+            logger.info("  ... and {len(result.verified_paths) - 50} more")
+    logger.info("=" * 70)
 
 
 def print_json(result: VerificationResult) -> None:
@@ -356,7 +349,7 @@ def print_json(result: VerificationResult) -> None:
         "deprecated_refs": result.deprecated_refs,
         "missing_canonical": result.missing_canonical,
     }
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 # =============================================================================

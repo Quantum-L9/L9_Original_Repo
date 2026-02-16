@@ -53,6 +53,8 @@ import httpx
 import structlog
 from dotenv import load_dotenv
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -225,7 +227,7 @@ async def api_request(method: str, endpoint: str, **kwargs) -> dict[str, Any]:
 
     url = f"{VPS_URL}{endpoint}"
 
-    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
+    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:  # noqa: S501 — internal VPS service, cert validation not required
         try:
             if method.upper() == "POST":
                 response = await client.post(url, headers=headers, **kwargs)
@@ -248,6 +250,7 @@ async def execute_cypher(query: str, parameters: dict | None = None) -> dict[str
     )
 
 
+@must_stay_async("callers use await")
 async def index_architecture_decisions(
     decisions: list[dict[str, Any]],
     substrate_service: Any,
@@ -340,6 +343,7 @@ async def index_architecture_decisions(
     }
 
 
+@must_stay_async("callers use await")
 async def main(dry_run: bool = False, verbose: bool = False):
     """Main indexing function."""
     logger.info("Starting architectural decisions indexing", dry_run=dry_run)

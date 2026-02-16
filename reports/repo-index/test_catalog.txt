@@ -2,8 +2,8 @@
 # Test Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -18,6 +18,14 @@
 - `codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py` (21 tests)
 - `codegen/dev_layer/tests/test_determinism.py` (6 tests)
 - `codegen/dev_layer/tests/test_e2e_diff_generation.py` (6 tests)
+- `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py` (3 tests)
+- `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py` (6 tests)
+- `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py` (4 tests)
+- `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py` (5 tests)
+- `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py` (5 tests)
+- `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py` (4 tests)
+- `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py` (6 tests)
+- `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py` (4 tests)
 - `core/schemas/tests/test_discriminators.py` (14 tests)
 - `core/schemas/tests/test_packet_envelope.py` (24 tests)
 - `core/schemas/tests/test_research_factory.py` (19 tests)
@@ -54,11 +62,15 @@
 - `tests/test_ci_configuration.py` (20 tests)
 - `tests/test_code_facts_extraction.py` (22 tests)
 - `tests/test_imports.py` (7 tests)
+- `tests/test_intake_leverage.py` (22 tests)
+- `tests/test_integration_phase0.py` (6 tests)
 - `tests/test_l_cto_kernel_activation.py` (12 tests)
 - `tests/test_memory_adapter.py` (12 tests)
 - `tests/test_memory_governance_gate.py` (4 tests)
 - `tests/test_memory_substrate_basic.py` (23 tests)
+- `tests/test_policy_engine.py` (10 tests)
 - `tests/test_research_graph.py` (11 tests)
+- `tests/test_retention_refcount.py` (9 tests)
 - `tests/test_slack_adapter.py` (15 tests)
 - `tests/test_spec_normalizer_v2.py` (26 tests)
 - `tests/test_tool_registry.py` (19 tests)
@@ -77,6 +89,7 @@
 - `tests/agents/test_architect_agents.py` (3 tests)
 - `tests/agents/test_base_agent.py` (4 tests)
 - `tests/agents/test_l_cto_memory_emission.py` (4 tests)
+- `tests/agents/test_system_prompt_contracts.py` (4 tests)
 
 ### tests/api/
 
@@ -89,6 +102,7 @@
 - `tests/api/test_factory_path_safety.py` (3 tests)
 - `tests/api/test_server_health.py` (3 tests)
 - `tests/api/test_slack_adapter.py` (26 tests)
+- `tests/api/test_slack_idempotency.py` (4 tests)
 - `tests/api/test_slack_routes.py` (2 tests)
 - `tests/api/test_websocket_auth.py` (5 tests)
 
@@ -96,6 +110,10 @@
 
 - `tests/ci/test_adr_enforcement.py` (8 tests)
 - `tests/ci/test_anti_patterns.py` (11 tests)
+- `tests/ci/test_auto_fix_validation.py` (31 tests)
+- `tests/ci/test_ci_gate_regressions.py` (9 tests)
+- `tests/ci/test_inline_import_enforcement.py` (3 tests)
+- `tests/ci/test_structural_invariants.py` (5 tests)
 
 ### tests/clients/
 
@@ -120,6 +138,10 @@
 
 - `tests/core/agents/bootstrap/test_orchestrator.py` (5 tests)
 - `tests/core/agents/bootstrap/test_phase4_identity_view.py` (3 tests)
+- `tests/core/agents/codegenagent/test_c_gmp_engine.py` (12 tests)
+- `tests/core/agents/codegenagent/test_meta_loader.py` (8 tests)
+- `tests/core/agents/codegenagent/test_readme_generator.py` (15 tests)
+- `tests/core/agents/codegenagent/test_symbolic_verification.py` (21 tests)
 - `tests/core/agents/test_agent_executor_bootstrap_bridge.py` (3 tests)
 - `tests/core/agents/test_executor.py` (10 tests)
 - `tests/core/aios/test_runtime.py` (2 tests)
@@ -166,13 +188,24 @@
 - `tests/docker/test_migrations.py` (9 tests)
 - `tests/docker/test_stack_smoke.py` (16 tests)
 
+### tests/e2e/
+
+- `tests/e2e/test_memory_pipeline_e2e.py` (18 tests)
+- `tests/e2e/test_tool_wiring_e2e.py` (28 tests)
+
 ### tests/email_agent/
 
 - `tests/email_agent/test_email_router.py` (24 tests)
 - `tests/email_agent/test_email_triage.py` (2 tests)
 
+### tests/generated/
+
+- `tests/generated/test_adr_0006_properties.py` (2 tests)
+- `tests/generated/test_adr_0019_properties.py` (7 tests)
+
 ### tests/governance/
 
+- `tests/governance/test_governance_propagation.py` (5 tests)
 - `tests/governance/test_rejection_recorder.py` (11 tests)
 
 ### tests/integration/
@@ -251,6 +284,8 @@
 - `tests/memory/test_graph_memory.py` (24 tests)
 - `tests/memory/test_hierarchical_consolidation.py` (29 tests)
 - `tests/memory/test_hybrid_rag.py` (19 tests)
+- `tests/memory/test_importance_recipe.py` (15 tests)
+- `tests/memory/test_importance_recipe_wiring.py` (7 tests)
 - `tests/memory/test_ingestion_audit.py` (16 tests)
 - `tests/memory/test_ingestion_pipeline_audit.py` (50 tests)
 - `tests/memory/test_ingestion_transaction.py` (4 tests)
@@ -262,10 +297,13 @@
 - `tests/memory/test_packet_envelope_immutability.py` (14 tests)
 - `tests/memory/test_packet_validation_v2.py` (23 tests)
 - `tests/memory/test_pipeline_alignment_fixes.py` (11 tests)
+- `tests/memory/test_pipeline_router.py` (12 tests)
+- `tests/memory/test_pipeline_router_wiring.py` (5 tests)
 - `tests/memory/test_predictive_warming.py` (17 tests)
 - `tests/memory/test_pruning.py` (5 tests)
 - `tests/memory/test_query_cache_and_vector.py` (12 tests)
 - `tests/memory/test_query_classifier.py` (15 tests)
+- `tests/memory/test_ranking_extensions.py` (9 tests)
 - `tests/memory/test_reasoning_replay.py` (12 tests)
 - `tests/memory/test_retrieval_audit.py` (12 tests)
 - `tests/memory/test_rls_isolation.py` (5 tests)
@@ -319,7 +357,7 @@
 - `tests/runtime/test_kernel_state.py` (20 tests)
 - `tests/runtime/test_mcp_server_registry.py` (9 tests)
 - `tests/runtime/test_packet_envelopes_invariants.py` (5 tests)
-- `tests/runtime/test_slack_tools.py` (10 tests)
+- `tests/runtime/test_slack_tools.py` (19 tests)
 - `tests/runtime/test_tool_registry.py` (9 tests)
 - `tests/runtime/test_websocket_orchestrator_basic.py` (4 tests)
 - `tests/runtime/test_ws_protocol_static.py` (5 tests)
@@ -350,12 +388,22 @@
 
 ### tests/tools/
 
+- `tests/tools/test_dynamic_tool_binding.py` (8 tests)
 - `tests/tools/test_l9_cli.py` (4 tests)
 - `tests/tools/test_mcp_tools.py` (7 tests)
 - `tests/tools/test_memory_tools.py` (7 tests)
 - `tests/tools/test_redis_tools.py` (8 tests)
+- `tests/tools/test_registry_cache.py` (31 tests)
+- `tests/tools/test_sanitizer_validation_order.py` (5 tests)
+- `tests/tools/test_semantic_discovery.py` (22 tests)
+- `tests/tools/test_tool_audit.py` (16 tests)
+- `tests/tools/test_tool_audit_flush.py` (5 tests)
 - `tests/tools/test_tool_discovery.py` (7 tests)
 - `tests/tools/test_tool_packages.py` (12 tests)
+- `tests/tools/test_tool_registry_mcp.py` (13 tests)
+- `tests/tools/test_tool_registry_negative.py` (6 tests)
+- `tests/tools/test_tool_sanitizer.py` (31 tests)
+- `tests/tools/test_tool_search_meta.py` (15 tests)
 
 ### tests/unit/
 
@@ -406,8 +454,8 @@
 
 ## Summary
 
-- **Total test files**: 286
-- **Total test functions**: 3280
+- **Total test files**: 328
+- **Total test functions**: 3745
 
 ## Running Tests
 

@@ -73,8 +73,6 @@ __all__ = [
     "BaseAgent",
     # Coders
     "CoderAgentA",
-    "CoderAgentB",
-    # L-CTO (Primary)
     "LCTOAgent",
     # Quality
     "QAAgent",

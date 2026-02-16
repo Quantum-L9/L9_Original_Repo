@@ -149,11 +149,12 @@ async def get_reasoning_modes(
 
 
 @router.post("/execute", response_model=ReasoningExecuteResponse)
+@must_stay_async("callers use await")
 async def execute_reasoning(
     request: ReasoningExecuteRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    orchestrator: ReasoningOrchestrator = Depends(get_reasoning_orchestrator),
+    orchestrator: ReasoningOrchestrator = Depends(get_reasoning_orchestrator),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Execute reasoning via ReasoningOrchestrator.

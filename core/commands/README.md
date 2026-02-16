@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -184,14 +184,14 @@ The following data models define the contracts for this subsystem:
 | Constant | Value | Line |
 |----------|-------|------|
 | `COMMAND_PATTERNS` | `{'propose_gmp': re.compile('^@[Ll]\\s+pr...` | 158 |
-| `INTENT_EXTRACTION_PROMPT` | `'You are an intent extraction system for...` | 59 |
+| `INTENT_EXTRACTION_PROMPT` | `'You are an intent extraction system for...` | 61 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreCommandsRequest(BaseModel):
     """Request model for core_commands operations."""
@@ -282,14 +282,14 @@ CORE_COMMANDS_ENABLED=true
 
 Parse Igor input into structured Command or NLPPrompt.
 
-- **File:** `__init__.py:21`
+- **File:** `__init__.py:42`
 - **Async:** No
 
 #### `def is_l_command(text) -> bool`
 
 Check if text appears to be an @L command.
 
-- **File:** `__init__.py:28`
+- **File:** `__init__.py:49`
 - **Async:** No
 - **Returns:** `bool`
 
@@ -297,21 +297,21 @@ Check if text appears to be an @L command.
 
 Extract intent from natural language prompt.
 
-- **File:** `__init__.py:35`
+- **File:** `__init__.py:56`
 - **Async:** Yes
 
 #### `async def confirm_intent(intent, user_context, slack_client)`
 
 Request Igor confirmation for high-risk commands.
 
-- **File:** `__init__.py:42`
+- **File:** `__init__.py:63`
 - **Async:** Yes
 
 #### `async def execute_command(command, user_id, context)`
 
 Execute a structured command.
 
-- **File:** `__init__.py:49`
+- **File:** `__init__.py:70`
 - **Async:** Yes
 
 
@@ -344,7 +344,7 @@ Core Commands operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.commands",
   "message": "Operation completed",

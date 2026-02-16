@@ -236,14 +236,14 @@ multi_tenancy:
   rls_enforcement:
     enabled: true
     tables:
-      - packetstore
-      - semanticmemory
-      - memoryembeddings
-      - knowledgefacts
-      - reasoningtraces
-      - reflectionstore
+      - packet_store
+      - semantic_memory
+      - memory_embeddings
+      - knowledge_facts
+      - reasoning_traces
+      - reflection_store
       - agent_checkpoints
-      - entityrelationships
+      - entity_relationships
       - memory_summaries
       - retrieval_performance_log
     policy_type: tenant_isolation

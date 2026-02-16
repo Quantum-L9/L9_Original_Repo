@@ -12,6 +12,8 @@ GMP-88: Core Resilience for SubstrateDagOrchestrator
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Substrate Dag Wrapper",
@@ -41,11 +43,11 @@ from typing import TYPE_CHECKING
 import structlog
 
 from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
-from memory.substrate_dag import SubstrateDAG
 
 if TYPE_CHECKING:
     from core.observability.circuit_breaker import CircuitBreaker
     from memory.dead_letter import DeadLetterQueue
+    from memory.substrate_dag import SubstrateDAG
 
 logger = structlog.get_logger(__name__)
 
@@ -76,7 +78,7 @@ class RetryPolicy:
         """
         delay = min(self.backoff_base * (2**attempt), self.backoff_max)
         jitter_range = delay * self.jitter
-        return delay + random.uniform(-jitter_range, jitter_range)
+        return delay + random.uniform(-jitter_range, jitter_range)  # noqa: S311 — used for jitter, not security
 
 
 # =============================================================================
@@ -126,6 +128,7 @@ class SubstrateDagOrchestrator:
             max_retries=self._retry_policy.max_retries,
         )
 
+    @must_stay_async("callers use await")
     async def ingest_packet(
         self,
         envelope: PacketEnvelopeIn | PacketEnvelope,

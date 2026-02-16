@@ -67,7 +67,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -435,6 +435,7 @@ class UnifiedController:
     # Main Entry Point
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def handle_request(
         self,
         text: str,
@@ -463,7 +464,7 @@ class UnifiedController:
         self._ensure_components()
 
         # Reset state
-        self._state = ControllerState(started_at=datetime.now(timezone.utc))
+        self._state = ControllerState(started_at=datetime.now(UTC))
         result = ControllerResult()
 
         logger.info(
@@ -537,6 +538,7 @@ class UnifiedController:
     # Multi-Part Request Handling (Harvested from tokenizer pipeline)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def handle_multi_request(
         self,
         text: str,
@@ -548,7 +550,7 @@ class UnifiedController:
         This method uses the InputSegmenter (harvested from tokenizer) to break
         compound directives into atomic tasks. For example:
 
-            "Deploy RIL, test ToT, sync Supabase then generate plan v3"
+            "Deploy RIL, test ToT, sync embeddings then generate plan v3"
 
         Becomes 4 separate requests processed sequentially.
 
@@ -645,7 +647,7 @@ class UnifiedController:
     ) -> None:
         """Phase 1: Route task to appropriate execution path."""
         self._state.phase = ControllerPhase.ROUTING
-        phase_start = datetime.now(timezone.utc)
+        phase_start = datetime.now(UTC)
 
         logger.info("Phase ROUTING: Analyzing task")
 
@@ -686,7 +688,7 @@ class UnifiedController:
         """Phases 2-4: Compile, Validate, Challenge."""
         # Phase 2: Compile
         self._state.phase = ControllerPhase.COMPILING
-        phase_start = datetime.now(timezone.utc)
+        phase_start = datetime.now(UTC)
 
         logger.info("Phase COMPILING: Converting to IR")
 
@@ -697,7 +699,7 @@ class UnifiedController:
 
         # Phase 3: Validate
         self._state.phase = ControllerPhase.VALIDATING
-        phase_start = datetime.now(timezone.utc)
+        phase_start = datetime.now(UTC)
 
         logger.info("Phase VALIDATING: Checking IR structure")
 
@@ -715,7 +717,7 @@ class UnifiedController:
 
         # Phase 4: Challenge
         self._state.phase = ControllerPhase.CHALLENGING
-        phase_start = datetime.now(timezone.utc)
+        phase_start = datetime.now(UTC)
 
         logger.info("Phase CHALLENGING: Checking constraints")
 
@@ -739,7 +741,7 @@ class UnifiedController:
     ) -> None:
         """Phase 5: Agent deliberation for IR refinement."""
         self._state.phase = ControllerPhase.DELIBERATING
-        phase_start = datetime.now(timezone.utc)
+        phase_start = datetime.now(UTC)
 
         logger.info("Phase DELIBERATING: Multi-agent refinement")
 
@@ -771,7 +773,7 @@ class UnifiedController:
     ) -> None:
         """Phase 6: Simulate execution."""
         self._state.phase = ControllerPhase.SIMULATING
-        phase_start = datetime.now(timezone.utc)
+        phase_start = datetime.now(UTC)
 
         logger.info("Phase SIMULATING: Evaluating plan viability")
 
@@ -805,7 +807,7 @@ class UnifiedController:
     ) -> None:
         """Phase 7: Generate execution plan."""
         self._state.phase = ControllerPhase.PLANNING
-        phase_start = datetime.now(timezone.utc)
+        phase_start = datetime.now(UTC)
 
         logger.info("Phase PLANNING: Generating execution plan")
 
@@ -832,7 +834,7 @@ class UnifiedController:
     ) -> None:
         """Phase 8: Execute the plan."""
         self._state.phase = ControllerPhase.EXECUTING
-        phase_start = datetime.now(timezone.utc)
+        phase_start = datetime.now(UTC)
 
         logger.info("Phase EXECUTING: Running plan")
 
@@ -863,6 +865,7 @@ class UnifiedController:
 
         self._record_phase_time("execute", phase_start)
 
+    @must_stay_async("callers use await")
     async def _phase_reflect(
         self,
         context: dict[str, Any],
@@ -870,7 +873,7 @@ class UnifiedController:
     ) -> None:
         """Phase 9: Reflect and update memory/world model."""
         self._state.phase = ControllerPhase.REFLECTING
-        phase_start = datetime.now(timezone.utc)
+        phase_start = datetime.now(UTC)
 
         logger.info("Phase REFLECTING: Updating memory")
 
@@ -928,6 +931,7 @@ class UnifiedController:
     # Self-Correction
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _attempt_self_correction(
         self,
         text: str,
@@ -1116,7 +1120,7 @@ class UnifiedController:
 
     def _elapsed_ms(self, start: datetime) -> int:
         """Calculate elapsed milliseconds from start time."""
-        return int((datetime.now(timezone.utc) - start).total_seconds() * 1000)
+        return int((datetime.now(UTC) - start).total_seconds() * 1000)
 
     def get_state(self) -> ControllerState:
         """Get current controller state."""
@@ -1248,6 +1252,7 @@ def set_ws_orchestrator(orchestrator: WebSocketOrchestrator) -> None:
     )
 
 
+@must_stay_async("callers use await")
 async def dispatch_task_to_agent(
     agent_id: str,
     task_payload: dict[str, Any],
@@ -1303,6 +1308,7 @@ async def dispatch_task_to_agent(
     )
 
 
+@must_stay_async("callers use await")
 async def broadcast_task(
     task_payload: dict[str, Any],
     task_type: str = "broadcast",

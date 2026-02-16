@@ -28,7 +28,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import re
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 REQUIRED_SECTIONS = [
     "# ADR-",

@@ -26,6 +26,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Async Retry Utility",
@@ -54,11 +56,13 @@ __dora_meta__ = {
 
 import asyncio
 import random
-from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import structlog
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -110,7 +114,7 @@ class AsyncRetryConfig:
         """
         delay = self.base_backoff * (self.exponential_base ** (attempt - 1))
         delay = min(delay, self.max_backoff)
-        jitter_amount = random.random() * self.jitter * delay
+        jitter_amount = random.random() * self.jitter * delay  # noqa: S311 — used for jitter, not security
         return delay + jitter_amount
 
 
@@ -118,6 +122,7 @@ class AsyncRetryConfig:
 DEFAULT_RETRY_CONFIG = AsyncRetryConfig()
 
 
+@must_stay_async("callers use await")
 async def async_retry(
     coro_func: Callable[[], Any],
     *,

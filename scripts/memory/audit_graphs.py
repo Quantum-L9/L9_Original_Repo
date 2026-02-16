@@ -41,7 +41,7 @@ import asyncio
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -78,7 +78,7 @@ async def audit_postgresql_graphs() -> dict[str, Any]:
         results = {}
 
         # 1. Packet Store Audit
-        print("\n📦 Auditing Packet Store...")
+        logger.info("\n📦 auditing packet store...")
         packet_stats = await repo._execute_query("""
             SELECT
                 COUNT(*) as total_packets,
@@ -116,7 +116,7 @@ async def audit_postgresql_graphs() -> dict[str, Any]:
         }
 
         # 2. Semantic Memory Audit
-        print("🔍 Auditing Semantic Memory (pgvector)...")
+        logger.info("🔍 auditing semantic memory (pgvector)...")
         semantic_stats = await repo._execute_query("""
             SELECT
                 COUNT(*) as total_embeddings,
@@ -141,7 +141,7 @@ async def audit_postgresql_graphs() -> dict[str, Any]:
         }
 
         # 3. Knowledge Facts Audit
-        print("📚 Auditing Knowledge Facts...")
+        logger.info("📚 auditing knowledge facts...")
         facts_stats = await repo._execute_query("""
             SELECT
                 COUNT(*) as total_facts,
@@ -179,7 +179,7 @@ async def audit_postgresql_graphs() -> dict[str, Any]:
         }
 
         # 4. Thread Lineage Audit
-        print("🧵 Auditing Thread Lineage...")
+        logger.info("🧵 auditing thread lineage...")
         thread_stats = await repo._execute_query("""
             SELECT
                 thread_id,
@@ -224,7 +224,7 @@ async def audit_neo4j_graphs() -> dict[str, Any]:
         results = {}
 
         # 1. Overall Graph Stats
-        print("\n🕸️  Auditing Neo4j Knowledge Graph...")
+        logger.info("\n🕸️  auditing neo4j knowledge graph...")
         overall_stats = await neo4j.run_query("""
             MATCH (n)
             RETURN labels(n)[0] as label, count(*) as count
@@ -265,7 +265,7 @@ async def audit_neo4j_graphs() -> dict[str, Any]:
         results["entity_details"] = entity_details
 
         # 4. Agent State Graph Audit
-        print("🤖 Auditing Agent State Graph...")
+        logger.info("🤖 auditing agent state graph...")
         agent_state = await neo4j.run_query("""
             MATCH (a:Agent)
             OPTIONAL MATCH (a)-[:HAS_RESPONSIBILITY]->(r:Responsibility)
@@ -285,7 +285,7 @@ async def audit_neo4j_graphs() -> dict[str, Any]:
         results["agent_state"] = agent_state
 
         # 5. Event Timeline Stats
-        print("📅 Auditing Event Timeline...")
+        logger.info("📅 auditing event timeline...")
         event_stats = await neo4j.run_query("""
             MATCH (e:Event)
             RETURN count(*) as total_events,
@@ -307,7 +307,7 @@ async def audit_neo4j_graphs() -> dict[str, Any]:
         }
 
         # 6. Repo Structure Graph Audit
-        print("📁 Auditing Repo Structure Graph...")
+        logger.info("📁 auditing repo structure graph...")
         repo_stats = await neo4j.run_query("""
             MATCH (n)
             WHERE n:File OR n:Class OR n:Function OR n:Method OR n:Route
@@ -353,7 +353,7 @@ async def audit_world_model() -> dict[str, Any]:
         results = {}
 
         # World Model Entities
-        print("\n🌍 Auditing World Model...")
+        logger.info("\n🌍 auditing world model...")
         entity_stats = await conn.fetch("""
             SELECT
                 COUNT(*) as total_entities,
@@ -430,35 +430,33 @@ async def audit_world_model() -> dict[str, Any]:
 
 async def run_full_audit() -> dict[str, Any]:
     """Run comprehensive audit of all graphs."""
-    print("=" * 80)
-    print("L9 GRAPH AUDIT - Full System Scan")
-    print("=" * 80)
-    print(f"Timestamp: {datetime.now().isoformat()}")
-    print()
-
+    logger.info("=" * 80)
+    logger.info("l9 graph audit - full system scan")
+    logger.info("=" * 80)
+    logger.info("timestamp: {datetime.now(tz=UTC).isoformat()}")
     audit_results = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(tz=UTC).isoformat(),
         "postgresql": {},
         "neo4j": {},
         "world_model": {},
     }
 
     # PostgreSQL Graphs
-    print("\n" + "=" * 80)
-    print("POSTGRESQL GRAPHS")
-    print("=" * 80)
+    logger.info("\n" + "=" * 80)
+    logger.info("postgresql graphs")
+    logger.info("=" * 80)
     audit_results["postgresql"] = await audit_postgresql_graphs()
 
     # Neo4j Graphs
-    print("\n" + "=" * 80)
-    print("NEO4J GRAPHS")
-    print("=" * 80)
+    logger.info("\n" + "=" * 80)
+    logger.info("neo4j graphs")
+    logger.info("=" * 80)
     audit_results["neo4j"] = await audit_neo4j_graphs()
 
     # World Model
-    print("\n" + "=" * 80)
-    print("WORLD MODEL")
-    print("=" * 80)
+    logger.info("\n" + "=" * 80)
+    logger.info("world model")
+    logger.info("=" * 80)
     audit_results["world_model"] = await audit_world_model()
 
     return audit_results
@@ -466,83 +464,91 @@ async def run_full_audit() -> dict[str, Any]:
 
 def print_audit_report(results: dict[str, Any]):
     """Print formatted audit report."""
-    print("\n" + "=" * 80)
-    print("AUDIT REPORT SUMMARY")
-    print("=" * 80)
+    logger.info("\n" + "=" * 80)
+    logger.info("audit report summary")
+    logger.info("=" * 80)
 
     # PostgreSQL Summary
     if "postgresql" in results and "error" not in results["postgresql"]:
         pg = results["postgresql"]
-        print("\n📦 PACKET STORE:")
+        logger.info("\n📦 packet store:")
         if "packet_store" in pg:
             stats = pg["packet_store"]["stats"]
-            print(f"   Total Packets:      {stats.get('total_packets', 0):,}")
-            print(f"   Total Threads:      {stats.get('total_threads', 0):,}")
-            print(f"   Packet Types:       {stats.get('packet_types', 0)}")
-            print(f"   With Parents:       {stats.get('packets_with_parents', 0):,}")
-            print(f"   With Tags:           {stats.get('packets_with_tags', 0):,}")
-            print(f"   Earliest:           {stats.get('earliest_packet', 'N/A')}")
-            print(f"   Latest:             {stats.get('latest_packet', 'N/A')}")
+            logger.info("   total packets:      {stats.get('total_packets', 0):,}")
+            logger.info("   total threads:      {stats.get('total_threads', 0):,}")
+            logger.info("   packet types:       {stats.get('packet_types', 0)}")
+            logger.info(
+                "   with parents:       {stats.get('packets_with_parents', 0):,}"
+            )
+            logger.info("   with tags:           {stats.get('packets_with_tags', 0):,}")
+            logger.info("   earliest:           {stats.get('earliest_packet', 'n/a')}")
+            logger.info("   latest:             {stats.get('latest_packet', 'n/a')}")
 
-        print("\n🔍 SEMANTIC MEMORY (pgvector):")
+        logger.info("\n🔍 semantic memory (pgvector):")
         if "semantic_memory" in pg:
             stats = pg["semantic_memory"]["stats"]
-            print(f"   Total Embeddings:   {stats.get('total_embeddings', 0):,}")
-            print(f"   Unique Agents:      {stats.get('unique_agents', 0)}")
-            print(f"   Unique Packets:     {stats.get('unique_packets', 0):,}")
+            logger.info("   total embeddings:   {stats.get('total_embeddings', 0):,}")
+            logger.info("   unique agents:      {stats.get('unique_agents', 0)}")
+            logger.info("   unique packets:     {stats.get('unique_packets', 0):,}")
 
-        print("\n📚 KNOWLEDGE FACTS:")
+        logger.info("\n📚 knowledge facts:")
         if "knowledge_facts" in pg:
             stats = pg["knowledge_facts"]["stats"]
-            print(f"   Total Facts:         {stats.get('total_facts', 0):,}")
-            print(f"   Unique Subjects:    {stats.get('unique_subjects', 0):,}")
-            print(f"   Unique Predicates:  {stats.get('unique_predicates', 0)}")
-            print(f"   Avg Confidence:     {stats.get('avg_confidence', 0):.2f}")
+            logger.info("   total facts:         {stats.get('total_facts', 0):,}")
+            logger.info("   unique subjects:    {stats.get('unique_subjects', 0):,}")
+            logger.info("   unique predicates:  {stats.get('unique_predicates', 0)}")
+            logger.info("   avg confidence:     {stats.get('avg_confidence', 0):.2f}")
 
     # Neo4j Summary
     if "neo4j" in results and "error" not in results["neo4j"]:
         neo = results["neo4j"]
-        print("\n🕸️  NEO4J KNOWLEDGE GRAPH:")
+        logger.info("\n🕸️  neo4j knowledge graph:")
         if "overall_stats" in neo:
-            print("   Node Types:")
-            for item in neo["overall_stats"][:10]:
-                print(f"      {item.get('label', 'Unknown')}: {item.get('count', 0):,}")
+            logger.info("   node types:")
+            for _item in neo["overall_stats"][:10]:
+                logger.info(
+                    "      {item.get('label', 'unknown')}: {item.get('count', 0):,}"
+                )
 
         if "relationships" in neo:
-            print("\n   Relationship Types:")
+            logger.info("\n   relationship types:")
             for item in neo["relationships"][:10]:
                 print(
                     f"      {item.get('rel_type', 'Unknown')}: {item.get('count', 0):,}"
                 )
 
         if "agent_state" in neo:
-            print("\n🤖 AGENT STATE GRAPH:")
-            for agent in neo["agent_state"]:
-                print(f"   {agent.get('agent_id', 'Unknown')}:")
-                print(f"      Responsibilities: {agent.get('responsibilities', 0)}")
-                print(f"      Directives:       {agent.get('directives', 0)}")
-                print(f"      SOPs:             {agent.get('sops', 0)}")
-                print(f"      Tools:            {agent.get('tools', 0)}")
-                print(f"      Supervisor:       {agent.get('supervisor', 'None')}")
+            logger.info("\n🤖 agent state graph:")
+            for _agent in neo["agent_state"]:
+                logger.info("   {agent.get('agent_id', 'unknown')}:")
+                logger.info(
+                    "      responsibilities: {agent.get('responsibilities', 0)}"
+                )
+                logger.info("      directives:       {agent.get('directives', 0)}")
+                logger.info("      sops:             {agent.get('sops', 0)}")
+                logger.info("      tools:            {agent.get('tools', 0)}")
+                logger.info("      supervisor:       {agent.get('supervisor', 'none')}")
 
         if "repo_structure" in neo and neo["repo_structure"]["nodes"]:
-            print("\n📁 REPO STRUCTURE GRAPH:")
-            for item in neo["repo_structure"]["nodes"]:
-                print(f"   {item.get('type', 'Unknown')}: {item.get('count', 0):,}")
+            logger.info("\n📁 repo structure graph:")
+            for _item in neo["repo_structure"]["nodes"]:
+                logger.info(
+                    "   {item.get('type', 'unknown')}: {item.get('count', 0):,}"
+                )
 
     # World Model Summary
     if "world_model" in results and "error" not in results["world_model"]:
         wm = results["world_model"]
         if "entities" in wm:
-            print("\n🌍 WORLD MODEL:")
+            logger.info("\n🌍 world model:")
             stats = wm["entities"]["stats"]
-            print(f"   Total Entities:     {stats.get('total_entities', 0):,}")
-            print(f"   Entity Types:       {stats.get('entity_types', 0)}")
-            print(f"   Current Version:   {stats.get('max_version', 0)}")
+            logger.info("   total entities:     {stats.get('total_entities', 0):,}")
+            logger.info("   entity types:       {stats.get('entity_types', 0)}")
+            logger.info("   current version:   {stats.get('max_version', 0)}")
 
-    print("\n" + "=" * 80)
-    print("AUDIT COMPLETE")
-    print("=" * 80)
+    logger.info("\n" + "=" * 80)
+    logger.info("audit complete")
+    logger.info("=" * 80)
 
 
 async def main():
@@ -555,12 +561,12 @@ async def main():
         output_file = (
             Path(__file__).parent.parent
             / "reports"
-            / f"graph_audit_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            / f"graph_audit_{datetime.now(tz=UTC).strftime('%Y%m%d_%H%M%S')}.json"
         )
         output_file.parent.mkdir(parents=True, exist_ok=True)
         async with aiofiles.open(output_file, "w") as f:
             await f.write(json.dumps(results, indent=2, default=str))
-        print(f"\n📄 Full report saved to: {output_file}")
+        logger.info("\n📄 full report saved to: output file", output_file=output_file)
 
     except Exception as e:
         logger.error(f"Audit failed: {e}", exc_info=True)

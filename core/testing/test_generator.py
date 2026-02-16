@@ -81,7 +81,7 @@ BEHAVIOR TESTING (CRITICAL):
 
 1. UUID FORMAT: Always use valid UUID format (e.g., "12345678-1234-5678-1234-567812345678")
    NEVER use strings like "test_id", "duplicate_id", "user-123"
-   
+
 2. EXACT ERROR MESSAGES: Don't hardcode exact error strings. Use partial matching:
    - BAD:  assert "Duplicate packet detected" in result["errors"]
    - GOOD: assert any("Duplicate" in err for err in result["errors"])
@@ -325,7 +325,7 @@ class TestGenerator:
                     )
                     context_parts.append(f"L9 PHILOSOPHY:\n{content[start:end][:500]}")
             except Exception:
-                pass
+                logger.debug("test_generator.l9_philosophy_load_failed")
 
         # Load L9-specific patterns
         l9_patterns = """
@@ -808,6 +808,7 @@ def test_module_import():
         dep_name = dependency.split(".")[-1]
         return f'''
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_integration_with_{dep_name}():
     """Test integration with {dependency}."""
     # TODO(GMP-114): Test interaction between module and {dependency}

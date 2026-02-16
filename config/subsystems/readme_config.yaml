@@ -1,17 +1,5 @@
-
-# component_name: "Readme Config"
-# module_version: "1.0.0"
-# created_by: "Igor Beylin"
-# created_at: "2026-01-25T14:50:13Z"
-# updated_at: "2026-01-28T22:41:15Z"
-# layer: "foundation"
-# domain: "configuration"
-# file_name: "readme_config"
-# type: "service"
-# status: "active"
-
 version: '2.0'
-config_updated: '2026-01-29T03:05:45Z'
+config_updated: '2026-02-14T08:25:39Z'
 defaults:
   owner: Igor
   prereading:
@@ -45,7 +33,7 @@ subsystems:
     purpose: Orchestrates agent task execution, kernel loading, tool dispatch, and
       memory integration.
     owner: Igor
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
     protected_files:
     - executor.py
     - registry.py
@@ -170,7 +158,7 @@ subsystems:
     purpose: Manages tool definitions, capability enforcement, approval gates, and
       safe tool invocation.
     owner: Igor
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
     protected_files:
     - registry_adapter.py
     - tool_graph.py
@@ -248,7 +236,7 @@ subsystems:
     purpose: Provides PacketEnvelope storage, semantic search, retrieval, deduplication,
       and audit trails.
     owner: Igor
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
     protected_files:
     - substrate_service.py
     - substrate_dag.py
@@ -390,7 +378,7 @@ subsystems:
     - All external calls have explicit timeouts
     - Redis operations are atomic where required
     - Kernel YAML files are validated on load
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_governance:
     path: core/governance
     title: Governance & Approval Gates
@@ -414,7 +402,7 @@ subsystems:
     - High-risk operations require explicit approval
     - All policy violations are logged
     - Approval tokens have expiration
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_security:
     path: core/security
     title: Security & Authentication
@@ -436,7 +424,7 @@ subsystems:
     - Secrets never logged in plaintext
     - All auth tokens validated before use
     - Failed auth attempts are rate-limited
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_kernels:
     path: core/kernels
     title: Kernel Management
@@ -458,7 +446,7 @@ subsystems:
     invariants:
     - Kernel YAML must pass schema validation
     - Kernel load order is deterministic
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   orchestration:
     path: orchestration
     title: Unified Orchestration
@@ -479,7 +467,7 @@ subsystems:
     invariants:
     - Tasks are routed deterministically
     - Plan execution is resumable
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   orchestrators:
     path: orchestrators
     title: Pattern Orchestrators
@@ -502,7 +490,7 @@ subsystems:
     - api/routes/
     invariants:
     - Orchestrators emit structured packets
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   api:
     path: api
     title: API Gateway
@@ -511,7 +499,7 @@ subsystems:
     purpose: Exposes FastAPI endpoints for agent tasks, memory operations, and real-time
       communication.
     owner: Igor
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
     protected_files:
     - server.py
     - auth.py
@@ -636,7 +624,7 @@ subsystems:
     invariants:
     - MCP protocol compliance
     - All operations logged
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   agents:
     path: agents
     title: Agent Modules
@@ -655,7 +643,7 @@ subsystems:
     invariants:
     - All agents follow AgentInstance lifecycle
     - Agent outputs stored as PacketEnvelope
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   agents_cursor:
     path: agents/cursor
     title: Cursor Agent
@@ -673,7 +661,7 @@ subsystems:
     depended_by: []
     invariants:
     - Memory client uses MCP protocol
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   agents_research:
     path: agents/research_agent
     title: Research Agent
@@ -691,7 +679,7 @@ subsystems:
     depended_by: []
     invariants:
     - Research results stored as packets
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   email_agent:
     path: email_agent
     title: Email Agent
@@ -712,7 +700,7 @@ subsystems:
     invariants:
     - OAuth tokens refreshed automatically
     - Credentials never logged
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   mac_agent:
     path: mac_agent
     title: Mac Agent
@@ -732,7 +720,7 @@ subsystems:
     invariants:
     - Shell commands require approval for destructive ops
     - WebSocket connection auto-reconnects
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   services_research:
     path: services/research
     title: Research Service
@@ -753,7 +741,7 @@ subsystems:
     - agents/research_agent/
     invariants:
     - Research state is persisted
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   services_symbolic:
     path: services/symbolic_computation
     title: Symbolic Computation Service
@@ -772,7 +760,7 @@ subsystems:
     - core/tools/
     invariants:
     - Expressions validated before evaluation
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   world_model:
     path: world_model
     title: World Model
@@ -797,7 +785,7 @@ subsystems:
     invariants:
     - Causal relationships are directional
     - World state is versioned
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   ir_engine:
     path: ir_engine
     title: IR Compilation Engine
@@ -819,7 +807,7 @@ subsystems:
     invariants:
     - IR schema is versioned
     - Compilation is deterministic
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   domain_tensor_bridge:
     path: domain_tensor_bridge
     title: Domain Tensor Bridge
@@ -833,7 +821,7 @@ subsystems:
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_reasoning:
     path: core/reasoning
     title: Reasoning Engine
@@ -851,7 +839,7 @@ subsystems:
     - orchestrators/reasoning/
     invariants:
     - Reasoning steps are logged as packets
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_observability:
     path: core/observability
     title: Observability
@@ -868,7 +856,7 @@ subsystems:
     invariants:
     - All logs are structured JSON
     - Metrics follow Prometheus conventions
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_llm:
     path: core/llm
     title: LLM Clients
@@ -886,7 +874,7 @@ subsystems:
     invariants:
     - API keys from environment only
     - All requests have timeouts
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_protocols:
     path: core/protocols
     title: Abstract Protocols
@@ -902,7 +890,7 @@ subsystems:
     - all modules
     invariants:
     - Protocols are abstract (no implementation)
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_coordination:
     path: core/coordination
     title: Coordination & Events
@@ -920,7 +908,7 @@ subsystems:
     invariants:
     - Events are typed
     - Event delivery is at-least-once
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_resilience:
     path: core/resilience
     title: Resilience Patterns
@@ -937,7 +925,7 @@ subsystems:
     - core/agents/
     invariants:
     - Circuit breakers have configurable thresholds
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   config:
     path: config
     title: Configuration
@@ -959,7 +947,7 @@ subsystems:
     invariants:
     - Settings loaded from environment
     - DI container is singleton
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   workers:
     path: workers
     title: Background Workers
@@ -975,7 +963,7 @@ subsystems:
     depended_by: []
     invariants:
     - Workers are idempotent
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   telemetry:
     path: telemetry
     title: Telemetry
@@ -991,7 +979,7 @@ subsystems:
     depended_by: []
     invariants:
     - Metrics are Prometheus-compatible
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   adapters:
     path: adapters
     title: External Adapters
@@ -1005,7 +993,7 @@ subsystems:
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   graph_adapter:
     path: graph_adapter
     title: Graph Adapter
@@ -1021,7 +1009,7 @@ subsystems:
     depended_by: []
     invariants:
     - Graph operations are transactional
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   clients:
     path: clients
     title: API Clients
@@ -1035,7 +1023,7 @@ subsystems:
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   collaborative_cells:
     path: collaborative_cells
     title: Collaborative Cells
@@ -1055,7 +1043,7 @@ subsystems:
     depended_by: []
     invariants:
     - Cells communicate via messages
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   simulation:
     path: simulation
     title: Simulation Engine
@@ -1069,7 +1057,7 @@ subsystems:
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   ci:
     path: ci
     title: CI Infrastructure
@@ -1083,7 +1071,7 @@ subsystems:
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_accountability:
     path: core/accountability
     title: Accountability & Audit
@@ -1099,7 +1087,7 @@ subsystems:
     depended_by: []
     invariants:
     - All actions are logged with timestamps
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_aios:
     path: core/aios
     title: AIOS Core
@@ -1114,7 +1102,7 @@ subsystems:
     depended_by:
     - core/agents/
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_boundary:
     path: core/boundary
     title: Boundary Enforcement
@@ -1129,7 +1117,7 @@ subsystems:
     depended_by: []
     invariants:
     - Boundaries are validated at import time
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_codegen:
     path: core/codegen
     title: Code Generation Core
@@ -1145,7 +1133,7 @@ subsystems:
     - ir_engine/
     invariants:
     - Generated code must be valid Python
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_commands:
     path: core/commands
     title: Command System
@@ -1161,7 +1149,7 @@ subsystems:
     - core/agents/
     invariants:
     - Commands are serializable
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_compliance:
     path: core/compliance
     title: Compliance Engine
@@ -1177,7 +1165,7 @@ subsystems:
     depended_by: []
     invariants:
     - Compliance violations are logged
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_di:
     path: core/di
     title: Dependency Injection
@@ -1194,7 +1182,7 @@ subsystems:
     - config/di_config.py
     invariants:
     - Container is singleton per process
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_eos:
     path: core/eos
     title: EOS System
@@ -1208,7 +1196,7 @@ subsystems:
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_evaluation:
     path: core/evaluation
     title: Evaluation Framework
@@ -1224,7 +1212,7 @@ subsystems:
     depended_by: []
     invariants:
     - Evaluation results are stored as packets
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_facade:
     path: core/facade
     title: Facade Layer
@@ -1256,7 +1244,7 @@ subsystems:
     - memory/
     invariants:
     - Graph operations are transactional
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_instrumentation:
     path: core/instrumentation
     title: Instrumentation
@@ -1272,7 +1260,7 @@ subsystems:
     depended_by: []
     invariants:
     - Instrumentation has minimal overhead
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_integration:
     path: core/integration
     title: Integration Layer
@@ -1286,7 +1274,7 @@ subsystems:
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_kernel_wiring:
     path: core/kernel_wiring
     title: Kernel Wiring
@@ -1303,7 +1291,7 @@ subsystems:
     - runtime/kernel_loader.py
     invariants:
     - Wiring is deterministic
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_memory:
     path: core/memory
     title: Core Memory Utilities
@@ -1318,7 +1306,7 @@ subsystems:
     depended_by:
     - memory/
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_models:
     path: core/models
     title: Core Data Models
@@ -1333,7 +1321,7 @@ subsystems:
     depended_by: []
     invariants:
     - Models are Pydantic BaseModel subclasses
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_packet_envelope:
     path: core/packet_envelope
     title: Packet Envelope
@@ -1352,7 +1340,7 @@ subsystems:
     invariants:
     - PacketEnvelope is immutable after creation
     - All IDs are UUIDv4
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_retrievers:
     path: core/retrievers
     title: Retrieval Strategies
@@ -1369,7 +1357,7 @@ subsystems:
     - core/agents/
     invariants:
     - Retrievers return ranked results
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_runtimes:
     path: core/runtimes
     title: Runtime Implementations
@@ -1384,7 +1372,7 @@ subsystems:
     - runtime/
     depended_by: []
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_schemas:
     path: core/schemas
     title: Core Schemas
@@ -1399,7 +1387,7 @@ subsystems:
     depended_by: []
     invariants:
     - Schemas are JSON Schema compliant
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_secrets:
     path: core/secrets
     title: Secrets Management
@@ -1417,7 +1405,7 @@ subsystems:
     invariants:
     - Secrets never logged in plaintext
     - Secrets encrypted at rest
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_testing:
     path: core/testing
     title: Testing Utilities
@@ -1431,7 +1419,7 @@ subsystems:
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   core_worldmodel:
     path: core/worldmodel
     title: World Model Core
@@ -1446,7 +1434,7 @@ subsystems:
     depended_by:
     - world_model/
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   tools:
     path: tools
     title: Development Tools
@@ -1460,7 +1448,7 @@ subsystems:
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   codegenagent:
     path: codegenagent
     title: CodeGen Agent
@@ -1493,7 +1481,7 @@ subsystems:
     depended_by:
     - core/agents/
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   langgraph:
     path: langgraph
     title: LangGraph Integration
@@ -1507,7 +1495,7 @@ subsystems:
     depended_by:
     - services/research/
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   local_dashboard:
     path: local_dashboard
     title: Local Dashboard
@@ -1522,7 +1510,7 @@ subsystems:
     - api/
     depended_by: []
     invariants: []
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   scripts:
     path: scripts
     title: Automation Scripts
@@ -1537,7 +1525,7 @@ subsystems:
     depended_by: []
     invariants:
     - Scripts must be idempotent where possible
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
   dev:
     path: dev
     title: Development Utilities
@@ -1561,7 +1549,7 @@ subsystems:
     purpose: Provides workflow orchestration using directed acyclic graphs (DAGs)
       for multi-step operations like harvest-deploy, refactoring, and session management.
     owner: Igor
-    last_updated: '2026-01-29T03:05:45Z'
+    last_updated: '2026-02-14T08:25:39Z'
     protected_files:
     - __init__.py
     - state.py
@@ -1618,8 +1606,3 @@ subsystems:
     - Agent execution (owned by core/agents)
     - Memory storage (owned by memory/)
     - File harvesting logic (owned by nodes)
-
-# tags: ["agent-config", "anthropic", "api-config", "configuration", "database-config", "foundation", "kernel", "model-config"]
-# keywords: ["config", "config_updated", "defaults", "readme", "subsystems", "version"]
-# last_modified: "2026-01-28T22:41:15Z"
-# ============================================================================

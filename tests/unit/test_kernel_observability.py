@@ -8,7 +8,7 @@ Verifies:
 4. Spans capture correct attributes
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -80,7 +80,7 @@ class TestKernelLifecycleSpan:
             trace_id="abc123",
             span_id="def456",
             name="kernel_loader.phase1",
-            start_time=datetime.now(timezone.utc),
+            start_time=datetime.now(UTC),
             kernel_id="master",
         )
         assert span.kernel_id == "master"
@@ -93,7 +93,7 @@ class TestKernelLifecycleSpan:
             trace_id="abc123",
             span_id="def456",
             name="kernel_loader.phase2",
-            start_time=datetime.now(timezone.utc),
+            start_time=datetime.now(UTC),
             kernel_id="identity",
             kernel_version="1.0.0",
             kernel_hash="sha256:abc123def456",
@@ -249,7 +249,7 @@ class TestKernelSpanAttributes:
             trace_id="trace123",
             span_id="span456",
             name="kernel_loader.phase2",
-            start_time=datetime.now(timezone.utc),
+            start_time=datetime.now(UTC),
             kernel_id="all",
             agent_id="l-cto",
         )
@@ -261,7 +261,7 @@ class TestKernelSpanAttributes:
             trace_id="trace123",
             span_id="span456",
             name="kernel_loader.integrity_check",
-            start_time=datetime.now(timezone.utc),
+            start_time=datetime.now(UTC),
             kernel_id="master",
             integrity_status="MODIFIED",
         )

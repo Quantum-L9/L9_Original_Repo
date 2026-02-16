@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelope, PacketKind
 from domain_tensor_bridge.agent_controller import AgentController
 
@@ -102,6 +103,7 @@ class TestProcessPacketFunction:
     """Tests for convenience function."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_process_packet_creates_controller(self, mock_packet):
         """Test convenience function creates controller."""
         # This would need mocking of the controller creation

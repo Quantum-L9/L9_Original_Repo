@@ -26,6 +26,7 @@ from core.agents.graph_state.agent_graph_loader import (
     AgentResponsibility,
     AgentTool,
 )
+from core.decorators import must_stay_async
 
 # =============================================================================
 # Test Helpers
@@ -99,6 +100,7 @@ def test_consolidation_service_has_graph_method():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_consolidate_graph_state_success():
     """Test successful graph state consolidation."""
     from core.memory.virtual_context import MemoryConsolidationService
@@ -196,6 +198,7 @@ async def test_consolidate_graph_state_loader_unavailable():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_consolidate_graph_state_updates_metrics():
     """Test that metrics are updated after consolidation."""
     from core.memory.virtual_context import MemoryConsolidationService
@@ -256,6 +259,7 @@ async def test_consolidate_graph_state_default_agent():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_snapshot_contains_required_fields():
     """Test that snapshot has all required fields."""
     from core.memory.virtual_context import MemoryConsolidationService
@@ -301,6 +305,7 @@ async def test_snapshot_contains_required_fields():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_snapshot_limits_responsibilities():
     """Test that snapshot limits responsibilities to first 5 in fact text."""
     from core.memory.virtual_context import MemoryConsolidationService

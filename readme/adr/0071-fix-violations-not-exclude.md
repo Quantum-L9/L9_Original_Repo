@@ -1,8 +1,8 @@
 # ADR-0071: Fix Violations, Don't Exclude
 
-**Status:** Accepted  
-**Date:** 2026-01-26  
-**Author:** Igor Beylin  
+**Status:** Accepted
+**Date:** 2026-01-26
+**Author:** Igor Beylin
 
 ## Context
 
@@ -20,7 +20,6 @@ During code quality improvements, there's often temptation to exclude files or d
    - **Truly unparseable content**: Helm templates (Go syntax), generated code, vendor code
    - **Intentional format differences**: Code examples in documentation that show "bad" patterns
    - **External dependencies**: Third-party code we don't control
-   
 3. **Invalid exclusion reasons:**
    - "Too many errors to fix" → Create a tracking issue instead
    - "Will fix later" → Fix now or create ADR for gradual rollout
@@ -28,18 +27,19 @@ During code quality improvements, there's often temptation to exclude files or d
 
 ### File Categories
 
-| Category | Can Exclude? | Reason |
-|----------|-------------|--------|
-| `_archived/` | Yes | Legacy code preserved for reference |
-| `.backup/` | Yes | Temporary backups |
-| `deploy/helm/*/templates/` | Yes | Go template syntax, not YAML |
-| `**/tests/` | No | Tests need same quality as prod |
-| `readme/**/*.yaml` | Sometimes | Only if showing intentional bad examples |
-| Production code | No | Never exclude production code |
+| Category                   | Can Exclude? | Reason                                   |
+| -------------------------- | ------------ | ---------------------------------------- |
+| `_archived/`               | Yes          | Legacy code preserved for reference      |
+| `.backup/`                 | Yes          | Temporary backups                        |
+| `deploy/helm/*/templates/` | Yes          | Go template syntax, not YAML             |
+| `**/tests/`                | No           | Tests need same quality as prod          |
+| `readme/**/*.yaml`         | Sometimes    | Only if showing intentional bad examples |
+| Production code            | No           | Never exclude production code            |
 
 ### Documentation File Naming
 
 Documentation files containing code examples should use appropriate extensions:
+
 - `.md` for markdown with embedded code blocks
 - `.yaml.example` for example YAML (not validated)
 - Never use `.yaml` for files that aren't valid YAML
@@ -47,6 +47,7 @@ Documentation files containing code examples should use appropriate extensions:
 ## Implementation
 
 ### Pre-commit Config
+
 ```yaml
 # Global exclude - document each pattern
 exclude: "(_archived|.backup)"  # Legacy/backup code
@@ -57,6 +58,7 @@ exclude: "(_archived|.backup)"  # Legacy/backup code
 ```
 
 ### Ruff Config
+
 ```toml
 # Document exclusion categories
 exclude = [
@@ -83,17 +85,20 @@ echo "$FILES" | xargs ruff format || true  # format is advisory, errors visible
 ```
 
 **Valid suppression patterns:**
+
 - `mkdir -p ... || true` — Directory may exist, that's expected
 - `grep -q ... || true` — No match is valid outcome, not an error
 - `curl ... 2>/dev/null` — External service metrics, non-blocking
 
 **Invalid suppression patterns:**
+
 - `2>/dev/null` on core tool execution (ruff, mypy, pytest) — Hides real failures
 - `|| true` on commands that SHOULD fail the hook — Defeats the purpose
 - `.gitignore` patterns that are too broad — Catches unintended files (e.g., `codegen/` matching `core/codegen/`)
 
 **Root Cause Analysis Required:**
 When a hook/script fails, investigate WHY before adding suppression:
+
 1. Is the error legitimate? → Fix the underlying issue
 2. Is the pattern too broad? → Make it more specific (e.g., `/codegen/` not `codegen/`)
 3. Is the tool misconfigured? → Fix the config
@@ -102,6 +107,7 @@ When a hook/script fails, investigate WHY before adding suppression:
 ## Consequences
 
 ### Positive
+
 - No hidden technical debt
 - Clear understanding of codebase health
 - Exclusions are intentional and documented
@@ -109,9 +115,11 @@ When a hook/script fails, investigate WHY before adding suppression:
 - Shell scripts fail loudly on real issues
 
 ### Negative
+
 - Initial cleanup requires more effort
 - Some edge cases need judgment calls
 
 ## Related
+
 - ADR-0014: DORA Metadata pattern (explains E402 ignore)
 - ADR-0002: Import organization rules

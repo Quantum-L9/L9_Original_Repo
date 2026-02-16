@@ -66,7 +66,12 @@ logger = structlog.get_logger(__name__)
 
 # Try to import prometheus_client, gracefully degrade if not available
 try:
-    from prometheus_client import REGISTRY, Counter, Gauge, Histogram
+    from prometheus_client import (  # noqa: F401 — REGISTRY used conditionally
+        REGISTRY,
+        Counter,
+        Gauge,
+        Histogram,
+    )
 
     PROMETHEUS_AVAILABLE = True
 except ImportError:

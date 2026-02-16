@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -108,7 +108,7 @@ class CalibrationMetrics:
 
 ```
 
-**Lines:** 96-105 in `calibration_dashboard.py`
+**Lines:** 97-107 in `calibration_dashboard.py`
 
 ### `calibration_dashboard.py` — CalibrationDashboard
 
@@ -132,7 +132,7 @@ class CalibrationDashboard:
 
 **Public Methods:** `__init__`, `_load_decisions`, `generate_weekly_report`, `_calculate_metrics`, `_calculate_ece`
 
-**Lines:** 108-524 in `calibration_dashboard.py`
+**Lines:** 110-565 in `calibration_dashboard.py`
 
 
 ---
@@ -151,7 +151,7 @@ class CalibrationDashboard:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class TelemetryRequest(BaseModel):
     """Request model for telemetry operations."""
@@ -242,7 +242,7 @@ TELEMETRY_ENABLED=true
 
 Entry point for scheduled weekly report generation
 
-- **File:** `calibration_dashboard.py:527`
+- **File:** `calibration_dashboard.py:568`
 - **Async:** No
 
 #### `def record_memory_write(segment, status, duration_seconds) -> None`
@@ -307,7 +307,7 @@ Telemetry operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "telemetry",
   "message": "Operation completed",

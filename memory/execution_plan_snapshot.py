@@ -24,6 +24,8 @@ GMP: refactor-phase0-plan7
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 # DORA HEADER META
 # ============================================================================
@@ -49,7 +51,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -226,6 +228,7 @@ class ExecutionPlanSnapshotManager:
 
         logger.info("ExecutionPlanSnapshotManager initialized")
 
+    @must_stay_async("callers use await")
     async def create_snapshot(
         self,
         plan_id: str,
@@ -284,7 +287,7 @@ class ExecutionPlanSnapshotManager:
             plan_id=plan_id,
             checkpoint_id=checkpoint_id,
             status=status,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
             steps=step_snapshots,
             current_step_index=current_step_index,
             total_steps=len(step_snapshots),
@@ -310,6 +313,7 @@ class ExecutionPlanSnapshotManager:
 
         return snapshot
 
+    @must_stay_async("callers use await")
     async def get_snapshot(self, snapshot_id: str) -> ExecutionPlanSnapshot | None:
         """
         Get snapshot by ID.
@@ -322,6 +326,7 @@ class ExecutionPlanSnapshotManager:
         """
         return self._snapshots.get(snapshot_id)
 
+    @must_stay_async("callers use await")
     async def get_snapshots_for_plan(
         self,
         plan_id: str,
@@ -396,7 +401,7 @@ class ExecutionPlanSnapshotManager:
             "metadata": {
                 **snapshot.metadata,
                 "recovered_from_snapshot": snapshot_id,
-                "recovery_timestamp": datetime.now(timezone.utc).isoformat(),
+                "recovery_timestamp": datetime.now(UTC).isoformat(),
             },
         }
 
@@ -463,6 +468,7 @@ class ExecutionPlanSnapshotManager:
 
         return analysis
 
+    @must_stay_async("callers use await")
     async def cleanup_old_snapshots(
         self,
         max_age_days: int = 30,
@@ -476,7 +482,7 @@ class ExecutionPlanSnapshotManager:
         Returns:
             Number of snapshots deleted
         """
-        cutoff_date = datetime.now(timezone.utc).timestamp() - (max_age_days * 86400)
+        cutoff_date = datetime.now(UTC).timestamp() - (max_age_days * 86400)
 
         snapshots_to_delete = [
             snapshot_id

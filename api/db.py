@@ -57,7 +57,7 @@ async def insert_embedding(
     source: str, content: str, vector: list | None = None
 ) -> None:
     """Insert embedding into database (async, uses asyncpg).
-    
+
     DEPRECATED: Use MemorySubstrateService.write_packet() instead.
     This function bypasses PacketEnvelope governance.
     """

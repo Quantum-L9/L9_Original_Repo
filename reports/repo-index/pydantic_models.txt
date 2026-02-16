@@ -2,8 +2,8 @@
 # Pydantic Models
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -69,6 +69,7 @@ CacheMetrics @ memory/warming_models.py - Metrics tracking cache performance.
 CacheResponse @ api/memory/cache.py - Standard cache response.
 CacheSetArgs @ mcp_memory/src/models.py - Validation model for cache_set MCP tool arguments.
 CacheSetRequest @ api/memory/cache.py - Request model for cache set operations.
+CacheSetSessionContextArgs @ mcp_memory/src/models.py - Validation model for cache_set_session_context MCP
 CalibrateRequest @ core/calibration/schemas.py - Request to calibrate raw model outputs.
 CalibrationConfig @ core/calibration/schemas.py - Configuration for calibration module.
 CalibrationResult @ core/calibration/schemas.py - Result of calibration.
@@ -436,7 +437,7 @@ SendRequest @ email_agent/router.py - Request model for sending email.
 SessionContextRequest @ api/memory/cache.py - Request model for session context.
 SessionLearningRequest @ mcp_memory/src/models.py - Request model for extracting learnings from a comp
 SessionLearningResponse @ mcp_memory/src/models.py - Response model for session learning extraction.
-Settings @ mcp_memory/src/config.py - Provides configuration settings for the L9 MCP Mem
+Settings @ mcp_memory/src/config.py - 
 ShellTask @ api/vps_executor.py - Request model for shell command execution tasks.
 SideEffect @ ir_engine/meta_ir.py - Side effect definition.
 SimpleCalibrationRequest @ core/calibration/schemas.py - Simplified calibration request for executor integr
@@ -534,4 +535,4 @@ WorldModelQueryInput @ core/schemas/l_tools.py - Input schema for world model qu
 WorldModelRequest @ orchestrators/world_model/interface.py - Request to world_model orchestrator.
 WorldModelResponse @ orchestrators/world_model/interface.py - Response from world_model orchestrator.
 
-# Total: 521 Pydantic models
+# Total: 522 Pydantic models

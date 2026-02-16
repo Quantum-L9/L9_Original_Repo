@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -109,14 +109,14 @@ See source files for component details.
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `F` | `TypeVar('F', bound=Callable[..., Any])` | 62 |
+| `F` | `TypeVar('F', bound=Callable[..., Any])` | 64 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreInstrumentationRequest(BaseModel):
     """Request model for core_instrumentation operations."""
@@ -207,7 +207,7 @@ CORE_INSTRUMENTATION_ENABLED=true
 
 Get current trace_id from context.
 
-- **File:** `decorators.py:76`
+- **File:** `decorators.py:78`
 - **Async:** No
 - **Returns:** `str | None`
 
@@ -215,7 +215,7 @@ Get current trace_id from context.
 
 Set trace_id in current context.
 
-- **File:** `decorators.py:91`
+- **File:** `decorators.py:93`
 - **Async:** No
 - **Returns:** `None`
 
@@ -223,7 +223,7 @@ Set trace_id in current context.
 
 Get current correlation_id from context.
 
-- **File:** `decorators.py:105`
+- **File:** `decorators.py:107`
 - **Async:** No
 - **Returns:** `str | None`
 
@@ -231,7 +231,7 @@ Get current correlation_id from context.
 
 Set correlation_id in current context.
 
-- **File:** `decorators.py:115`
+- **File:** `decorators.py:117`
 - **Async:** No
 - **Returns:** `None`
 
@@ -239,7 +239,7 @@ Set correlation_id in current context.
 
 Capture source code location from call stack.
 
-- **File:** `decorators.py:130`
+- **File:** `decorators.py:132`
 - **Async:** No
 - **Returns:** `dict[str, Any]`
 
@@ -273,7 +273,7 @@ Core Instrumentation operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.instrumentation",
   "message": "Operation completed",

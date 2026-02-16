@@ -10,6 +10,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Error Causality Tracking",
@@ -36,7 +38,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import traceback
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import uuid4
 
@@ -45,6 +47,7 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def log_error_to_graph(
     error: Exception,
     context: dict[str, Any] | None = None,
@@ -90,7 +93,7 @@ async def log_error_to_graph(
         await neo4j.create_event(
             event_id=error_id,
             event_type="error",
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             properties={
                 "error_type": type(error).__name__,
                 "message": str(error),
@@ -161,6 +164,7 @@ async def get_error_chain(error_id: str) -> list[dict[str, Any]]:
         return []
 
 
+@must_stay_async("callers use await")
 async def get_errors_by_type(
     error_type: str,
     limit: int = 50,
@@ -234,7 +238,7 @@ async def get_error_stats(hours: int = 24) -> dict[str, int]:
         return {}
 
     try:
-        cutoff = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+        cutoff = (datetime.now(UTC) - timedelta(hours=hours)).isoformat()
 
         result = await neo4j.run_query(
             """

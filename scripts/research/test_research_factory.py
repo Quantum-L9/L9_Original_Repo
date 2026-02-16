@@ -35,32 +35,38 @@ import asyncio
 import os
 
 import httpx
+import structlog
+
+logger = structlog.get_logger(__name__)
 
 BASE_URL = os.getenv("L9_BASE_URL", "http://localhost:8000")
 
 
 async def test_research_endpoint():
     """Test the /research endpoint."""
-    print(f"\n🔬 Testing Quantum Research Factory at {BASE_URL}/research\n")
+    logger.info(
+        "\n🔬 testing quantum research factory at base url/research\n",
+        BASE_URL=BASE_URL,
+    )
 
     async with httpx.AsyncClient(timeout=120.0) as client:
         # Test 1: Check server status
-        print("1️⃣  Checking server status...")
+        logger.info("1️⃣  checking server status...")
         try:
             response = await client.get(f"{BASE_URL}/")
             data = response.json()
-            print(f"   ✅ Server: {data.get('status')}")
-            print(f"   ✅ Version: {data.get('version')}")
+            logger.info("   ✅ server: {data.get('status')}")
+            logger.info("   ✅ version: {data.get('version')}")
             features = data.get("features", {})
             print(
                 f"   ✅ Research Factory enabled: {features.get('quantum_research', False)}"
             )
         except Exception as e:
-            print(f"   ❌ Failed to connect: {e}")
+            logger.error("   ❌ failed to connect: e", e=e)
             return
 
         # Test 2: Execute research query
-        print("\n2️⃣  Executing research query...")
+        logger.info("\n2️⃣  executing research query...")
         try:
             response = await client.post(
                 f"{BASE_URL}/research",
@@ -72,43 +78,51 @@ async def test_research_endpoint():
 
             if response.status_code == 200:
                 result = response.json()
-                print(f"   ✅ Thread ID: {result.get('thread_id')}")
-                print(f"   ✅ Refined Goal: {result.get('refined_goal', '')[:80]}...")
-                print(f"   ✅ Evidence Count: {result.get('evidence_count', 0)}")
-                print(f"   ✅ Quality Score: {result.get('quality_score', 0.0):.2f}")
-                print("\n   📝 Summary (first 500 chars):")
+                logger.info("   ✅ thread id: {result.get('thread_id')}")
+                logger.info(
+                    "   ✅ refined goal: {result.get('refined_goal', '')[:80]}..."
+                )
+                logger.info("   ✅ evidence count: {result.get('evidence_count', 0)}")
+                logger.info(
+                    "   ✅ quality score: {result.get('quality_score', 0.0):.2f}"
+                )
+                logger.info("\n   📝 summary (first 500 chars):")
                 summary = result.get("summary", "No summary")
-                print(f"   {summary[:500]}...")
+                logger.info("   {summary[:500]}...")
             elif response.status_code == 503:
-                print("   ⚠️  Research service not initialized (503)")
-                print("   → Check: MEMORY_DSN environment variable set?")
-                print("   → Check: Database running?")
+                logger.info("   ⚠️  research service not initialized (503)")
+                logger.info("   → check: memory_dsn environment variable set?")
+                logger.info("   → check: database running?")
             else:
-                print(f"   ❌ Error: {response.status_code} - {response.text}")
+                logger.error("   ❌ error: {response.status_code} - {response.text}")
 
         except Exception as e:
-            print(f"   ❌ Request failed: {e}")
+            logger.error("   ❌ request failed: e", e=e)
 
         # Test 3: Check if Perplexity is configured
-        print("\n3️⃣  Checking Perplexity API key...")
+        logger.info("\n3️⃣  checking perplexity api key...")
         perplexity_key = os.getenv("PERPLEXITY_API_KEY")
         if perplexity_key:
-            print(f"   ✅ PERPLEXITY_API_KEY is set (length: {len(perplexity_key)})")
+            logger.info(
+                "   ✅ perplexity_api_key is set (length: {len(perplexity_key)})"
+            )
         else:
-            print("   ⚠️  PERPLEXITY_API_KEY not set - research will use mock results")
-            print("   → Set: export PERPLEXITY_API_KEY='pplx-...'")
+            logger.info(
+                "   ⚠️  perplexity_api_key not set - research will use mock results"
+            )
+            logger.info("   → set: export perplexity_api_key='pplx-...")
 
 
 async def main():
-    print("=" * 60)
-    print("   QUANTUM RESEARCH FACTORY - ACTIVATION TEST")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("   quantum research factory - activation test")
+    logger.info("=" * 60)
 
     await test_research_endpoint()
 
-    print("\n" + "=" * 60)
-    print("   TEST COMPLETE")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info("   test complete")
+    logger.info("=" * 60)
 
 
 if __name__ == "__main__":

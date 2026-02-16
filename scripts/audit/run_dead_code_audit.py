@@ -49,6 +49,10 @@ import sys
 import time
 from pathlib import Path
 
+import structlog
+
+logger = structlog.get_logger(__name__)
+
 REPO_ROOT = Path(__file__).parent.parent.parent
 AUDIT_DIR = REPO_ROOT / "scripts" / "audit"
 REPORTS_DIR = REPO_ROOT / "reports"
@@ -95,7 +99,7 @@ def run_phase(phase_num: int, verbose: bool = False) -> tuple[bool, str]:
         cmd.append("--verbose")
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd,
             cwd=REPO_ROOT,
             capture_output=True,
@@ -163,9 +167,9 @@ def main():
         phases_to_run = [1, 2, 3, 4]
 
     if not args.quiet:
-        print("=" * 60)
-        print("L9 DEAD CODE AUDIT - CONSOLIDATED RUNNER")
-        print("=" * 60)
+        logger.info("=" * 60)
+        logger.info("l9 dead code audit - consolidated runner")
+        logger.info("=" * 60)
 
     start_time = time.time()
     results = []
@@ -174,10 +178,10 @@ def main():
         phase = PHASES[phase_num - 1]
 
         if not args.quiet:
-            print(f"\n{'─' * 60}")
-            print(f"▶ {phase['name']}")
-            print(f"  {phase['description']}")
-            print(f"{'─' * 60}")
+            logger.info("\n{'─' * 60}")
+            logger.info("▶ {phase['name']}")
+            logger.info("  {phase['description']}")
+            logger.info("{'─' * 60}")
 
         success, output = run_phase(phase_num, verbose=args.verbose)
         results.append((phase_num, success, output))
@@ -186,13 +190,13 @@ def main():
             # Show last 10 lines of output
             lines = output.strip().split("\n")
             for line in lines[-10:]:
-                print(f"  {line}")
+                logger.info("  line", line=line)
 
         if success:
             if not args.quiet:
-                print(f"  ✅ {phase['name']} complete → {phase['output']}")
+                logger.info("  ✅ {phase['name']} complete → {phase['output']}")
         else:
-            print(f"  ❌ {phase['name']} FAILED")
+            logger.error("  ❌ {phase['name']} failed")
             if not args.quick:
                 # Stop on failure for full run
                 break
@@ -201,9 +205,9 @@ def main():
 
     # Summary
     if not args.quiet:
-        print("\n" + "=" * 60)
-        print("SUMMARY")
-        print("=" * 60)
+        logger.info("\n" + "=" * 60)
+        logger.info("summary")
+        logger.info("=" * 60)
 
         passed = sum(1 for _, success, _ in results if success)
         total = len(results)
@@ -211,24 +215,32 @@ def main():
         for phase_num, success, _ in results:
             phase = PHASES[phase_num - 1]
             status = "✅" if success else "❌"
-            print(f"  {status} {phase['name']}")
+            logger.info("  status {phase['name']}", status=status)
 
-        print(f"\nResult: {passed}/{total} phases passed")
-        print(f"Time: {elapsed:.1f}s")
+        logger.info("\nresult: passed/total phases passed", passed=passed, total=total)
+        logger.info("time: {elapsed:.1f}s")
 
         if passed == total:
-            print("\n🎉 Dead code audit complete!")
+            logger.info("\n🎉 dead code audit complete!")
             if 4 in phases_to_run:
-                print("   GMP TODO plan: reports/dead_code_gmp_todos.yaml")
-        print("=" * 60)
+                logger.info("   gmp todo plan: reports/dead_code_gmp_todos.yaml")
+        logger.info("=" * 60)
     else:
         # Quiet mode - just summary line
         passed = sum(1 for _, success, _ in results if success)
         total = len(results)
         if passed == total:
-            print(f"✅ Dead code audit: {passed}/{total} phases ({elapsed:.1f}s)")
+            logger.info(
+                "✅ dead code audit: passed/total phases ({elapsed:.1f}s)",
+                passed=passed,
+                total=total,
+            )
         else:
-            print(f"⚠️  Dead code audit: {passed}/{total} phases ({elapsed:.1f}s)")
+            logger.info(
+                "⚠️  dead code audit: passed/total phases ({elapsed:.1f}s)",
+                passed=passed,
+                total=total,
+            )
 
     # Exit code: 0 if all passed, 1 if any failed
     return 0 if all(success for _, success, _ in results) else 1

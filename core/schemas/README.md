@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -90,7 +90,7 @@ core/schemas/
 ├── tests/__init__.py
 ├── tests/test_discriminators.py
 ├── tests/test_packet_envelope.py
-└── ... (4 more files)
+└── ... (5 more files)
 ```
 
 | File | Purpose |
@@ -186,7 +186,7 @@ The following data models define the contracts for this subsystem:
 
 `AgentCapabilities`, `AgentHandshake`, `AgentHeartbeat`, `AgentTask`, `Capability`, `CapabilityViolation`, `DEFAULT_ARCHITECT_CAPABILITIES`, `DEFAULT_CODER_CAPABILITIES`, `DEFAULT_L_CAPABILITIES`, `DEFAULT_READER_CAPABILITIES`
 
-*...and 59 more*
+*...and 62 more*
 
 ### Module Constants
 
@@ -208,7 +208,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreSchemasRequest(BaseModel):
     """Request model for core_schemas operations."""
@@ -299,7 +299,7 @@ CORE_SCHEMAS_ENABLED=true
 
 Pass 1 — Derive research plan from job specification.
 
-- **File:** `research_factory_nodes.py:74`
+- **File:** `research_factory_nodes.py:75`
 - **Async:** Yes
 - **Returns:** `ResearchState`
 
@@ -307,7 +307,7 @@ Pass 1 — Derive research plan from job specification.
 
 Pass 2 — Construct optimized prompts from query plan.
 
-- **File:** `research_factory_nodes.py:153`
+- **File:** `research_factory_nodes.py:154`
 - **Async:** Yes
 - **Returns:** `ResearchState`
 
@@ -315,7 +315,7 @@ Pass 2 — Construct optimized prompts from query plan.
 
 Pass 3 — Call research backend(s) with superprompts.
 
-- **File:** `research_factory_nodes.py:222`
+- **File:** `research_factory_nodes.py:223`
 - **Async:** Yes
 - **Returns:** `ResearchState`
 
@@ -323,7 +323,7 @@ Pass 3 — Call research backend(s) with superprompts.
 
 Pass 4 — Transform raw JSON into validated objects.
 
-- **File:** `research_factory_nodes.py:290`
+- **File:** `research_factory_nodes.py:291`
 - **Async:** Yes
 - **Returns:** `ResearchState`
 
@@ -331,7 +331,7 @@ Pass 4 — Transform raw JSON into validated objects.
 
 Pass 5 — Persist output to hypergraph and world model.
 
-- **File:** `research_factory_nodes.py:368`
+- **File:** `research_factory_nodes.py:369`
 - **Async:** Yes
 - **Returns:** `ResearchState`
 
@@ -365,7 +365,7 @@ Core Schemas operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.schemas",
   "message": "Operation completed",

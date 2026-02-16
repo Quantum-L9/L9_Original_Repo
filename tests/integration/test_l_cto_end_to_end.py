@@ -18,6 +18,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -114,6 +116,7 @@ class TestLCTOEndToEnd:
         )
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_full_execution_flow_success(
         self,
         executor,
@@ -168,6 +171,7 @@ class TestLCTOEndToEnd:
         assert first_packet.metadata.agent == "l-cto"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_governance_blocks_dangerous_task(
         self,
         executor,
@@ -209,6 +213,7 @@ class TestLCTOEndToEnd:
         assert mock_substrate_service.write_packet.called
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_governance_blocks_authority_violation(
         self,
         executor,
@@ -248,6 +253,7 @@ class TestLCTOEndToEnd:
         assert not mock_aios_runtime.execute_reasoning.called
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_memory_emission_includes_agent_id(
         self,
         executor,
@@ -283,6 +289,7 @@ class TestLCTOEndToEnd:
             assert packet.metadata.agent == "l-cto"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_kernel_loaded_in_agent_config(
         self,
         executor,
@@ -308,6 +315,7 @@ class TestLCTOEndToEnd:
         assert kernel_state == "ACTIVE"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_audit_logging_after_execution(
         self,
         executor,
@@ -347,6 +355,7 @@ class TestLCTOEndToEnd:
         # This test verifies the call path, not the storage
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_tool_dispatch_integration(
         self,
         executor,
@@ -423,6 +432,7 @@ class TestLCTOEndToEnd:
         assert result.result is not None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_error_handling_and_packet_emission(
         self,
         executor,
@@ -475,6 +485,7 @@ class TestLCTOKernelIntegration:
     """Test L-CTO kernel integration end-to-end."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_kernel_activation_creates_agent_config(self):
         """Test kernel activation creates proper agent config."""
         from core.agents.kernel_registry import KernelAwareAgentRegistry
@@ -494,6 +505,7 @@ class TestLCTOKernelIntegration:
         assert len(config.system_prompt) > 100  # Should have substantial prompt
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_kernel_prompt_contains_identity(self):
         """Test kernel-based prompt contains L-CTO identity."""
         from core.agents.kernel_registry import KernelAwareAgentRegistry
@@ -538,6 +550,7 @@ class TestLCTOMemoryIntegration:
         return mock
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_executor_emits_trace_packets(self, mock_substrate_service):
         """Test executor emits trace packets during execution."""
         # Import here

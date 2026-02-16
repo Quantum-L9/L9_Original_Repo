@@ -13,6 +13,8 @@ ingestion-time extraction (substrate_dag) and query-time extraction
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 __dora_meta__ = {
     "component_name": "Unified Entity Extraction Service",
     "module_version": "1.0.0",
@@ -78,9 +80,7 @@ class EntityExtractionService:
     )
     _SLACK_USER_PATTERN = re.compile(r"<@([A-Z0-9]+)>")
     _GMP_PATTERN = re.compile(r"GMP-(\d+)", re.IGNORECASE)
-    _FILE_PATH_PATTERN = re.compile(
-        r"(?:/[\w.-]+)+\.(?:py|ts|js|yaml|yml|json|md)"
-    )
+    _FILE_PATH_PATTERN = re.compile(r"(?:/[\w.-]+)+\.(?:py|ts|js|yaml|yml|json|md)")
 
     def __init__(
         self,
@@ -97,6 +97,7 @@ class EntityExtractionService:
         self._use_llm = use_llm
         self._llm_client = llm_client
 
+    @must_stay_async("callers use await")
     async def extract(
         self,
         text: str | None = None,
@@ -155,33 +156,39 @@ class EntityExtractionService:
         entities: list[ExtractedEntity] = []
 
         if agent_id := context.get("agent_id") or context.get("agent"):
-            entities.append(ExtractedEntity(
-                entity_type="Agent",
-                entity_id=str(agent_id),
-                name=str(agent_id),
-                confidence=1.0,
-                source="metadata",
-            ))
+            entities.append(
+                ExtractedEntity(
+                    entity_type="Agent",
+                    entity_id=str(agent_id),
+                    name=str(agent_id),
+                    confidence=1.0,
+                    source="metadata",
+                )
+            )
 
         if source_id := context.get("source_id"):
             source_str = str(source_id)
             etype = "User" if source_str.startswith("user:") else "System"
-            entities.append(ExtractedEntity(
-                entity_type=etype,
-                entity_id=source_str,
-                name=source_str,
-                confidence=1.0,
-                source="metadata",
-            ))
+            entities.append(
+                ExtractedEntity(
+                    entity_type=etype,
+                    entity_id=source_str,
+                    name=source_str,
+                    confidence=1.0,
+                    source="metadata",
+                )
+            )
 
         if thread_id := context.get("thread_id"):
-            entities.append(ExtractedEntity(
-                entity_type="Thread",
-                entity_id=str(thread_id),
-                name=f"Thread:{str(thread_id)[:8]}",
-                confidence=1.0,
-                source="metadata",
-            ))
+            entities.append(
+                ExtractedEntity(
+                    entity_type="Thread",
+                    entity_id=str(thread_id),
+                    name=f"Thread:{str(thread_id)[:8]}",
+                    confidence=1.0,
+                    source="metadata",
+                )
+            )
 
         return entities
 
@@ -190,40 +197,48 @@ class EntityExtractionService:
         entities: list[ExtractedEntity] = []
 
         for match in self._UUID_PATTERN.finditer(text):
-            entities.append(ExtractedEntity(
-                entity_type="Entity",
-                entity_id=match.group(),
-                name=f"Entity:{match.group()[:8]}",
-                confidence=0.7,
-                source="pattern",
-            ))
+            entities.append(
+                ExtractedEntity(
+                    entity_type="Entity",
+                    entity_id=match.group(),
+                    name=f"Entity:{match.group()[:8]}",
+                    confidence=0.7,
+                    source="pattern",
+                )
+            )
 
         for match in self._SLACK_USER_PATTERN.finditer(text):
-            entities.append(ExtractedEntity(
-                entity_type="User",
-                entity_id=f"slack:{match.group(1)}",
-                name=f"Slack User {match.group(1)}",
-                confidence=0.9,
-                source="pattern",
-            ))
+            entities.append(
+                ExtractedEntity(
+                    entity_type="User",
+                    entity_id=f"slack:{match.group(1)}",
+                    name=f"Slack User {match.group(1)}",
+                    confidence=0.9,
+                    source="pattern",
+                )
+            )
 
         for match in self._GMP_PATTERN.finditer(text):
-            entities.append(ExtractedEntity(
-                entity_type="GMP",
-                entity_id=f"gmp-{match.group(1)}",
-                name=f"GMP-{match.group(1)}",
-                confidence=0.95,
-                source="pattern",
-            ))
+            entities.append(
+                ExtractedEntity(
+                    entity_type="GMP",
+                    entity_id=f"gmp-{match.group(1)}",
+                    name=f"GMP-{match.group(1)}",
+                    confidence=0.95,
+                    source="pattern",
+                )
+            )
 
         for match in self._FILE_PATH_PATTERN.finditer(text):
-            entities.append(ExtractedEntity(
-                entity_type="File",
-                entity_id=match.group(),
-                name=match.group().split("/")[-1],
-                confidence=0.8,
-                source="pattern",
-            ))
+            entities.append(
+                ExtractedEntity(
+                    entity_type="File",
+                    entity_id=match.group(),
+                    name=match.group().split("/")[-1],
+                    confidence=0.8,
+                    source="pattern",
+                )
+            )
 
         return entities
 
@@ -249,14 +264,16 @@ class EntityExtractionService:
             )
             object_value = str(value) if isinstance(value, UUID) else value
 
-            entities.append(ExtractedEntity(
-                entity_type="Fact",
-                entity_id=f"{subject}:{key}",
-                name=f"{subject}.{key}",
-                confidence=0.6,
-                source="heuristic",
-                properties={"predicate": key, "object": object_value},
-            ))
+            entities.append(
+                ExtractedEntity(
+                    entity_type="Fact",
+                    entity_id=f"{subject}:{key}",
+                    name=f"{subject}.{key}",
+                    confidence=0.6,
+                    source="heuristic",
+                    properties={"predicate": key, "object": object_value},
+                )
+            )
 
         return entities
 

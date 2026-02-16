@@ -7,6 +7,8 @@ These are low-risk tools that do not require Igor approval.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Memory Tools",
@@ -94,6 +96,7 @@ class MemoryWriteResult:
     error: str | None = None
 
 
+@must_stay_async("callers use await")
 async def memory_search(
     agent_id: str,
     query: str,
@@ -205,6 +208,7 @@ async def memory_search(
         return []
 
 
+@must_stay_async("callers use await")
 async def memory_write(
     agent_id: str,
     content: str,
@@ -355,6 +359,7 @@ MEMORY_TOOL_DEFINITIONS = [
 ]
 
 
+@must_stay_async("callers use await")
 async def register_memory_tools(
     tool_registry: Any, substrate_service: Any = None
 ) -> int:
@@ -414,7 +419,7 @@ async def register_memory_tools(
             description = tool_def["description"]
             executor = executors.get(tool_id)
 
-            # Skip if tool already registered (by register_l_tools which has proper schemas)
+            # Skip if tool already registered (by bridge sync which has proper schemas)
             if hasattr(tool_registry, "_registry") and tool_registry._registry:
                 existing = tool_registry._registry.get(tool_id)
                 if existing:

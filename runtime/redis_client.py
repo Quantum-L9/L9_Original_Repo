@@ -113,6 +113,7 @@ class RedisClient:
         self._client: aioredis.Redis | None = None
         self._available = False
 
+    @must_stay_async("callers use await")
     async def connect(self) -> bool:
         """
         Connect to Redis server.
@@ -186,6 +187,7 @@ class RedisClient:
     # Task Queue Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def enqueue_task(
         self,
         queue_name: str,
@@ -407,6 +409,115 @@ class RedisClient:
             logger.error(f"Redis set_task_context failed: {e}")
             return False
 
+    # =========================================================================
+    # Slack Thread Context Cache (GMP-SLACK-THREAD-CACHE)
+    # =========================================================================
+
+    async def get_thread_context(self, thread_uuid: str) -> list[dict]:
+        """
+        Retrieve cached Slack thread conversation from Redis.
+
+        Returns list of message dicts (newest last) for the thread,
+        enabling immediate context on the next message without waiting
+        for async Postgres ingestion.
+
+        Args:
+            thread_uuid: Deterministic UUID for the Slack thread
+
+        Returns:
+            List of message dicts or empty list if not found/unavailable
+        """
+        if not self.is_available():
+            return []
+
+        try:
+            context_key = self._prefixed_key(f"slack:thread:{thread_uuid}:context")
+            context_str = await self._client.get(context_key)
+            if context_str:
+                data = json.loads(context_str)
+                return data if isinstance(data, list) else []
+            return []
+        except Exception as e:
+            logger.error(
+                "redis_get_thread_context_failed",
+                error=str(e),
+                thread_uuid=thread_uuid,
+            )
+            return []
+
+    @must_stay_async("callers use await")
+    async def set_thread_context(
+        self,
+        thread_uuid: str,
+        messages: list[dict],
+        ttl: int = 7200,
+    ) -> bool:
+        """
+        Cache Slack thread conversation in Redis.
+
+        Stores messages for a thread so the next message has immediate
+        context (no Postgres race). No artificial message limit — the
+        2-hour TTL naturally bounds growth.
+
+        Args:
+            thread_uuid: Deterministic UUID for the Slack thread
+            messages: List of message dicts to cache (newest last)
+            ttl: Time to live in seconds (default: 7200 = 2 hours)
+
+        Returns:
+            True if cached, False otherwise
+        """
+        if not self.is_available():
+            return False
+
+        try:
+            context_key = self._prefixed_key(f"slack:thread:{thread_uuid}:context")
+            await self._client.setex(context_key, ttl, json.dumps(messages))
+            return True
+        except Exception as e:
+            logger.error(
+                "redis_set_thread_context_failed",
+                error=str(e),
+                thread_uuid=thread_uuid,
+            )
+            return False
+
+    @must_stay_async("callers use await")
+    async def append_thread_message(
+        self,
+        thread_uuid: str,
+        message: dict,
+        ttl: int = 7200,
+    ) -> bool:
+        """
+        Append a single message to the cached thread context.
+
+        Reads existing context, appends the new message, and writes back.
+        No artificial message limit — the 2-hour TTL naturally bounds growth.
+
+        Args:
+            thread_uuid: Deterministic UUID for the Slack thread
+            message: Message dict to append (inbound or outbound)
+            ttl: Time to live in seconds (default: 7200 = 2 hours)
+
+        Returns:
+            True if appended, False otherwise
+        """
+        if not self.is_available():
+            return False
+
+        try:
+            existing = await self.get_thread_context(thread_uuid)
+            existing.append(message)
+            return await self.set_thread_context(thread_uuid, existing, ttl=ttl)
+        except Exception as e:
+            logger.error(
+                "redis_append_thread_message_failed",
+                error=str(e),
+                thread_uuid=thread_uuid,
+            )
+            return False
+
     async def decrement_rate_limit(self, key: str, amount: int = 1) -> int:
         """Decrement rate limit counter.
 
@@ -448,6 +559,7 @@ class RedisClient:
             logger.error(f"Redis get failed: {e}")
             return None
 
+    @must_stay_async("callers use await")
     async def set(
         self,
         key: str,
@@ -482,6 +594,7 @@ class RedisClient:
             logger.error(f"Redis set failed: {e}")
             return False
 
+    @must_stay_async("callers use await")
     async def setnx(
         self,
         key: str,
@@ -570,6 +683,7 @@ _redis_client: RedisClient | None = None
     lifecycle="startup",
     description="Redis cache/queue client for task queue and rate limiting",
 )
+@must_stay_async("callers use await")
 async def get_redis_client(
     client: RedisClient | None = None,
 ) -> RedisClient | None:

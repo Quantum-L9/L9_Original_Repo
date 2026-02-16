@@ -310,6 +310,7 @@ class ReviewerCell(BaseCell):
     # Review-Specific Methods
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def review_code(
         self,
         code: dict[str, str],
@@ -339,6 +340,7 @@ class ReviewerCell(BaseCell):
         result = await self.execute(task, context)
         return result.output or {}
 
+    @must_stay_async("callers use await")
     async def security_audit(
         self,
         code: dict[str, str],
@@ -372,6 +374,7 @@ class ReviewerCell(BaseCell):
             "verdict": output.get("verdict"),
         }
 
+    @must_stay_async("callers use await")
     async def get_test_suggestions(
         self,
         code: dict[str, str],

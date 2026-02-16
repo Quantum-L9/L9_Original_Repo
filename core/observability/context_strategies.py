@@ -25,7 +25,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from abc import ABC, abstractmethod  # TODO(ADR-0026): Convert to Protocol - no shared impl
+from abc import (  # TODO(ADR-0026): Convert to Protocol - no shared impl
+    ABC,
+    abstractmethod,
+)
 from typing import Any
 
 import structlog
@@ -202,6 +205,7 @@ class RAGStrategy(ContextStrategy):
         self.top_k = top_k
         self.min_relevance = min_relevance
 
+    @must_stay_async("callers use await")
     async def assemble(
         self,
         conversation: list[dict[str, str]],

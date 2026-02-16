@@ -10,6 +10,7 @@
 ## Problem Statement
 
 Neo4j service was running in Docker but showing as "unavailable" in API logs:
+
 ```
 Neo4j not available, governance gates set in memory only
 ```
@@ -25,11 +26,13 @@ The .env configuration was correct (`NEO4J_URL=bolt://neo4j:7687`), and Neo4j co
 **Issue:** The server startup code was calling `get_neo4j_client()` which only **retrieves** an existing singleton client - it does NOT create/initialize one.
 
 The `graph_client.py` docstring clearly states:
+
 > "Call `init_neo4j_client()` during startup to initialize the singleton. This accessor does NOT create the client if it doesn't exist."
 
 **Why it happened:**
-1. `bootstrap/__main__.py` correctly calls `init_neo4j_client()` 
-2. But `api/server.py` was calling `get_neo4j_client()` 
+
+1. `bootstrap/__main__.py` correctly calls `init_neo4j_client()`
+2. But `api/server.py` was calling `get_neo4j_client()`
 3. Bootstrap runs in a separate process - singleton not shared
 4. Result: API server's `get_neo4j_client()` always returned `None`
 
@@ -47,7 +50,7 @@ from memory.graph_client import close_neo4j_client, get_neo4j_client
 ...
 neo4j = await get_neo4j_client()
 
-# AFTER  
+# AFTER
 from memory.graph_client import close_neo4j_client, get_neo4j_client, init_neo4j_client
 ...
 # Use init_neo4j_client() on first attempt to CREATE the singleton
@@ -73,10 +76,10 @@ logger.debug(
 
 ## Files Modified
 
-| File | Lines | Action |
-|------|-------|--------|
-| `api/server.py` | 1625-1640 | REPLACE - Use init_neo4j_client() |
-| `memory/graph_client.py` | 133-155 | REPLACE - Add diagnostic logging |
+| File                     | Lines     | Action                            |
+| ------------------------ | --------- | --------------------------------- |
+| `api/server.py`          | 1625-1640 | REPLACE - Use init_neo4j_client() |
+| `memory/graph_client.py` | 133-155   | REPLACE - Add diagnostic logging  |
 
 ---
 
@@ -106,6 +109,7 @@ logger.debug(
 ## Rollback
 
 If issues occur:
+
 ```bash
 git checkout HEAD~1 -- api/server.py memory/graph_client.py
 docker compose -f docker-compose.yml -f docker-compose.prod.yml restart l9-api

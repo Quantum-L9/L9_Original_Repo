@@ -7,6 +7,8 @@ interfaces for type safety and structlog for observability.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Validation Protocols",
@@ -128,6 +130,7 @@ class ValidationProtocol(Protocol):
     with the L9 validation framework.
     """
 
+    @must_stay_async("callers use await")
     async def validate(
         self,
         data: Any,
@@ -145,6 +148,7 @@ class ValidationProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def validate_field(
         self,
         field_name: str,
@@ -164,6 +168,7 @@ class ValidationProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def validate_required(
         self,
         data: dict[str, Any],
@@ -181,6 +186,7 @@ class ValidationProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def validate_type(
         self,
         value: Any,
@@ -232,6 +238,7 @@ class StandardValidator:
         """
         self.logger = logger_instance or logger
 
+    @must_stay_async("callers use await")
     async def validate(
         self,
         data: Any,
@@ -295,6 +302,7 @@ class StandardValidator:
 
         return result
 
+    @must_stay_async("callers use await")
     async def validate_field(
         self,
         field_name: str,
@@ -448,6 +456,7 @@ class StandardValidator:
 
         return ValidationResult(valid=valid, errors=errors, warnings=warnings)
 
+    @must_stay_async("callers use await")
     async def validate_required(
         self,
         data: dict[str, Any],
@@ -484,6 +493,7 @@ class StandardValidator:
 
         return ValidationResult(valid=len(errors) == 0, errors=errors)
 
+    @must_stay_async("callers use await")
     async def validate_type(
         self,
         value: Any,
@@ -566,6 +576,7 @@ def validate_input(
 
 
         @validate_input(schema=user_schema)
+        @must_stay_async("callers use await")
         async def create_user(name: str, email: str) -> dict:
             return {"name": name, "email": email}
         ```
@@ -573,6 +584,7 @@ def validate_input(
     schema = schema or {}
     val = validator or StandardValidator()
 
+    @wraps(schema)
     def decorator(func: T) -> T:
         """
         Performs validation of asynchronous and synchronous functions within the L9 async-first codebase, ensuring type safety and proper error handling.
@@ -586,6 +598,7 @@ def validate_input(
         if iscoroutinefunction(func):
 
             @wraps(func)
+            @must_stay_async("callers use await")
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
                 """
                 Performs asynchronous validation by wrapping a function to ensure data integrity within the L9 async-first validation framework.

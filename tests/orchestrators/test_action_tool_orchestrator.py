@@ -10,6 +10,8 @@ Version: 1.0.0
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Test Class: Action Tool Orchestrator
 # =============================================================================
@@ -179,6 +181,7 @@ class TestActionToolOrchestrator:
         assert result.success is True
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_timeout_handling(self):
         """
         Contract: Execution timeout returns appropriate error.

@@ -7,6 +7,8 @@ Purpose: Smoke test all systems, sign initialization hash, write audit trail, fl
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Phase 7 Verify And Lock",
@@ -29,10 +31,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import structlog
+
+from core.config_constants import DEFAULT_SEARCH_SCOPES
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
@@ -43,6 +47,7 @@ if TYPE_CHECKING:
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def verify_and_lock(
     instance: BootstrapInstanceData,
     substrate_service: MemorySubstrateService,
@@ -118,7 +123,7 @@ async def verify_and_lock(
     signature_data = (
         f"{instance.instance_id}|"
         f"{instance.agent_id}|"
-        f"{datetime.now(timezone.utc).isoformat()}|"
+        f"{datetime.now(UTC).isoformat()}|"
         f"{len(kernels)}kernels|"
         f"{instance.designation or 'unknown'}"
     )
@@ -126,7 +131,7 @@ async def verify_and_lock(
 
     # Update instance
     instance.initialization_signature = signature
-    instance.initialized_at = datetime.now(timezone.utc)
+    instance.initialized_at = datetime.now(UTC)
     instance.kernel_state = "ACTIVE"
     instance.status = "READY"
 
@@ -138,7 +143,7 @@ async def verify_and_lock(
         "kernel_count": len(kernels),
         "initialization_signature": signature,
         "verification_results": verification_results,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "status": "READY",
     }
 
@@ -159,7 +164,7 @@ async def verify_and_lock(
                 role="system",
                 scope="developer",
                 project_id="l9-bootstrap",
-                allowed_scopes=["developer", "global"],
+                allowed_scopes=DEFAULT_SEARCH_SCOPES,  # ADR-0098
                 tenant_id=rls_config.tenant_uuid,
                 org_id=rls_config.org_uuid,
                 user_id=rls_config.user_uuid,
@@ -200,7 +205,7 @@ async def verify_and_lock(
                     {
                         "instance_id": instance.instance_id,
                         "signature": signature,
-                        "initialized_at": datetime.now(timezone.utc).isoformat(),
+                        "initialized_at": datetime.now(UTC).isoformat(),
                     },
                 )
         except Exception as e:
@@ -220,6 +225,7 @@ async def verify_and_lock(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def verify_and_lock_view(
     agent_id: str,
     identity_view: Any,  # IdentityView from models
@@ -248,7 +254,7 @@ async def verify_and_lock_view(
           - context_delta: dict (additional context to merge)
           - error: Exception | None
     """
-    start = datetime.now(timezone.utc)
+    start = datetime.now(UTC)
 
     try:
         # Validate critical fields
@@ -272,7 +278,7 @@ async def verify_and_lock_view(
             init_signature=init_signature[:16],  # First 16 chars for logging
         )
 
-        duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+        duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
         return {
             "success": True,

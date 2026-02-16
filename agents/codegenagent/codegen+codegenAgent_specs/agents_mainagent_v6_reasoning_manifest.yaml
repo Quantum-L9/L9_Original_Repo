@@ -1,0 +1,56 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Mainagent V6 Reasoning Manifest"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "agents_mainagent_v6_reasoning_manifest"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# =======================================
+# L9 Codegen Spec: Reasoning Manifest v6
+# =======================================
+
+filename: agents/mainagent_v6/reasoning_manifest.yaml
+type: module_manifest
+language: yaml
+
+description: |
+  Declares all modules MainAgentV6 depends on at runtime for reasoning:
+  memory fusion, tensor inference, logic layer, escalation, and audit.
+
+wiring:
+  required:
+    - memory_enricher
+    - tensor_bridge
+    - symbolic_reasoner
+    - governance_hooks
+    - world_model_adapter
+    - reasoning_trace
+    - reflection_schedule
+    - metrics_mainagent
+
+code: |
+  modules:
+    - agents.mainagent_v6.memory_enricher
+    - agents.mainagent_v6.tensor_bridge
+    - agents.mainagent_v6.reasoning_trace
+    - agents.mainagent_v6.governance_hooks
+    - agents.mainagent_v6.mainagent
+    - metrics.metrics_mainagent
+    - kernel_policy.mainagent_policy
+    - orchestration.schedules.reflection_schedule
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "intelligence", "kernel", "model-config", "utility"]
+# keywords: ["agents", "code", "description", "filename", "language", "mainagent"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

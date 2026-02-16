@@ -17,6 +17,8 @@ Based on frontier AI lab patterns (Anthropic, OpenAI, DeepMind).
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Strategy-Based Retrieval",
@@ -42,14 +44,15 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import TYPE_CHECKING, Any
-from uuid import UUID
 
 import structlog
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from memory.identity_tier import IdentityTierService
     from memory.substrate_repository import SubstrateRepository
 
@@ -123,7 +126,7 @@ class StrategyContext:
 
     # Time context
     time_window_days: int = 7  # For temporal queries
-    reference_time: datetime = field(default_factory=datetime.utcnow)
+    reference_time: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Entity context (extracted from query)
     entities: list[str] = field(default_factory=list)
@@ -353,6 +356,7 @@ class StrategyBasedRetriever:
     # Main Entry Point
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def retrieve(
         self,
         query: str,
@@ -372,7 +376,7 @@ class StrategyBasedRetriever:
         Returns:
             StrategyResult with retrieved items and metadata
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Create context if not provided
         if context is None:
@@ -388,9 +392,7 @@ class StrategyBasedRetriever:
         results = await self._execute_strategy(strategy, context, max_results)
 
         # Calculate execution time
-        execution_time_ms = (
-            datetime.now(timezone.utc) - start_time
-        ).total_seconds() * 1000
+        execution_time_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         return StrategyResult(
             strategy=strategy,
@@ -520,6 +522,7 @@ class StrategyBasedRetriever:
             for f in facts[:max_results]
         ]
 
+    @must_stay_async("callers use await")
     async def _execute_temporal_recall(
         self,
         context: StrategyContext,
@@ -563,6 +566,7 @@ class StrategyBasedRetriever:
             for e in events
         ]
 
+    @must_stay_async("callers use await")
     async def _execute_association(
         self,
         context: StrategyContext,
@@ -637,6 +641,7 @@ class StrategyBasedRetriever:
 
         return results[:max_results]
 
+    @must_stay_async("callers use await")
     async def _execute_uncertainty_fill(
         self,
         context: StrategyContext,

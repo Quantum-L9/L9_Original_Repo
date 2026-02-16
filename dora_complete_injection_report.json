@@ -100,12 +100,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MacMessage",
-        "MacResponse",
-        "Config",
-        "Config"
-      ]
+      "classes": ["MacMessage", "MacResponse", "Config", "Config"]
     },
     {
       "file": "tools/l9_cli.py",
@@ -135,9 +130,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SingletonServiceConfig"
-      ]
+      "classes": ["SingletonServiceConfig"]
     },
     {
       "file": "core/singleton_registry.py",
@@ -147,11 +140,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SingletonLifecycle",
-        "SingletonEntry",
-        "SingletonRegistry"
-      ]
+      "classes": ["SingletonLifecycle", "SingletonEntry", "SingletonRegistry"]
     },
     {
       "file": "core/event_type_registry.py",
@@ -161,9 +150,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "EventTypeConfig"
-      ]
+      "classes": ["EventTypeConfig"]
     },
     {
       "file": "core/__init__.py",
@@ -203,11 +190,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ModuleDefinition",
-        "ModuleStatus",
-        "ModuleRegistry"
-      ]
+      "classes": ["ModuleDefinition", "ModuleStatus", "ModuleRegistry"]
     },
     {
       "file": "core/auto_registry.py",
@@ -233,9 +216,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "GovernanceIntegration"
-      ]
+      "classes": ["GovernanceIntegration"]
     },
     {
       "file": "core/decorators.py",
@@ -347,9 +328,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "QueryCache"
-      ]
+      "classes": ["QueryCache"]
     },
     {
       "file": "memory/ingestion.py",
@@ -359,9 +338,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "IngestionPipeline"
-      ]
+      "classes": ["IngestionPipeline"]
     },
     {
       "file": "memory/reasoning_replay.py",
@@ -371,10 +348,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ReasoningChain",
-        "ReasoningReplayPipeline"
-      ]
+      "classes": ["ReasoningChain", "ReasoningReplayPipeline"]
     },
     {
       "file": "memory/checkpoint_metrics.py",
@@ -384,12 +358,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CheckpointMetrics",
-        "Counter",
-        "Histogram",
-        "Gauge"
-      ]
+      "classes": ["CheckpointMetrics", "Counter", "Histogram", "Gauge"]
     },
     {
       "file": "memory/state_manager.py",
@@ -399,9 +368,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemoryStateManager"
-      ]
+      "classes": ["MemoryStateManager"]
     },
     {
       "file": "memory/timeline_service.py",
@@ -411,9 +378,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TimelineService"
-      ]
+      "classes": ["TimelineService"]
     },
     {
       "file": "memory/predictive_cache.py",
@@ -423,9 +388,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PredictiveCache"
-      ]
+      "classes": ["PredictiveCache"]
     },
     {
       "file": "memory/tool_audit.py",
@@ -512,9 +475,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemorySubstrateService"
-      ]
+      "classes": ["MemorySubstrateService"]
     },
     {
       "file": "memory/governance_gate.py",
@@ -524,9 +485,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemoryGovernanceContext"
-      ]
+      "classes": ["MemoryGovernanceContext"]
     },
     {
       "file": "memory/deduplication.py",
@@ -552,10 +511,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BlobMetadata",
-        "BlobStore"
-      ]
+      "classes": ["BlobMetadata", "BlobStore"]
     },
     {
       "file": "memory/retrieval_ranking.py",
@@ -565,11 +521,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RankingWeights",
-        "RankingItem",
-        "MultiFactorRanker"
-      ]
+      "classes": ["RankingWeights", "RankingItem", "MultiFactorRanker"]
     },
     {
       "file": "memory/schema_introspection.py",
@@ -620,11 +572,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemoryTier",
-        "ContextSection",
-        "HierarchicalContextBuilder"
-      ]
+      "classes": ["MemoryTier", "ContextSection", "HierarchicalContextBuilder"]
     },
     {
       "file": "memory/consolidation.py",
@@ -634,10 +582,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ConsolidationReport",
-        "ConsolidationPipeline"
-      ]
+      "classes": ["ConsolidationReport", "ConsolidationPipeline"]
     },
     {
       "file": "memory/saga_patterns.py",
@@ -647,9 +592,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SagaPatterns"
-      ]
+      "classes": ["SagaPatterns"]
     },
     {
       "file": "memory/audit_utils.py",
@@ -659,9 +602,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AuditReport"
-      ]
+      "classes": ["AuditReport"]
     },
     {
       "file": "memory/__init__.py",
@@ -681,9 +622,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CachedSubstrateRepository"
-      ]
+      "classes": ["CachedSubstrateRepository"]
     },
     {
       "file": "memory/substrate_repository_batch_helpers.py",
@@ -693,9 +632,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BatchQueryHelpers"
-      ]
+      "classes": ["BatchQueryHelpers"]
     },
     {
       "file": "memory/index_syncer.py",
@@ -705,9 +642,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "IndexSyncer"
-      ]
+      "classes": ["IndexSyncer"]
     },
     {
       "file": "memory/dead_letter_queue.py",
@@ -717,10 +652,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DLQEntry",
-        "DeadLetterQueue"
-      ]
+      "classes": ["DLQEntry", "DeadLetterQueue"]
     },
     {
       "file": "memory/tool_router.py",
@@ -745,10 +677,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "StrategyMemoryConfig",
-        "Neo4jStrategyMemoryService"
-      ]
+      "classes": ["StrategyMemoryConfig", "Neo4jStrategyMemoryService"]
     },
     {
       "file": "memory/active_encoder.py",
@@ -809,9 +738,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "QueryClassifier"
-      ]
+      "classes": ["QueryClassifier"]
     },
     {
       "file": "memory/substrate_semantic.py",
@@ -836,11 +763,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RetentionPolicy",
-        "RetentionResult",
-        "RetentionEngine"
-      ]
+      "classes": ["RetentionPolicy", "RetentionResult", "RetentionEngine"]
     },
     {
       "file": "memory/housekeeping.py",
@@ -850,9 +773,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "HousekeepingEngine"
-      ]
+      "classes": ["HousekeepingEngine"]
     },
     {
       "file": "memory/graph_client.py",
@@ -862,9 +783,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Neo4jClient"
-      ]
+      "classes": ["Neo4jClient"]
     },
     {
       "file": "memory/substrate_alignment.py",
@@ -874,10 +793,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AlignmentReport",
-        "SubstrateAlignmentChecker"
-      ]
+      "classes": ["AlignmentReport", "SubstrateAlignmentChecker"]
     },
     {
       "file": "memory/retrieval.py",
@@ -887,9 +803,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RetrievalPipeline"
-      ]
+      "classes": ["RetrievalPipeline"]
     },
     {
       "file": "memory/vector_search_config.py",
@@ -899,9 +813,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "VectorSearchConfig"
-      ]
+      "classes": ["VectorSearchConfig"]
     },
     {
       "file": "memory/hierarchical_summarizer.py",
@@ -951,9 +863,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemoryWarmingService"
-      ]
+      "classes": ["MemoryWarmingService"]
     },
     {
       "file": "memory/migration_runner.py",
@@ -963,9 +873,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MigrationRunner"
-      ]
+      "classes": ["MigrationRunner"]
     },
     {
       "file": "memory/neural_decay_scheduler.py",
@@ -975,11 +883,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DecayConfig",
-        "DecayResult",
-        "NeuralDecayScheduler"
-      ]
+      "classes": ["DecayConfig", "DecayResult", "NeuralDecayScheduler"]
     },
     {
       "file": "memory/substrate_repository.py",
@@ -989,9 +893,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SubstrateRepository"
-      ]
+      "classes": ["SubstrateRepository"]
     },
     {
       "file": "memory/slack_ingest.py",
@@ -1011,9 +913,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "GapDetector"
-      ]
+      "classes": ["GapDetector"]
     },
     {
       "file": "memory/checkpoint_validator.py",
@@ -1023,10 +923,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SchemaVersion",
-        "CheckpointValidator"
-      ]
+      "classes": ["SchemaVersion", "CheckpointValidator"]
     },
     {
       "file": "memory/graph_search_cache.py",
@@ -1036,10 +933,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "GraphSearchContext",
-        "GraphSearchResult"
-      ]
+      "classes": ["GraphSearchContext", "GraphSearchResult"]
     },
     {
       "file": "memory/substrate_dag_wrapper.py",
@@ -1049,10 +943,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RetryPolicy",
-        "SubstrateDagOrchestrator"
-      ]
+      "classes": ["RetryPolicy", "SubstrateDagOrchestrator"]
     },
     {
       "file": "memory/substrate_dag.py",
@@ -1062,10 +953,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SubstrateGraphState",
-        "SubstrateDAG"
-      ]
+      "classes": ["SubstrateGraphState", "SubstrateDAG"]
     },
     {
       "file": "memory/agent_persistence.py",
@@ -1075,10 +963,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Checkpoint",
-        "AgentPersistenceService"
-      ]
+      "classes": ["Checkpoint", "AgentPersistenceService"]
     },
     {
       "file": "memory/checkpoint_manager.py",
@@ -1088,9 +973,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CheckpointManager"
-      ]
+      "classes": ["CheckpointManager"]
     },
     {
       "file": "memory/governance_patterns.py",
@@ -1100,10 +983,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DecisionType",
-        "GovernancePattern"
-      ]
+      "classes": ["DecisionType", "GovernancePattern"]
     },
     {
       "file": "memory/dead_letter.py",
@@ -1113,10 +993,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DeadLetterEntry",
-        "DeadLetterQueue"
-      ]
+      "classes": ["DeadLetterEntry", "DeadLetterQueue"]
     },
     {
       "file": "memory/importance_manager.py",
@@ -1157,9 +1034,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemoryServiceAdapter"
-      ]
+      "classes": ["MemoryServiceAdapter"]
     },
     {
       "file": "memory/semantic_search.py",
@@ -1169,9 +1044,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SearchHit"
-      ]
+      "classes": ["SearchHit"]
     },
     {
       "file": "memory/insight_extraction.py",
@@ -1181,9 +1054,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "InsightExtractionPipeline"
-      ]
+      "classes": ["InsightExtractionPipeline"]
     },
     {
       "file": "memory/graph_memory.py",
@@ -1211,9 +1082,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ReviewerCell"
-      ]
+      "classes": ["ReviewerCell"]
     },
     {
       "file": "collaborative_cells/architect_cell.py",
@@ -1223,9 +1092,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ArchitectCell"
-      ]
+      "classes": ["ArchitectCell"]
     },
     {
       "file": "collaborative_cells/reflection_cell.py",
@@ -1235,9 +1102,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ReflectionCell"
-      ]
+      "classes": ["ReflectionCell"]
     },
     {
       "file": "collaborative_cells/base_cell.py",
@@ -1284,9 +1149,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CoderCell"
-      ]
+      "classes": ["CoderCell"]
     },
     {
       "file": ".dora/python-header-template-enterprise.py",
@@ -1296,9 +1159,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ModuleMetadata"
-      ]
+      "classes": ["ModuleMetadata"]
     },
     {
       "file": "config/di_runtime_config.py",
@@ -1308,10 +1169,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DIConfigError",
-        "DIRuntimeConfigLoader"
-      ]
+      "classes": ["DIConfigError", "DIRuntimeConfigLoader"]
     },
     {
       "file": "config/rls_config.py",
@@ -1321,10 +1179,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RLSConfig",
-        "Config"
-      ]
+      "classes": ["RLSConfig", "Config"]
     },
     {
       "file": "config/__init__.py",
@@ -1365,9 +1220,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CursorLangGraphConfig"
-      ]
+      "classes": ["CursorLangGraphConfig"]
     },
     {
       "file": "config/di_config.py",
@@ -1387,10 +1240,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ResearchSettings",
-        "Config"
-      ]
+      "classes": ["ResearchSettings", "Config"]
     },
     {
       "file": "config/memory_substrate_settings.py",
@@ -1400,10 +1250,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemorySubstrateSettings",
-        "Config"
-      ]
+      "classes": ["MemorySubstrateSettings", "Config"]
     },
     {
       "file": "config/di_async_config.py",
@@ -1413,9 +1260,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AsyncDIContainer"
-      ]
+      "classes": ["AsyncDIContainer"]
     },
     {
       "file": "config/settings.py",
@@ -1425,10 +1270,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "IntegrationSettings",
-        "Config"
-      ]
+      "classes": ["IntegrationSettings", "Config"]
     },
     {
       "file": "ci/check_tool_naming.py",
@@ -1448,9 +1290,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "BypassViolation"
-      ]
+      "classes": ["BypassViolation"]
     },
     {
       "file": "ci/check_global_state.py",
@@ -1460,9 +1300,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "GlobalStateVisitor"
-      ]
+      "classes": ["GlobalStateVisitor"]
     },
     {
       "file": "ci/check_schema_deprecation.py",
@@ -1472,9 +1310,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Violation"
-      ]
+      "classes": ["Violation"]
     },
     {
       "file": "ci/validate_dora_blocks.py",
@@ -1494,9 +1330,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "ProtectedFileViolation"
-      ]
+      "classes": ["ProtectedFileViolation"]
     },
     {
       "file": "ci/check_report_naming.py",
@@ -1506,9 +1340,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "NamingViolation"
-      ]
+      "classes": ["NamingViolation"]
     },
     {
       "file": "ci/check_definition_of_done.py",
@@ -1518,9 +1350,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "DoDViolation"
-      ]
+      "classes": ["DoDViolation"]
     },
     {
       "file": "ci/check_substrate_api.py",
@@ -1530,9 +1360,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "LintResult"
-      ]
+      "classes": ["LintResult"]
     },
     {
       "file": "ci/validate_spec_v25.py",
@@ -1542,10 +1370,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SpecValidationError",
-        "ValidationResult"
-      ]
+      "classes": ["SpecValidationError", "ValidationResult"]
     },
     {
       "file": "ci/__init__.py",
@@ -1585,9 +1410,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "LintResult"
-      ]
+      "classes": ["LintResult"]
     },
     {
       "file": "ci/check_packet_type_naming.py",
@@ -1597,9 +1420,7 @@
         "footer": false,
         "trace": true
       },
-      "classes": [
-        "Violation"
-      ]
+      "classes": ["Violation"]
     },
     {
       "file": "ci/check_tool_wiring.py",
@@ -1619,9 +1440,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SyntaxIssue"
-      ]
+      "classes": ["SyntaxIssue"]
     },
     {
       "file": "ci/check_adr_compliance.py",
@@ -1631,10 +1450,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "Violation",
-        "ADRChecker"
-      ]
+      "classes": ["Violation", "ADRChecker"]
     },
     {
       "file": "ci/check_imports.py",
@@ -1654,9 +1470,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Violation"
-      ]
+      "classes": ["Violation"]
     },
     {
       "file": "domain_tensor_bridge/reasoning_engine.py",
@@ -1666,10 +1480,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ReasoningResult",
-        "ReasoningEngine"
-      ]
+      "classes": ["ReasoningResult", "ReasoningEngine"]
     },
     {
       "file": "domain_tensor_bridge/embedding_processor.py",
@@ -1679,10 +1490,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ProcessedEmbedding",
-        "EmbeddingProcessor"
-      ]
+      "classes": ["ProcessedEmbedding", "EmbeddingProcessor"]
     },
     {
       "file": "domain_tensor_bridge/agent_controller.py",
@@ -1692,9 +1500,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AgentController"
-      ]
+      "classes": ["AgentController"]
     },
     {
       "file": "domain_tensor_bridge/compliance_checker.py",
@@ -1704,11 +1510,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Rule",
-        "ComplianceResult",
-        "ComplianceChecker"
-      ]
+      "classes": ["Rule", "ComplianceResult", "ComplianceChecker"]
     },
     {
       "file": "domain_tensor_bridge/memory_bridge.py",
@@ -1718,11 +1520,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "EpisodicEvent",
-        "Node",
-        "MemoryBridge"
-      ]
+      "classes": ["EpisodicEvent", "Node", "MemoryBridge"]
     },
     {
       "file": "domain_tensor_bridge/__init__.py",
@@ -1742,10 +1540,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Decision",
-        "DecisionSynthesizer"
-      ]
+      "classes": ["Decision", "DecisionSynthesizer"]
     },
     {
       "file": "domain_tensor_bridge/analogical_reasoner.py",
@@ -1755,10 +1550,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Analogy",
-        "AnalogicalReasoner"
-      ]
+      "classes": ["Analogy", "AnalogicalReasoner"]
     },
     {
       "file": "domain_tensor_bridge/tensor_coordinator.py",
@@ -1768,10 +1560,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TensorResult",
-        "TensorCoordinator"
-      ]
+      "classes": ["TensorResult", "TensorCoordinator"]
     },
     {
       "file": "domain_tensor_bridge/anomaly_handler.py",
@@ -1796,11 +1585,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CausalFactor",
-        "Pattern",
-        "WorldModelBridge"
-      ]
+      "classes": ["CausalFactor", "Pattern", "WorldModelBridge"]
     },
     {
       "file": "domain_tensor_bridge/packet_router.py",
@@ -1810,10 +1595,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RoutingResult",
-        "PacketRouter"
-      ]
+      "classes": ["RoutingResult", "PacketRouter"]
     },
     {
       "file": "domain_tensor_bridge/packet_formatter.py",
@@ -1823,9 +1605,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PacketFormatter"
-      ]
+      "classes": ["PacketFormatter"]
     },
     {
       "file": "domain_tensor_bridge/reflective_auditor.py",
@@ -1835,10 +1615,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AuditResult",
-        "ReflectiveAuditor"
-      ]
+      "classes": ["AuditResult", "ReflectiveAuditor"]
     },
     {
       "file": "domain_tensor_bridge/tensoraios_bridge.py",
@@ -1848,9 +1625,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TensorAIOSBridge"
-      ]
+      "classes": ["TensorAIOSBridge"]
     },
     {
       "file": "domain_tensor_bridge/packet_validator.py",
@@ -1860,10 +1635,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ValidationResult",
-        "PacketValidator"
-      ]
+      "classes": ["ValidationResult", "PacketValidator"]
     },
     {
       "file": "domain_tensor_bridge/symbolic_reasoner.py",
@@ -1873,10 +1645,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RuleResult",
-        "SymbolicReasoner"
-      ]
+      "classes": ["RuleResult", "SymbolicReasoner"]
     },
     {
       "file": "domain_tensor_bridge/causal_reasoner.py",
@@ -1886,10 +1655,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CausalResult",
-        "CausalReasoner"
-      ]
+      "classes": ["CausalResult", "CausalReasoner"]
     },
     {
       "file": "domain_tensor_bridge/governance_bridge.py",
@@ -1915,10 +1681,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DomainContext",
-        "DomainContextBuilder"
-      ]
+      "classes": ["DomainContext", "DomainContextBuilder"]
     },
     {
       "file": "domain_tensor_bridge/domain_packet_handler.py",
@@ -1928,9 +1691,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DomainPacketHandler"
-      ]
+      "classes": ["DomainPacketHandler"]
     },
     {
       "file": "domain_tensor_bridge/escalation_handler.py",
@@ -1955,10 +1716,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "EnrichedContext",
-        "ContextEnricher"
-      ]
+      "classes": ["EnrichedContext", "ContextEnricher"]
     },
     {
       "file": "runtime/gmp_tool.py",
@@ -1978,11 +1736,7 @@
         "footer": false,
         "trace": true
       },
-      "classes": [
-        "DoraMetrics",
-        "DoraGraph",
-        "DoraTraceBlock"
-      ]
+      "classes": ["DoraMetrics", "DoraGraph", "DoraTraceBlock"]
     },
     {
       "file": "runtime/response_renderer.py",
@@ -1992,10 +1746,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ResponseRenderer",
-        "ResponseBuilder"
-      ]
+      "classes": ["ResponseRenderer", "ResponseBuilder"]
     },
     {
       "file": "runtime/git_tool.py",
@@ -2015,10 +1766,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "QueuedTask",
-        "TaskQueue"
-      ]
+      "classes": ["QueuedTask", "TaskQueue"]
     },
     {
       "file": "runtime/background_tasks.py",
@@ -2028,9 +1776,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BackgroundTaskRegistry"
-      ]
+      "classes": ["BackgroundTaskRegistry"]
     },
     {
       "file": "runtime/memory_helpers.py",
@@ -2060,9 +1806,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "KernelState"
-      ]
+      "classes": ["KernelState"]
     },
     {
       "file": "runtime/construct_enhancer.py",
@@ -2097,11 +1841,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AuthRateLimitConfig",
-        "AuthAttemptResult",
-        "AuthRateLimiter"
-      ]
+      "classes": ["AuthRateLimitConfig", "AuthAttemptResult", "AuthRateLimiter"]
     },
     {
       "file": "runtime/rate_limiter.py",
@@ -2111,9 +1851,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RateLimiter"
-      ]
+      "classes": ["RateLimiter"]
     },
     {
       "file": "runtime/__init__.py",
@@ -2133,9 +1871,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "GMPWorker"
-      ]
+      "classes": ["GMPWorker"]
     },
     {
       "file": "runtime/tool_packages.py",
@@ -2165,9 +1901,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RedisClient"
-      ]
+      "classes": ["RedisClient"]
     },
     {
       "file": "runtime/local_api.py",
@@ -2177,9 +1911,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "LocalAPI"
-      ]
+      "classes": ["LocalAPI"]
     },
     {
       "file": "runtime/kernel_loader.py",
@@ -2189,10 +1921,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "KernelAwareAgent",
-        "KernelStack"
-      ]
+      "classes": ["KernelAwareAgent", "KernelStack"]
     },
     {
       "file": "runtime/introspection.py",
@@ -2202,9 +1931,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MockAgent"
-      ]
+      "classes": ["MockAgent"]
     },
     {
       "file": "runtime/response_tagger.py",
@@ -2230,9 +1957,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WebSocketOrchestrator"
-      ]
+      "classes": ["WebSocketOrchestrator"]
     },
     {
       "file": "runtime/mcp_client.py",
@@ -2242,11 +1967,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MCPServerProcess",
-        "ToolMeta",
-        "MCPClient"
-      ]
+      "classes": ["MCPServerProcess", "ToolMeta", "MCPClient"]
     },
     {
       "file": "runtime/mcp_tool.py",
@@ -2266,9 +1987,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MCPServerConfig"
-      ]
+      "classes": ["MCPServerConfig"]
     },
     {
       "file": "runtime/tool_call_wrapper.py",
@@ -2374,11 +2093,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "HarvestItem",
-        "HarvestState",
-        "HarvestExecutor"
-      ]
+      "classes": ["HarvestItem", "HarvestState", "HarvestExecutor"]
     },
     {
       "file": "workflows/migrate_executor.py",
@@ -2388,11 +2103,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "MigrationMatch",
-        "MigrateState",
-        "MigrateExecutor"
-      ]
+      "classes": ["MigrationMatch", "MigrateState", "MigrateExecutor"]
     },
     {
       "file": "workflows/use_harvest_executor.py",
@@ -2402,11 +2113,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "DeployItem",
-        "UseHarvestState",
-        "UseHarvestExecutor"
-      ]
+      "classes": ["DeployItem", "UseHarvestState", "UseHarvestExecutor"]
     },
     {
       "file": "workflows/__init__.py",
@@ -2442,11 +2149,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "LintError",
-        "LintFixState",
-        "LintFixExecutor"
-      ]
+      "classes": ["LintError", "LintFixState", "LintFixExecutor"]
     },
     {
       "file": "workflows/wire_executor.py",
@@ -2473,12 +2176,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "StepStatus",
-        "GMPStep",
-        "GMPState",
-        "GMPEnforcer"
-      ]
+      "classes": ["StepStatus", "GMPStep", "GMPState", "GMPEnforcer"]
     },
     {
       "file": "workflows/state.py",
@@ -2596,9 +2294,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "LCTOAgent"
-      ]
+      "classes": ["LCTOAgent"]
     },
     {
       "file": "agents/reflection_agent.py",
@@ -2608,9 +2304,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ReflectionAgent"
-      ]
+      "classes": ["ReflectionAgent"]
     },
     {
       "file": "agents/base_agent.py",
@@ -2636,9 +2330,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "QAAgent"
-      ]
+      "classes": ["QAAgent"]
     },
     {
       "file": "agents/__init__.py",
@@ -2668,9 +2360,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MacAgentConfig"
-      ]
+      "classes": ["MacAgentConfig"]
     },
     {
       "file": "mac_agent/websocket_client.py",
@@ -2680,12 +2370,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AgentConfig",
-        "EventType",
-        "TaskExecutor",
-        "MacAgentClient"
-      ]
+      "classes": ["AgentConfig", "EventType", "TaskExecutor", "MacAgentClient"]
     },
     {
       "file": "mac_agent/__init__.py",
@@ -2705,9 +2390,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AutomationExecutor"
-      ]
+      "classes": ["AutomationExecutor"]
     },
     {
       "file": "motifs/tensor_motif_linker.py",
@@ -2717,10 +2400,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "MotifMetadata",
-        "TensorMotifLinker"
-      ]
+      "classes": ["MotifMetadata", "TensorMotifLinker"]
     },
     {
       "file": "motifs/__init__.py",
@@ -2740,11 +2420,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "PlanCandidate",
-        "RankedPlan",
-        "MultimodalPlanRanker"
-      ]
+      "classes": ["PlanCandidate", "RankedPlan", "MultimodalPlanRanker"]
     },
     {
       "file": "motifs/motif_feedback_graph.py",
@@ -2754,11 +2430,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "MotifEvent",
-        "MotifTrace",
-        "MotifFeedbackGraph"
-      ]
+      "classes": ["MotifEvent", "MotifTrace", "MotifFeedbackGraph"]
     },
     {
       "file": "world_model/interfaces.py",
@@ -2784,9 +2456,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WorldModelService"
-      ]
+      "classes": ["WorldModelService"]
     },
     {
       "file": "world_model/query_engine.py",
@@ -2796,10 +2466,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "QueryContext",
-        "QueryEngine"
-      ]
+      "classes": ["QueryContext", "QueryEngine"]
     },
     {
       "file": "world_model/knowledge_ingestor.py",
@@ -2849,11 +2516,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CausalNode",
-        "CausalEdge",
-        "CausalGraph"
-      ]
+      "classes": ["CausalNode", "CausalEdge", "CausalGraph"]
     },
     {
       "file": "world_model/reflection_memory.py",
@@ -2941,11 +2604,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "UpdateOperation",
-        "UpdateResult",
-        "WorldModelUpdater"
-      ]
+      "classes": ["UpdateOperation", "UpdateResult", "WorldModelUpdater"]
     },
     {
       "file": "world_model/engine.py",
@@ -2955,9 +2614,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WorldModelEngine"
-      ]
+      "classes": ["WorldModelEngine"]
     },
     {
       "file": "world_model/loader.py",
@@ -2967,9 +2624,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WorldModelLoader"
-      ]
+      "classes": ["WorldModelLoader"]
     },
     {
       "file": "world_model/repository.py",
@@ -2994,9 +2649,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SeedLoader"
-      ]
+      "classes": ["SeedLoader"]
     },
     {
       "file": "world_model/state.py",
@@ -3006,11 +2659,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Entity",
-        "Relation",
-        "WorldModelState"
-      ]
+      "classes": ["Entity", "Relation", "WorldModelState"]
     },
     {
       "file": "orchestrators/orchestrator_registry.py",
@@ -3030,10 +2679,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WSBridgeConfig",
-        "WSEventRouter"
-      ]
+      "classes": ["WSBridgeConfig", "WSEventRouter"]
     },
     {
       "file": "orchestrators/__init__.py",
@@ -3063,9 +2709,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PacketNodeAdapter"
-      ]
+      "classes": ["PacketNodeAdapter"]
     },
     {
       "file": "graph_adapter/__init__.py",
@@ -3156,9 +2800,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "N1DetectorVisitor"
-      ]
+      "classes": ["N1DetectorVisitor"]
     },
     {
       "file": "scripts/fix_decorator_wraps.py",
@@ -3168,9 +2810,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "DecoratorAnalyzer"
-      ]
+      "classes": ["DecoratorAnalyzer"]
     },
     {
       "file": "scripts/fix_timezone_imports.py",
@@ -3240,10 +2880,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DecoratorIssue",
-        "DecoratorFix"
-      ]
+      "classes": ["DecoratorIssue", "DecoratorFix"]
     },
     {
       "file": "scripts/gmp-validate-stage.py",
@@ -3253,10 +2890,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ValidationResult",
-        "GMPStageValidator"
-      ]
+      "classes": ["ValidationResult", "GMPStageValidator"]
     },
     {
       "file": "scripts/benchmark_standalone.py",
@@ -3276,9 +2910,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MockDatabase"
-      ]
+      "classes": ["MockDatabase"]
     },
     {
       "file": "scripts/validate_gmp_report.py",
@@ -3288,11 +2920,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ValidationIssue",
-        "ValidationResult",
-        "GMPReportValidator"
-      ]
+      "classes": ["ValidationIssue", "ValidationResult", "GMPReportValidator"]
     },
     {
       "file": "scripts/generate_readme_superprompt.py",
@@ -3319,11 +2947,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ClassInfo",
-        "FunctionInfo",
-        "SubsystemFacts"
-      ]
+      "classes": ["ClassInfo", "FunctionInfo", "SubsystemFacts"]
     },
     {
       "file": "scripts/extract_code_facts.py",
@@ -3333,9 +2957,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CodeFactExtractor"
-      ]
+      "classes": ["CodeFactExtractor"]
     },
     {
       "file": "scripts/fix_test_performance.py",
@@ -3375,10 +2997,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SwarmLoaderError",
-        "QuantumSwarmLoader"
-      ]
+      "classes": ["SwarmLoaderError", "QuantumSwarmLoader"]
     },
     {
       "file": "orchestration/__init__.py",
@@ -3398,11 +3017,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SegmenterConfig",
-        "SegmentResult",
-        "InputSegmenter"
-      ]
+      "classes": ["SegmenterConfig", "SegmentResult", "InputSegmenter"]
     },
     {
       "file": "orchestration/long_plan_graph.py",
@@ -3412,9 +3027,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "LongPlanState"
-      ]
+      "classes": ["LongPlanState"]
     },
     {
       "file": "orchestration/task_router.py",
@@ -3568,9 +3181,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CallerIdentity"
-      ]
+      "classes": ["CallerIdentity"]
     },
     {
       "file": "api/os_routes.py",
@@ -3648,9 +3259,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TaskResultRequest"
-      ]
+      "classes": ["TaskResultRequest"]
     },
     {
       "file": "api/world_model_api.py",
@@ -3683,9 +3292,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AuditResult"
-      ]
+      "classes": ["AuditResult"]
     },
     {
       "file": "api/__init__.py",
@@ -3715,10 +3322,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ChatRequest",
-        "ChatResponse"
-      ]
+      "classes": ["ChatRequest", "ChatResponse"]
     },
     {
       "file": "api/slack_client.py",
@@ -3728,10 +3332,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SlackClientError",
-        "SlackAPIClient"
-      ]
+      "classes": ["SlackClientError", "SlackAPIClient"]
     },
     {
       "file": "api/slack_adapter.py",
@@ -3781,11 +3382,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ShellTask",
-        "MemoryHealthTask",
-        "CompositeTask"
-      ]
+      "classes": ["ShellTask", "MemoryHealthTask", "CompositeTask"]
     },
     {
       "file": "api/startup_guard.py",
@@ -3908,10 +3505,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CalibrationMetrics",
-        "CalibrationDashboard"
-      ]
+      "classes": ["CalibrationMetrics", "CalibrationDashboard"]
     },
     {
       "file": "telemetry/__init__.py",
@@ -3951,9 +3545,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Phase0Orchestrator"
-      ]
+      "classes": ["Phase0Orchestrator"]
     },
     {
       "file": "data/l9-phase0-to-6-execution.py",
@@ -3963,11 +3555,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Phase0Lock",
-        "L9CodeGenerator",
-        "L9MasterExecutor"
-      ]
+      "classes": ["Phase0Lock", "L9CodeGenerator", "L9MasterExecutor"]
     },
     {
       "file": "data/l9-phase0-to-pr-example.py",
@@ -3977,9 +3565,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Phase0Orchestrator"
-      ]
+      "classes": ["Phase0Orchestrator"]
     },
     {
       "file": "email_agent/config.py",
@@ -3989,9 +3575,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AccountConfig"
-      ]
+      "classes": ["AccountConfig"]
     },
     {
       "file": "email_agent/credentials.py",
@@ -4011,9 +3595,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "GmailClient"
-      ]
+      "classes": ["GmailClient"]
     },
     {
       "file": "email_agent/client.py",
@@ -4043,9 +3625,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "OAuthHandler"
-      ]
+      "classes": ["OAuthHandler"]
     },
     {
       "file": "email_agent/parser.py",
@@ -4055,9 +3635,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "HTMLToTextParser"
-      ]
+      "classes": ["HTMLToTextParser"]
     },
     {
       "file": "email_agent/triage.py",
@@ -4161,10 +3739,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SchemaValidationError",
-        "SchemaValidator"
-      ]
+      "classes": ["SchemaValidationError", "SchemaValidator"]
     },
     {
       "file": "ir_engine/ir_validator.py",
@@ -4174,9 +3749,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "IRValidator"
-      ]
+      "classes": ["IRValidator"]
     },
     {
       "file": "ir_engine/semantic_compiler.py",
@@ -4186,9 +3759,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SemanticCompiler"
-      ]
+      "classes": ["SemanticCompiler"]
     },
     {
       "file": "ir_engine/__init__.py",
@@ -4208,11 +3779,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DeliberationRound",
-        "DeliberationResult",
-        "DeliberationCell"
-      ]
+      "classes": ["DeliberationRound", "DeliberationResult", "DeliberationCell"]
     },
     {
       "file": "ir_engine/constraint_challenger.py",
@@ -4222,10 +3789,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ChallengeResult",
-        "ConstraintChallenger"
-      ]
+      "classes": ["ChallengeResult", "ConstraintChallenger"]
     },
     {
       "file": "ir_engine/ir_schema.py",
@@ -4260,11 +3824,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ExecutionStep",
-        "ExecutionPlan",
-        "IRToPlanAdapter"
-      ]
+      "classes": ["ExecutionStep", "ExecutionPlan", "IRToPlanAdapter"]
     },
     {
       "file": "ir_engine/ir_generator.py",
@@ -4274,9 +3834,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "IRGenerator"
-      ]
+      "classes": ["IRGenerator"]
     },
     {
       "file": "ir_engine/compile_meta_to_ir.py",
@@ -4304,9 +3862,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "IRToPythonCompiler"
-      ]
+      "classes": ["IRToPythonCompiler"]
     },
     {
       "file": "ir_engine/simulation_router.py",
@@ -4361,9 +3917,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MacTask"
-      ]
+      "classes": ["MacTask"]
     },
     {
       "file": "services/tool_learning_engine.py",
@@ -4373,10 +3927,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolHealthSnapshot",
-        "ToolLearningEngine"
-      ]
+      "classes": ["ToolHealthSnapshot", "ToolLearningEngine"]
     },
     {
       "file": "services/__init__.py",
@@ -4396,10 +3947,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolFeedbackEntry",
-        "ToolFeedbackService"
-      ]
+      "classes": ["ToolFeedbackEntry", "ToolFeedbackService"]
     },
     {
       "file": "services/slack_files.py",
@@ -4439,10 +3987,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "InjectionResult",
-        "DocstringInjector"
-      ]
+      "classes": ["InjectionResult", "DocstringInjector"]
     },
     {
       "file": "tools/adr/__init__.py",
@@ -4462,11 +4007,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Violation",
-        "ValidationReport",
-        "ADREnforcementValidator"
-      ]
+      "classes": ["Violation", "ValidationReport", "ADREnforcementValidator"]
     },
     {
       "file": "tools/adr/adr_compliance_check_enhanced.py",
@@ -4476,10 +4017,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ADRViolation",
-        "ADRComplianceChecker"
-      ]
+      "classes": ["ADRViolation", "ADRComplianceChecker"]
     },
     {
       "file": "tools/adr/adr_generator.py",
@@ -4529,9 +4067,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RepoLayout"
-      ]
+      "classes": ["RepoLayout"]
     },
     {
       "file": "tools/architecture_reports/async_function_map_report.py",
@@ -4541,9 +4077,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AsyncCallVisitor"
-      ]
+      "classes": ["AsyncCallVisitor"]
     },
     {
       "file": "tools/architecture_reports/filesystem.py",
@@ -4613,9 +4147,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "FileMetrics"
-      ]
+      "classes": ["FileMetrics"]
     },
     {
       "file": "tools/architecture_reports/inheritance_graph_report.py",
@@ -4665,9 +4197,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SuperpackLayout"
-      ]
+      "classes": ["SuperpackLayout"]
     },
     {
       "file": "tools/superpack_reports/governance_report.py",
@@ -4804,10 +4334,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "KernelAwareAgent",
-        "KernelReloadResult"
-      ]
+      "classes": ["KernelAwareAgent", "KernelReloadResult"]
     },
     {
       "file": "core/kernels/schemas.py",
@@ -4859,9 +4386,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "IntegrityChange"
-      ]
+      "classes": ["IntegrityChange"]
     },
     {
       "file": "core/packet_envelope/config.py",
@@ -5009,9 +4534,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SubstrateRetriever"
-      ]
+      "classes": ["SubstrateRetriever"]
     },
     {
       "file": "core/tools/tool_embeddings.py",
@@ -5021,9 +4544,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolEmbeddingResult"
-      ]
+      "classes": ["ToolEmbeddingResult"]
     },
     {
       "file": "core/tools/prompt_caching.py",
@@ -5061,11 +4582,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolAuditEntry",
-        "ToolCostEstimator",
-        "ToolAuditService"
-      ]
+      "classes": ["ToolAuditEntry", "ToolCostEstimator", "ToolAuditService"]
     },
     {
       "file": "core/tools/agent_self_modify.py",
@@ -5075,9 +4592,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AgentSelfModifyTool"
-      ]
+      "classes": ["AgentSelfModifyTool"]
     },
     {
       "file": "core/tools/memory_tools.py",
@@ -5087,11 +4602,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemorySegment",
-        "MemorySearchResult",
-        "MemoryWriteResult"
-      ]
+      "classes": ["MemorySegment", "MemorySearchResult", "MemoryWriteResult"]
     },
     {
       "file": "core/tools/research_tools.py",
@@ -5125,10 +4636,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolDefinition",
-        "ToolGraph"
-      ]
+      "classes": ["ToolDefinition", "ToolGraph"]
     },
     {
       "file": "core/tools/__init__.py",
@@ -5181,10 +4689,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DiscoveryMethod",
-        "DiscoveryResult"
-      ]
+      "classes": ["DiscoveryMethod", "DiscoveryResult"]
     },
     {
       "file": "core/tools/reflection_tools.py",
@@ -5204,9 +4709,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SymbolicComputationTool"
-      ]
+      "classes": ["SymbolicComputationTool"]
     },
     {
       "file": "core/tools/registry_cache.py",
@@ -5233,11 +4736,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolExecutor",
-        "RiskLevel",
-        "ExecutorToolRegistry"
-      ]
+      "classes": ["ToolExecutor", "RiskLevel", "ExecutorToolRegistry"]
     },
     {
       "file": "core/tools/discovery_tracing.py",
@@ -5247,11 +4746,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DiscoveryPhase",
-        "DiscoveryTrace",
-        "DiscoveryTracer"
-      ]
+      "classes": ["DiscoveryPhase", "DiscoveryTrace", "DiscoveryTracer"]
     },
     {
       "file": "core/llm/__init__.py",
@@ -5271,10 +4766,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "OpenAILLMService",
-        "MockLLMService"
-      ]
+      "classes": ["OpenAILLMService", "MockLLMService"]
     },
     {
       "file": "core/di/bootstrap.py",
@@ -5331,11 +4823,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Message",
-        "MessageDeliveryStatus",
-        "AgentMediator"
-      ]
+      "classes": ["Message", "MessageDeliveryStatus", "AgentMediator"]
     },
     {
       "file": "core/coordination/__init__.py",
@@ -5355,12 +4843,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "EventKind",
-        "Event",
-        "EventQueue",
-        "EventRouter"
-      ]
+      "classes": ["EventKind", "Event", "EventQueue", "EventRouter"]
     },
     {
       "file": "core/memory/__init__.py",
@@ -5380,9 +4863,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "KernelEvolutionEvent"
-      ]
+      "classes": ["KernelEvolutionEvent"]
     },
     {
       "file": "core/memory/virtual_context.py",
@@ -5408,9 +4889,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PermissionGraph"
-      ]
+      "classes": ["PermissionGraph"]
     },
     {
       "file": "core/security/__init__.py",
@@ -5430,9 +4909,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PathSafetyError"
-      ]
+      "classes": ["PathSafetyError"]
     },
     {
       "file": "core/calibration/metrics.py",
@@ -5530,9 +5007,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "GraphToWorldModelSync"
-      ]
+      "classes": ["GraphToWorldModelSync"]
     },
     {
       "file": "core/integration/tool_pattern_extractor.py",
@@ -5542,9 +5017,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolPatternExtractor"
-      ]
+      "classes": ["ToolPatternExtractor"]
     },
     {
       "file": "core/integration/__init__.py",
@@ -5564,9 +5037,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WMToGraphSync"
-      ]
+      "classes": ["WMToGraphSync"]
     },
     {
       "file": "core/learning/__init__.py",
@@ -5586,10 +5057,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CalibrationReport",
-        "AutoCalibrator"
-      ]
+      "classes": ["CalibrationReport", "AutoCalibrator"]
     },
     {
       "file": "core/learning/feedback_collector.py",
@@ -5599,11 +5067,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "FeedbackType",
-        "FeedbackEvent",
-        "FeedbackCollector"
-      ]
+      "classes": ["FeedbackType", "FeedbackEvent", "FeedbackCollector"]
     },
     {
       "file": "core/secrets/aws_secrets_client.py",
@@ -5613,9 +5077,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AwsSecretsClient"
-      ]
+      "classes": ["AwsSecretsClient"]
     },
     {
       "file": "core/secrets/env_secrets_client.py",
@@ -5625,9 +5087,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "EnvSecretsClient"
-      ]
+      "classes": ["EnvSecretsClient"]
     },
     {
       "file": "core/secrets/__init__.py",
@@ -5647,11 +5107,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "ChangeStatus",
-        "ChangeProposal",
-        "CACodeChange"
-      ]
+      "classes": ["ChangeStatus", "ChangeProposal", "CACodeChange"]
     },
     {
       "file": "core/ca_governance/__init__.py",
@@ -5686,11 +5142,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "ChangeType",
-        "ChangeReport",
-        "ReportGenerator"
-      ]
+      "classes": ["ChangeType", "ChangeReport", "ReportGenerator"]
     },
     {
       "file": "core/ca_governance/diff_generator.py",
@@ -5700,11 +5152,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "FileDiff",
-        "BatchDiff",
-        "DiffGenerator"
-      ]
+      "classes": ["FileDiff", "BatchDiff", "DiffGenerator"]
     },
     {
       "file": "core/boundary/enforcer.py",
@@ -5714,10 +5162,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BoundarySpec",
-        "BoundaryEnforcer"
-      ]
+      "classes": ["BoundarySpec", "BoundaryEnforcer"]
     },
     {
       "file": "core/boundary/__init__.py",
@@ -5747,9 +5192,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AIOSRuntime"
-      ]
+      "classes": ["AIOSRuntime"]
     },
     {
       "file": "core/runtimes/react_runtime.py",
@@ -5759,10 +5202,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ReActStep",
-        "ReActRuntime"
-      ]
+      "classes": ["ReActStep", "ReActRuntime"]
     },
     {
       "file": "core/runtimes/__init__.py",
@@ -5792,9 +5232,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "L9Facade"
-      ]
+      "classes": ["L9Facade"]
     },
     {
       "file": "core/agents/adaptive_prompting.py",
@@ -5814,9 +5252,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "KernelAwareAgent"
-      ]
+      "classes": ["KernelAwareAgent"]
     },
     {
       "file": "core/agents/registry.py",
@@ -5826,9 +5262,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AgentRegistry"
-      ]
+      "classes": ["AgentRegistry"]
     },
     {
       "file": "core/agents/agent_instance.py",
@@ -5838,9 +5272,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AgentInstance"
-      ]
+      "classes": ["AgentInstance"]
     },
     {
       "file": "core/agents/__init__.py",
@@ -5860,9 +5292,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "KernelAwareAgentRegistry"
-      ]
+      "classes": ["KernelAwareAgentRegistry"]
     },
     {
       "file": "core/agents/schemas.py",
@@ -5915,11 +5345,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ExecutorConfig",
-        "ExecutorDeps",
-        "ExecutorComposer"
-      ]
+      "classes": ["ExecutorConfig", "ExecutorDeps", "ExecutorComposer"]
     },
     {
       "file": "core/agents/kernelevolution.py",
@@ -5929,10 +5355,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "KernelUpdateProposal",
-        "EvolutionPlan"
-      ]
+      "classes": ["KernelUpdateProposal", "EvolutionPlan"]
     },
     {
       "file": "core/agents/prompt_defense.py",
@@ -5942,10 +5365,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "InjectionSeverity",
-        "InjectionDetectionResult"
-      ]
+      "classes": ["InjectionSeverity", "InjectionDetectionResult"]
     },
     {
       "file": "core/agents/idempotency_store.py",
@@ -5955,10 +5375,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "SubstrateServiceProtocol",
-        "IdempotencyStore"
-      ]
+      "classes": ["SubstrateServiceProtocol", "IdempotencyStore"]
     },
     {
       "file": "core/agents/executor.py",
@@ -6004,9 +5421,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "L9BaseModel"
-      ]
+      "classes": ["L9BaseModel"]
     },
     {
       "file": "core/observability/prometheus_exporter.py",
@@ -6016,9 +5431,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ObservabilityPrometheusExporter"
-      ]
+      "classes": ["ObservabilityPrometheusExporter"]
     },
     {
       "file": "core/observability/jaeger_exporter.py",
@@ -6028,9 +5441,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "JaegerExporter"
-      ]
+      "classes": ["JaegerExporter"]
     },
     {
       "file": "core/observability/service.py",
@@ -6040,9 +5451,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ObservabilityService"
-      ]
+      "classes": ["ObservabilityService"]
     },
     {
       "file": "core/observability/instrumentation.py",
@@ -6062,10 +5471,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MetricsAggregator",
-        "KPITracker"
-      ]
+      "classes": ["MetricsAggregator", "KPITracker"]
     },
     {
       "file": "core/observability/config.py",
@@ -6075,9 +5481,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ObservabilitySettings"
-      ]
+      "classes": ["ObservabilitySettings"]
     },
     {
       "file": "core/observability/models.py",
@@ -6162,11 +5566,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MetricType",
-        "SecurityMetric",
-        "SecurityMetricsCollector"
-      ]
+      "classes": ["MetricType", "SecurityMetric", "SecurityMetricsCollector"]
     },
     {
       "file": "core/observability/failures.py",
@@ -6176,11 +5576,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RecoveryAction",
-        "FailureDetector",
-        "RecoveryExecutor"
-      ]
+      "classes": ["RecoveryAction", "FailureDetector", "RecoveryExecutor"]
     },
     {
       "file": "core/observability/circuit_breaker.py",
@@ -6237,10 +5633,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ComplianceReport",
-        "ComplianceReporter"
-      ]
+      "classes": ["ComplianceReport", "ComplianceReporter"]
     },
     {
       "file": "core/compliance/__init__.py",
@@ -6260,9 +5653,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AuditLogger"
-      ]
+      "classes": ["AuditLogger"]
     },
     {
       "file": "core/reasoning/__init__.py",
@@ -6305,10 +5696,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "L9ReasoningContext",
-        "L9ToThAdapter"
-      ]
+      "classes": ["L9ReasoningContext", "L9ToThAdapter"]
     },
     {
       "file": "core/kernel_wiring/behavioral_wiring.py",
@@ -6480,12 +5868,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "EventType",
-        "EventMessage",
-        "AgentHeartbeat",
-        "ErrorEvent"
-      ]
+      "classes": ["EventType", "EventMessage", "AgentHeartbeat", "ErrorEvent"]
     },
     {
       "file": "core/schemas/research_factory_models.py",
@@ -6515,11 +5898,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PassStatus",
-        "PassMetadata",
-        "ResearchState"
-      ]
+      "classes": ["PassStatus", "PassMetadata", "ResearchState"]
     },
     {
       "file": "core/schemas/schema_registry.py",
@@ -6580,11 +5959,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolName",
-        "Capability",
-        "AgentCapabilities"
-      ]
+      "classes": ["ToolName", "Capability", "AgentCapabilities"]
     },
     {
       "file": "core/schemas/tool_role_capabilities.py",
@@ -6594,10 +5969,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "ToolCapability",
-        "ToolCapabilities"
-      ]
+      "classes": ["ToolCapability", "ToolCapabilities"]
     },
     {
       "file": "core/schemas/l_tools.py",
@@ -6650,9 +6022,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "UpcasterConfig"
-      ]
+      "classes": ["UpcasterConfig"]
     },
     {
       "file": "core/schemas/hypergraph.py",
@@ -6700,9 +6070,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TestGenerator"
-      ]
+      "classes": ["TestGenerator"]
     },
     {
       "file": "core/testing/test_agent.py",
@@ -6712,10 +6080,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TestAgentResult",
-        "TestAgent"
-      ]
+      "classes": ["TestAgentResult", "TestAgent"]
     },
     {
       "file": "core/testing/__init__.py",
@@ -6735,11 +6100,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TestResult",
-        "TestResults",
-        "TestExecutor"
-      ]
+      "classes": ["TestResult", "TestResults", "TestExecutor"]
     },
     {
       "file": "core/worldmodel/service.py",
@@ -6749,9 +6110,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WorldModelService"
-      ]
+      "classes": ["WorldModelService"]
     },
     {
       "file": "core/worldmodel/l9_schema.py",
@@ -6795,10 +6154,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Insight",
-        "InsightEmitter"
-      ]
+      "classes": ["Insight", "InsightEmitter"]
     },
     {
       "file": "core/resilience/mixin.py",
@@ -6808,9 +6164,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ResilienceMixin"
-      ]
+      "classes": ["ResilienceMixin"]
     },
     {
       "file": "core/resilience/protocols.py",
@@ -6820,9 +6174,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ResilientService"
-      ]
+      "classes": ["ResilientService"]
     },
     {
       "file": "core/resilience/__init__.py",
@@ -6842,10 +6194,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RetryExhaustedError",
-        "AsyncRetryConfig"
-      ]
+      "classes": ["RetryExhaustedError", "AsyncRetryConfig"]
     },
     {
       "file": "core/governance/quick_fixes.py",
@@ -6855,11 +6204,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "QuickFix",
-        "FixResult",
-        "QuickFixEngine"
-      ]
+      "classes": ["QuickFix", "FixResult", "QuickFixEngine"]
     },
     {
       "file": "core/governance/protected_files_policy.py",
@@ -6879,9 +6224,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ApprovalManager"
-      ]
+      "classes": ["ApprovalManager"]
     },
     {
       "file": "core/governance/approval_gate.py",
@@ -6891,9 +6234,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "EscalationResult"
-      ]
+      "classes": ["EscalationResult"]
     },
     {
       "file": "core/governance/subsystem_detector.py",
@@ -6980,10 +6321,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SubstrateProtocol",
-        "GovernanceEngineService"
-      ]
+      "classes": ["SubstrateProtocol", "GovernanceEngineService"]
     },
     {
       "file": "core/governance/security_policy.py",
@@ -7026,11 +6364,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PolicyLoadError",
-        "InvalidPolicyError",
-        "PolicyLoader"
-      ]
+      "classes": ["PolicyLoadError", "InvalidPolicyError", "PolicyLoader"]
     },
     {
       "file": "core/governance/policy_registry.py",
@@ -7040,9 +6374,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PolicySource"
-      ]
+      "classes": ["PolicySource"]
     },
     {
       "file": "core/governance/cmts.py",
@@ -7068,12 +6400,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Severity",
-        "MistakeRule",
-        "Violation",
-        "MistakePrevention"
-      ]
+      "classes": ["Severity", "MistakeRule", "Violation", "MistakePrevention"]
     },
     {
       "file": "core/governance/rate_limit_policy.py",
@@ -7214,9 +6541,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CommandExecutor"
-      ]
+      "classes": ["CommandExecutor"]
     },
     {
       "file": "core/bayesian/subjective_logic.py",
@@ -7226,9 +6551,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SubjectiveLogicAdapter"
-      ]
+      "classes": ["SubjectiveLogicAdapter"]
     },
     {
       "file": "core/bayesian/probabilistic_engine.py",
@@ -7264,11 +6587,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "EvidenceStrength",
-        "BeliefState",
-        "BayesianKernel"
-      ]
+      "classes": ["EvidenceStrength", "BeliefState", "BayesianKernel"]
     },
     {
       "file": "core/bayesian/uncertainty.py",
@@ -7278,11 +6597,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BayesianUncertainty",
-        "DeepEnsemble",
-        "TestModel"
-      ]
+      "classes": ["BayesianUncertainty", "DeepEnsemble", "TestModel"]
     },
     {
       "file": "core/bayesian/hybrid_kernel.py",
@@ -7292,10 +6607,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "GovernanceDecision",
-        "HybridInferenceKernel"
-      ]
+      "classes": ["GovernanceDecision", "HybridInferenceKernel"]
     },
     {
       "file": "core/protocols/observability_protocols.py",
@@ -7389,10 +6701,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SecretsClient",
-        "SecretsError"
-      ]
+      "classes": ["SecretsClient", "SecretsError"]
     },
     {
       "file": "core/protocols/connection_protocols.py",
@@ -7444,11 +6753,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemoryService",
-        "LLMService",
-        "GovernanceService"
-      ]
+      "classes": ["MemoryService", "LLMService", "GovernanceService"]
     },
     {
       "file": "core/protocols/rate_limiting_protocols.py",
@@ -7507,9 +6812,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "EOSHypergraphClient"
-      ]
+      "classes": ["EOSHypergraphClient"]
     },
     {
       "file": "core/eos/ledger_writer.py",
@@ -7519,9 +6822,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "EOSLedgerWriter"
-      ]
+      "classes": ["EOSLedgerWriter"]
     },
     {
       "file": "core/eos/__init__.py",
@@ -7541,9 +6842,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "AccountabilityEngine"
-      ]
+      "classes": ["AccountabilityEngine"]
     },
     {
       "file": "core/eos/schemas.py",
@@ -7587,10 +6886,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "ActionResult",
-        "ActionRegistry"
-      ]
+      "classes": ["ActionResult", "ActionRegistry"]
     },
     {
       "file": "core/l_agent_runtime/foresight_engine.py",
@@ -7615,11 +6911,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "ProactivityLevel",
-        "AgentState",
-        "AgentStateManager"
-      ]
+      "classes": ["ProactivityLevel", "AgentState", "AgentStateManager"]
     },
     {
       "file": "core/l_agent_runtime/__init__.py",
@@ -7639,9 +6931,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "MemoryAdapter"
-      ]
+      "classes": ["MemoryAdapter"]
     },
     {
       "file": "core/l_agent_runtime/reflection_engine.py",
@@ -7651,10 +6941,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "ReflectionResult",
-        "ReflectionEngine"
-      ]
+      "classes": ["ReflectionResult", "ReflectionEngine"]
     },
     {
       "file": "core/graph/query/graph_search_query_builder.py",
@@ -7719,9 +7006,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolDefinition"
-      ]
+      "classes": ["ToolDefinition"]
     },
     {
       "file": "core/agents/bootstrap/phase_3_bind_kernels.py",
@@ -7751,9 +7036,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BootstrapInstanceData"
-      ]
+      "classes": ["BootstrapInstanceData"]
     },
     {
       "file": "core/agents/bootstrap/phase_6_wire_governance.py",
@@ -7773,9 +7056,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "KernelParsed"
-      ]
+      "classes": ["KernelParsed"]
     },
     {
       "file": "core/agents/bootstrap/orchestrator.py",
@@ -7785,9 +7066,7 @@
         "footer": false,
         "trace": true
       },
-      "classes": [
-        "AgentBootstrapOrchestrator"
-      ]
+      "classes": ["AgentBootstrapOrchestrator"]
     },
     {
       "file": "core/agents/bootstrap/phase_4_load_identity.py",
@@ -7807,12 +7086,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BootstrapMetrics",
-        "Counter",
-        "Histogram",
-        "Gauge"
-      ]
+      "classes": ["BootstrapMetrics", "Counter", "Histogram", "Gauge"]
     },
     {
       "file": "core/agents/graph_state/bootstrap_l_graph.py",
@@ -7832,10 +7106,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "HydratedAgentContext",
-        "GraphHydrator"
-      ]
+      "classes": ["HydratedAgentContext", "GraphHydrator"]
     },
     {
       "file": "core/agents/graph_state/agent_graph_loader.py",
@@ -7882,10 +7153,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "L9PostgresSaver",
-        "L9RetryablePostgresSaver"
-      ]
+      "classes": ["L9PostgresSaver", "L9RetryablePostgresSaver"]
     },
     {
       "file": "memory/checkpoint/__init__.py",
@@ -7905,9 +7173,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CursorCheckpointManager"
-      ]
+      "classes": ["CursorCheckpointManager"]
     },
     {
       "file": "memory/extractor/memory_extractor.py",
@@ -7917,9 +7183,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemoryExtractor"
-      ]
+      "classes": ["MemoryExtractor"]
     },
     {
       "file": "memory/extractor/code_extractor.py",
@@ -7929,9 +7193,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CodeExtractor"
-      ]
+      "classes": ["CodeExtractor"]
     },
     {
       "file": "memory/extractor/__init__.py",
@@ -7951,9 +7213,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BaseExtractor"
-      ]
+      "classes": ["BaseExtractor"]
     },
     {
       "file": "memory/extractor/module_schema_extractor.py",
@@ -7963,9 +7223,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ModuleSchemaExtractor"
-      ]
+      "classes": ["ModuleSchemaExtractor"]
     },
     {
       "file": "memory/extractor/agent_config_extractor.py",
@@ -7975,9 +7233,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AgentConfigExtractor"
-      ]
+      "classes": ["AgentConfigExtractor"]
     },
     {
       "file": "memory/validators/__init__.py",
@@ -7997,10 +7253,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PacketValidationError",
-        "PacketValidator"
-      ]
+      "classes": ["PacketValidationError", "PacketValidator"]
     },
     {
       "file": "memory/consolidation/promotion_rules.py",
@@ -8010,9 +7263,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "PromotionSignal"
-      ]
+      "classes": ["PromotionSignal"]
     },
     {
       "file": "memory/consolidation/__init__.py",
@@ -8072,9 +7323,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CodeFactExtractor"
-      ]
+      "classes": ["CodeFactExtractor"]
     },
     {
       "file": ".dora/Readme As Code - Implementation/test_code_facts_extraction.py",
@@ -8111,9 +7360,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ModuleMetadata"
-      ]
+      "classes": ["ModuleMetadata"]
     },
     {
       "file": "config/schemas/__init__.py",
@@ -8133,10 +7380,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TestResult",
-        "CheckResult"
-      ]
+      "classes": ["TestResult", "CheckResult"]
     },
     {
       "file": "ci/ai_guardrails/__init__.py",
@@ -8216,9 +7460,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SessionDAGRegistry"
-      ]
+      "classes": ["SessionDAGRegistry"]
     },
     {
       "file": "workflows/session/interface.py",
@@ -8335,9 +7577,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "InspectState"
-      ]
+      "classes": ["InspectState"]
     },
     {
       "file": "agents/cursor/cursor_client.py",
@@ -8347,9 +7587,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CursorClient"
-      ]
+      "classes": ["CursorClient"]
     },
     {
       "file": "agents/cursor/cursor_session_hooks.py",
@@ -8359,9 +7597,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "CursorSessionHooks"
-      ]
+      "classes": ["CursorSessionHooks"]
     },
     {
       "file": "agents/cursor/cursor_retrieval_kernel.py",
@@ -8371,10 +7607,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "RetrievalSource",
-        "CursorRetrievalKernel"
-      ]
+      "classes": ["RetrievalSource", "CursorRetrievalKernel"]
     },
     {
       "file": "agents/cursor/__init__.py",
@@ -8434,12 +7667,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Lesson",
-        "TodoItem",
-        "SessionState",
-        "CursorMemoryKernel"
-      ]
+      "classes": ["Lesson", "TodoItem", "SessionState", "CursorMemoryKernel"]
     },
     {
       "file": "agents/architect_agent/architect_agent_b.py",
@@ -8449,9 +7677,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ArchitectAgentB"
-      ]
+      "classes": ["ArchitectAgentB"]
     },
     {
       "file": "agents/architect_agent/__init__.py",
@@ -8471,9 +7697,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ArchitectAgentA"
-      ]
+      "classes": ["ArchitectAgentA"]
     },
     {
       "file": "agents/coder_agent/__init__.py",
@@ -8493,9 +7717,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CoderAgentA"
-      ]
+      "classes": ["CoderAgentA"]
     },
     {
       "file": "agents/coder_agent/coder_agent_b.py",
@@ -8505,9 +7727,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CoderAgentB"
-      ]
+      "classes": ["CoderAgentB"]
     },
     {
       "file": "agents/research_agent/research_facade.py",
@@ -8597,11 +7817,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CursorTaskSpec",
-        "CursorResult",
-        "CursorExecutor"
-      ]
+      "classes": ["CursorTaskSpec", "CursorResult", "CursorExecutor"]
     },
     {
       "file": "agents/cursor/integrations/cursor_gateway.py",
@@ -8611,10 +7827,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CursorScopeViolationError",
-        "CursorMemoryGateway"
-      ]
+      "classes": ["CursorScopeViolationError", "CursorMemoryGateway"]
     },
     {
       "file": "agents/cursor/integrations/cursor_langgraph.py",
@@ -8671,9 +7884,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CursorActionExtractor"
-      ]
+      "classes": ["CursorActionExtractor"]
     },
     {
       "file": "mac_agent/helpers/logging.py",
@@ -8703,9 +7914,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WorldModelGraphState"
-      ]
+      "classes": ["WorldModelGraphState"]
     },
     {
       "file": "world_model/nodes/__init__.py",
@@ -8725,9 +7934,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WorldModelNodeState"
-      ]
+      "classes": ["WorldModelNodeState"]
     },
     {
       "file": "world_model/_pack_staging/postgres_substrate.py",
@@ -8737,10 +7944,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PostgresConfig",
-        "PostgresSubstrate"
-      ]
+      "classes": ["PostgresConfig", "PostgresSubstrate"]
     },
     {
       "file": "world_model/_pack_staging/query_engine.py",
@@ -8750,10 +7954,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "QueryContext",
-        "QueryEngine"
-      ]
+      "classes": ["QueryContext", "QueryEngine"]
     },
     {
       "file": "world_model/_pack_staging/registry.py",
@@ -8763,9 +7964,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WorldModelRegistry"
-      ]
+      "classes": ["WorldModelRegistry"]
     },
     {
       "file": "world_model/_pack_staging/updater.py",
@@ -8775,11 +7974,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "UpdateOperation",
-        "UpdateResult",
-        "WorldModelUpdater"
-      ]
+      "classes": ["UpdateOperation", "UpdateResult", "WorldModelUpdater"]
     },
     {
       "file": "world_model/_pack_staging/loader.py",
@@ -8789,9 +7984,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WorldModelLoader"
-      ]
+      "classes": ["WorldModelLoader"]
     },
     {
       "file": "world_model/_pack_staging/orchestrator.py",
@@ -8801,10 +7994,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ConsistencyMode",
-        "SubstrateOrchestrator"
-      ]
+      "classes": ["ConsistencyMode", "SubstrateOrchestrator"]
     },
     {
       "file": "world_model/_pack_staging/neo4j_substrate.py",
@@ -8814,10 +8004,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Neo4jConfig",
-        "Neo4jSubstrate"
-      ]
+      "classes": ["Neo4jConfig", "Neo4jSubstrate"]
     },
     {
       "file": "world_model/_pack_staging/test_integration.py",
@@ -8843,10 +8030,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RedisConfig",
-        "RedisSubstrate"
-      ]
+      "classes": ["RedisConfig", "RedisSubstrate"]
     },
     {
       "file": "world_model/_pack_staging/state.py",
@@ -8856,9 +8040,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WorldModelState"
-      ]
+      "classes": ["WorldModelState"]
     },
     {
       "file": "orchestrators/action_tool/validator.py",
@@ -8868,10 +8050,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ValidationResult",
-        "Validator"
-      ]
+      "classes": ["ValidationResult", "Validator"]
     },
     {
       "file": "orchestrators/action_tool/interface.py",
@@ -8906,9 +8085,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ActionToolOrchestrator"
-      ]
+      "classes": ["ActionToolOrchestrator"]
     },
     {
       "file": "orchestrators/memory/interface.py",
@@ -8943,9 +8120,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Housekeeping"
-      ]
+      "classes": ["Housekeeping"]
     },
     {
       "file": "orchestrators/memory/orchestrator.py",
@@ -8955,9 +8130,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemoryOrchestrator"
-      ]
+      "classes": ["MemoryOrchestrator"]
     },
     {
       "file": "orchestrators/meta/adapter.py",
@@ -8967,9 +8140,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BlueprintAdapter"
-      ]
+      "classes": ["BlueprintAdapter"]
     },
     {
       "file": "orchestrators/meta/interface.py",
@@ -9008,9 +8179,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MetaOrchestrator"
-      ]
+      "classes": ["MetaOrchestrator"]
     },
     {
       "file": "orchestrators/world_model/interface.py",
@@ -9045,9 +8214,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WorldModelOrchestrator"
-      ]
+      "classes": ["WorldModelOrchestrator"]
     },
     {
       "file": "orchestrators/world_model/scheduler.py",
@@ -9057,9 +8224,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "WorldModelScheduler"
-      ]
+      "classes": ["WorldModelScheduler"]
     },
     {
       "file": "orchestrators/reasoning/interface.py",
@@ -9094,9 +8259,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ReasoningOrchestrator"
-      ]
+      "classes": ["ReasoningOrchestrator"]
     },
     {
       "file": "orchestrators/reasoning/adapter_node.py",
@@ -9106,10 +8269,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ReasoningNodeState",
-        "ReasoningAdapterNode"
-      ]
+      "classes": ["ReasoningNodeState", "ReasoningAdapterNode"]
     },
     {
       "file": "orchestrators/research_swarm/convergence.py",
@@ -9119,9 +8279,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Convergence"
-      ]
+      "classes": ["Convergence"]
     },
     {
       "file": "orchestrators/research_swarm/interface.py",
@@ -9155,9 +8313,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ResearchSwarmOrchestrator"
-      ]
+      "classes": ["ResearchSwarmOrchestrator"]
     },
     {
       "file": "orchestrators/evolution/interface.py",
@@ -9186,9 +8342,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ApplyEngine"
-      ]
+      "classes": ["ApplyEngine"]
     },
     {
       "file": "orchestrators/evolution/__init__.py",
@@ -9208,9 +8362,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "EvolutionOrchestrator"
-      ]
+      "classes": ["EvolutionOrchestrator"]
     },
     {
       "file": "orchestrators/pattern/metrics.py",
@@ -9220,9 +8372,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PatternMetrics"
-      ]
+      "classes": ["PatternMetrics"]
     },
     {
       "file": "orchestrators/pattern/interface.py",
@@ -9274,10 +8424,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CellAgentAdapter",
-        "DirectLLMAgent"
-      ]
+      "classes": ["CellAgentAdapter", "DirectLLMAgent"]
     },
     {
       "file": "orchestrators/pattern/master_orchestrator.py",
@@ -9302,11 +8449,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AgentProtocol",
-        "StubAgent",
-        "PatternOrchestrator"
-      ]
+      "classes": ["AgentProtocol", "StubAgent", "PatternOrchestrator"]
     },
     {
       "file": "orchestrators/agent_execution/task_queue.py",
@@ -9316,9 +8459,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MacTask"
-      ]
+      "classes": ["MacTask"]
     },
     {
       "file": "orchestrators/agent_execution/interface.py",
@@ -9353,9 +8494,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AgentExecutionOrchestrator"
-      ]
+      "classes": ["AgentExecutionOrchestrator"]
     },
     {
       "file": "adapters/tensorglobe_bridge/anomaly_guard.py",
@@ -9380,9 +8519,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TensorGlobeBridgeAdapter"
-      ]
+      "classes": ["TensorGlobeBridgeAdapter"]
     },
     {
       "file": "adapters/tensorglobe_bridge/security.py",
@@ -9392,9 +8529,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SignatureVerifier"
-      ]
+      "classes": ["SignatureVerifier"]
     },
     {
       "file": "adapters/tensorglobe_bridge/__init__.py",
@@ -9534,10 +8669,7 @@
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "Message",
-        "Chunk"
-      ]
+      "classes": ["Message", "Chunk"]
     },
     {
       "file": "scripts/memory/audit_graphs.py",
@@ -9557,10 +8689,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RepoGraphLoader",
-        "MCPRepoGraphLoader"
-      ]
+      "classes": ["RepoGraphLoader", "MCPRepoGraphLoader"]
     },
     {
       "file": "scripts/memory/test_all_graphs_access.py",
@@ -9590,9 +8719,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "VPSRepoGraphLoader"
-      ]
+      "classes": ["VPSRepoGraphLoader"]
     },
     {
       "file": "scripts/memory/seed_golden_strategies.py",
@@ -9762,9 +8889,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PerplexityAuditor"
-      ]
+      "classes": ["PerplexityAuditor"]
     },
     {
       "file": "scripts/pr_review/gemini_auto_editor.py",
@@ -9774,9 +8899,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "GeminiAutoEditor"
-      ]
+      "classes": ["GeminiAutoEditor"]
     },
     {
       "file": "scripts/ci/add_noqa_to_violations.py",
@@ -9806,9 +8929,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "InitResult"
-      ]
+      "classes": ["InitResult"]
     },
     {
       "file": "scripts/workspace/rename_l_to_l_cto.py",
@@ -9888,10 +9009,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DoraLegacyMigrator",
-        "DoraMultiFormatMigrator"
-      ]
+      "classes": ["DoraLegacyMigrator", "DoraMultiFormatMigrator"]
     },
     {
       "file": "scripts/audit/validate_dora_complete.py",
@@ -9901,10 +9019,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ValidationResult",
-        "DoraCompleteValidator"
-      ]
+      "classes": ["ValidationResult", "DoraCompleteValidator"]
     },
     {
       "file": "scripts/audit/inject_dora_complete.py",
@@ -9931,10 +9046,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PathReference",
-        "VerificationResult"
-      ]
+      "classes": ["PathReference", "VerificationResult"]
     },
     {
       "file": "scripts/audit/inject_dora_multiformat_complete.py",
@@ -9988,12 +9100,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AuditType",
-        "AuditResult",
-        "AuditRun",
-        "AuditOrchestrator"
-      ]
+      "classes": ["AuditType", "AuditResult", "AuditRun", "AuditOrchestrator"]
     },
     {
       "file": "scripts/audit/ensure_logger_instantiated.py",
@@ -10003,9 +9110,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "FileAnalysis"
-      ]
+      "classes": ["FileAnalysis"]
     },
     {
       "file": "scripts/audit/categorize_dead_code.py",
@@ -10030,10 +9135,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "FixResult",
-        "GMPReport"
-      ]
+      "classes": ["FixResult", "GMPReport"]
     },
     {
       "file": "scripts/audit/audit_shared_core.py",
@@ -10134,11 +9236,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Language",
-        "ToolConfig",
-        "RefactoringBootstrap"
-      ]
+      "classes": ["Language", "ToolConfig", "RefactoringBootstrap"]
     },
     {
       "file": "scripts/refactoring/aios_validate.py",
@@ -10148,9 +9246,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AOISCompliance"
-      ]
+      "classes": ["AOISCompliance"]
     },
     {
       "file": "scripts/audit/tier1/audit_capability_inventory.py",
@@ -10229,10 +9325,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Settings",
-        "Config"
-      ]
+      "classes": ["Settings", "Config"]
     },
     {
       "file": "mcp_memory/src/audit.py",
@@ -10242,9 +9335,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AuditLogger"
-      ]
+      "classes": ["AuditLogger"]
     },
     {
       "file": "mcp_memory/src/models.py",
@@ -10326,11 +9417,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RateLimitBucket",
-        "RateLimitSnapshot",
-        "RateLimiter"
-      ]
+      "classes": ["RateLimitBucket", "RateLimitSnapshot", "RateLimiter"]
     },
     {
       "file": "mcp_memory/src/__init__.py",
@@ -10360,9 +9447,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CallerIdentity"
-      ]
+      "classes": ["CallerIdentity"]
     },
     {
       "file": "mcp_memory/src/mcp_server.py",
@@ -10372,10 +9457,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MCPTool",
-        "MCPToolCall"
-      ]
+      "classes": ["MCPTool", "MCPToolCall"]
     },
     {
       "file": "mcp_memory/src/memory_substrate/service.py",
@@ -10455,9 +9537,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Settings"
-      ]
+      "classes": ["Settings"]
     },
     {
       "file": "mcp_memory/src/control_plane/__init__.py",
@@ -10517,10 +9597,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PacketMetadata",
-        "PacketEnvelopeV2"
-      ]
+      "classes": ["PacketMetadata", "PacketEnvelopeV2"]
     },
     {
       "file": "mcp_memory/src/kernel/__init__.py",
@@ -10540,10 +9617,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TraceContext",
-        "WebSocketTracingMiddleware"
-      ]
+      "classes": ["TraceContext", "WebSocketTracingMiddleware"]
     },
     {
       "file": "api/middleware/__init__.py",
@@ -10573,10 +9647,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolExecuteRequest",
-        "ToolExecuteResponse"
-      ]
+      "classes": ["ToolExecuteRequest", "ToolExecuteResponse"]
     },
     {
       "file": "api/memory/graph.py",
@@ -10601,11 +9672,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CacheSetRequest",
-        "CacheResponse",
-        "SessionContextRequest"
-      ]
+      "classes": ["CacheSetRequest", "CacheResponse", "SessionContextRequest"]
     },
     {
       "file": "api/memory/__init__.py",
@@ -10665,10 +9732,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ResearchExecuteRequest",
-        "ResearchExecuteResponse"
-      ]
+      "classes": ["ResearchExecuteRequest", "ResearchExecuteResponse"]
     },
     {
       "file": "api/routes/compliance.py",
@@ -10678,10 +9742,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ComplianceReportResponse",
-        "AuditLogExportResponse"
-      ]
+      "classes": ["ComplianceReportResponse", "AuditLogExportResponse"]
     },
     {
       "file": "api/routes/reflection_agent.py",
@@ -10728,10 +9789,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RouterDefinition",
-        "RouterRegistry"
-      ]
+      "classes": ["RouterDefinition", "RouterRegistry"]
     },
     {
       "file": "api/routes/evaluation.py",
@@ -10876,10 +9934,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ReasoningExecuteRequest",
-        "ReasoningExecuteResponse"
-      ]
+      "classes": ["ReasoningExecuteRequest", "ReasoningExecuteResponse"]
     },
     {
       "file": "api/routes/modules.py",
@@ -10981,9 +10036,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MigrationRunner"
-      ]
+      "classes": ["MigrationRunner"]
     },
     {
       "file": "igor/DONE!/audit-memory/mcp_memory_src_mcp_server.py",
@@ -10993,10 +10046,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MCPTool",
-        "MCPToolCall"
-      ]
+      "classes": ["MCPTool", "MCPToolCall"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_extractor___init__.py",
@@ -11016,9 +10066,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CallerIdentity"
-      ]
+      "classes": ["CallerIdentity"]
     },
     {
       "file": "igor/DONE!/audit-memory/mcp_memory_src_routes_memory.py",
@@ -11038,9 +10086,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SubstrateRepository"
-      ]
+      "classes": ["SubstrateRepository"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_slack_ingest.py",
@@ -11070,9 +10116,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CodeExtractor"
-      ]
+      "classes": ["CodeExtractor"]
     },
     {
       "file": "igor/DONE!/audit-memory/mcp_memory_src_routes___init__.py",
@@ -11128,9 +10172,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "IngestionPipeline"
-      ]
+      "classes": ["IngestionPipeline"]
     },
     {
       "file": "igor/DONE!/audit-memory/mcp_memory_src_routes_health.py",
@@ -11150,9 +10192,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "InsightExtractionPipeline"
-      ]
+      "classes": ["InsightExtractionPipeline"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_extractor_agent_config_extractor.py",
@@ -11162,9 +10202,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AgentConfigExtractor"
-      ]
+      "classes": ["AgentConfigExtractor"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_substrate_graph.py",
@@ -11174,10 +10212,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SubstrateGraphState",
-        "SubstrateDAG"
-      ]
+      "classes": ["SubstrateGraphState", "SubstrateDAG"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_housekeeping.py",
@@ -11187,9 +10222,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "HousekeepingEngine"
-      ]
+      "classes": ["HousekeepingEngine"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_graph_client.py",
@@ -11199,9 +10232,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Neo4jClient"
-      ]
+      "classes": ["Neo4jClient"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_packet_serializer.py",
@@ -11231,10 +10262,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemorySubstrateSettings",
-        "Config"
-      ]
+      "classes": ["MemorySubstrateSettings", "Config"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_checkpoint_manager.py",
@@ -11244,9 +10272,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CheckpointManager"
-      ]
+      "classes": ["CheckpointManager"]
     },
     {
       "file": "igor/DONE!/audit-memory/core_schemas_ws_event_stream.py",
@@ -11256,12 +10282,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "EventType",
-        "EventMessage",
-        "AgentHeartbeat",
-        "ErrorEvent"
-      ]
+      "classes": ["EventType", "EventMessage", "AgentHeartbeat", "ErrorEvent"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_index_syncer.py",
@@ -11271,9 +10292,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "IndexSyncer"
-      ]
+      "classes": ["IndexSyncer"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_state_manager.py",
@@ -11283,9 +10302,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemoryStateManager"
-      ]
+      "classes": ["MemoryStateManager"]
     },
     {
       "file": "igor/DONE!/audit-memory/orchestrators_memory_housekeeping.py",
@@ -11295,9 +10312,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Housekeeping"
-      ]
+      "classes": ["Housekeeping"]
     },
     {
       "file": "igor/DONE!/audit-memory/orchestrators_memory_interface.py",
@@ -11322,9 +10337,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemoryOrchestrator"
-      ]
+      "classes": ["MemoryOrchestrator"]
     },
     {
       "file": "igor/DONE!/audit-memory/core_schemas_packet_envelope.py",
@@ -11358,9 +10371,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TimelineService"
-      ]
+      "classes": ["TimelineService"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_smoke_test.py",
@@ -11422,10 +10433,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "DecisionType",
-        "GovernancePattern"
-      ]
+      "classes": ["DecisionType", "GovernancePattern"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory___init__.py",
@@ -11472,9 +10480,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemoryExtractor"
-      ]
+      "classes": ["MemoryExtractor"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_extractor_base_extractor.py",
@@ -11484,9 +10490,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BaseExtractor"
-      ]
+      "classes": ["BaseExtractor"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_retrieval.py",
@@ -11496,9 +10500,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "RetrievalPipeline"
-      ]
+      "classes": ["RetrievalPipeline"]
     },
     {
       "file": "igor/DONE!/audit-memory/mcp_memory_src___init__.py",
@@ -11544,9 +10546,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ModuleSchemaExtractor"
-      ]
+      "classes": ["ModuleSchemaExtractor"]
     },
     {
       "file": "igor/DONE!/audit-memory/mcp_memory_src_config.py",
@@ -11556,10 +10556,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Settings",
-        "Config"
-      ]
+      "classes": ["Settings", "Config"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_extractor_cursor_action_extractor.py",
@@ -11569,9 +10566,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CursorActionExtractor"
-      ]
+      "classes": ["CursorActionExtractor"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_validators_packet_validator.py",
@@ -11581,10 +10576,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PacketValidationError",
-        "PacketValidator"
-      ]
+      "classes": ["PacketValidationError", "PacketValidator"]
     },
     {
       "file": "igor/DONE!/audit-memory/memory_substrate_service.py",
@@ -11594,9 +10586,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MemorySubstrateService"
-      ]
+      "classes": ["MemorySubstrateService"]
     },
     {
       "file": "igor/DONE!/audit-tools/runtime_l_tools.py",
@@ -11626,10 +10616,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ValidationResult",
-        "Validator"
-      ]
+      "classes": ["ValidationResult", "Validator"]
     },
     {
       "file": "igor/DONE!/audit-tools/core_tools_registry_adapter.py",
@@ -11639,11 +10626,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolExecutor",
-        "RiskLevel",
-        "ExecutorToolRegistry"
-      ]
+      "classes": ["ToolExecutor", "RiskLevel", "ExecutorToolRegistry"]
     },
     {
       "file": "igor/DONE!/audit-tools/tools_export_repo_indexes.py",
@@ -11663,9 +10646,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ActionToolOrchestrator"
-      ]
+      "classes": ["ActionToolOrchestrator"]
     },
     {
       "file": "igor/DONE!/audit-tools/orchestrators_action_tool_interface.py",
@@ -11710,9 +10691,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolResolver"
-      ]
+      "classes": ["ToolResolver"]
     },
     {
       "file": "igor/DONE!/audit-tools/services_research_tools_perplexity_client.py",
@@ -11738,12 +10717,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BaseTool",
-        "PerplexityTool",
-        "HTTPTool",
-        "MockSearchTool"
-      ]
+      "classes": ["BaseTool", "PerplexityTool", "HTTPTool", "MockSearchTool"]
     },
     {
       "file": "igor/DONE!/audit-tools/tools_cursor_client.py",
@@ -11753,9 +10727,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CursorClient"
-      ]
+      "classes": ["CursorClient"]
     },
     {
       "file": "igor/DONE!/audit-tools/services_research_tools___init__.py",
@@ -11785,12 +10757,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MacMessage",
-        "MacResponse",
-        "Config",
-        "Config"
-      ]
+      "classes": ["MacMessage", "MacResponse", "Config", "Config"]
     },
     {
       "file": "igor/DONE!/audit-tools/services_symbolic_computation_tools_symbolic_tool.py",
@@ -11800,9 +10767,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SymPyTool"
-      ]
+      "classes": ["SymPyTool"]
     },
     {
       "file": "igor/DONE!/audit-tools/core_schemas_l_tools.py",
@@ -11851,11 +10816,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolName",
-        "Capability",
-        "AgentCapabilities"
-      ]
+      "classes": ["ToolName", "Capability", "AgentCapabilities"]
     },
     {
       "file": "igor/DONE!/audit-tools/runtime_git_tool.py",
@@ -11875,10 +10836,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolDefinition",
-        "ToolGraph"
-      ]
+      "classes": ["ToolDefinition", "ToolGraph"]
     },
     {
       "file": "igor/DONE!/audit-tools/services_research_tools_tool_registry.py",
@@ -11926,10 +10884,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolExecuteRequest",
-        "ToolExecuteResponse"
-      ]
+      "classes": ["ToolExecuteRequest", "ToolExecuteResponse"]
     },
     {
       "file": "igor/DONE!/audit-tools/services_symbolic_computation_tools___init__.py",
@@ -11949,9 +10904,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SymbolicComputationTool"
-      ]
+      "classes": ["SymbolicComputationTool"]
     },
     {
       "file": "igor/DONE!/L9 Memory Substrate Audit/test_memory_substrate_flow.py",
@@ -11961,9 +10914,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TestMemoryEndToEnd"
-      ]
+      "classes": ["TestMemoryEndToEnd"]
     },
     {
       "file": "igor/DONE!/L9 Memory Substrate Audit/script_4.py",
@@ -12047,10 +10998,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AlignmentReport",
-        "SubstrateAlignmentChecker"
-      ]
+      "classes": ["AlignmentReport", "SubstrateAlignmentChecker"]
     },
     {
       "file": "igor/DONE!/L9 Memory Substrate Audit/script_3.py",
@@ -12115,9 +11063,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "QueryInjectionDetector"
-      ]
+      "classes": ["QueryInjectionDetector"]
     },
     {
       "file": "igor/DONE!/L9 Memory Substrate Audit/script_9.py",
@@ -12137,9 +11083,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TaskValidator"
-      ]
+      "classes": ["TaskValidator"]
     },
     {
       "file": "igor/DONE!/tokenizer/core/tokenizer/task.py",
@@ -12149,13 +11093,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TaskIntent",
-        "TaskPriority",
-        "TaskModule",
-        "Task",
-        "Agenda"
-      ]
+      "classes": ["TaskIntent", "TaskPriority", "TaskModule", "Task", "Agenda"]
     },
     {
       "file": "igor/DONE!/tokenizer/core/tokenizer/classifier.py",
@@ -12165,9 +11103,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "TaskClassifier"
-      ]
+      "classes": ["TaskClassifier"]
     },
     {
       "file": "igor/DONE!/tokenizer/core/tokenizer/__init__.py",
@@ -12187,9 +11123,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "AgendaAssembler"
-      ]
+      "classes": ["AgendaAssembler"]
     },
     {
       "file": "igor/DONE!/tokenizer/core/tokenizer/tokenizer.py",
@@ -12199,9 +11133,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Tokenizer"
-      ]
+      "classes": ["Tokenizer"]
     },
     {
       "file": "igor/DONE!/audit-tools/Current Config/agents_l_cto.py",
@@ -12211,9 +11143,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "LCTOAgent"
-      ]
+      "classes": ["LCTOAgent"]
     },
     {
       "file": "igor/DONE!/audit-tools/Current Config/runtime_kernel_loader.py",
@@ -12223,10 +11153,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "KernelAwareAgent",
-        "KernelStack"
-      ]
+      "classes": ["KernelAwareAgent", "KernelStack"]
     },
     {
       "file": "igor/DONE!/audit-tools/Current Config/core_kernels_prompt_builder.py",
@@ -12246,9 +11173,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "StrategySelector"
-      ]
+      "classes": ["StrategySelector"]
     },
     {
       "file": "igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py",
@@ -12311,11 +11236,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ResearchStep",
-        "Evidence",
-        "ResearchGraphState"
-      ]
+      "classes": ["ResearchStep", "Evidence", "ResearchGraphState"]
     },
     {
       "file": "services/research/graph_runtime.py",
@@ -12325,9 +11246,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ResearchGraphRuntime"
-      ]
+      "classes": ["ResearchGraphRuntime"]
     },
     {
       "file": "services/research/research_graph.py",
@@ -12388,9 +11307,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ResearchMemoryAdapter"
-      ]
+      "classes": ["ResearchMemoryAdapter"]
     },
     {
       "file": "services/research/insight_extractor.py",
@@ -12400,9 +11317,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "InsightExtractorAgent"
-      ]
+      "classes": ["InsightExtractorAgent"]
     },
     {
       "file": "services/symbolic_computation/config.py",
@@ -12412,9 +11327,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SymbolicComputationConfig"
-      ]
+      "classes": ["SymbolicComputationConfig"]
     },
     {
       "file": "services/symbolic_computation/models.py",
@@ -12469,9 +11382,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "StructuredLogger"
-      ]
+      "classes": ["StructuredLogger"]
     },
     {
       "file": "services/symbolic_computation/utils.py",
@@ -12481,9 +11392,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ExpressionOptimizer"
-      ]
+      "classes": ["ExpressionOptimizer"]
     },
     {
       "file": "services/symbolic_computation/exceptions.py",
@@ -12544,12 +11453,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BaseTool",
-        "PerplexityTool",
-        "HTTPTool",
-        "MockSearchTool"
-      ]
+      "classes": ["BaseTool", "PerplexityTool", "HTTPTool", "MockSearchTool"]
     },
     {
       "file": "services/research/tools/perplexity_client.py",
@@ -12575,9 +11479,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ToolResolver"
-      ]
+      "classes": ["ToolResolver"]
     },
     {
       "file": "services/research/agents/base_agent.py",
@@ -12587,9 +11489,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "BaseAgent"
-      ]
+      "classes": ["BaseAgent"]
     },
     {
       "file": "services/research/agents/researcher_agent.py",
@@ -12599,9 +11499,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ResearcherAgent"
-      ]
+      "classes": ["ResearcherAgent"]
     },
     {
       "file": "services/research/agents/planner_agent.py",
@@ -12611,9 +11509,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "PlannerAgent"
-      ]
+      "classes": ["PlannerAgent"]
     },
     {
       "file": "services/research/agents/__init__.py",
@@ -12633,9 +11529,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CriticAgent"
-      ]
+      "classes": ["CriticAgent"]
     },
     {
       "file": "services/symbolic_computation/tools/__init__.py",
@@ -12655,9 +11549,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "SymPyTool"
-      ]
+      "classes": ["SymPyTool"]
     },
     {
       "file": "services/symbolic_computation/core/validator.py",
@@ -12667,9 +11559,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ExpressionValidator"
-      ]
+      "classes": ["ExpressionValidator"]
     },
     {
       "file": "services/symbolic_computation/core/metrics.py",
@@ -12679,9 +11569,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "MetricsCollector"
-      ]
+      "classes": ["MetricsCollector"]
     },
     {
       "file": "services/symbolic_computation/core/models.py",
@@ -12712,9 +11600,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CacheManager"
-      ]
+      "classes": ["CacheManager"]
     },
     {
       "file": "services/symbolic_computation/core/expression_evaluator.py",
@@ -12724,9 +11610,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "ExpressionEvaluator"
-      ]
+      "classes": ["ExpressionEvaluator"]
     },
     {
       "file": "services/symbolic_computation/core/__init__.py",
@@ -12746,9 +11630,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "Optimizer"
-      ]
+      "classes": ["Optimizer"]
     },
     {
       "file": "services/symbolic_computation/core/code_generator.py",
@@ -12758,9 +11640,7 @@
         "footer": false,
         "trace": false
       },
-      "classes": [
-        "CodeGenerator"
-      ]
+      "classes": ["CodeGenerator"]
     },
     {
       "file": "services/symbolic_computation/api/__init__.py",

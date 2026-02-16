@@ -10,6 +10,8 @@ Expectations:
 import sys
 from pathlib import Path
 
+from core.decorators import must_stay_async
+
 # Add project root to path before any imports
 project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
@@ -45,6 +47,7 @@ class FakeResponse:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_memory_write_packet_contract():
     """Test that write_packet sends correct request and parses response."""
     client = MemoryClient(base_url="http://test:8080")
@@ -84,6 +87,7 @@ async def test_memory_write_packet_contract():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_memory_client_context_manager():
     """Test that MemoryClient works as async context manager."""
     async with MemoryClient(base_url="http://test:8080") as client:

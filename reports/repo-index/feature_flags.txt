@@ -2,8 +2,8 @@
 # Feature Flags
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -20,6 +20,8 @@
 | `L9_ENABLE_CACHING` | Feature flag | `false` | codegen/templates/python/dora-enterprise-template.py |
 | `L9_ENABLE_CALIBRATION` | Feature flag | `false` | api/server.py |
 | `L9_ENABLE_CODEGEN` | Feature flag | `false` | core/codegen/compiler/module_compiler.py |
+| `L9_ENABLE_DTB` | Feature flag | `false` | core/agents/executor.py |
+| `L9_ENABLE_DTB_MEMORY` | Feature flag | `false` | memory/substrate_dag.py |
 | `L9_ENABLE_FOO` | Feature flag | `false` | .backup/mcp-tools-20260131/background_tasks.py |
 | `L9_ENABLE_GOVERNANCE` | Feature flag | `false` | scripts/audit/tier1/audit_infrastructure_health.py |
 | `L9_ENABLE_GOVERNANCE_ENFORCEMENT` | Feature flag | `false` | codegen/templates/python/dora-enterprise-template.py |

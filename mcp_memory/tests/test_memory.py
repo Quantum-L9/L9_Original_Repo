@@ -4,6 +4,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 
 @pytest.mark.asyncio
 async def test_save_memory_creates_embedding():
@@ -32,6 +34,7 @@ async def test_save_memory_creates_embedding():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_search_returns_similar():
     """Search must return semantically similar memories."""
     with patch("src.routes.memory.embed_text", new_callable=AsyncMock) as mock_embed:
@@ -59,6 +62,7 @@ async def test_search_returns_similar():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_duplicate_memory_compounds():
     """Repeated similar memories should compound."""
     with patch("src.routes.memory.fetch_all", new_callable=AsyncMock) as mock_fetch:
@@ -106,6 +110,7 @@ async def test_duplicate_memory_compounds():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_context_injection_retrieves_relevant_memories():
     """Context injection should retrieve semantically relevant memories."""
     with patch(
@@ -170,6 +175,7 @@ async def test_session_learning_extraction():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_proactive_suggestions():
     """Proactive suggestions should surface relevant past experiences."""
     with (
@@ -207,6 +213,7 @@ async def test_proactive_suggestions():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_temporal_query():
     """Temporal query should return memories in time range."""
     with patch("src.routes.memory.fetch_all", new_callable=AsyncMock) as mock_fetch:

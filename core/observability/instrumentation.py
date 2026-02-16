@@ -58,10 +58,12 @@ def trace_span(
 
     Usage:
         @trace_span("my_operation")
+        @must_stay_async("callers use await")
         async def my_func():
             ...
     """
 
+    @wraps(name)
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         """Inner decorator that wraps the target function.
 
@@ -146,10 +148,12 @@ def trace_llm_call(
 
     Usage:
         @trace_llm_call(model="gpt-4")
+        @must_stay_async("callers use await")
         async def generate_response(prompt: str) -> str:
             ...
     """
 
+    @wraps(model)
     def decorator(func: Callable) -> Callable:
         """Inner decorator that wraps the target function.
 
@@ -234,10 +238,12 @@ def trace_tool_call(
 
     Usage:
         @trace_tool_call("web_search")
+        @must_stay_async("callers use await")
         async def search(query: str) -> str:
             ...
     """
 
+    @wraps(tool_name)
     def decorator(func: Callable) -> Callable:
         """Inner decorator that wraps the target function.
 
@@ -328,10 +334,12 @@ def trace_governance_check(
 
     Usage:
         @trace_governance_check("allow_external_tools")
+        @must_stay_async("callers use await")
         async def check_policy(action: str) -> bool:
             ...
     """
 
+    @wraps(policy_name)
     def decorator(func: Callable) -> Callable:
         """Inner decorator that wraps the target function.
 

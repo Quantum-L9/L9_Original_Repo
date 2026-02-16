@@ -18,6 +18,8 @@ Based on frontier AI lab patterns (Anthropic, OpenAI, DeepMind).
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Active Memory Encoder",
@@ -43,8 +45,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import os
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
@@ -93,7 +96,7 @@ class TaskOutcome:
 
     # Timestamps
     started_at: datetime | None = None
-    completed_at: datetime = field(default_factory=datetime.utcnow)
+    completed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Metadata
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -303,7 +306,17 @@ class LearningExtractor:
         learning: ExtractedLearning,
         outcome: TaskOutcome,
     ) -> float:
-        """Compute importance score for a learning."""
+        """Compute importance score for a learning.
+
+        When ENABLE_IMPORTANCE_RECIPE=true (Phase 2 wiring E5), delegates to
+        ImportanceRecipe.compute_importance() for the canonical shared formula.
+        When OFF, uses the original inline heuristic — zero regression.
+        """
+        # --- Phase 2 wiring E5: ImportanceRecipe delegation (feature-flagged) ---
+        if os.environ.get("ENABLE_IMPORTANCE_RECIPE", "false").lower() == "true":
+            return self._compute_importance_via_recipe(learning, outcome)
+
+        # --- Original path (unchanged) ---
         base_importance = 0.5
 
         # Boost for high-impact tasks
@@ -322,6 +335,42 @@ class LearningExtractor:
             base_importance += 0.1
 
         return max(0.0, min(1.0, base_importance))
+
+    def _compute_importance_via_recipe(
+        self,
+        learning: ExtractedLearning,
+        outcome: TaskOutcome,
+    ) -> float:
+        """Compute importance via ImportanceRecipe (Phase 2 wiring E5).
+
+        Deferred import to avoid circular imports (ADR-0002).
+        Falls back to inline heuristic on error.
+        """
+        from memory.importance_recipe import ImportanceInputs, compute_importance
+
+        try:
+            inputs = ImportanceInputs(
+                segment=learning.tier,
+                success_signal_count=1 if outcome.success else 0,
+                has_reflection=learning.learning_type == "correction",
+            )
+            result = compute_importance(inputs)
+            return result.raw_importance
+        except Exception:
+            logger.warning(
+                "importance_recipe_fallback_in_encoder",
+                exc_info=True,
+            )
+            # Fall back to inline heuristic
+            base_importance = 0.5
+            base_importance += outcome.impact_score * 0.2
+            if outcome.user_satisfaction:
+                base_importance += (outcome.user_satisfaction - 0.5) * 0.2
+            if learning.learning_type == "correction":
+                base_importance += 0.15
+            if learning.learning_type == "preference":
+                base_importance += 0.1
+            return max(0.0, min(1.0, base_importance))
 
 
 # =============================================================================
@@ -382,6 +431,7 @@ class ActiveMemoryEncoder:
     # Main Entry Point
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def on_task_completion(
         self,
         outcome: TaskOutcome,
@@ -397,7 +447,7 @@ class ActiveMemoryEncoder:
         Returns:
             EncodingResult with encoding statistics
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         result = EncodingResult()
 
         logger.info(
@@ -439,7 +489,7 @@ class ActiveMemoryEncoder:
 
         finally:
             result.execution_time_ms = (
-                datetime.now(timezone.utc) - start_time
+                datetime.now(UTC) - start_time
             ).total_seconds() * 1000
             logger.info(
                 "Task completion processing complete",

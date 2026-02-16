@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -112,7 +112,7 @@ class BoundarySpec:
 
 **Public Methods:** `__init__`, `apply_redactions`
 
-**Lines:** 88-119 in `enforcer.py`
+**Lines:** 88-126 in `enforcer.py`
 
 ### `enforcer.py` — BoundaryEnforcer
 
@@ -136,7 +136,7 @@ class BoundaryEnforcer:
 
 **Public Methods:** `__init__`, `_load_spec`, `reload_spec`, `enforce`, `enforce_dict`
 
-**Lines:** 266-381 in `enforcer.py`
+**Lines:** 273-388 in `enforcer.py`
 
 
 ---
@@ -160,7 +160,7 @@ class BoundaryEnforcer:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreBoundaryRequest(BaseModel):
     """Request model for core_boundary operations."""
@@ -251,7 +251,7 @@ CORE_BOUNDARY_ENABLED=true
 
 Load the PRIVATE_BOUNDARY.md specification file.
 
-- **File:** `enforcer.py:122`
+- **File:** `enforcer.py:129`
 - **Async:** No
 - **Returns:** `str`
 
@@ -259,7 +259,7 @@ Load the PRIVATE_BOUNDARY.md specification file.
 
 Parse PRIVATE_BOUNDARY.md content into a BoundarySpec.
 
-- **File:** `enforcer.py:145`
+- **File:** `enforcer.py:152`
 - **Async:** No
 - **Returns:** `BoundarySpec`
 
@@ -267,7 +267,7 @@ Parse PRIVATE_BOUNDARY.md content into a BoundarySpec.
 
 Apply PRIVATE_BOUNDARY enforcement to a prompt.
 
-- **File:** `enforcer.py:173`
+- **File:** `enforcer.py:180`
 - **Async:** No
 - **Returns:** `str`
 
@@ -275,7 +275,7 @@ Apply PRIVATE_BOUNDARY enforcement to a prompt.
 
 Apply PRIVATE_BOUNDARY enforcement to a response.
 
-- **File:** `enforcer.py:211`
+- **File:** `enforcer.py:218`
 - **Async:** No
 - **Returns:** `str`
 
@@ -283,7 +283,7 @@ Apply PRIVATE_BOUNDARY enforcement to a response.
 
 Apply PRIVATE_BOUNDARY enforcement to a payload dict.
 
-- **File:** `enforcer.py:231`
+- **File:** `enforcer.py:238`
 - **Async:** No
 - **Returns:** `dict[str, Any]`
 
@@ -317,7 +317,7 @@ Core Boundary operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.boundary",
   "message": "Operation completed",

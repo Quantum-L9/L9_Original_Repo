@@ -140,7 +140,7 @@ python -m tools.superpack_reports.main
 ## Related
 
 - ADR-0064: Dynamic Tool Discovery (uses similar AST scanning)
-- ADR-0066: Governance Authority Superpack
+- [ADR-0097: Governance & Authority Superpack](./0097-governance-authority-superpack.md)
 - `/index` command: `.cursor-commands/commands/index.md`
 - Generator source: `tools/export_repo_indexes.py`
 

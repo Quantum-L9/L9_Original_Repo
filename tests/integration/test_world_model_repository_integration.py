@@ -8,6 +8,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 pytestmark = pytest.mark.integration
 
 
@@ -25,6 +27,7 @@ class TestWorldModelRepositoryIntegration:
             assert repo is not None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_node_creation_flow(self):
         """Node creation flows through repository."""
         with patch("world_model.repository.get_pool") as mock_pool:

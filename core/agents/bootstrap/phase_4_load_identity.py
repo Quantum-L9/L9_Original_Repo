@@ -7,6 +7,8 @@ Purpose: Parse identity.yaml, hydrate agent's self-awareness (designation, role,
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Phase 4 Load Identity",
@@ -28,7 +30,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -44,6 +46,7 @@ if TYPE_CHECKING:
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def load_identity_persona(
     instance: BootstrapInstanceData,
     substrate_service: MemorySubstrateService,
@@ -122,7 +125,7 @@ async def load_identity_persona(
                         "authority": identity_chunk["authority_level"],
                         "allegiance": identity_chunk["allegiance"],
                         "agent_id": instance.agent_id,
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                     },
                     metadata={"agent": instance.agent_id, "schema_version": "1.0.0"},
                 )
@@ -159,7 +162,7 @@ async def load_identity_persona(
                             "role": identity_chunk["role"],
                             "mission": identity_chunk["mission"],
                             "authority": identity_chunk["authority_level"],
-                            "loaded_at": datetime.now(timezone.utc).isoformat(),
+                            "loaded_at": datetime.now(UTC).isoformat(),
                         },
                     )
             except Exception as e:
@@ -177,6 +180,7 @@ async def load_identity_persona(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def load_identity_persona_view(
     agent_id: str,
     identity_kernel: dict[str, Any],

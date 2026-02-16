@@ -16,6 +16,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Redis Tools",
@@ -93,6 +95,7 @@ async def redis_get(
 
 
 @register_tool(category="redis", priority=10, description="Set a value in Redis cache")
+@must_stay_async("callers use await")
 async def redis_set(
     key: str,
     value: str,
@@ -213,6 +216,7 @@ async def redis_delete(
 @register_tool(
     category="redis", priority=10, description="Enqueue a task to Redis queue"
 )
+@must_stay_async("callers use await")
 async def redis_enqueue_task(
     queue_name: str,
     task_data: dict[str, Any],
@@ -352,6 +356,7 @@ async def redis_get_task_context(
 @register_tool(
     category="redis", priority=10, description="Set task context in Redis cache"
 )
+@must_stay_async("callers use await")
 async def redis_set_task_context(
     task_id: str,
     context: dict[str, Any],
@@ -410,6 +415,8 @@ async def redis_get_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         count = await client.get_rate_limit(key)
 
         return {
@@ -425,6 +432,7 @@ async def redis_get_rate_limit(
 @register_tool(
     category="redis", priority=10, description="Set rate limit count with TTL"
 )
+@must_stay_async("callers use await")
 async def redis_set_rate_limit(
     key: str,
     count: int,
@@ -446,6 +454,8 @@ async def redis_set_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         await client.set_rate_limit(key, count, ttl_seconds)
 
         logger.info(f"Rate limit set: {key}={count} TTL={ttl_seconds}s")
@@ -482,6 +492,8 @@ async def redis_increment_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         new_count = await client.increment_rate_limit(key, amount)
 
         return {
@@ -517,6 +529,8 @@ async def redis_decrement_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         new_count = await client.decrement_rate_limit(key, amount)
 
         return {

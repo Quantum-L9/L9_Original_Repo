@@ -40,6 +40,7 @@ from typing import Any, ParamSpec, TypeVar
 import structlog
 
 from core.auto_registry import AutoRegistry
+from functools import wraps
 
 logger = structlog.get_logger(__name__)
 
@@ -84,16 +85,19 @@ def register_tool(
 
     Example:
         @register_tool(category="memory", priority=10)
+        @must_stay_async("callers use await")
         async def memory_search(query: str, **kwargs):
             # ... implementation ...
             return results
 
         # Or with explicit name
         @register_tool(name="custom_tool", category="custom")
+        @must_stay_async("callers use await")
         async def my_tool_function(**kwargs):
             return {"status": "ok"}
     """
 
+    @wraps(name)
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
         """
         Performs registration of a tool executor function in the auto-registration system.
@@ -222,7 +226,10 @@ def register_extension_tool_executors() -> int:
 
     # Auto-discover research tools (all have @register_tool decorator)
     try:
-        import core.tools.research_tools
+        # Use string import to avoid top-level dependency
+        import importlib
+
+        importlib.import_module("core.tools.research_tools")
 
         logger.debug("extension_tools.research_loaded")
         registered += 4  # run_research_query, synthesize, discover, generate_spec
@@ -231,7 +238,7 @@ def register_extension_tool_executors() -> int:
 
     # Auto-discover reflection tools (all have @register_tool decorator)
     try:
-        import core.tools.reflection_tools  # noqa: F401 - trigger module load for @register_tool
+        importlib.import_module("core.tools.reflection_tools")
 
         logger.debug("extension_tools.reflection_loaded")
         registered += 5  # reflect, analyze_failure, compare_approaches, extract_patterns, generate_improvements
@@ -410,6 +417,9 @@ def get_tools_by_tags(tags: list[str]) -> dict[str, Callable]:
     Returns:
         Dictionary mapping tool IDs to executors
     """
+    if not tags:
+        return {}
+
     result: dict[str, Callable] = {}
 
     # Check MCP tools (tags tracked in _mcp_tool_metadata)

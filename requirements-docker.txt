@@ -88,6 +88,9 @@ sentence-transformers>=2.2.0
 # MCP (Model Context Protocol) - for mcp_memory server
 mcp>=1.0.0
 
+# System Monitoring (memory/consolidation adaptive batching)
+psutil>=5.9.0
+
 # Observability
 prometheus_client>=0.19.0
 

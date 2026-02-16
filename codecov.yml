@@ -1,66 +1,44 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
-# component_name: "Codecov"
-# module_version: "1.0.0"
-# created_by: "Igor Beylin"
-# created_at: "2026-01-24T15:22:14Z"
-# updated_at: "2026-01-24T15:21:11Z"
-# layer: "operations"
-# domain: "codecov.yml"
-# file_name: "codecov"
-# type: "utility"
-# status: "active"
-# ============================================================================
-
-# Codecov configuration for L9
+codecov:
+  require_ci_to_pass: true
 
 coverage:
   precision: 2
   round: down
-  range: [70, 100]
+  range: "60...100"
+
   status:
     project:
       default:
-        target: 75
-        threshold: 3
-        base: auto
+        target: 85%
+        threshold: 2%
+        if_ci_failed: error
     patch:
       default:
-        target: 70
-        threshold: 5
-        base: auto
+        target: 80%
+        threshold: 5%
+
+  flags:
+    unittests:
+      paths:
+        - core/
+        - memory/
+        - api/
+        - runtime/
+      carryforward: true
 
 comment:
-  layout: reach,diff,flags,tree,files
+  layout: "reach,diff,flags,files"
   behavior: default
-  require_changes: false
-  require_base: false
+  require_changes: true
+  require_base: true
   require_head: true
 
-flags:
-  - name: core
-    paths: [core/]
-  - name: memory
-    paths: [core/memory/]
-  - name: kernels
-    paths: [core/kernels/]
-  - name: orchestrators
-    paths: [orchestrators/]
-  - name: agents
-    paths: [agents/]
-
-ignore: [tests/, "**/*_test.py", "**/mocks/**"]
-
-fail:
-  - type: coverage
-    target: 75
-    branches: 50
-    if: head
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
-# tags: ["agent-config", "codecov.yml", "configuration", "kernel", "operations", "utility"]
-# keywords: ["codecov", "comment", "coverage", "fail", "flags", "ignore"]
-# last_modified: "2026-01-24T15:21:11Z"
-# ============================================================================
+ignore:
+  - "tests/**"
+  - "scripts/**"
+  - "ci/**"
+  - "tools/**"
+  - "l9_private/**"
+  - "_archived/**"
+  - "readme/**"
+  - "current_work/**"

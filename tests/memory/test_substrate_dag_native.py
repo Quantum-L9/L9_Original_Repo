@@ -12,7 +12,7 @@ Tests:
 Run: pytest tests/memory/test_substrate_dag_native.py -v
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TypedDict
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
@@ -20,6 +20,7 @@ from uuid import uuid4
 import pytest
 from langgraph.graph import END, StateGraph
 
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelope
 
 # Import from substrate_dag
@@ -50,7 +51,7 @@ def make_test_envelope(
         packet_id=uuid4(),
         packet_type=packet_type,
         payload={"text": text, "key": "value"},
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         metadata={
             "schema_version": "1.0.0",
             "agent": "test_agent",
@@ -275,6 +276,7 @@ class TestNodeConfigInjection:
         assert result["reasoning_block"] is not None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_semantic_embed_node_receives_config(self):
         """semantic_embed_node extracts both repository and semantic_service."""
         state = {
@@ -385,6 +387,7 @@ class TestEnrichmentGraph:
         assert result.packet_id == envelope.packet_id
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_enrich_validates_packet_id(self):
         """enrich() requires packet_id - now validated by Pydantic schema."""
         from pydantic import ValidationError
@@ -429,6 +432,7 @@ class TestLangGraphConfigPattern:
     """Verify LangGraph passes config to async node functions."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_config_passed_to_node(self):
         """LangGraph passes config to nodes via ainvoke."""
 

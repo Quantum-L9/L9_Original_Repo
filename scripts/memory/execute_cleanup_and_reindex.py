@@ -48,6 +48,7 @@ logger = structlog.get_logger(__name__)
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
 
 
+@must_stay_async("callers use await")
 async def delete_trash_embeddings_from_sql():
     """Delete trash embeddings using the generated SQL."""
     if not DATABASE_URL:
@@ -93,10 +94,10 @@ async def delete_trash_embeddings_from_sql():
                 placeholders = ",".join([f"${j + 1}" for j in range(len(batch))])
 
                 result = await conn.execute(
-                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                    f"""
                     DELETE FROM semantic_memory
                     WHERE embedding_id::text IN ({placeholders})
-                    """,
+                    """,  # noqa: S608 — placeholders are $N params, not user input
                     *batch,
                 )
                 deleted += int(result.split()[-1])
@@ -130,7 +131,7 @@ async def reindex_content():
         try:
             import subprocess
 
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
                 [sys.executable, script_path, "--verbose"],
                 capture_output=True,
                 text=True,
@@ -153,54 +154,54 @@ async def reindex_content():
 
 async def main():
     """Main execution."""
-    print("\n" + "=" * 60)
-    print("CLEANUP AND RE-INDEX EXECUTION")
-    print("=" * 60)
-    print()
+    logger.info("\n" + "=" * 60)
+    logger.info("cleanup and re-index execution")
+    logger.info("=" * 60)
+    logger.info("output", value="")
 
     # Step 1: Generate SQL
-    print("Step 1: Generating deletion SQL...")
+    logger.info("step 1: generating deletion sql...")
     import subprocess
 
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
         [sys.executable, "scripts/generate_delete_sql.py"],
         capture_output=True,
         text=True,
     )
 
     if result.returncode == 0:
-        async with aiofiles.open("/tmp/delete_trash.sql", "w") as f:
+        async with aiofiles.open("/tmp/delete_trash.sql", "w") as f:  # noqa: S108 — intentional temp path for generated SQL
             await f.write(result.stdout)
-        print("  ✅ SQL generated")
+        logger.info("  ✅ sql generated")
     else:
-        print(f"  ❌ Failed to generate SQL: {result.stderr[:200]}")
+        logger.error("  ❌ failed to generate sql: {result.stderr[:200]}")
         return
 
     # Step 2: Delete trash embeddings
-    print("\nStep 2: Deleting trash embeddings...")
+    logger.info("\nstep 2: deleting trash embeddings...")
     deleted = await delete_trash_embeddings_from_sql()
 
     if not deleted:
-        print("  ⚠️  Could not delete (DATABASE_URL not set or error)")
-        print("  SQL file available at: /tmp/delete_trash.sql")
-        print("  Run manually: psql -d l9 -f /tmp/delete_trash.sql")
+        logger.error("  ⚠️  could not delete (database_url not set or error)")
+        logger.info("  sql file available at: /tmp/delete_trash.sql")
+        logger.info("  run manually: psql -d l9 -f /tmp/delete_trash.sql")
 
     # Step 3: Re-index
-    print("\nStep 3: Re-indexing high-value content...")
+    logger.info("\nstep 3: re-indexing high-value content...")
     results = await reindex_content()
 
     # Summary
-    print("\n" + "=" * 60)
-    print("SUMMARY")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info("summary")
+    logger.info("=" * 60)
     print(
         f"  Trash embeddings: {'✅ Deleted' if deleted else '⚠️  Manual deletion needed'}"
     )
-    print("\n  Re-indexing results:")
+    logger.info("\n  re-indexing results:")
     for name, status in results.items():
         icon = "✅" if status == "success" else "⚠️" if status == "partial" else "❌"
-        print(f"    {icon} {name}: {status}")
-    print("=" * 60 + "\n")
+        logger.info("    icon name: status", icon=icon, name=name, status=status)
+    logger.info("=" * 60 + "\n")
 
 
 if __name__ == "__main__":

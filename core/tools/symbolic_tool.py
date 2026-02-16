@@ -10,6 +10,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Symbolic Tool",
@@ -125,6 +127,7 @@ class SymbolicComputationTool:
                 "error": str(e),
             }
 
+    @must_stay_async("callers use await")
     async def generate_code(
         self,
         expression: str,
@@ -257,6 +260,7 @@ class SymbolicComputationTool:
 
 @register_tool(category="symbolic", priority=10, description="symbolic_compute tool")
 @register_tool(category="symbolic", priority=10, description="symbolic_compute tool")
+@must_stay_async("callers use await")
 async def symbolic_compute(
     expression: str,
     variables: dict[str, float | list[float]],
@@ -287,6 +291,7 @@ async def symbolic_compute(
 
 @register_tool(category="symbolic", priority=10, description="symbolic_codegen tool")
 @register_tool(category="symbolic", priority=10, description="symbolic_codegen tool")
+@must_stay_async("callers use await")
 async def symbolic_codegen(
     expression: str,
     variables: list[str],

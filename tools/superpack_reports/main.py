@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Main",
     "module_version": "1.0.0",
@@ -22,7 +27,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import argparse
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from .api_report import generate_api_route_inventory, generate_api_superpack
 from .config import SuperpackLayout, default_layout
@@ -34,6 +39,9 @@ from .index_report import generate_superpack_index
 from .memory_report import generate_memory_integration_map, generate_memory_superpack
 from .tools_report import generate_tools_inventory, generate_tools_superpack
 from .workers_report import generate_orchestration_superpack, generate_worker_inventory
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def generate_all_superpacks(layout: SuperpackLayout | None = None) -> None:
@@ -55,10 +63,10 @@ def generate_all_superpacks(layout: SuperpackLayout | None = None) -> None:
     }
 
     for name, fn in generators.items():
-        print(f"[superpack_reports] generating {name}...")
+        logger.info("[superpack reports] generating name...", name=name)
         fn(layout)
 
-    print("[superpack_reports] done.")
+    logger.info("[superpack_reports] done.")
 
 
 def main() -> None:

@@ -7,10 +7,12 @@ Tests for audit logging, compliance reporting, and export.
 Version: 1.0.0
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
+from core.decorators import must_stay_async
 
 
 class TestAuditLogger:
@@ -167,6 +169,7 @@ class TestComplianceReporter:
         assert report.total_commands == 0  # No substrate, no data
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_generate_report_with_mock_data(self):
         """Test generating report with mock audit data."""
         from core.compliance.audit_reporter import ComplianceReporter
@@ -174,7 +177,7 @@ class TestComplianceReporter:
         # Mock substrate with sample data
         mock_substrate = AsyncMock()
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Mock command entries
         mock_substrate.search_packets_by_type = AsyncMock(
@@ -242,12 +245,13 @@ class TestComplianceReporter:
         assert report.total_memory_writes == 1
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_detect_unapproved_high_risk(self):
         """Test detection of unapproved high-risk tool calls."""
         from core.compliance.audit_reporter import ComplianceReporter
 
         mock_substrate = AsyncMock()
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Mock with unapproved gmprun
         mock_substrate.search_packets_by_type = AsyncMock(
@@ -283,12 +287,13 @@ class TestComplianceReporter:
         assert report.violations[0]["tool_name"] == "gmprun"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_export_audit_log(self):
         """Test exporting audit log."""
         from core.compliance.audit_reporter import ComplianceReporter
 
         mock_substrate = AsyncMock()
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         mock_substrate.search_packets_by_type = AsyncMock(
             return_value=[
@@ -321,7 +326,7 @@ class TestDateRangeFiltering:
 
         reporter = ComplianceReporter()
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         from_date = now - timedelta(hours=1)
         to_date = now + timedelta(hours=1)
 
@@ -340,7 +345,7 @@ class TestDateRangeFiltering:
 
         reporter = ComplianceReporter()
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         from_date = now + timedelta(hours=1)
         to_date = now + timedelta(hours=2)
 
@@ -359,7 +364,7 @@ class TestDateRangeFiltering:
 
         reporter = ComplianceReporter()
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         assert (
             reporter._in_date_range(

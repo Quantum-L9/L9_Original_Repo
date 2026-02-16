@@ -6,6 +6,7 @@ Test suite for the tool executor auto-registration system.
 
 import pytest
 
+from core.decorators import must_stay_async
 from runtime.tool_registry import (
     get_tool_executors,
     get_tool_snapshot,
@@ -49,6 +50,7 @@ def test_register_tool_decorator(clean_registry):
     """Test registering a tool with decorator."""
 
     @register_tool(category="memory", priority=10)
+    @must_stay_async("callers use await")
     async def memory_search(query: str, **kwargs):
         return {"results": []}
 
@@ -62,6 +64,7 @@ def test_register_tool_with_custom_name(clean_registry):
     """Test registering a tool with custom name."""
 
     @register_tool(name="custom_tool", category="custom")
+    @must_stay_async("callers use await")
     async def my_function(**kwargs):
         return {"status": "ok"}
 
@@ -74,14 +77,17 @@ def test_register_multiple_tools(clean_registry):
     """Test registering multiple tools."""
 
     @register_tool(category="memory")
+    @must_stay_async("callers use await")
     async def memory_write(**kwargs):
         return {"written": True}
 
     @register_tool(category="redis")
+    @must_stay_async("callers use await")
     async def redis_get(**kwargs):
         return {"value": None}
 
     @register_tool(category="neo4j")
+    @must_stay_async("callers use await")
     async def neo4j_query(**kwargs):
         return {"nodes": []}
 
@@ -101,14 +107,17 @@ def test_get_tools_by_category(clean_registry):
     """Test filtering tools by category."""
 
     @register_tool(category="memory")
+    @must_stay_async("callers use await")
     async def memory_search(**kwargs):
         return {}
 
     @register_tool(category="memory")
+    @must_stay_async("callers use await")
     async def memory_write(**kwargs):
         return {}
 
     @register_tool(category="redis")
+    @must_stay_async("callers use await")
     async def redis_get(**kwargs):
         return {}
 
@@ -131,14 +140,17 @@ def test_tool_priority_ordering(clean_registry):
     """Test tools are ordered by priority."""
 
     @register_tool(priority=1)
+    @must_stay_async("callers use await")
     async def low_priority_tool(**kwargs):
         return {}
 
     @register_tool(priority=10)
+    @must_stay_async("callers use await")
     async def high_priority_tool(**kwargs):
         return {}
 
     @register_tool(priority=5)
+    @must_stay_async("callers use await")
     async def medium_priority_tool(**kwargs):
         return {}
 
@@ -156,10 +168,12 @@ def test_tool_snapshot(clean_registry):
     """Test getting tool registry snapshot."""
 
     @register_tool(category="memory")
+    @must_stay_async("callers use await")
     async def memory_search(**kwargs):
         return {}
 
     @register_tool(category="redis")
+    @must_stay_async("callers use await")
     async def redis_get(**kwargs):
         return {}
 
@@ -177,6 +191,7 @@ def test_tool_execution(clean_registry):
     """Test that registered tools can be executed."""
 
     @register_tool(category="test")
+    @must_stay_async("callers use await")
     async def test_tool(value: int, **kwargs):
         return {"result": value * 2}
 

@@ -13,6 +13,7 @@ All operations are async-safe and use logging (no print statements).
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -41,7 +42,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 
@@ -82,11 +83,18 @@ class HousekeepingEngine:
         """Set or update the repository reference."""
         self._repository = repository
 
+    def _require_repository(self) -> SubstrateRepository:
+        """Return repository or raise if not initialized."""
+        if self._repository is None:
+            raise RuntimeError("Repository not initialized — call set_repository() first")
+        return self._repository
+
     @property
     def stats(self) -> dict[str, int]:
         """Return current housekeeping statistics."""
         return self._stats.copy()
 
+    @must_stay_async("callers use await")
     async def run_full_gc(self) -> dict[str, Any]:
         """
         Run full garbage collection cycle.
@@ -163,7 +171,7 @@ class HousekeepingEngine:
         )
         self._stats["tags_gc"] += results["tags_gc"]
         self._stats["artifacts_cleaned"] += results["artifacts_cleaned"]
-        self._last_run = datetime.now(timezone.utc)
+        self._last_run = datetime.now(UTC)
 
         total_cleaned = sum(v for k, v in results.items() if isinstance(v, int))
         logger.info(f"GC cycle complete: {total_cleaned} items cleaned")
@@ -171,7 +179,7 @@ class HousekeepingEngine:
         return {
             "status": "ok" if not results["errors"] else "partial",
             "cleaned": results,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     async def evict_expired_ttl(self) -> int:
@@ -185,7 +193,8 @@ class HousekeepingEngine:
         """
         logger.debug("Running TTL eviction")
 
-        async with self._repository.acquire() as conn:
+        repo = self._require_repository()
+        async with repo.acquire() as conn:
             # Delete expired packets
             result = await conn.execute("""
                 DELETE FROM packet_store
@@ -212,7 +221,8 @@ class HousekeepingEngine:
         """
         logger.debug("Running orphan packet cleanup")
 
-        async with self._repository.acquire() as conn:
+        repo = self._require_repository()
+        async with repo.acquire() as conn:
             # Find packets with parent_ids referencing non-existent packets
             # Clear orphan references rather than deleting packets
             result = await conn.execute("""
@@ -239,6 +249,7 @@ class HousekeepingEngine:
 
             return count
 
+    @must_stay_async("callers use await")
     async def cleanup_parentless_packets(
         self,
         max_age_hours: int = 72,
@@ -263,8 +274,9 @@ class HousekeepingEngine:
 
         exclude_types = exclude_types or ["root", "session_start", "thread_start"]
 
-        async with self._repository.acquire() as conn:
-            cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
+        repo = self._require_repository()
+        async with repo.acquire() as conn:
+            cutoff = datetime.now(UTC) - timedelta(hours=max_age_hours)
 
             result = await conn.execute(
                 """
@@ -300,7 +312,8 @@ class HousekeepingEngine:
 
         total_cleaned = 0
 
-        async with self._repository.acquire() as conn:
+        repo = self._require_repository()
+        async with repo.acquire() as conn:
             # Clean orphan semantic embeddings
             result = await conn.execute("""
                 DELETE FROM semantic_memory sm
@@ -350,7 +363,8 @@ class HousekeepingEngine:
         """
         logger.debug(f"Running tag GC (min_usage={min_usage})")
 
-        async with self._repository.acquire() as conn:
+        repo = self._require_repository()
+        async with repo.acquire() as conn:
             # Get tag usage counts
             rows = await conn.fetch(
                 """

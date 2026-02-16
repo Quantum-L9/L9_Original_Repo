@@ -12,6 +12,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Git Tool Implementation",
@@ -46,6 +48,7 @@ logger = structlog.get_logger(__name__)
 GIT_QUEUE = TaskQueue(queue_name="l9:git_commits", use_redis=True)
 
 
+@must_stay_async("callers use await")
 async def git_commit_tool(
     message: str,
     repo_root: str,
@@ -129,7 +132,11 @@ async def git_commit_tool(
 
         # Log tool call via ToolGraph
         try:
-            from core.tools.tool_graph import ToolGraph
+            # Use runtime import to avoid circular dependency
+            import importlib
+
+            module = importlib.import_module("core.tools.tool_graph")
+            ToolGraph = module.ToolGraph
 
             await ToolGraph.log_tool_call(
                 tool_name="git_commit",
@@ -171,7 +178,11 @@ async def git_commit_tool(
 
         # Log failed tool call
         try:
-            from core.tools.tool_graph import ToolGraph
+            # Use runtime import to avoid circular dependency
+            import importlib
+
+            module = importlib.import_module("core.tools.tool_graph")
+            ToolGraph = module.ToolGraph
 
             await ToolGraph.log_tool_call(
                 tool_name="git_commit",
@@ -181,7 +192,7 @@ async def git_commit_tool(
                 error=str(e),
             )
         except Exception:
-            pass
+            logger.debug("git_tool.log_tool_call_failed")
 
         return {
             "task_id": None,

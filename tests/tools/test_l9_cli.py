@@ -4,11 +4,12 @@ Tests for L9 CLI Tool
 
 Production-ready test suite for l9-cli security and debt management tool.
 
-Version: 1.0.0
+Version: 1.0.1
 GMP: security-remediation-phase1
 """
 
 import subprocess
+import sys
 
 
 class TestL9CLI:
@@ -16,8 +17,8 @@ class TestL9CLI:
 
     def test_cli_help(self):
         """Test that CLI help command works."""
-        result = subprocess.run(
-            ["python", "tools/l9_cli.py", "--help"],
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+            [sys.executable, "tools/l9_cli.py", "--help"],
             capture_output=True,
             text=True,
         )
@@ -30,8 +31,14 @@ class TestL9CLI:
         test_file = tmp_path / "test.py"
         test_file.write_text('api_key = "hardcoded_secret_123"')
 
-        result = subprocess.run(
-            ["python", "tools/l9_cli.py", "scan-secrets", "--path", str(tmp_path)],
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+            [
+                sys.executable,
+                "tools/l9_cli.py",
+                "scan-secrets",
+                "--path",
+                str(tmp_path),
+            ],
             capture_output=True,
             text=True,
         )
@@ -44,8 +51,14 @@ class TestL9CLI:
         test_file = tmp_path / "test.py"
         test_file.write_text("try:\n    pass\nexcept:\n    pass")
 
-        result = subprocess.run(
-            ["python", "tools/l9_cli.py", "scan-quality", "--path", str(tmp_path)],
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+            [
+                sys.executable,
+                "tools/l9_cli.py",
+                "scan-quality",
+                "--path",
+                str(tmp_path),
+            ],
             capture_output=True,
             text=True,
         )
@@ -58,8 +71,8 @@ class TestL9CLI:
         test_file = tmp_path / "test.py"
         test_file.write_text("# TODO: Fix this\n# FIXME: Refactor")
 
-        result = subprocess.run(
-            ["python", "tools/l9_cli.py", "manage-debt", "--path", str(tmp_path)],
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+            [sys.executable, "tools/l9_cli.py", "manage-debt", "--path", str(tmp_path)],
             capture_output=True,
             text=True,
         )

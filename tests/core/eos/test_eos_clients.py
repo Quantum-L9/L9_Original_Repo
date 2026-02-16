@@ -10,12 +10,14 @@ Version: 1.0.0
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
 import pytest
+
+from core.decorators import must_stay_async
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -52,6 +54,7 @@ class MockNeo4jClient:
         self.write_results = results
         self._write_index = 0
 
+    @must_stay_async("callers use await")
     async def execute_read(self, query: str, **params: Any) -> list[dict[str, Any]]:
         """Execute a read query."""
         self.queries.append({"type": "read", "query": query, "params": params})
@@ -65,6 +68,7 @@ class MockNeo4jClient:
             return result
         return []
 
+    @must_stay_async("callers use await")
     async def execute_write(self, query: str, **params: Any) -> list[dict[str, Any]]:
         """Execute a write query."""
         self.queries.append({"type": "write", "query": query, "params": params})
@@ -91,6 +95,7 @@ class MockSubstrateService:
         self.packets: list[dict[str, Any]] = []
         self.should_fail: bool = False
 
+    @must_stay_async("callers use await")
     async def ingest_packet(self, packet: dict[str, Any]) -> str:
         """Ingest a packet."""
         if self.should_fail:
@@ -100,6 +105,7 @@ class MockSubstrateService:
         self.packets.append({"id": packet_id, **packet})
         return packet_id
 
+    @must_stay_async("callers use await")
     async def search_packets_by_type(
         self,
         packet_type: str,
@@ -184,6 +190,7 @@ class TestEOSHypergraphClient:
         assert len(result["satisfied"]) == 1
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_check_violations_with_prohibition(
         self,
         hypergraph_client: EOSHypergraphClient,
@@ -290,6 +297,7 @@ class TestEOSHypergraphClient:
         assert mock_neo4j.queries[0]["type"] == "write"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_get_agent_capabilities(
         self,
         hypergraph_client: EOSHypergraphClient,
@@ -350,7 +358,7 @@ class TestEOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",
             signer="accountability_engine",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             action_ref="action-001",
             verdict_ref="verdict-001",
             payload={"decision": "allow", "risk_class": "low"},
@@ -443,7 +451,7 @@ class TestEOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",
             signer="test",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             action_ref="action-001",
             verdict_ref=None,
             payload={},
@@ -465,7 +473,7 @@ class TestEOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",
             signer="test",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             action_ref="action-001",
             verdict_ref=None,
             payload={},
@@ -537,6 +545,7 @@ class TestAccountabilityEngineIntegration:
     """Integration tests for AccountabilityEngine with real clients."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_engine_with_hypergraph_client(
         self,
         mock_neo4j: MockNeo4jClient,
@@ -579,6 +588,7 @@ class TestAccountabilityEngineIntegration:
         assert len(mock_neo4j.queries) >= 1
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_engine_with_ledger_writer(
         self,
         mock_substrate: MockSubstrateService,

@@ -24,6 +24,8 @@ ADR: readme/adr/0038-secrets-management-protocol.md
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Secrets Protocols",
@@ -75,6 +77,7 @@ class SecretsClient(Protocol):
     - EnvSecretsClient: Environment variable fallback for local development
     """
 
+    @must_stay_async("callers use await")
     async def get_secret(self, key: str) -> str | None:
         """
         Get secret value by key.
@@ -90,6 +93,7 @@ class SecretsClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def set_secret(self, key: str, value: str) -> bool:
         """
         Set secret value (if supported by backend).
@@ -106,6 +110,7 @@ class SecretsClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def delete_secret(self, key: str) -> bool:
         """
         Delete secret (if supported by backend).
@@ -121,6 +126,7 @@ class SecretsClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def rotate_secret(self, key: str) -> bool:
         """
         Trigger secret rotation (if supported by backend).

@@ -30,6 +30,7 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from services.research.agents.base_agent import BaseAgent
 from services.research.graph_state import ResearchStep
 
@@ -68,6 +69,7 @@ class PlannerAgent(BaseAgent):
         """Initialize planner agent."""
         super().__init__(agent_id=agent_id)
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         query: str,

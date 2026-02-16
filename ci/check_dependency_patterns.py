@@ -39,7 +39,12 @@ import re
 import sys
 from pathlib import Path
 
+import structlog
+
 # Pattern violations to detect
+
+logger = structlog.get_logger(__name__)
+
 FORBIDDEN_PATTERNS = [
     # Depends() injection of infrastructure clients
     (
@@ -90,7 +95,7 @@ def check_file(filepath: Path) -> list[tuple[int, str, str]]:
                 if re.search(pattern, line):
                     violations.append((i, line.strip(), message))
     except Exception as e:
-        print(f"Warning: Could not read {filepath}: {e}", file=sys.stderr)
+        logger.error("warning: could not read filepath: e", filepath=filepath, e=e)
 
     return violations
 
@@ -125,46 +130,39 @@ def main() -> int:
                 all_violations[rel_path] = violations
 
     # Report results
-    print(f"Checked {files_checked} files for dependency pattern violations")
-    print()
-
+    logger.info(
+        "checked files checked files for dependency pattern violations",
+        files_checked=files_checked,
+    )
     if not all_violations:
-        print("✅ No dependency pattern violations found")
+        logger.info("✅ no dependency pattern violations found")
         return 0
 
-    print(f"❌ Found violations in {len(all_violations)} files:")
-    print()
-
+    logger.info("❌ found violations in {len(all_violations)} files:")
     for filepath, violations in sorted(all_violations.items()):
-        print(f"  {filepath}:")
-        for line_num, line_content, message in violations:
-            print(f"    Line {line_num}: {message}")
-            print(f"      > {line_content[:80]}...")
-        print()
-
-    print("=" * 60)
-    print("DEPENDENCY PATTERN ENFORCEMENT")
-    print("=" * 60)
-    print()
-    print("L9 routes must use LAZY MODULE SINGLETONS for Redis/Neo4j:")
-    print()
-    print("  ✅ CORRECT:")
-    print("     _client = None")
-    print("     async def get_redis():")
-    print("         global _client")
-    print("         if _client is None:")
-    print("             from runtime.redis_client import get_redis_client")
-    print("             _client = await get_redis_client()")
-    print("         return _client")
-    print()
-    print("  ❌ WRONG:")
-    print("     from api.dependencies import get_redis_client")
-    print("     @router.get(...)")
-    print("     async def route(client = Depends(get_redis_client)):")
-    print()
-    print("See: .cursor/rules/89-dependency-patterns.mdc")
-    print()
-
+        logger.info("  filepath:", filepath=filepath)
+        for line_num, _line_content, message in violations:
+            logger.info(
+                "    line line num: message", line_num=line_num, message=message
+            )
+            logger.info("      > {line_content[:80]}...")
+    logger.info("=" * 60)
+    logger.info("dependency pattern enforcement")
+    logger.info("=" * 60)
+    logger.info("l9 routes must use lazy module singletons for redis/neo4j:")
+    logger.info("  ✅ correct:")
+    logger.info("     _client = none")
+    logger.info("     async def get_redis():")
+    logger.info("         global _client")
+    logger.info("         if _client is none:")
+    logger.info("             from runtime.redis_client import get_redis_client")
+    logger.info("             _client = await get_redis_client()")
+    logger.info("         return _client")
+    logger.info("  ❌ wrong:")
+    logger.info("     from api.dependencies import get_redis_client")
+    logger.info("     @router.get(...)")
+    logger.info("     async def route(client = depends(get_redis_client)):")
+    logger.info("see: .cursor/rules/89-dependency-patterns.mdc")
     return 1
 
 

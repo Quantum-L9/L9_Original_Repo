@@ -18,6 +18,8 @@ import asyncio
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Test 1: Rate Limit Triggers After Threshold
 # =============================================================================
@@ -212,6 +214,7 @@ class TestMCPRateLimiting:
     """Test rate limiting specifically for MCP tool calls."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_mcp_rate_limiter_instance(self):
         """Verify MCP server has rate limiter instance."""
         from mcp_memory.src.rate_limiter import RateLimiter
@@ -228,6 +231,7 @@ class TestMCPRateLimiting:
         assert hasattr(rate_limiter, "_lock"), "Should have async lock"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_rate_limiter_async_safe(self):
         """Verify rate limiter is async-safe for concurrent requests."""
         from mcp_memory.src.rate_limiter import RateLimiter

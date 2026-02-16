@@ -30,7 +30,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -122,12 +122,13 @@ async def tools_test(
 
 
 @router.post("/execute", response_model=ToolExecuteResponse)
+@must_stay_async("callers use await")
 async def execute_tool(
     request: ToolExecuteRequest,
     http_request: Request,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    registry: ExecutorToolRegistry = Depends(get_tool_registry),
+    registry: ExecutorToolRegistry = Depends(get_tool_registry),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Execute a tool via ExecutorToolRegistry.
@@ -204,7 +205,7 @@ async def tool_graph_health(request: Request) -> dict:
         "neo4j_available": is_healthy,
         "impact": None if is_healthy else "No blast radius/dependency queries",
         "tools_executable": True,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 

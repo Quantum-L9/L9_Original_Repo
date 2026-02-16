@@ -4,6 +4,7 @@ Migrate Kernels to Graph
 ========================
 
 One-time migration script to populate Neo4j graph with L's agent state
+from core.decorators import must_stay_async
 from YAML kernels. This enables the Graph-Backed Agent State feature.
 
 Usage:
@@ -55,6 +56,10 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+from core.decorators import must_stay_async
+
+
+@must_stay_async("callers use await")
 async def run_migration(force: bool = False) -> dict:
     """
     Run the kernel to graph migration.
@@ -105,6 +110,7 @@ async def run_migration(force: bool = False) -> dict:
         await driver.close()
 
 
+@must_stay_async("callers use await")
 async def verify_migration() -> dict:
     """
     Verify the migration was successful.
@@ -134,6 +140,7 @@ async def verify_migration() -> dict:
         await driver.close()
 
 
+@must_stay_async("callers use await")
 async def main():
     """
     Performs the migration of YAML kernels to populate the Neo4j graph with agent state for graph-backed agent features.

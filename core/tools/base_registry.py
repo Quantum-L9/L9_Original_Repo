@@ -8,7 +8,7 @@ NO database persistence - tools are registered at startup.
 Architecture:
 - This is the BASE STORAGE layer (singleton via get_tool_registry())
 - ExecutorToolRegistry in registry_adapter.py WRAPS this for governance + OpenAI format
-- L tools are registered via register_l_tools() at server startup
+- L tools are registered via sync_runtime_tools_to_primary() bridge at server startup
 - Research tools (Perplexity, HTTP, Mock) auto-registered on first access
 
 Production-ready features (v2.1.0):
@@ -18,6 +18,8 @@ Production-ready features (v2.1.0):
 """
 
 from __future__ import annotations
+
+from core.decorators import must_stay_async
 
 # ============================================================================
 __dora_meta__ = {
@@ -327,6 +329,7 @@ class ToolRegistry:
         # Return default schema
         return {"type": "object", "properties": {}}
 
+    @must_stay_async("callers use await")
     async def execute_tool(
         self,
         tool_id: str,
@@ -463,7 +466,7 @@ def _initialize_default_tools(registry: ToolRegistry) -> None:
     """Initialize default tools in registry with schemas.
 
     NOTE: perplexity_search and http_request are registered dynamically
-    via register_l_tools() in core/tools/registry_adapter.py at startup.
+    via sync_runtime_tools_to_primary() bridge at startup (ADR-0094).
     Only testing/utility tools that have no dynamic registration path
     remain here.
     """
@@ -619,6 +622,7 @@ async def recall_task_history(num_tasks: int = 10) -> list[dict]:
 
 
 @register_tool(category="routing", priority=10, description="tool_router_find tool")
+@must_stay_async("callers use await")
 async def tool_router_find(
     query: str,
     top_k: int = 5,
@@ -714,6 +718,7 @@ async def tool_router_find(
 
 
 @register_tool(category="saga", priority=10, description="saga_fetch_and_enrich tool")
+@must_stay_async("callers use await")
 async def saga_fetch_and_enrich(
     query: str,
     entity_types: list[str] | None = None,
@@ -847,6 +852,7 @@ async def saga_fetch_and_enrich(
 
 
 @register_tool(category="saga", priority=10, description="saga_enrich_entities tool")
+@must_stay_async("callers use await")
 async def saga_enrich_entities(
     entity_ids: list[str],
     relationship_types: list[str] | None = None,
@@ -951,6 +957,7 @@ async def saga_enrich_entities(
 @register_tool(
     category="saga", priority=10, description="saga_timeline_correlation tool"
 )
+@must_stay_async("callers use await")
 async def saga_timeline_correlation(
     start_entity_id: str,
     time_range_hours: int = 24,
@@ -974,7 +981,7 @@ async def saga_timeline_correlation(
     Returns:
         Dict with timeline events and causal relationships
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime, timezone, timedelta
 
     import structlog
 
@@ -1062,7 +1069,9 @@ async def saga_timeline_correlation(
                                 }
                             )
                     except Exception:
-                        pass
+                        logger.debug(
+                            "base_registry.causal_link_trace_failed", event_id=event_id
+                        )
 
                 results["causal_chains"] = causal_chains
 
@@ -1089,6 +1098,7 @@ async def saga_timeline_correlation(
 
 
 @register_tool(category="saga", priority=10, description="saga_execute_custom tool")
+@must_stay_async("callers use await")
 async def saga_execute_custom(
     steps: list[dict],
 ) -> dict:

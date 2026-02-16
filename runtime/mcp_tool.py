@@ -11,6 +11,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "MCP Tool Implementation",
@@ -42,6 +44,7 @@ from runtime.mcp_client import get_mcp_client
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def mcp_call_tool(
     server_id: str,
     tool_name: str,
@@ -130,7 +133,11 @@ async def mcp_call_tool(
 
     # Log tool call via ToolGraph
     try:
-        from core.tools.tool_graph import ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolGraph = module.ToolGraph
 
         await ToolGraph.log_tool_call(
             tool_name=tool_name,

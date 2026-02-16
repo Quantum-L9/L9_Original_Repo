@@ -16,6 +16,8 @@ Research source: Perplexity deep_research (2026-01-15)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Warming Service Orchestrator",
@@ -160,6 +162,7 @@ class MemoryWarmingService:
             )
             raise
 
+    @must_stay_async("callers use await")
     async def warm_for_query(
         self,
         query: str,
@@ -292,6 +295,7 @@ class MemoryWarmingService:
                 "error": str(e),
             }
 
+    @must_stay_async("callers use await")
     async def get_warmed_context(
         self,
         entity_ids: list[str],

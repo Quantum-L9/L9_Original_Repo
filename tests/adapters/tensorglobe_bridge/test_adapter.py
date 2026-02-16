@@ -17,7 +17,6 @@ ADR: 0013 (governance hierarchy), 0019 (structlog)
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -30,8 +29,7 @@ from adapters.tensorglobe_bridge.schemas import (
     TensorResponse,
     TensorResult,
 )
-from core.eos.schemas import Verdict, VerdictDecision
-
+from core.decorators import must_stay_async
 
 # =============================================================================
 # Fixtures
@@ -119,12 +117,17 @@ def valid_tensor_response():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_handle_tensor_request_happy_path(
-    adapter, valid_tensor_request, valid_tensor_response, mock_accountability, mock_substrate
+    adapter,
+    valid_tensor_request,
+    valid_tensor_response,
+    mock_accountability,
+    mock_substrate,
 ):
     """
     Contract: Happy path - EOS approves, valid response returned.
-    
+
     Verifies:
     - Request validated
     - EOS gate called
@@ -135,22 +138,24 @@ async def test_handle_tensor_request_happy_path(
     """
     # Patch signature verification (placeholder returns True) and TensorGlobe call
     with patch.object(adapter, "_verify_request_signature", return_value=True):
-        with patch.object(adapter, "_call_tensorglobe", return_value=valid_tensor_response):
+        with patch.object(
+            adapter, "_call_tensorglobe", return_value=valid_tensor_response
+        ):
             success, response, error = await adapter.handle_tensor_request(
                 valid_tensor_request, "agent_001"
             )
-    
+
     assert success is True
     assert response is not None
     assert response.request_id == "req_001"
     assert error is None
-    
+
     # Verify EOS was called
     mock_accountability.evaluate_action.assert_called_once()
-    
+
     # Verify evidence was written
     mock_substrate.write_evidence.assert_called_once()
-    
+
     # Verify audit log was written
     assert mock_substrate.write_audit_log.call_count >= 1
 
@@ -163,9 +168,11 @@ async def test_handle_tensor_request_emits_success_ledger_event(
     Contract: Successful request emits 'tensor_response_received' ledger event.
     """
     with patch.object(adapter, "_verify_request_signature", return_value=True):
-        with patch.object(adapter, "_call_tensorglobe", return_value=valid_tensor_response):
+        with patch.object(
+            adapter, "_call_tensorglobe", return_value=valid_tensor_response
+        ):
             await adapter.handle_tensor_request(valid_tensor_request, "agent_001")
-    
+
     # Check the last audit log call contains success event
     calls = mock_substrate.write_audit_log.call_args_list
     event_types = [call.args[0]["event_type"] for call in calls]
@@ -183,7 +190,7 @@ async def test_handle_tensor_request_eos_denies(
 ):
     """
     Contract: EOS deny → returns (False, None, error_message).
-    
+
     Verifies:
     - EOS gate returns deny verdict
     - Adapter returns failure tuple
@@ -194,12 +201,12 @@ async def test_handle_tensor_request_eos_denies(
         MagicMock(decision=MagicMock(value="deny")),
         ["insufficient_capability"],
     )
-    
+
     with patch.object(adapter, "_verify_request_signature", return_value=True):
         success, response, error = await adapter.handle_tensor_request(
             valid_tensor_request, "agent_001"
         )
-    
+
     assert success is False
     assert response is None
     assert "EOS gate denied" in error
@@ -217,7 +224,7 @@ async def test_eos_deny_does_not_call_tensorglobe(
         MagicMock(decision=MagicMock(value="deny")),
         ["policy_violation"],
     )
-    
+
     with patch.object(adapter, "_call_tensorglobe") as mock_call:
         await adapter.handle_tensor_request(valid_tensor_request, "agent_001")
         mock_call.assert_not_called()
@@ -229,9 +236,7 @@ async def test_eos_deny_does_not_call_tensorglobe(
 
 
 @pytest.mark.asyncio
-async def test_handle_tensor_request_invalid_signature(
-    adapter, valid_tensor_request
-):
+async def test_handle_tensor_request_invalid_signature(adapter, valid_tensor_request):
     """
     Contract: Invalid signature → returns failure.
     """
@@ -239,16 +244,14 @@ async def test_handle_tensor_request_invalid_signature(
         success, response, error = await adapter.handle_tensor_request(
             valid_tensor_request, "agent_001"
         )
-    
+
     assert success is False
     assert response is None
     assert "signature" in error.lower()
 
 
 @pytest.mark.asyncio
-async def test_handle_tensor_request_invalid_schema(
-    adapter, valid_tensor_request
-):
+async def test_handle_tensor_request_invalid_schema(adapter, valid_tensor_request):
     """
     Contract: Invalid schema → returns failure.
     """
@@ -256,7 +259,7 @@ async def test_handle_tensor_request_invalid_schema(
         success, response, error = await adapter.handle_tensor_request(
             valid_tensor_request, "agent_001"
         )
-    
+
     assert success is False
     assert response is None
     assert "schema" in error.lower()
@@ -268,6 +271,7 @@ async def test_handle_tensor_request_invalid_schema(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_handle_tensor_request_critical_anomaly_suspends_provider(
     adapter, valid_tensor_request, valid_tensor_response, mock_accountability
 ):
@@ -281,23 +285,28 @@ async def test_handle_tensor_request_critical_anomaly_suspends_provider(
         severity="critical",
         action_taken="suspend",
     )
-    
+
     with patch.object(adapter, "_verify_request_signature", return_value=True):
-        with patch.object(adapter, "_call_tensorglobe", return_value=valid_tensor_response):
-            with patch.object(adapter.anomaly_detector, "detect", return_value=[critical_anomaly]):
+        with patch.object(
+            adapter, "_call_tensorglobe", return_value=valid_tensor_response
+        ):
+            with patch.object(
+                adapter.anomaly_detector, "detect", return_value=[critical_anomaly]
+            ):
                 with patch.object(adapter, "_suspend_provider") as mock_suspend:
                     success, response, error = await adapter.handle_tensor_request(
                         valid_tensor_request, "agent_001"
                     )
-                    
+
                     mock_suspend.assert_called_once()
-    
+
     assert success is False
     assert response is None
     assert "suspended" in error.lower()
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_handle_tensor_request_non_critical_anomaly_continues(
     adapter, valid_tensor_request, valid_tensor_response
 ):
@@ -311,14 +320,18 @@ async def test_handle_tensor_request_non_critical_anomaly_continues(
         severity="medium",
         action_taken="downgrade",
     )
-    
+
     with patch.object(adapter, "_verify_request_signature", return_value=True):
-        with patch.object(adapter, "_call_tensorglobe", return_value=valid_tensor_response):
-            with patch.object(adapter.anomaly_detector, "detect", return_value=[warning_anomaly]):
+        with patch.object(
+            adapter, "_call_tensorglobe", return_value=valid_tensor_response
+        ):
+            with patch.object(
+                adapter.anomaly_detector, "detect", return_value=[warning_anomaly]
+            ):
                 success, response, error = await adapter.handle_tensor_request(
                     valid_tensor_request, "agent_001"
                 )
-    
+
     # Non-critical should still succeed
     assert success is True
     assert response is not None
@@ -337,14 +350,16 @@ async def test_handle_tensor_request_exception_emits_failure_event(
     Contract: Exception during processing → emits 'tensor_request_failed' event.
     """
     with patch.object(adapter, "_verify_request_signature", return_value=True):
-        with patch.object(adapter, "_call_tensorglobe", side_effect=Exception("Network error")):
+        with patch.object(
+            adapter, "_call_tensorglobe", side_effect=Exception("Network error")
+        ):
             success, response, error = await adapter.handle_tensor_request(
                 valid_tensor_request, "agent_001"
             )
-    
+
     assert success is False
     assert "Network error" in error
-    
+
     # Check failure event was logged
     calls = mock_substrate.write_audit_log.call_args_list
     event_types = [call.args[0]["event_type"] for call in calls]
@@ -352,20 +367,20 @@ async def test_handle_tensor_request_exception_emits_failure_event(
 
 
 @pytest.mark.asyncio
-async def test_handle_tensor_request_timeout_handled(
-    adapter, valid_tensor_request
-):
+async def test_handle_tensor_request_timeout_handled(adapter, valid_tensor_request):
     """
     Contract: TensorGlobe timeout → returns failure with timeout message.
     """
     with patch.object(adapter, "_verify_request_signature", return_value=True):
         with patch.object(
-            adapter, "_call_tensorglobe", side_effect=ValueError("TensorGlobe timeout (5s exceeded)")
+            adapter,
+            "_call_tensorglobe",
+            side_effect=ValueError("TensorGlobe timeout (5s exceeded)"),
         ):
             success, response, error = await adapter.handle_tensor_request(
                 valid_tensor_request, "agent_001"
             )
-    
+
     assert success is False
     assert "timeout" in error.lower()
 
@@ -387,7 +402,7 @@ async def test_handle_tensor_request_invalid_response_signature(
             success, response, error = await adapter.handle_tensor_request(
                 valid_tensor_request, "agent_001"
             )
-    
+
     assert success is False
     assert "signature" in error.lower()
 
@@ -400,12 +415,14 @@ async def test_handle_tensor_request_invalid_response_schema(
     Contract: Invalid response schema → returns failure.
     """
     with patch.object(adapter, "_verify_request_signature", return_value=True):
-        with patch.object(adapter, "_call_tensorglobe", return_value=valid_tensor_response):
+        with patch.object(
+            adapter, "_call_tensorglobe", return_value=valid_tensor_response
+        ):
             with patch.object(adapter, "_validate_response_schema", return_value=False):
                 success, response, error = await adapter.handle_tensor_request(
                     valid_tensor_request, "agent_001"
                 )
-    
+
     assert success is False
     assert "schema" in error.lower()
 

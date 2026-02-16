@@ -6,6 +6,8 @@ Uses sed for extraction (no manual code writing).
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Extract",
@@ -29,7 +31,7 @@ __dora_meta__ = {
 
 import asyncio
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import structlog
@@ -51,6 +53,7 @@ async def _run_shell(cmd: str, cwd: str) -> tuple[int, str, str]:
     return proc.returncode or 0, stdout.decode(), stderr.decode()
 
 
+@must_stay_async("callers use await")
 async def extract_files_node(state: WorkflowState) -> dict:
     """
     Extract code blocks from source document to harvest directory.
@@ -126,7 +129,7 @@ async def extract_files_node(state: WorkflowState) -> dict:
         error="; ".join(errors) if errors else None,
         duration_ms=duration_ms,
         artifacts={"extracted_count": len(extracted_files)},
-        timestamp=datetime.now().isoformat(),
+        timestamp=datetime.now(tz=UTC).isoformat(),
     )
 
     logger.info(

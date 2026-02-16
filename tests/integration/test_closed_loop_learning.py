@@ -11,6 +11,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Test Adaptive Prompting (uses core.agents which doesn't have memory import at top)
 # =============================================================================
@@ -106,6 +108,7 @@ class TestPatternRetrieval:
     """Test governance pattern retrieval."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_get_adaptive_context_for_tool(self):
         """Test getting adaptive context for a tool."""
         mock_patterns = [
@@ -145,6 +148,7 @@ class TestApprovalManagerPatternWriting:
     """Test that ApprovalManager writes governance patterns."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_approve_creates_pattern(self):
         """Test that approve_task creates a governance pattern."""
         # Mock all memory dependencies
@@ -194,6 +198,7 @@ class TestApprovalManagerPatternWriting:
             assert mock_substrate.write_packet.call_count == 2
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_unauthorized_approve_fails(self):
         """Test that non-Igor cannot approve."""
         mock_substrate_models = MagicMock()

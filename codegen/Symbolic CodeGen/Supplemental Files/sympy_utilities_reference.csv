@@ -1,0 +1,11 @@
+Utility Module,Purpose,Key Functions,Use Cases,Performance
+lambdify,Convert SymPy expressions to fast numerical functions,"lambdify(), implemented_function()","Fast evaluation, NumPy integration, vectorization",10-100x faster than evalf()
+autowrap,"Generate, compile and wrap code automatically","autowrap(), ufuncify(), binary_function()","High-performance compilation, Cython/F2PY, array operations",Near C/Fortran speeds
+codegen,Generate compilable code in various languages,"codegen(), Routine(), Argument()","C/Fortran code generation, external compilation, integration",Manual compilation required
+iterables,Advanced iteration utilities,"flatten(), variations(), permutations(), combinations(), product()","Nested structure handling, combinatorics, iteration patterns",Efficient iteration
+memoization,Caching and performance optimization,"recurrence_memo(), @memoize_property","Recursive function caching, property memoization, performance",Reduces redundant computation
+decorator,Function decoration utilities,"@vectorize, @deprecated","Vectorization, deprecation warnings, function transformation",Minimal overhead
+source,Source code inspection,"get_class(), get_mod_func()","Code introspection, debugging, dynamic loading",N/A - inspection only
+enumerative,Enumerative combinatorics,"multiset_partitions(), multiset_combinations()","Partition generation, combinatorial enumeration",Optimized algorithms
+exceptions,Exception handling,"SymPyDeprecationWarning, sympy_deprecation_warning()","Deprecation management, warning control",N/A - error handling
+misc,Miscellaneous utilities,"filldedent(), debug(), timed()","String formatting, debugging, timing",Developer utilities

@@ -10,6 +10,8 @@ Version: 6.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Symbolic Tool",
@@ -105,6 +107,7 @@ class SymPyTool:
 
         self.logger.info("sympy_tool_initialized")
 
+    @must_stay_async("callers use await")
     async def evaluate(
         self,
         expression: str,
@@ -155,6 +158,7 @@ class SymPyTool:
             "error": result.error,
         }
 
+    @must_stay_async("callers use await")
     async def generate_code(
         self,
         expression: str,

@@ -34,12 +34,14 @@ import time
 from collections import defaultdict
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from functools import wraps
 from typing import Any, Protocol
 
 import structlog
+
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger()
 
@@ -56,7 +58,7 @@ class RateLimitStrategy(str, Enum):
 
     FIXED_WINDOW = "fixed_window"
     SLIDING_WINDOW = "sliding_window"
-    TOKEN_BUCKET = "token_bucket"
+    TOKEN_BUCKET = "token_bucket"  # noqa: S105 — enum value, not a credential
     LEAKY_BUCKET = "leaky_bucket"
 
 
@@ -217,12 +219,16 @@ class StandardRateLimiter:
         )
         self._sliding_window_state: dict[str, list[float]] = defaultdict(list)
         self._token_bucket_state: dict[str, tuple[float, float]] = defaultdict(
-            lambda: (float(self.policy.burst_size), time.monotonic())  # nosemgrep: l9-float-requires-try-except
+            lambda: (
+                float(self.policy.burst_size),
+                time.monotonic(),
+            )  # nosemgrep: l9-float-requires-try-except
         )
         self._leaky_bucket_state: dict[str, tuple[float, float]] = defaultdict(
             lambda: (0.0, time.monotonic())
         )
 
+    @must_stay_async("callers use await")
     async def acquire(self, key: str, amount: int = 1) -> bool:
         """Attempt to acquire tokens without waiting.
 
@@ -344,7 +350,7 @@ class StandardRateLimiter:
         else:
             reset_timestamp = time.monotonic() + self.policy.window_seconds
 
-        return datetime.fromtimestamp(reset_timestamp)
+        return datetime.fromtimestamp(reset_timestamp, tz=UTC)
 
     def _acquire_fixed_window(self, key: str, amount: int) -> bool:
         """Acquire tokens using fixed window strategy.
@@ -503,6 +509,7 @@ def rate_limited(
     """
     limiter = StandardRateLimiter(policy)
 
+    @wraps(key_func)
     def decorator(
         func: Callable[..., Coroutine[Any, Any, Any]],
     ) -> Callable[..., Coroutine[Any, Any, Any]]:
@@ -516,6 +523,7 @@ def rate_limited(
         """
 
         @wraps(func)
+        @must_stay_async("callers use await")
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             """Rate-limited function wrapper.
 

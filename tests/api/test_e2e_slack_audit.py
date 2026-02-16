@@ -21,10 +21,12 @@ import hmac
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
+
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -65,6 +67,7 @@ class AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_configuration() -> AuditResult:
     """Audit Slack configuration and environment variables."""
     result = AuditResult("Slack Configuration")
@@ -164,6 +167,7 @@ async def audit_slack_configuration() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_security() -> AuditResult:
     """Audit Slack security (signature verification)."""
     result = AuditResult("Slack Security")
@@ -263,6 +267,7 @@ async def audit_slack_security() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_routing() -> AuditResult:
     """Audit Slack message routing paths."""
     result = AuditResult("Slack Routing")
@@ -342,6 +347,7 @@ async def audit_slack_routing() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_memory_integration() -> AuditResult:
     """Audit Slack memory integration."""
     result = AuditResult("Slack Memory Integration")
@@ -413,6 +419,7 @@ async def audit_slack_memory_integration() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_telemetry() -> AuditResult:
     """Audit Slack telemetry and metrics."""
     result = AuditResult("Slack Telemetry")
@@ -432,7 +439,7 @@ async def audit_slack_telemetry() -> AuditResult:
         )
 
         if PROMETHEUS_AVAILABLE:
-            from telemetry.slack_metrics import (
+            from telemetry.slack_metrics import (  # noqa: F401 — verify metrics importable
                 SLACK_AIOS_CALL_DURATION,
                 SLACK_IDEMPOTENT_HITS,
                 SLACK_PROCESSING_DURATION,
@@ -496,6 +503,7 @@ async def audit_slack_telemetry() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_rate_limiting() -> AuditResult:
     """Audit Slack rate limiting configuration."""
     result = AuditResult("Slack Rate Limiting")
@@ -558,6 +566,7 @@ async def audit_slack_rate_limiting() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_e2e_flow() -> AuditResult:
     """Audit Slack E2E flow (simulated)."""
     result = AuditResult("Slack E2E Flow")
@@ -664,13 +673,13 @@ async def audit_slack_e2e_flow() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def run_full_audit() -> dict[str, Any]:
     """Run all audit checks."""
-    print("\n" + "=" * 80)
-    print("L9 SLACK E2E AUDIT")
-    print(f"Timestamp: {datetime.now(timezone.utc).isoformat()}")
-    print("=" * 80 + "\n")
-
+    print("\n" + "=" * 80)  # noqa: ADR-0019
+    print("L9 SLACK E2E AUDIT")  # noqa: ADR-0019
+    print(f"Timestamp: {datetime.now(UTC).isoformat()}")  # noqa: ADR-0019
+    print("=" * 80 + "\n")  # noqa: ADR-0019
     results = {}
 
     # Run all audits
@@ -685,7 +694,7 @@ async def run_full_audit() -> dict[str, Any]:
     ]
 
     for name, audit_func in audits:
-        print(f"\n--- {name} Audit ---")
+        print(f"\n--- {name} Audit ---")  # noqa: ADR-0019
         result = await audit_func()
         results[name] = result
 
@@ -695,42 +704,35 @@ async def run_full_audit() -> dict[str, Any]:
             "PASSED_WITH_WARNINGS": "⚠️",
             "FAILED": "❌",
         }.get(result.status, "❓")
-        print(f"Status: {status_icon} {result.status}")
-
+        print(f"Status: {status_icon} {result.status}")  # noqa: ADR-0019
         for check in result.checks:
             icon = "✓" if check["passed"] else "✗"
-            print(f"  {icon} {check['name']}: {check['details']}")
-
+            print(f"  {icon} {check['name']}: {check['details']}")  # noqa: ADR-0019
         if result.warnings:
-            print("  Warnings:")
+            print("  Warnings:")  # noqa: ADR-0019
             for w in result.warnings:
-                print(f"    ⚠️ {w}")
-
+                print(f"    ⚠️ {w}")  # noqa: ADR-0019
         if result.recommendations:
-            print("  Recommendations:")
+            print("  Recommendations:")  # noqa: ADR-0019
             for r in result.recommendations:
-                print(f"    💡 {r}")
-
+                print(f"    💡 {r}")  # noqa: ADR-0019
     # Summary
-    print("\n" + "=" * 80)
-    print("AUDIT SUMMARY")
-    print("=" * 80)
-
+    print("\n" + "=" * 80)  # noqa: ADR-0019
+    print("AUDIT SUMMARY")  # noqa: ADR-0019
+    print("=" * 80)  # noqa: ADR-0019
     passed = sum(1 for r in results.values() if r.status == "PASSED")
     warnings = sum(1 for r in results.values() if r.status == "PASSED_WITH_WARNINGS")
     failed = sum(1 for r in results.values() if r.status == "FAILED")
 
-    print(f"✅ Passed: {passed}")
-    print(f"⚠️ Passed with warnings: {warnings}")
-    print(f"❌ Failed: {failed}")
-    print(f"Total: {len(results)}")
-
+    print(f"✅ Passed: {passed}")  # noqa: ADR-0019
+    print(f"⚠️ Passed with warnings: {warnings}")  # noqa: ADR-0019
+    print(f"❌ Failed: {failed}")  # noqa: ADR-0019
+    print(f"Total: {len(results)}")  # noqa: ADR-0019
     overall = "PASSED" if failed == 0 else "FAILED"
-    print(f"\nOverall Status: {overall}")
-    print("=" * 80 + "\n")
-
+    print(f"\nOverall Status: {overall}")  # noqa: ADR-0019
+    print("=" * 80 + "\n")  # noqa: ADR-0019
     return {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "overall_status": overall,
         "summary": {
             "passed": passed,

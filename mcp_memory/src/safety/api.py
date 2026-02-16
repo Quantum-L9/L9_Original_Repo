@@ -32,11 +32,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
+from abc import (  # noqa: ADR-0026 - ABC provides shared implementation
+    ABC,
+    abstractmethod,
+)
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
+
+from core.decorators import must_stay_async
 
 
 class SafetyDecision(str, Enum):
@@ -85,6 +90,7 @@ class SafetyService(ABC):
     """Abstract interface for Safety module."""
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def check_query(
         self,
         query: str,
@@ -96,6 +102,7 @@ class SafetyService(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def check_capability(
         self,
         caller_id: str,
@@ -106,16 +113,19 @@ class SafetyService(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def emit_event(self, event: SafetyEvent) -> None:
         """Log a security event."""
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def load_policy_bundle(self, version: str) -> SafetyPolicyBundle:
         """Load versioned policy bundle."""
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def is_region_allowed(self, region: str, operation: str) -> bool:
         """Check if operation allowed in region."""
         pass

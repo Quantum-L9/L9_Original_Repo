@@ -32,12 +32,13 @@ __dora_meta__ = {
 import asyncio
 import json
 import time
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from core.decorators import must_stay_async
 from src.config import settings
 from src.db import execute, fetch_all, fetch_one
 from src.embeddings import embed_text
@@ -87,6 +88,7 @@ async def save_memory(req: SaveMemoryRequest) -> MemoryResponse:
     )
 
 
+@must_stay_async("callers use await")
 async def save_memory_handler(
     user_id: str,
     content: str,
@@ -136,11 +138,12 @@ async def save_memory_handler(
             expires_at = None
 
         if duration in ["short", "medium"]:
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: {table} is from internal logic, user values parameterized  # noqa: ADR-0087
+            query = f"""
             INSERT INTO {table} (user_id, kind, content, embedding, importance, metadata, expires_at)
             VALUES ($1, $2, $3, $4::vector, $5, $6, $7)
             RETURNING id, user_id, kind, content, importance, created_at;
-            """
+            """  # noqa: S608 — table is internal constant, user values parameterized
             result = await fetch_one(
                 query,
                 user_id,
@@ -218,6 +221,7 @@ async def search_memory(req: SearchMemoryRequest) -> SearchMemoryResponse:
     )
 
 
+@must_stay_async("callers use await")
 async def search_memory_handler(
     user_id: str,
     query: str,
@@ -290,13 +294,14 @@ async def search_memory_handler(
             )
             params.extend([query_embedding, threshold, top_k])
 
-            query_sql = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: cols, table, where, scope_clause, kind_clause are internal SQL  # noqa: ADR-0087
+            query_sql = f"""
             SELECT {cols}, 1 - (embedding <-> ${param_idx}::vector) as similarity
             FROM {table}
             WHERE user_id = $1 {where} {scope_clause} {kind_clause}
             AND 1 - (embedding <-> ${param_idx}::vector) >= ${param_idx + 1}
             ORDER BY similarity DESC LIMIT ${param_idx + 2};
-            """
+            """  # noqa: S608 — all interpolated parts are internal SQL clauses
             rows = await fetch_all(query_sql, *params)
 
             if track_access and dur == "long" and rows:
@@ -331,6 +336,7 @@ async def search_memory_handler(
 
 
 @router.get("/stats", response_model=MemoryStatsResponse)
+@must_stay_async("callers use await")
 async def get_memory_stats(
     user_id: str | None = Query(None), duration: str = Query("all")
 ) -> MemoryStatsResponse:
@@ -595,6 +601,7 @@ async def cleanup_task():
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def get_context_injection(
     task_description: str,
     user_id: str,
@@ -791,6 +798,7 @@ async def extract_session_learnings(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def get_proactive_suggestions(
     current_context: str,
     user_id: str,
@@ -899,6 +907,7 @@ async def get_proactive_suggestions(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def query_temporal(
     user_id: str,
     since: str | None = None,
@@ -935,12 +944,13 @@ async def query_temporal(
 
         if operation == "changes":
             # Get all memories created or updated in the period
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
+            query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at, updated_at
             FROM memory.long_term
             WHERE {where_clause}
             ORDER BY created_at DESC;
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
 
             # Count created vs updated
@@ -950,25 +960,25 @@ async def query_temporal(
             updated_count = len(memories) - created_count
 
         elif operation == "timeline":
-            # Get timeline of memory creation
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
+            query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at
             FROM memory.long_term
             WHERE {where_clause}
             ORDER BY created_at ASC;
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
             created_count = len(memories)
             updated_count = 0
 
         else:  # diff
-            # Get memories with differences (updated != created)
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
+            query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at, updated_at
             FROM memory.long_term
             WHERE {where_clause} AND updated_at > created_at
             ORDER BY updated_at DESC;
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
             created_count = 0
             updated_count = len(memories)
@@ -995,6 +1005,7 @@ async def query_temporal(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def save_memory_with_confidence(
     user_id: str,
     content: str,

@@ -30,9 +30,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass
 from typing import Any
+
+import structlog
 
 from world_model.interfaces import Entity, Relation
 from world_model.state import WorldModelState
@@ -46,7 +47,7 @@ class Neo4jConfig:
 
     uri: str = "bolt://localhost:7687"
     username: str = "neo4j"
-    password: str = "password"
+    password: str = "password"  # noqa: S105 — default/placeholder, overridden by env
     database: str = "neo4j"
 
 
@@ -208,7 +209,7 @@ class Neo4jSubstrate:
                 labels = record["labels"]
 
                 # Extract type from labels (skip "Entity" label)
-                entity_type = next((l for l in labels if l != "Entity"), None)
+                entity_type = next((lbl for lbl in labels if lbl != "Entity"), None)
 
                 return Entity(
                     id=node["id"],
@@ -237,7 +238,7 @@ class Neo4jSubstrate:
                 for record in result:
                     node = record["e"]
                     labels = record["labels"]
-                    entity_type = next((l for l in labels if l != "Entity"), None)
+                    entity_type = next((lbl for lbl in labels if lbl != "Entity"), None)
 
                     entities.append(
                         Entity(

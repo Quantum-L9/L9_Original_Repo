@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -120,7 +120,7 @@ class AwsSecretsClient:
 
 **Public Methods:** `__init__`, `provider_name`, `_build_secret_name`, `_is_cache_valid`, `get_secret`
 
-**Lines:** 61-337 in `aws_secrets_client.py`
+**Lines:** 62-342 in `aws_secrets_client.py`
 
 ### `env_secrets_client.py` — EnvSecretsClient
 
@@ -144,7 +144,7 @@ class EnvSecretsClient:
 
 **Public Methods:** `__init__`, `provider_name`, `_build_env_key`, `get_secret`, `set_secret`
 
-**Lines:** 49-159 in `env_secrets_client.py`
+**Lines:** 51-165 in `env_secrets_client.py`
 
 
 ---
@@ -161,7 +161,7 @@ class EnvSecretsClient:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreSecretsRequest(BaseModel):
     """Request model for core_secrets operations."""
@@ -311,7 +311,7 @@ Core Secrets operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.secrets",
   "message": "Operation completed",

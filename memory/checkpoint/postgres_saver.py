@@ -35,7 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -85,6 +85,7 @@ class L9PostgresSaver(BaseCheckpointSaver):
         """Get repository instance."""
         return self._repository
 
+    @must_stay_async("callers use await")
     async def put(
         self,
         config: dict[str, Any],
@@ -150,6 +151,7 @@ class L9PostgresSaver(BaseCheckpointSaver):
 
         return {"checkpoint_id": str(checkpoint_id)}
 
+    @must_stay_async("callers use await")
     async def get(
         self,
         config: dict[str, Any],
@@ -288,6 +290,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
             base_retry_delay=base_retry_delay,
         )
 
+    @must_stay_async("callers use await")
     async def _execute_with_retry(
         self,
         operation_name: str,
@@ -348,6 +351,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
         )
         raise last_exception  # type: ignore[misc]
 
+    @must_stay_async("callers use await")
     async def put(
         self,
         config: dict[str, Any],
@@ -367,7 +371,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
         Returns:
             Dict with checkpoint_id
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         result = await self._execute_with_retry(
             "put",
@@ -378,7 +382,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
             new_versions,
         )
 
-        duration_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        duration_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         logger.info(
             "checkpoint_saved_with_retry",
@@ -451,7 +455,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
             "pool_available": -1,
             "requests_waiting": -1,
             "monitoring_available": False,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         # Try to get pool stats from repository if available

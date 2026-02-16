@@ -17,6 +17,7 @@ from config.di_async_config import (
     get_async_di_container,
     reset_async_di_container,
 )
+from core.decorators import must_stay_async
 
 # ============================================================================
 # FIXTURES
@@ -69,6 +70,7 @@ class TestAsyncDIContainerInitialization:
         assert not fresh_container.is_initialized
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_container_initialization(
         self,
         fresh_container: AsyncDIContainer,
@@ -95,6 +97,7 @@ class TestAsyncDIContainerInitialization:
             assert fresh_container.is_initialized
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_container_idempotent_initialization(
         self,
         fresh_container: AsyncDIContainer,
@@ -131,6 +134,7 @@ class TestAsyncDIContainerShutdown:
     """Test async DI container shutdown."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_container_shutdown(
         self,
         fresh_container: AsyncDIContainer,
@@ -199,6 +203,7 @@ class TestAsyncDIDependencyGetters:
             await fresh_container.get_memory_substrate()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_get_cache_client_after_init(
         self,
         fresh_container: AsyncDIContainer,
@@ -275,6 +280,7 @@ class TestAsyncDIErrorHandling:
             await fresh_container.initialize()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_shutdown_error_logged_not_raised(
         self,
         fresh_container: AsyncDIContainer,

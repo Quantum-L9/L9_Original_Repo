@@ -13,6 +13,8 @@ Based on frontier AI lab patterns for adaptive memory management.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Importance Manager",
@@ -38,14 +40,16 @@ __dora_meta__ = {
 # ============================================================================
 
 import math
+import os
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
-from uuid import UUID
 
 import structlog
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
@@ -99,7 +103,7 @@ class AccessRecord:
     """
 
     fact_id: UUID
-    accessed_at: datetime = field(default_factory=datetime.utcnow)
+    accessed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     access_type: str = "retrieval"  # retrieval, elevation, reference
     context: str = ""  # What triggered the access
 
@@ -118,7 +122,7 @@ class ImportanceUpdate:
     old_importance: float
     new_importance: float
     reason: str
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 # =============================================================================
@@ -166,6 +170,7 @@ class ImportanceManager:
     # Access Tracking
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def track_access(
         self,
         fact_id: UUID,
@@ -230,6 +235,7 @@ class ImportanceManager:
     # Importance Elevation
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def elevate_importance(
         self,
         fact_id: UUID,
@@ -306,6 +312,7 @@ class ImportanceManager:
     # Importance Decay
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def decay_importance(
         self,
         batch_size: int = 1000,
@@ -352,12 +359,23 @@ class ImportanceManager:
                     old_importance = row["importance"]
                     last_accessed = row["last_accessed"]
 
-                    # Calculate decay
-                    new_importance = self._calculate_decay(
-                        old_importance,
-                        last_accessed,
-                        now,
-                    )
+                    # Calculate decay — Phase 2 wiring E3: ImportanceRecipe (feature-flagged)
+                    if (
+                        os.environ.get("ENABLE_IMPORTANCE_RECIPE", "false").lower()
+                        == "true"
+                    ):
+                        new_importance = self._calculate_decay_via_recipe(
+                            old_importance,
+                            last_accessed,
+                            now,
+                            row,
+                        )
+                    else:
+                        new_importance = self._calculate_decay(
+                            old_importance,
+                            last_accessed,
+                            now,
+                        )
 
                     # Skip if no significant change
                     if abs(new_importance - old_importance) < 0.01:
@@ -413,10 +431,49 @@ class ImportanceManager:
         # Apply floor
         return max(self._config.decay_floor, decayed)
 
+    def _calculate_decay_via_recipe(
+        self,
+        importance: float,
+        last_accessed: datetime | None,
+        now: datetime,
+        row: Any,
+    ) -> float:
+        """Calculate importance using ImportanceRecipe (Phase 2 wiring E3).
+
+        Deferred import to avoid circular imports (ADR-0002).
+        Falls back to inline formula on error.
+        """
+        from memory.importance_recipe import ImportanceInputs, compute_importance
+
+        if last_accessed is None:
+            age_hours = 30.0 * 24.0
+        else:
+            age_hours = (now - last_accessed).total_seconds() / 3600.0
+
+        try:
+            inputs = ImportanceInputs(
+                segment=row.get("tier", "general")
+                if hasattr(row, "get")
+                else "general",
+                access_count=int(
+                    row.get("access_count", 0) if hasattr(row, "get") else 0
+                ),
+                last_access_age_hours=age_hours,
+            )
+            result = compute_importance(inputs)
+            return max(self._config.decay_floor, result.raw_importance)
+        except Exception:
+            logger.warning(
+                "importance_recipe_fallback",
+                exc_info=True,
+            )
+            return self._calculate_decay(importance, last_accessed, now)
+
     # =========================================================================
     # Pruning
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def prune_low_importance(
         self,
         batch_size: int = 100,
@@ -446,7 +503,6 @@ class ImportanceManager:
             async with self._repository.acquire() as conn:
                 if dry_run:
                     # Just count candidates
-                    # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     row = await conn.fetchrow(
                         f"""
                         SELECT COUNT(*) as count
@@ -454,7 +510,7 @@ class ImportanceManager:
                         WHERE tier != ALL($1::text[])
                         AND importance < $2
                         AND created_at < NOW() - INTERVAL '{min_age_days} days'
-                        """,
+                        """,  # noqa: S608, ADR-0087 - SAFE: min_age_days is int, not user input
                         exempt_tiers,
                         threshold,
                     )
@@ -463,7 +519,6 @@ class ImportanceManager:
                     return count
 
                 # Actually prune
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 result = await conn.execute(
                     f"""
                     DELETE FROM semantic_facts
@@ -475,7 +530,7 @@ class ImportanceManager:
                         AND created_at < NOW() - INTERVAL '{min_age_days} days'
                         LIMIT $3
                     )
-                    """,
+                    """,  # noqa: S608, ADR-0087 - SAFE: min_age_days is int, not user input
                     exempt_tiers,
                     threshold,
                     batch_size,

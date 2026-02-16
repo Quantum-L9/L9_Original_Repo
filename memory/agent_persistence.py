@@ -15,6 +15,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Agent Persistence Service",
@@ -43,7 +45,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
@@ -52,9 +54,9 @@ import structlog
 from core.schemas import PacketEnvelopeIn
 from memory.checkpoint_metrics import get_metrics
 from memory.checkpoint_validator import CheckpointValidator
-from memory.substrate_repository import SubstrateRepository
 
 if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
     from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
@@ -144,6 +146,7 @@ class AgentPersistenceService:
         """Set or update repository reference."""
         self._repository = repository
 
+    @must_stay_async("callers use await")
     async def create_checkpoint(
         self,
         agent_id: str,
@@ -180,18 +183,20 @@ class AgentPersistenceService:
 
             checkpoint_id: UUID | None = None
 
-            if self._service:
-                checkpoint_id = await self._service.save_checkpoint(
-                    agent_id=agent_id,
-                    state=state_with_meta,
-                )
-            elif self._repository:
+            if self._repository:
                 checkpoint_id = await self._repository.save_checkpoint(
                     agent_id=agent_id,
                     graph_state=state_with_meta,
                 )
+            elif self._service and hasattr(self._service, "save_checkpoint"):
+                checkpoint_id = await self._service.save_checkpoint(
+                    agent_id=agent_id,
+                    state=state_with_meta,
+                )
             else:
-                raise RuntimeError("Neither service nor repository set")
+                raise RuntimeError(
+                    "Neither repository nor service with save_checkpoint available"
+                )
 
             # Record checkpoint size metric
             state_size = len(json.dumps(state_with_meta, default=str))
@@ -216,6 +221,7 @@ class AgentPersistenceService:
 
             return checkpoint_id
 
+    @must_stay_async("callers use await")
     async def restore_checkpoint(
         self,
         agent_id: str,
@@ -302,6 +308,7 @@ class AgentPersistenceService:
 
             return state_clean
 
+    @must_stay_async("callers use await")
     async def list_checkpoints(
         self,
         agent_id: str,
@@ -348,6 +355,7 @@ class AgentPersistenceService:
         logger.info("Listed checkpoints", agent_id=agent_id, count=len(checkpoints))
         return checkpoints
 
+    @must_stay_async("callers use await")
     async def delete_old_checkpoints(
         self,
         agent_id: str,
@@ -464,6 +472,7 @@ class AgentPersistenceService:
         # In production, might need to restore UUIDs, datetimes, etc.
         return state
 
+    @must_stay_async("callers use await")
     async def validate_checkpoint_integrity(
         self,
         checkpoint_id: UUID,
@@ -565,6 +574,7 @@ class AgentPersistenceService:
     # Audit Trail (PacketEnvelope Emission)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _emit_checkpoint_packet(
         self,
         event_type: str,

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -164,7 +164,7 @@ class ComputationRequest:
 
 **Public Methods:** `validate_expression`, `validate_variables`
 
-**Lines:** 54-85 in `models.py`
+**Lines:** 54-87 in `models.py`
 
 ### `models.py` — ComputationResult
 
@@ -176,7 +176,7 @@ class ComputationResult:
 
 ```
 
-**Lines:** 88-105 in `models.py`
+**Lines:** 90-107 in `models.py`
 
 
 ---
@@ -200,7 +200,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class ServicesSymbolicRequest(BaseModel):
     """Request model for services_symbolic operations."""
@@ -356,7 +356,7 @@ Services Symbolic operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "services.symbolic_computation",
   "message": "Operation completed",

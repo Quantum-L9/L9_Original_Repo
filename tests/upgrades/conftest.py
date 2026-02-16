@@ -15,7 +15,7 @@ if PROJECT_ROOT not in sys.path:
 
 # Force import of core.packet_envelope to verify path is correct
 try:
-    import core.packet_envelope
+    import core.packet_envelope  # noqa: F401 — pre-import for pytest
 except ImportError:
     # If still not found, try adding explicitly
     pass

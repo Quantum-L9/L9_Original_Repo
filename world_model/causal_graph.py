@@ -55,7 +55,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 
@@ -124,7 +124,7 @@ class CausalGraph:
         self._edges: dict[str, CausalEdge] = {}
         self._causes: dict[str, list[str]] = {}  # node_id → [cause_ids]
         self._effects: dict[str, list[str]] = {}  # node_id → [effect_ids]
-        self._created_at: datetime = datetime.now(timezone.utc)
+        self._created_at: datetime = datetime.now(UTC)
 
     # =========================================================================
     # Node Operations

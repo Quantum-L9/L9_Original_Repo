@@ -21,6 +21,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Runtime",
@@ -48,7 +50,7 @@ __dora_meta__ = {
 
 import json
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -125,7 +127,7 @@ class AIOSRuntime:
             default_system_prompt: Default system prompt
         """
         # Get API key (read at init, not import time per spec)
-        self._api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self._api_key = api_key or os.getenv("OPENAI_API_KEY", "")
         if not self._api_key:
             logger.warning("OPENAI_API_KEY not set - AIOS runtime will fail on calls")
 
@@ -182,6 +184,7 @@ class AIOSRuntime:
     # Main API
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def execute_reasoning(
         self,
         context: dict[str, Any],
@@ -202,7 +205,7 @@ class AIOSRuntime:
         Returns:
             AIOSResult with response or tool call
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         try:
             # Extract context
@@ -311,7 +314,7 @@ class AIOSRuntime:
                 )
 
                 duration_ms = int(
-                    (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+                    (datetime.now(UTC) - start_time).total_seconds() * 1000
                 )
                 logger.info(
                     "AIOS tool_call completed",
@@ -323,9 +326,7 @@ class AIOSRuntime:
 
             # No tool call - return response
             content = message.content or ""
-            duration_ms = int(
-                (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-            )
+            duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
             logger.info(
                 "AIOS response completed",
@@ -343,9 +344,7 @@ class AIOSRuntime:
             )
 
         except Exception as e:
-            duration_ms = int(
-                (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-            )
+            duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
             logger.exception(
                 "AIOS reasoning failed", error=str(e), duration_ms=duration_ms
             )

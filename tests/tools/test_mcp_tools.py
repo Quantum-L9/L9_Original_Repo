@@ -31,7 +31,7 @@ class TestMcpListServers:
             return_value=["create_issue", "search"]
         )
 
-        with patch("runtime.mcp_tools.get_mcp_client", return_value=mock_client):
+        with patch("runtime.mcp_client.get_mcp_client", return_value=mock_client):
             result = await mcp_list_servers()
 
         assert result["status"] == "success"
@@ -44,7 +44,7 @@ class TestMcpListServers:
         from runtime.mcp_tools import mcp_list_servers
 
         with patch(
-            "runtime.mcp_tools.get_mcp_client", side_effect=Exception("Client error")
+            "runtime.mcp_client.get_mcp_client", side_effect=Exception("Client error")
         ):
             result = await mcp_list_servers()
 
@@ -70,7 +70,7 @@ class TestMcpListTools:
         mock_client.is_server_available.return_value = True
         mock_client.list_tools = AsyncMock(return_value=[mock_tool])
 
-        with patch("runtime.mcp_tools.get_mcp_client", return_value=mock_client):
+        with patch("runtime.mcp_client.get_mcp_client", return_value=mock_client):
             result = await mcp_list_tools(server_id="github")
 
         assert result["status"] == "success"
@@ -85,7 +85,7 @@ class TestMcpListTools:
         mock_client = MagicMock()
         mock_client.is_server_available.return_value = False
 
-        with patch("runtime.mcp_tools.get_mcp_client", return_value=mock_client):
+        with patch("runtime.mcp_client.get_mcp_client", return_value=mock_client):
             result = await mcp_list_tools(server_id="nonexistent")
 
         assert result["status"] == "error"
@@ -108,7 +108,7 @@ class TestMcpCallTool:
             }
         )
 
-        with patch("runtime.mcp_tools.get_mcp_client", return_value=mock_client):
+        with patch("runtime.mcp_client.get_mcp_client", return_value=mock_client):
             result = await mcp_call_tool(
                 server_id="github",
                 tool_name="create_issue",
@@ -129,7 +129,7 @@ class TestMcpCallTool:
             return_value={"success": False, "error": "Permission denied"}
         )
 
-        with patch("runtime.mcp_tools.get_mcp_client", return_value=mock_client):
+        with patch("runtime.mcp_client.get_mcp_client", return_value=mock_client):
             result = await mcp_call_tool(
                 server_id="github",
                 tool_name="delete_repo",
@@ -147,7 +147,7 @@ class TestMcpCallTool:
         mock_client = MagicMock()
         mock_client.call_tool = AsyncMock(return_value={"success": True, "result": {}})
 
-        with patch("runtime.mcp_tools.get_mcp_client", return_value=mock_client):
+        with patch("runtime.mcp_client.get_mcp_client", return_value=mock_client):
             result = await mcp_call_tool(
                 server_id="test",
                 tool_name="no_args_tool",

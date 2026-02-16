@@ -152,7 +152,7 @@ class LocalAPI:
 
             logger.info(f"Executing: {command} (cwd={cwd_path})")
 
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
                 cmd_parts,
                 cwd=cwd_path,
                 capture_output=True,

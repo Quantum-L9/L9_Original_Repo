@@ -21,6 +21,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Mark all tests as integration tests
 pytestmark = pytest.mark.integration
 
@@ -267,6 +269,7 @@ async def test_directive_compliance_check(mock_neo4j_driver, sample_graph_result
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_bootstrap_defaults():
     """Test that bootstrap defaults are complete and valid."""
     from core.agents.graph_state.bootstrap_l_graph import (
@@ -312,6 +315,7 @@ async def test_bootstrap_defaults():
 
 @pytest.mark.skip(reason="Requires running Neo4j instance")
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_real_neo4j_bootstrap():
     """
     Test with real Neo4j instance.

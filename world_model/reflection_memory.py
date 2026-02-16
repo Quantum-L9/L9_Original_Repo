@@ -50,7 +50,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -93,7 +93,7 @@ class Reflection:
     source: str = ""
     tags: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     expires_at: datetime | None = None
     access_count: int = 0
     last_accessed: datetime | None = None
@@ -144,8 +144,8 @@ class Pattern:
     triggers: list[str] = field(default_factory=list)
     outcomes: list[str] = field(default_factory=list)
     confidence: float = 0.5
-    first_seen: datetime = field(default_factory=datetime.utcnow)
-    last_seen: datetime = field(default_factory=datetime.utcnow)
+    first_seen: datetime = field(default_factory=lambda: datetime.now(UTC))
+    last_seen: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize pattern to dictionary."""
@@ -171,7 +171,7 @@ class Improvement:
     priority: ReflectionPriority = ReflectionPriority.MEDIUM
     expected_impact: str = ""
     actual_impact: str | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     implemented_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -215,7 +215,7 @@ class TaskReflection:
     recommendations: list[str] = field(default_factory=list)
     related_decisions: list[str] = field(default_factory=list)
     execution_time_ms: float | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -380,7 +380,7 @@ class ReflectionMemory:
         reflection = self._reflections.get(reflection_id)
         if reflection:
             reflection.access_count += 1
-            reflection.last_accessed = datetime.now(timezone.utc)
+            reflection.last_accessed = datetime.now(UTC)
         return reflection
 
     def update_reflection(
@@ -464,7 +464,7 @@ class ReflectionMemory:
         existing = self.find_pattern_by_name(name)
         if existing:
             existing.frequency += 1
-            existing.last_seen = datetime.now(timezone.utc)
+            existing.last_seen = datetime.now(UTC)
             existing.confidence = min(1.0, existing.confidence + 0.05)
             return existing
 
@@ -539,7 +539,7 @@ class ReflectionMemory:
 
         improvement.status = status
         if status == "implemented":
-            improvement.implemented_at = datetime.now(timezone.utc)
+            improvement.implemented_at = datetime.now(UTC)
         if actual_impact:
             improvement.actual_impact = actual_impact
 

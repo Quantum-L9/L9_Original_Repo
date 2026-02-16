@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -121,7 +121,7 @@ class WorldModelService:
 
 **Public Methods:** `__init__`, `initialize`, `_initialize_agents`, `_initialize_infrastructure`, `_initialize_tools`
 
-**Lines:** 66-623 in `service.py`
+**Lines:** 66-625 in `service.py`
 
 ### `l9_schema.py` — EntityType
 
@@ -191,7 +191,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreWorldmodelRequest(BaseModel):
     """Request model for core_worldmodel operations."""
@@ -283,7 +283,7 @@ CORE_WORLDMODEL_ENABLED=true
 
 Get or create the global WorldModelService instance.
 
-- **File:** `service.py:633`
+- **File:** `service.py:635`
 - **Async:** No
 - **Returns:** `WorldModelService`
 
@@ -291,7 +291,7 @@ Get or create the global WorldModelService instance.
 
 Get or create the global InsightEmitter instance.
 
-- **File:** `insight_emitter.py:366`
+- **File:** `insight_emitter.py:375`
 - **Async:** No
 - **Returns:** `InsightEmitter`
 
@@ -325,7 +325,7 @@ Core Worldmodel operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.worldmodel",
   "message": "Operation completed",

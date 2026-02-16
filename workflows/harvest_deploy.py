@@ -66,12 +66,13 @@ Author: L9 Team
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
 
 from langgraph.graph import END, START, StateGraph
 
+from core.decorators import must_stay_async
 from workflows.nodes import (
     deploy_files_node,
     extract_files_node,
@@ -183,6 +184,7 @@ def create_harvest_deploy_graph() -> StateGraph:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def run_harvest_deploy(
     source_document: str,
     harvest_directory: str,
@@ -226,7 +228,7 @@ async def run_harvest_deploy(
     working_dir = working_directory or str(Path.cwd())
     wf_id = (
         workflow_id
-        or f"hd-{datetime.now().strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:6]}"
+        or f"hd-{datetime.now(tz=UTC).strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:6]}"
     )
 
     initial_state = create_initial_state(

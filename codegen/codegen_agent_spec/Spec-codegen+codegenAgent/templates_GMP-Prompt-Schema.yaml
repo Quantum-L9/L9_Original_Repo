@@ -1,0 +1,59 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Templates Gmp-Prompt-Schema"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-06T16:58:23Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "templates_GMP-Prompt-Schema"
+# type: "schema"
+# status: "active"
+# ============================================================================
+
+# ============================================================
+# PATCH — GMP-Prompt-Schema.yaml (New File)
+# Purpose: Add features to enable GMP capsules to recursively generate others
+# ============================================================
+
+filename: templates/GMP-Prompt-Schema.yaml
+patch_type: new_schema
+language: yaml
+
+schema:
+  id: gmp-capsule
+  name: Generalized Modular Prompt (GMP)
+  version: 1.0
+
+  fields:
+    - name: capsule_id
+      type: string
+    - name: intent
+      type: string
+    - name: payload
+      type: object
+    - name: can_generate_new_gmp
+      type: boolean
+      default: true
+    - name: gmp_trace_lineage
+      type: boolean
+      default: true
+    - name: auto_patch_targets
+      type: list
+      items: string
+      description: Targets this GMP may automatically patch
+
+  feedback:
+    recursive_mode: true
+    confidence_threshold: 0.6
+    auto_regenerate: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["code-generation", "foundation", "prompt", "schema"]
+# keywords: ["filename", "gmp", "language", "patch_type", "prompt", "schema"]
+# last_modified: "2026-01-06T16:58:23Z"
+# ============================================================================

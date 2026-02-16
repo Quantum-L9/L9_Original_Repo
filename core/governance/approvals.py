@@ -23,6 +23,8 @@ Version: 1.2.1 (GMP-104: Architecture documentation)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Approval Manager",
@@ -50,7 +52,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -109,6 +111,7 @@ class ApprovalManager:
         """Get list of high-risk tool IDs"""
         return list(HIGH_RISK_TOOLS.keys())
 
+    @must_stay_async("callers use await")
     async def request_approval(
         self,
         tool_id: str,
@@ -149,7 +152,7 @@ class ApprovalManager:
                     "operation_summary": operation_summary,
                     "arguments": arguments,
                     "status": "pending",
-                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "created_at": datetime.now(UTC).isoformat(),
                 },
                 metadata=PacketMetadata(agent="approval_manager"),
             )
@@ -222,6 +225,7 @@ class ApprovalManager:
 
         return False
 
+    @must_stay_async("callers use await")
     async def grant_permanent_approval(
         self, tool_id: str, approved_by: str = "Igor"
     ) -> bool:
@@ -248,7 +252,7 @@ class ApprovalManager:
                 payload={
                     "tool_id": tool_id,
                     "approved_by": approved_by,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 },
                 metadata=PacketMetadata(agent="approval_manager"),
             )
@@ -257,6 +261,7 @@ class ApprovalManager:
         logger.info(f"Permanent approval granted for tool {tool_id} by {approved_by}")
         return True
 
+    @must_stay_async("callers use await")
     async def approve_task(
         self,
         task_id: str,
@@ -293,7 +298,7 @@ class ApprovalManager:
                 payload={
                     "task_id": task_id,
                     "approved_by": approved_by,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "reason": reason or "",
                 },
                 metadata=PacketMetadata(agent="approval_manager"),
@@ -313,6 +318,7 @@ class ApprovalManager:
         logger.info(f"Task {task_id} approved by Igor")
         return True
 
+    @must_stay_async("callers use await")
     async def reject_task(
         self,
         task_id: str,
@@ -349,7 +355,7 @@ class ApprovalManager:
                 payload={
                     "task_id": task_id,
                     "rejected_by": rejected_by,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "reason": reason,
                 },
                 metadata=PacketMetadata(agent="approval_manager"),
@@ -470,6 +476,7 @@ class ApprovalManager:
 
         return "\n".join(parts)
 
+    @must_stay_async("callers use await")
     async def _write_governance_pattern(
         self,
         task_id: str,

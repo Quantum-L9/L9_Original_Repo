@@ -14,6 +14,7 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.observability.circuit_breaker import (
     CircuitBreaker,
     CircuitBreakerConfig,
@@ -295,7 +296,7 @@ class TestDeadLetterQueue:
 
         envelope_data = {"packet_id": str(uuid4()), "payload": {"test": "data"}}
 
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             await service.do_operation(envelope_data)
 
         call_args = mock_dlq.enqueue.call_args
@@ -323,7 +324,7 @@ class TestEdgeCases:
         )
         service._operation_mock.side_effect = Exception("Error")
 
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             await service.do_operation({"foo": "bar"})
 
         assert service._operation_mock.call_count == 1
@@ -345,7 +346,7 @@ class TestEdgeCases:
         service._operation_mock.side_effect = Exception("Error")
 
         # Call with_resilience directly with mock envelope
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             await service.with_resilience(
                 operation=lambda: service._operation_mock(mock_envelope),
                 envelope=mock_envelope,
@@ -357,6 +358,7 @@ class TestEdgeCases:
         assert envelope_arg == {"serialized": "data"}
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_default_retry_policy(self):
         """Default retry policy is used when none provided."""
         service = TestService()

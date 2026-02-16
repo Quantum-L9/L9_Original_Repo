@@ -32,11 +32,13 @@ import time
 from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Protocol
 
 import structlog
+
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -53,6 +55,7 @@ class ConnectionState(Enum):
 class ConnectionProtocol(Protocol):
     """Protocol defining the interface for managed connections."""
 
+    @must_stay_async("callers use await")
     async def execute(self, query: str, *args: Any, **kwargs: Any) -> Any:
         """
         Execute a query against the connection.
@@ -70,6 +73,7 @@ class ConnectionProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def health_check(self) -> bool:
         """
         Verify the connection is healthy and responsive.
@@ -79,6 +83,7 @@ class ConnectionProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def close(self) -> None:
         """Close the connection gracefully."""
         ...
@@ -87,6 +92,7 @@ class ConnectionProtocol(Protocol):
 class ConnectionPoolProtocol(Protocol):
     """Protocol defining the interface for connection pools."""
 
+    @must_stay_async("callers use await")
     async def acquire(self) -> AsyncGenerator[ConnectionProtocol, None]:
         """
         Acquire a connection from the pool as an async context manager.
@@ -99,6 +105,7 @@ class ConnectionPoolProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def release(self, connection: ConnectionProtocol) -> None:
         """
         Release a connection back to the pool.
@@ -108,6 +115,7 @@ class ConnectionPoolProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def health_check(self) -> dict[str, int]:
         """
         Perform health checks on all connections in the pool.
@@ -117,6 +125,7 @@ class ConnectionPoolProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def close(self) -> None:
         """Close all connections in the pool."""
         ...
@@ -128,21 +137,21 @@ class PooledConnection:
 
     connection: ConnectionProtocol
     state: ConnectionState = ConnectionState.IDLE
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    last_used_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    last_used_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     use_count: int = 0
     error_count: int = 0
 
     def mark_active(self) -> None:
         """Mark this connection as active."""
         self.state = ConnectionState.ACTIVE
-        self.last_used_at = datetime.now(timezone.utc)
+        self.last_used_at = datetime.now(UTC)
         self.use_count += 1
 
     def mark_idle(self) -> None:
         """Mark this connection as idle."""
         self.state = ConnectionState.IDLE
-        self.last_used_at = datetime.now(timezone.utc)
+        self.last_used_at = datetime.now(UTC)
 
     def mark_error(self) -> None:
         """Mark this connection as having an error."""
@@ -151,11 +160,11 @@ class PooledConnection:
 
     def age_seconds(self) -> float:
         """Get the age of this connection in seconds."""
-        return (datetime.now(timezone.utc) - self.created_at).total_seconds()
+        return (datetime.now(UTC) - self.created_at).total_seconds()
 
     def idle_seconds(self) -> float:
         """Get the idle time of this connection in seconds."""
-        return (datetime.now(timezone.utc) - self.last_used_at).total_seconds()
+        return (datetime.now(UTC) - self.last_used_at).total_seconds()
 
 
 class StandardConnectionPool:
@@ -335,6 +344,7 @@ class StandardConnectionPool:
         )
         return pooled_conn
 
+    @must_stay_async("callers use await")
     async def release(self, connection: ConnectionProtocol) -> None:
         """
         Release a connection back to the pool.
@@ -418,6 +428,7 @@ class StandardConnectionPool:
                 except Exception as exc:
                     logger.error("replacement_connection_failed", error=str(exc))
 
+    @must_stay_async("callers use await")
     async def health_check(self) -> dict[str, int]:
         """
         Perform health checks on a sample of idle connections.

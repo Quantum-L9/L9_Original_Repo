@@ -7,6 +7,10 @@ Runtime visibility into which modules are wired and their status, backed by core
 
 from __future__ import annotations
 
+import structlog
+
+logger = structlog.get_logger(__name__)
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Modules",
@@ -174,7 +178,7 @@ async def get_modules_status(
             )
         )
     except Exception:
-        pass
+        logger.debug("modules.world_model_status_failed")
     return registry.snapshot()
 
 

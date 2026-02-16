@@ -15,6 +15,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "MCP Tools",
@@ -53,6 +55,7 @@ logger = structlog.get_logger(__name__)
 @register_tool(
     category="mcp", priority=10, description="List all configured MCP servers"
 )
+@must_stay_async("callers use await")
 async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
     """
     List all configured MCP servers.
@@ -91,6 +94,7 @@ async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
 @register_tool(
     category="mcp", priority=10, description="List available tools from an MCP server"
 )
+@must_stay_async("callers use await")
 async def mcp_list_tools(
     server_id: str,
     **kwargs: Any,
@@ -136,6 +140,7 @@ async def mcp_list_tools(
 @register_tool(
     category="mcp", priority=10, description="Discover MCP tools and register in Neo4j"
 )
+@must_stay_async("callers use await")
 async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
     """
     Discover all MCP tools from all servers and register them in Neo4j.
@@ -147,7 +152,12 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
         Dict with registration results
     """
     try:
-        from core.tools.tool_graph import ToolDefinition, ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolDefinition = module.ToolDefinition
+        ToolGraph = module.ToolGraph
         from runtime.mcp_client import get_mcp_client
 
         client = get_mcp_client()
@@ -242,6 +252,7 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
 
 
 @register_tool(category="mcp", priority=10, description="Call a tool on an MCP server")
+@must_stay_async("callers use await")
 async def mcp_call_tool(
     server_id: str,
     tool_name: str,
@@ -318,6 +329,7 @@ async def mcp_call_tool(
 
 
 @register_tool(category="mcp", priority=10, description="Start an MCP server process")
+@must_stay_async("callers use await")
 async def mcp_start_server(
     server_id: str,
     **kwargs: Any,
@@ -354,6 +366,7 @@ async def mcp_start_server(
 
 
 @register_tool(category="mcp", priority=10, description="Stop an MCP server process")
+@must_stay_async("callers use await")
 async def mcp_stop_server(
     server_id: str,
     **kwargs: Any,

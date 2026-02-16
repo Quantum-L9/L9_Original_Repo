@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -121,19 +121,19 @@ class ObservabilityPrometheusExporter:
 
     def __init__(self, ...): ...
 
+    def record_tech_debt_finding(self, ...) -> None: ...
+
+    def record_tech_debt_fix(self, ...) -> None: ...
+
+    def update_noqa_debt(self, ...) -> None: ...
+
     def record_span(self, ...) -> None: ...
-
-    def record_failure_signal(self, ...) -> None: ...
-
-    def update_sre_metrics(self, ...) -> None: ...
-
-    def update_agent_kpi(self, ...) -> None: ...
 
 ```
 
-**Public Methods:** `__init__`, `record_span`, `record_failure_signal`, `update_sre_metrics`, `update_agent_kpi`
+**Public Methods:** `__init__`, `record_tech_debt_finding`, `record_tech_debt_fix`, `update_noqa_debt`, `record_span`
 
-**Lines:** 46-300 in `prometheus_exporter.py`
+**Lines:** 46-355 in `prometheus_exporter.py`
 
 ### `jaeger_exporter.py` — JaegerExporter
 
@@ -157,7 +157,7 @@ class JaegerExporter:
 
 **Public Methods:** `__init__`, `export_span`, `_map_span_kind`, `export`, `export_async`
 
-**Lines:** 56-237 in `jaeger_exporter.py`
+**Lines:** 58-239 in `jaeger_exporter.py`
 
 ### `service.py` — ObservabilityService
 
@@ -243,7 +243,7 @@ class KPITracker:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `T` | `TypeVar('T')` | 46 |
+| `T` | `TypeVar('T')` | 48 |
 | `FAILURE_RECOVERY_MAP` | `{FailureClass.TOOL_TIMEOUT: [Remediation...` | 229 |
 
 ### Key Schemas
@@ -251,7 +251,7 @@ class KPITracker:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreObservabilityRequest(BaseModel):
     """Request model for core_observability operations."""
@@ -343,7 +343,7 @@ CORE_OBSERVABILITY_ENABLED=true
 
 Get the global Prometheus exporter instance.
 
-- **File:** `prometheus_exporter.py:307`
+- **File:** `prometheus_exporter.py:362`
 - **Async:** No
 - **Returns:** `ObservabilityPrometheusExporter | None`
 
@@ -351,7 +351,7 @@ Get the global Prometheus exporter instance.
 
 Initialize the global Prometheus exporter.
 
-- **File:** `prometheus_exporter.py:312`
+- **File:** `prometheus_exporter.py:367`
 - **Async:** No
 - **Returns:** `ObservabilityPrometheusExporter | None`
 
@@ -359,7 +359,7 @@ Initialize the global Prometheus exporter.
 
 Get the global Jaeger exporter instance.
 
-- **File:** `jaeger_exporter.py:244`
+- **File:** `jaeger_exporter.py:246`
 - **Async:** No
 - **Returns:** `JaegerExporter | None`
 
@@ -367,7 +367,7 @@ Get the global Jaeger exporter instance.
 
 Initialize the global Jaeger exporter.
 
-- **File:** `jaeger_exporter.py:249`
+- **File:** `jaeger_exporter.py:251`
 - **Async:** No
 - **Returns:** `JaegerExporter | None`
 
@@ -409,7 +409,7 @@ Core Observability operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.observability",
   "message": "Operation completed",

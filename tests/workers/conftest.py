@@ -15,7 +15,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 # Now verify the import works
 try:
-    import workers
+    import workers  # noqa: F401 — pre-import for pytest
 except ImportError as e:
     print(f"WARNING: Failed to import workers: {e}")
     print(f"PROJECT_ROOT: {PROJECT_ROOT}")

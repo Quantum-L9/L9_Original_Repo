@@ -234,6 +234,7 @@ class TCPHealthProbe(HealthProbe):
         self.port = port
         self.timeout = timeout
 
+    @must_stay_async("callers use await")
     async def check(self) -> HealthCheck:
         """
         Performs an asynchronous TCP connectivity health check to verify service availability.
@@ -305,6 +306,7 @@ class HTTPHealthProbe(HealthProbe):
         self.endpoints = endpoints
         self.timeout = timeout
 
+    @must_stay_async("callers use await")
     async def check(self) -> HealthCheck:
         """
         Performs an asynchronous health check of HTTP endpoints to monitor infrastructure health.
@@ -373,6 +375,7 @@ class PythonModuleHealthProbe(HealthProbe):
         self.function = function
         self.timeout = timeout
 
+    @must_stay_async("callers use await")
     async def check(self) -> HealthCheck:
         """
         Performs an asynchronous health check by importing and invoking a specified Python module function to verify module importability and function responsiveness.
@@ -520,7 +523,7 @@ def compute_startup_order(dependency_checks: list[DependencyCheck]) -> StartupSe
     graph = {service: DEPENDENCY_DAG.get(service, []) for service in SERVICES}
     in_degree = dict.fromkeys(SERVICES, 0)
 
-    for service, deps in graph.items():
+    for _service, deps in graph.items():
         for dep in deps:
             in_degree[dep] = in_degree.get(dep, 0) + 1
 
@@ -557,6 +560,7 @@ def compute_startup_order(dependency_checks: list[DependencyCheck]) -> StartupSe
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def run_all_health_checks() -> list[HealthCheck]:
     """Run all health checks concurrently."""
     probes: list[HealthProbe] = []
@@ -661,6 +665,7 @@ def generate_report(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def main():
     """Run infrastructure health audit."""
     import argparse

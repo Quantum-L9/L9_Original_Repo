@@ -41,7 +41,7 @@ The L9 authority model and governance policy enforcement are defined in the **Go
 - **File:** `reports/governance_superpack.md`
 - **Authority Roles:** L=CTO (strategic), Cursor=IDE (code gen), Igor=Boss (ops)
 - **Protected Invariants:**
-  - PacketEnvelope schema changes require ADR-0066 approval
+  - PacketEnvelope schema changes require ADR-0097 approval
   - Governance policy checks cannot be bypassed
   - Authority role reassignments require L-CTO approval
 
@@ -49,7 +49,7 @@ The L9 authority model and governance policy enforcement are defined in the **Go
 
 1. Read `reports/governance_superpack.md`
 2. Verify no protected invariants are violated
-3. If schema changes are needed, follow ADR-0066 process
+3. If schema changes are needed, follow ADR-0097 process
 4. Update governance enforcement tests
 
-See also: `architecture_decisions.md` (ADR-0066)
+See also: `architecture_decisions.md` (ADR-0097)

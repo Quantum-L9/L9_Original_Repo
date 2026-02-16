@@ -18,6 +18,8 @@ Source: PR #49 (ADR Enforcement Infrastructure)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "High-Level Service Protocols",
@@ -72,6 +74,7 @@ class MemoryService(Protocol):
                 return await self.memory.store(content, session_id="...")
     """
 
+    @must_stay_async("callers use await")
     async def store(
         self,
         content: str,
@@ -100,6 +103,7 @@ class MemoryService(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def retrieve(
         self,
         memory_id: str,
@@ -118,6 +122,7 @@ class MemoryService(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def search(
         self,
         query: str,
@@ -170,6 +175,7 @@ class LLMService(Protocol):
                 return await self.llm.complete(prompt)
     """
 
+    @must_stay_async("callers use await")
     async def complete(
         self,
         prompt: str,
@@ -192,6 +198,7 @@ class LLMService(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def chat(
         self,
         messages: list[dict[str, str]],
@@ -213,6 +220,7 @@ class LLMService(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def embed(
         self,
         text: str,
@@ -259,6 +267,7 @@ class GovernanceService(Protocol):
                     pass
     """
 
+    @must_stay_async("callers use await")
     async def check_policy(
         self,
         action: str,
@@ -279,6 +288,7 @@ class GovernanceService(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def enforce_limits(
         self,
         resource: str,
@@ -299,6 +309,7 @@ class GovernanceService(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def request_approval(
         self,
         action: str,

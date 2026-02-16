@@ -1,0 +1,56 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Ir Engine Meta Ir"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "ir_engine_meta_ir"
+# type: "engine"
+# status: "active"
+# ============================================================================
+
+# ================================
+# L9 CodeGen Spec: Meta IR Schema
+# ================================
+
+filename: ir_engine/meta_ir.py
+type: codegen_module
+language: python
+
+description: |
+  Canonical IR class for representing a meta contract in structured form.
+  Used as the foundation for all meta-driven codegen across L9.
+
+wiring:
+  imports:
+    - from pydantic import BaseModel
+    - from typing import List
+  usage:
+    - Used by compile_meta_to_ir
+    - Consumed by CodegenAgent to emit module components
+
+code: |
+  from pydantic import BaseModel
+  from typing import List
+
+  class MetaContract(BaseModel):
+      name: str
+      description: str
+      inputs: List[str]
+      outputs: List[str]
+      responsibilities: List[str]
+      guarantees: List[str]
+      required_docs: List[str]
+      required_tests: List[str]
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "engine", "intelligence", "model-config", "schema"]
+# keywords: ["code", "description", "engine", "filename", "language", "meta"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

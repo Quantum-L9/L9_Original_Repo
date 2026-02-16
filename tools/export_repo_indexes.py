@@ -103,7 +103,7 @@ def load_gitignore_patterns():
                     continue
                 patterns.append(line)
     except Exception:
-        pass
+        logger.debug("export_repo_indexes.parse_failed")
     return patterns
 
 
@@ -132,7 +132,7 @@ def _get_git_branch() -> str:
     """Get current git branch name."""
     try:
         result = subprocess.run(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             cwd=REPO_DIR,
@@ -140,7 +140,7 @@ def _get_git_branch() -> str:
         if result.returncode == 0:
             return result.stdout.strip()
     except Exception:
-        pass
+        logger.debug("export_repo_indexes.parse_failed")
     return "unknown"
 
 
@@ -148,7 +148,7 @@ def _get_git_short_sha() -> str:
     """Get current git short SHA."""
     try:
         result = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"],
+            ["git", "rev-parse", "--short", "HEAD"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             cwd=REPO_DIR,
@@ -156,7 +156,7 @@ def _get_git_short_sha() -> str:
         if result.returncode == 0:
             return result.stdout.strip()
     except Exception:
-        pass
+        logger.debug("export_repo_indexes.parse_failed")
     return "unknown"
 
 
@@ -311,7 +311,14 @@ def generate_api_surfaces():
     api_surfaces = defaultdict(list)
     router_pattern = re.compile(r"(\w+)\s*=\s*(?:APIRouter|Router)\(")
     callable_pattern = re.compile(r"(?:def|async def)\s+(\w+)\s*\(")
-    surface_dirs = {"memory", "agents", "api", "services", "orchestration", "orchestrators"}
+    surface_dirs = {
+        "memory",
+        "agents",
+        "api",
+        "services",
+        "orchestration",
+        "orchestrators",
+    }
     for fpath, rel_path in walk_python_files():
         # Determine which surface this file belongs to
         top_dir = rel_path.split(os.sep)[0]
@@ -324,9 +331,7 @@ def generate_api_surfaces():
                 routers = router_pattern.findall(content)
                 if routers:
                     for router in routers:
-                        api_surfaces[surface_name].append(
-                            f"  {rel_path}::{router}"
-                        )
+                        api_surfaces[surface_name].append(f"  {rel_path}::{router}")
                 callables = callable_pattern.findall(content)
                 if callables and (
                     "handler" in os.path.basename(fpath)
@@ -337,7 +342,7 @@ def generate_api_surfaces():
                             f"  {rel_path}::{callable_name}()"
                         )
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if api_surfaces:
         lines = []
         for surface_type in sorted(api_surfaces.keys()):
@@ -441,7 +446,7 @@ def generate_entrypoints():
                             lines_out.append("  Has __main__ block: Yes")
                         entrypoints.append("\n".join(lines_out))
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
     if entrypoints:
         lines = ["# Entry Points\n"]
         lines.extend(sorted(set(entrypoints)))
@@ -457,7 +462,7 @@ def generate_env_refs():
     )
     environ_pattern = re.compile(r'os\.environ\[["\']([A-Za-z_][A-Za-z0-9_]*)["\']')
     dotenv_pattern = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=", re.MULTILINE)
-    for fpath, rel_path in walk_all_files():
+    for fpath, _rel_path in walk_all_files():
         fname = os.path.basename(fpath)
         if fname.endswith(".py"):
             try:
@@ -466,14 +471,14 @@ def generate_env_refs():
                     env_vars.update(getenv_pattern.findall(content))
                     env_vars.update(environ_pattern.findall(content))
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
         elif fname.startswith(".env"):
             try:
                 with open(fpath, encoding="utf-8", errors="ignore") as f:
                     content = f.read()
                     env_vars.update(dotenv_pattern.findall(content))
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
     if env_vars:
         return "\n".join(sorted(env_vars))
     return "No environment variables found."
@@ -483,7 +488,7 @@ def generate_imports():
     """Extract top-level Python imports from source code."""
     imports = defaultdict(set)
     import_pattern = re.compile(r"^(?:import|from)\s+([\w\.]+)", re.MULTILINE)
-    for fpath, rel_path in walk_python_files():
+    for fpath, _rel_path in walk_python_files():
         try:
             with open(fpath, encoding="utf-8", errors="ignore") as f:
                 content = f.read()
@@ -492,7 +497,7 @@ def generate_imports():
                     top_level = match.split(".")[0]
                     imports[top_level].add(match)
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if imports:
         lines = []
         for top_level in sorted(imports.keys()):
@@ -515,7 +520,7 @@ def generate_dependencies():
                     if line and not line.startswith("#"):
                         lines.append(line)
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     return "\n".join(lines) if len(lines) > 1 else "No requirements.txt found."
 
 
@@ -532,7 +537,7 @@ def generate_class_definitions():
                         docstring = docstring.split("\n")[0][:60]
                         classes.append(f"{rel_path}::{node.name} - {docstring}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if classes:
         return "\n".join(sorted(classes))
     return "No classes found."
@@ -549,20 +554,14 @@ def generate_function_signatures():
                     if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                         args = [arg.arg for arg in node.args.args]
                         prefix = (
-                            "async "
-                            if isinstance(node, ast.AsyncFunctionDef)
-                            else ""
+                            "async " if isinstance(node, ast.AsyncFunctionDef) else ""
                         )
                         signature = f"{prefix}{node.name}({', '.join(args)})"
                         docstring = ast.get_docstring(node) or ""
-                        docstring = (
-                            docstring.split("\n")[0][:40] if docstring else ""
-                        )
-                        functions.append(
-                            f"{rel_path}::{signature} - {docstring}"
-                        )
+                        docstring = docstring.split("\n")[0][:40] if docstring else ""
+                        functions.append(f"{rel_path}::{signature} - {docstring}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if functions:
         return "\n".join(sorted(functions))
     return "No functions found."
@@ -583,9 +582,7 @@ def generate_config_files():
     config_files = []
     for fpath, rel_path in walk_all_files():
         fname = os.path.basename(fpath)
-        if any(
-            fname.endswith(ext) or fname.startswith(ext) for ext in config_patterns
-        ):
+        if any(fname.endswith(ext) or fname.startswith(ext) for ext in config_patterns):
             config_files.append(rel_path)
     if config_files:
         return "\n".join(sorted(set(config_files)))
@@ -623,7 +620,7 @@ def generate_module_architecture():
                     docstring = docstring.split("\n")[0][:60]
                     architecture.append(f"{rel_path}/ - {docstring}")
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
     if architecture:
         return "\n".join(sorted(architecture))
     return "No module architecture found."
@@ -656,10 +653,10 @@ def generate_wiring_map():
     # Scan for router_registry.register() calls across codebase
     routers = []
     reg_re = re.compile(
-        r'router_registry\.register\(\s*'
-        r'(?:router\s*=\s*\w+\s*,\s*)?'
+        r"router_registry\.register\(\s*"
+        r"(?:router\s*=\s*\w+\s*,\s*)?"
         r'prefix\s*=\s*["\']([^"\']*)["\']'
-        r'.*?tags\s*=\s*\[([^\]]*)\]',
+        r".*?tags\s*=\s*\[([^\]]*)\]",
         re.DOTALL,
     )
     for fpath, rel_path in walk_python_files():
@@ -673,23 +670,27 @@ def generate_wiring_map():
             for match in reg_re.finditer(content):
                 prefix = match.group(1)
                 tags_raw = match.group(2)
-                tags = [t.strip().strip("\"'") for t in tags_raw.split(",") if t.strip()]
+                tags = [
+                    t.strip().strip("\"'") for t in tags_raw.split(",") if t.strip()
+                ]
                 routers.append((prefix or "(root)", ", ".join(tags), rel_path))
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     for prefix, tags, module in sorted(routers, key=lambda x: x[0]):
         lines.append(f"| `{prefix}` | {tags} | {module} |")
 
-    lines.extend([
-        "",
-        f"# Total: {len(routers)} auto-registered routers",
-        "",
-        "## PERSISTENCE LAYER",
-        "",
-        "| Service | Port | Purpose |",
-        "|---------|------|---------|",
-    ])
+    lines.extend(
+        [
+            "",
+            f"# Total: {len(routers)} auto-registered routers",
+            "",
+            "## PERSISTENCE LAYER",
+            "",
+            "| Service | Port | Purpose |",
+            "|---------|------|---------|",
+        ]
+    )
 
     # Scan docker-compose for services
     compose_file = os.path.join(REPO_DIR, "docker-compose.yml")
@@ -702,7 +703,11 @@ def generate_wiring_map():
             if compose_data and "services" in compose_data:
                 for svc_name, svc_config in sorted(compose_data["services"].items()):
                     ports = svc_config.get("ports", [])
-                    port_str = ", ".join(str(p).split(":")[0] for p in ports[:3]) if ports else "-"
+                    port_str = (
+                        ", ".join(str(p).split(":")[0] for p in ports[:3])
+                        if ports
+                        else "-"
+                    )
                     image = svc_config.get("image", svc_config.get("build", "-"))
                     if isinstance(image, dict):
                         image = image.get("context", "-")
@@ -710,11 +715,13 @@ def generate_wiring_map():
         except Exception:
             lines.append("| (compose parse failed) | - | - |")
     else:
-        lines.extend([
-            "| PostgreSQL + pgvector | 5432 | Packet store, semantic memory |",
-            "| Neo4j Graph DB | 7687 | Entity graph |",
-            "| Redis | 6379 | Task queue, cache |",
-        ])
+        lines.extend(
+            [
+                "| PostgreSQL + pgvector | 5432 | Packet store, semantic memory |",
+                "| Neo4j Graph DB | 7687 | Entity graph |",
+                "| Redis | 6379 | Task queue, cache |",
+            ]
+        )
 
     return "\n".join(lines)
 
@@ -756,7 +763,7 @@ def generate_agent_catalog():
                             lines.append(f"  - {docstring}")
                             lines.append("")
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
     # Parse config/agents/ YAML files
     config_agents_dir = os.path.join(REPO_DIR, "config", "agents")
     if os.path.isdir(config_agents_dir):
@@ -777,7 +784,7 @@ def generate_agent_catalog():
                             lines.append(f"  - Tools: {len(tools)}")
                             lines.append("")
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
     lines.extend(
         [
             "",
@@ -845,7 +852,7 @@ def generate_kernel_catalog():
                                 ]
                             )
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
     lines.extend(["", "## Kernel Loading (7-Phase Bootstrap)", ""])
     lines.append("| Phase | Function | Purpose |")
     lines.append("|-------|----------|---------|")
@@ -875,12 +882,14 @@ def generate_tool_catalog():
             # High-risk tools
             high_risk = classification.get("high_risk", [])
             if high_risk:
-                lines.extend([
-                    "## High-Risk Tools (Require Approval)",
-                    "",
-                    "| Tool | Description | Risk Level |",
-                    "|------|-------------|------------|",
-                ])
+                lines.extend(
+                    [
+                        "## High-Risk Tools (Require Approval)",
+                        "",
+                        "| Tool | Description | Risk Level |",
+                        "|------|-------------|------------|",
+                    ]
+                )
                 for item in high_risk:
                     if isinstance(item, dict):
                         tid = item.get("tool_id", "?")
@@ -894,10 +903,12 @@ def generate_tool_catalog():
             # Igor approval required
             igor_req = classification.get("igor_approval_required", [])
             if igor_req:
-                lines.extend([
-                    "## Igor Approval Required",
-                    "",
-                ])
+                lines.extend(
+                    [
+                        "## Igor Approval Required",
+                        "",
+                    ]
+                )
                 for tool in igor_req:
                     lines.append(f"- `{tool}`")
                 lines.append("")
@@ -905,10 +916,12 @@ def generate_tool_catalog():
             # Safe tools
             safe = classification.get("safe", [])
             if safe:
-                lines.extend([
-                    "## Safe Tools (No Approval Needed)",
-                    "",
-                ])
+                lines.extend(
+                    [
+                        "## Safe Tools (No Approval Needed)",
+                        "",
+                    ]
+                )
                 for tool in safe:
                     lines.append(f"- `{tool}`")
                 lines.append("")
@@ -916,10 +929,12 @@ def generate_tool_catalog():
             # Side-effect tools
             side_effect = classification.get("side_effect", [])
             if side_effect:
-                lines.extend([
-                    "## Side-Effect Tools",
-                    "",
-                ])
+                lines.extend(
+                    [
+                        "## Side-Effect Tools",
+                        "",
+                    ]
+                )
                 for tool in side_effect:
                     lines.append(f"- `{tool}`")
                 lines.append("")
@@ -929,12 +944,14 @@ def generate_tool_catalog():
         lines.append("(config/policies/high_risk_tools.yaml not found)")
 
     # Scan core/tools/ for actual tool implementations
-    lines.extend([
-        "## Tool Implementations (from core/tools/)",
-        "",
-        "| File | Classes/Functions |",
-        "|------|-------------------|",
-    ])
+    lines.extend(
+        [
+            "## Tool Implementations (from core/tools/)",
+            "",
+            "| File | Classes/Functions |",
+            "|------|-------------------|",
+        ]
+    )
     tools_dir = os.path.join(REPO_DIR, "core", "tools")
     if os.path.isdir(tools_dir):
         for fname in sorted(os.listdir(tools_dir)):
@@ -945,15 +962,20 @@ def generate_tool_catalog():
                         tree = ast.parse(f.read())
                     items = []
                     for node in ast.walk(tree):
-                        if isinstance(node, ast.ClassDef) and "tool" in node.name.lower():
+                        if (
+                            isinstance(node, ast.ClassDef)
+                            and "tool" in node.name.lower()
+                        ):
                             items.append(node.name)
                         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                             if node.name.startswith("execute_"):
                                 items.append(f"{node.name}()")
                     if items:
-                        lines.append(f"| `core/tools/{fname}` | {', '.join(items[:5])} |")
+                        lines.append(
+                            f"| `core/tools/{fname}` | {', '.join(items[:5])} |"
+                        )
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
 
     return "\n".join(lines)
 
@@ -975,11 +997,16 @@ def generate_orchestrator_catalog():
 
     for entry in sorted(os.listdir(orch_root)):
         orch_dir = os.path.join(orch_root, entry)
-        if not os.path.isdir(orch_dir) or entry.startswith("__") or entry.startswith("."):
+        if (
+            not os.path.isdir(orch_dir)
+            or entry.startswith("__")
+            or entry.startswith(".")
+        ):
             continue
         # Get Python files
         py_files = sorted(
-            f for f in os.listdir(orch_dir)
+            f
+            for f in os.listdir(orch_dir)
             if f.endswith(".py") and not f.startswith("__")
         )
         # Try to extract purpose from __init__.py or orchestrator.py docstring
@@ -1005,7 +1032,7 @@ def generate_orchestrator_catalog():
                     if purpose:
                         break
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
         if not purpose:
             purpose = "(no docstring)"
 
@@ -1020,8 +1047,11 @@ def generate_orchestrator_catalog():
 
     # Also list top-level .py files in orchestrators/
     top_files = sorted(
-        f for f in os.listdir(orch_root)
-        if f.endswith(".py") and not f.startswith("__") and os.path.isfile(os.path.join(orch_root, f))
+        f
+        for f in os.listdir(orch_root)
+        if f.endswith(".py")
+        and not f.startswith("__")
+        and os.path.isfile(os.path.join(orch_root, f))
     )
     if top_files:
         lines.extend(["## Top-Level Files", ""])
@@ -1081,12 +1111,14 @@ def generate_event_types():
                         lines.append(f"| {stage} | `{node.name}` | {docstring} |")
                         stage += 1
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if lines[-1] == "## Memory DAG Pipeline Nodes":
         lines.append("(no DAG nodes found)")
 
     # Scan for registered event types
-    lines.extend(["", "## Registered Event Types (from core/event_type_registry.py)", ""])
+    lines.extend(
+        ["", "## Registered Event Types (from core/event_type_registry.py)", ""]
+    )
     event_registry = os.path.join(REPO_DIR, "core", "event_type_registry.py")
     if os.path.exists(event_registry):
         try:
@@ -1109,7 +1141,7 @@ def generate_event_types():
                 if event_name.islower() and len(event_name) > 3:
                     lines.append(f"- `{event_name}`: {desc}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     return "\n".join(lines)
 
@@ -1132,7 +1164,7 @@ def generate_singleton_registry():
         r'register_singleton\(\s*(?:name\s*=\s*)?["\'](\w+)["\']',
     )
     reg_decorator_pattern = re.compile(
-        r'@register_singleton\(',
+        r"@register_singleton\(",
         re.MULTILINE,
     )
     singletons = []
@@ -1157,18 +1189,18 @@ def generate_singleton_registry():
                 ctx_end = min(len(content), match.end() + 500)
                 ctx = content[ctx_start:ctx_end]
                 cat_m = re.search(r'category\s*=\s*["\'](\w+)["\']', ctx)
-                life_m = re.search(r'lifecycle\s*=\s*(?:SingletonLifecycle\.)?(\w+)', ctx)
+                life_m = re.search(
+                    r"lifecycle\s*=\s*(?:SingletonLifecycle\.)?(\w+)", ctx
+                )
                 desc_m = re.search(r'description\s*=\s*["\']([^"\']+)["\']', ctx)
                 category = cat_m.group(1) if cat_m else "-"
                 lifecycle = life_m.group(1) if life_m else "LAZY"
                 description = desc_m.group(1)[:50] if desc_m else "-"
-                singletons.append(
-                    (name, rel_path, category, lifecycle, description)
-                )
+                singletons.append((name, rel_path, category, lifecycle, description))
             # Pattern 2: @register_singleton(...) decorator
             if reg_decorator_pattern.search(content):
                 for match in re.finditer(
-                    r'@register_singleton\(([^)]*)\)\s*\n\s*(?:async\s+)?def\s+(\w+)',
+                    r"@register_singleton\(([^)]*)\)\s*\n\s*(?:async\s+)?def\s+(\w+)",
                     content,
                     re.DOTALL,
                 ):
@@ -1177,8 +1209,12 @@ def generate_singleton_registry():
                     name_m = re.search(r'name\s*=\s*["\'](\w+)["\']', kwargs_str)
                     name = name_m.group(1) if name_m else func_name.replace("get_", "")
                     cat_m = re.search(r'category\s*=\s*["\'](\w+)["\']', kwargs_str)
-                    life_m = re.search(r'lifecycle\s*=\s*(?:SingletonLifecycle\.)?(\w+)', kwargs_str)
-                    desc_m = re.search(r'description\s*=\s*["\']([^"\']+)["\']', kwargs_str)
+                    life_m = re.search(
+                        r"lifecycle\s*=\s*(?:SingletonLifecycle\.)?(\w+)", kwargs_str
+                    )
+                    desc_m = re.search(
+                        r'description\s*=\s*["\']([^"\']+)["\']', kwargs_str
+                    )
                     category = cat_m.group(1) if cat_m else "-"
                     lifecycle = life_m.group(1) if life_m else "LAZY"
                     description = desc_m.group(1)[:50] if desc_m else "-"
@@ -1188,31 +1224,33 @@ def generate_singleton_registry():
                             (name, rel_path, category, lifecycle, description)
                         )
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     for name, module, category, lifecycle, description in sorted(singletons):
         lines.append(
             f"| `{name}` | {module} | {category} | {lifecycle} | {description} |"
         )
 
-    lines.extend([
-        "",
-        f"# Total: {len(singletons)} registered singletons",
-        "",
-        "## Registration Pattern",
-        "",
-        "```python",
-        "from core.singleton_auto_registry import register_singleton",
-        "",
-        "@register_singleton(",
-        '    category="memory",',
-        "    lifecycle=SingletonLifecycle.LAZY,",
-        '    description="Description here"',
-        ")",
-        "async def get_my_service():",
-        "    return MyService()",
-        "```",
-    ])
+    lines.extend(
+        [
+            "",
+            f"# Total: {len(singletons)} registered singletons",
+            "",
+            "## Registration Pattern",
+            "",
+            "```python",
+            "from core.singleton_auto_registry import register_singleton",
+            "",
+            "@register_singleton(",
+            '    category="memory",',
+            "    lifecycle=SingletonLifecycle.LAZY,",
+            '    description="Description here"',
+            ")",
+            "async def get_my_service():",
+            "    return MyService()",
+            "```",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -1298,7 +1336,8 @@ def generate_memory_architecture():
                 with open(fpath, encoding="utf-8", errors="ignore") as f:
                     tree = ast.parse(f.read())
                 classes = [
-                    n.name for n in ast.walk(tree)
+                    n.name
+                    for n in ast.walk(tree)
                     if isinstance(n, ast.ClassDef) and not n.name.startswith("_")
                 ]
                 mod_doc = ast.get_docstring(tree) or ""
@@ -1333,7 +1372,7 @@ def generate_memory_architecture():
                                     lines.append(f"| `{target.id}` | `{val}` |")
                     break
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     # Scan for PacketEnvelope fields
     lines.extend(["", "## PacketEnvelope Schema", ""])
@@ -1343,13 +1382,19 @@ def generate_memory_architecture():
             with open(schema_file, encoding="utf-8", errors="ignore") as f:
                 tree = ast.parse(f.read())
             for node in ast.walk(tree):
-                if isinstance(node, ast.ClassDef) and "PacketEnvelope" in node.name and "In" not in node.name:
+                if (
+                    isinstance(node, ast.ClassDef)
+                    and "PacketEnvelope" in node.name
+                    and "In" not in node.name
+                ):
                     lines.append(f"### {node.name}")
                     lines.append("")
                     lines.append("| Field | Type |")
                     lines.append("|-------|------|")
                     for item in node.body:
-                        if isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name):
+                        if isinstance(item, ast.AnnAssign) and isinstance(
+                            item.target, ast.Name
+                        ):
                             ann = "-"
                             if hasattr(ast, "unparse") and item.annotation:
                                 ann = ast.unparse(item.annotation)
@@ -1376,7 +1421,7 @@ def generate_memory_architecture():
                         lines.append(f"{stage}. `{node.name}()` — {doc}")
                         stage += 1
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     # Scan PostgreSQL tables from migrations
     lines.extend(["", "## PostgreSQL Tables (from migrations)", ""])
@@ -1390,13 +1435,13 @@ def generate_memory_architecture():
                     with open(fpath, encoding="utf-8", errors="ignore") as f:
                         content = f.read()
                     for match in re.finditer(
-                        r'CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)',
+                        r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)",
                         content,
                         re.IGNORECASE,
                     ):
                         tables.add(match.group(1))
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
     if tables:
         lines.append("| Table |")
         lines.append("|-------|")
@@ -1430,7 +1475,8 @@ def generate_governance_model():
                 with open(fpath, encoding="utf-8", errors="ignore") as f:
                     tree = ast.parse(f.read())
                 classes = [
-                    n.name for n in ast.walk(tree)
+                    n.name
+                    for n in ast.walk(tree)
                     if isinstance(n, ast.ClassDef) and not n.name.startswith("_")
                 ]
                 mod_doc = ast.get_docstring(tree) or ""
@@ -1438,7 +1484,7 @@ def generate_governance_model():
                 class_str = ", ".join(classes[:3]) if classes else "-"
                 lines.append(f"| `core/governance/{fname}` | {class_str} | {purpose} |")
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
 
     # Scan for high-risk tools from governance policies
     lines.extend(["", "## High-Risk Tools (from governance policies)", ""])
@@ -1454,7 +1500,7 @@ def generate_governance_model():
                     content = f.read()
                 # Look for high_risk_tools lists/sets/dicts
                 for match in re.finditer(
-                    r'(?:high_risk|HIGH_RISK|requires_approval).*?[\[{(](.*?)[\]})]',
+                    r"(?:high_risk|HIGH_RISK|requires_approval).*?[\[{(](.*?)[\]})]",
                     content,
                     re.DOTALL,
                 ):
@@ -1462,7 +1508,7 @@ def generate_governance_model():
                         if tool.islower() and len(tool) > 3:
                             high_risk.add(tool)
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
     # Also scan YAML policies
     policy_dir = os.path.join(REPO_DIR, "config", "policies")
     if os.path.isdir(policy_dir):
@@ -1479,7 +1525,7 @@ def generate_governance_model():
                         elif isinstance(hr, dict):
                             high_risk.update(hr.keys())
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
 
     if high_risk:
         lines.append("| Tool |")
@@ -1488,16 +1534,18 @@ def generate_governance_model():
             lines.append(f"| `{tool}` |")
     else:
         # Fallback to known list if no governance files found
-        lines.extend([
-            "| Tool |",
-            "|------|",
-            "| `gmp_run` |",
-            "| `git_commit` |",
-            "| `git_push` |",
-            "| `file_delete` |",
-            "| `deploy` |",
-            "| `mac_agent_exec` |",
-        ])
+        lines.extend(
+            [
+                "| Tool |",
+                "|------|",
+                "| `gmp_run` |",
+                "| `git_commit` |",
+                "| `git_push` |",
+                "| `file_delete` |",
+                "| `deploy` |",
+                "| `mac_agent_exec` |",
+            ]
+        )
 
     # Scan for approval-related classes
     lines.extend(["", "## Approval Classes", ""])
@@ -1517,7 +1565,7 @@ def generate_governance_model():
                     doc = doc.split("\n")[0][:60] if doc else "-"
                     lines.append(f"- `{node.name}` ({rel_path}) — {doc}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     return "\n".join(lines)
 
@@ -1604,7 +1652,7 @@ def generate_feature_flags():
                 for match in matches:
                     flags_found.add((match, rel_path))
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     flag_descriptions = {
         "L9_NEW_AGENT_INIT": ("Enable 7-phase bootstrap ceremony", "true"),
         "L9_ENABLE_LEGACY_CHAT": ("Gate old apiserver.py POST /chat", "false"),
@@ -1688,10 +1736,14 @@ def generate_test_catalog():
                     try:
                         with open(fpath, encoding="utf-8") as f:
                             content = f.read()
-                            test_count = len(re.findall(r"(?:def|async def) test_\w+", content))
+                            test_count = len(
+                                re.findall(r"(?:def|async def) test_\w+", content)
+                            )
                             total_tests += test_count
                             total_files += 1
-                            by_dir[group_key].append(f"- `{rel_path}` ({test_count} tests)")
+                            by_dir[group_key].append(
+                                f"- `{rel_path}` ({test_count} tests)"
+                            )
                     except Exception:
                         by_dir[group_key].append(f"- `{rel_path}` (? tests)")
     # Also scan for test files outside tests/ (e.g., root-level test_*.py)
@@ -1824,14 +1876,20 @@ def generate_deployment_manifest():
                             image = svc_cfg.get("image", "")
                             if not image and "build" in svc_cfg:
                                 build = svc_cfg["build"]
-                                image = f"(build: {build.get('context', '.')})" if isinstance(build, dict) else f"(build: {build})"
+                                image = (
+                                    f"(build: {build.get('context', '.')})"
+                                    if isinstance(build, dict)
+                                    else f"(build: {build})"
+                                )
                             ports = svc_cfg.get("ports", [])
-                            port_str = ", ".join(str(p) for p in ports[:3]) if ports else "-"
+                            port_str = (
+                                ", ".join(str(p) for p in ports[:3]) if ports else "-"
+                            )
                             vols = svc_cfg.get("volumes", [])
                             vol_str = str(len(vols)) + " mounts" if vols else "-"
                             services_found[svc_name] = (image, port_str, vol_str)
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
 
     for svc_name, (image, ports, vols) in sorted(services_found.items()):
         lines.append(f"| `{svc_name}` | {image} | {ports} | {vols} |")
@@ -1868,11 +1926,14 @@ def generate_deployment_manifest():
                         key = key.strip()
                         val = val.strip()
                         # Mask sensitive values
-                        if any(s in key.lower() for s in ["password", "secret", "key", "token"]):
+                        if any(
+                            s in key.lower()
+                            for s in ["password", "secret", "key", "token"]
+                        ):
                             val = "***"
                         lines.append(f"| `{key}` | `{val}` |")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     else:
         lines.append("(no .env.example found)")
 
@@ -1911,7 +1972,7 @@ def generate_inheritance_graph():
                                 f"{node.name}::{','.join(parents)} @ {rel_path}"
                             )
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if inheritance:
         lines.extend(sorted(inheritance))
         lines.extend(
@@ -1955,14 +2016,12 @@ def generate_method_catalog():
                                     if isinstance(item, ast.AsyncFunctionDef)
                                     else ""
                                 )
-                                signature = (
-                                    f"{is_async}{item.name}({', '.join(args)})"
-                                )
+                                signature = f"{is_async}{item.name}({', '.join(args)})"
                                 methods.append(
                                     f"{class_name}::{signature} @ {rel_path}"
                                 )
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if methods:
         lines.extend(sorted(methods))
         lines.extend(
@@ -1996,11 +2055,9 @@ def generate_route_handlers():
                 content = f.read()
                 for match in route_re.finditer(content):
                     method, path, func = match.groups()
-                    routes.append(
-                        f"{method.upper()} {path} → {func}() @ {rel_path}"
-                    )
+                    routes.append(f"{method.upper()} {path} → {func}() @ {rel_path}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if routes:
         lines.extend(sorted(routes))
         lines.extend(
@@ -2032,14 +2089,10 @@ def generate_file_metrics():
                 tree = ast.parse(content)
                 line_count = len(content.split("\n"))
                 class_count = sum(
-                    1
-                    for node in ast.walk(tree)
-                    if isinstance(node, ast.ClassDef)
+                    1 for node in ast.walk(tree) if isinstance(node, ast.ClassDef)
                 )
                 func_count = sum(
-                    1
-                    for node in ast.walk(tree)
-                    if isinstance(node, ast.FunctionDef)
+                    1 for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)
                 )
                 async_count = sum(
                     1
@@ -2054,7 +2107,7 @@ def generate_file_metrics():
                         )
                     )
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     # Sort by line count descending (biggest files first)
     metrics.sort(key=lambda x: x[0], reverse=True)
     lines.extend([m[1] for m in metrics])
@@ -2097,16 +2150,12 @@ def generate_pydantic_models():
                             ):
                                 docstring = ast.get_docstring(node) or ""
                                 docstring = (
-                                    docstring.split("\n")[0][:50]
-                                    if docstring
-                                    else ""
+                                    docstring.split("\n")[0][:50] if docstring else ""
                                 )
-                                models.append(
-                                    f"{node.name} @ {rel_path} - {docstring}"
-                                )
+                                models.append(f"{node.name} @ {rel_path} - {docstring}")
                                 break
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if models:
         lines.extend(sorted(models))
         lines.extend(
@@ -2130,7 +2179,7 @@ def generate_dynamic_tool_catalog():
     ]
     # Parse ToolDefinition(...) blocks with full metadata
     tool_def_re = re.compile(
-        r'ToolDefinition\(\s*(.*?)\)',
+        r"ToolDefinition\(\s*(.*?)\)",
         re.DOTALL,
     )
     tools = {}  # name -> {category, scope, risk_level, requires_igor, description, file}
@@ -2154,7 +2203,7 @@ def generate_dynamic_tool_catalog():
                 cat_m = re.search(r'category\s*=\s*["\']([^"\']+)["\']', block)
                 scope_m = re.search(r'scope\s*=\s*["\']([^"\']+)["\']', block)
                 risk_m = re.search(r'risk_level\s*=\s*["\']([^"\']+)["\']', block)
-                igor_m = re.search(r'requires_igor_approval\s*=\s*(True|False)', block)
+                igor_m = re.search(r"requires_igor_approval\s*=\s*(True|False)", block)
                 desc = desc_m.group(1)[:50] if desc_m else "-"
                 category = cat_m.group(1) if cat_m else "-"
                 scope = scope_m.group(1) if scope_m else "-"
@@ -2171,7 +2220,7 @@ def generate_dynamic_tool_catalog():
                         "file": rel_path,
                     }
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     # Also scan for class *Tool patterns and execute_* functions in core/tools/
     tool_classes = []
@@ -2189,16 +2238,18 @@ def generate_dynamic_tool_catalog():
                     doc = doc.split("\n")[0][:50] if doc else "-"
                     tool_classes.append((node.name, rel_path, doc))
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     # Output ToolDefinition table
     if tools:
-        lines.extend([
-            "## Registered ToolDefinitions",
-            "",
-            "| Tool | Category | Scope | Risk | Igor? | Description | File |",
-            "|------|----------|-------|------|-------|-------------|------|",
-        ])
+        lines.extend(
+            [
+                "## Registered ToolDefinitions",
+                "",
+                "| Tool | Category | Scope | Risk | Igor? | Description | File |",
+                "|------|----------|-------|------|-------|-------------|------|",
+            ]
+        )
         for name in sorted(tools.keys()):
             t = tools[name]
             lines.append(
@@ -2209,12 +2260,14 @@ def generate_dynamic_tool_catalog():
 
     # Output Tool classes
     if tool_classes:
-        lines.extend([
-            "## Tool Implementation Classes",
-            "",
-            "| Class | File | Purpose |",
-            "|-------|------|---------|",
-        ])
+        lines.extend(
+            [
+                "## Tool Implementation Classes",
+                "",
+                "| Class | File | Purpose |",
+                "|-------|------|---------|",
+            ]
+        )
         for cls_name, fpath, doc in sorted(tool_classes):
             lines.append(f"| `{cls_name}` | {fpath} | {doc} |")
         lines.append("")
@@ -2241,15 +2294,11 @@ def generate_async_function_map():
                 tree = ast.parse(f.read())
                 for node in ast.walk(tree):
                     if isinstance(node, ast.AsyncFunctionDef):
-                        args = [
-                            arg.arg
-                            for arg in node.args.args
-                            if arg.arg != "self"
-                        ]
+                        args = [arg.arg for arg in node.args.args if arg.arg != "self"]
                         signature = f"async {node.name}({', '.join(args)})"
                         async_funcs.append(f"{signature} @ {rel_path}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if async_funcs:
         lines.extend(sorted(async_funcs))
         lines.extend(
@@ -2295,7 +2344,7 @@ def generate_decorator_catalog():
                             if dec_name:
                                 decorators[dec_name].append(rel_path)
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if decorators:
         lines.append("| Decorator | Count | Example Files |")
         lines.append("|-----------|-------|---------------|")
@@ -2369,7 +2418,7 @@ def generate_adr_catalog():
                             do_not_rules.append((adr_num, rule_clean))
 
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
 
     # Add total count
     lines.append(f"# Total: {len(adrs)} ADRs")
@@ -2507,7 +2556,7 @@ def generate_readme_manifest():
                     readmes.append((top_dir, rel_path, title, description))
 
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
 
     # Sort by path
     readmes.sort(key=lambda x: x[1])
@@ -2737,25 +2786,29 @@ def main():
     )
 
     # Print summary table to stdout for human readability
-    print(f"\n{'='*60}")
-    print(f"  REPO INDEX GENERATION COMPLETE")
-    print(f"{'='*60}")
-    print(f"  Repo:    {REPO_NAME}")
-    print(f"  Output:  {REPO_INDEX_DIR}")
-    print(f"  Files:   {len(results)} ({success_count} OK, {fail_count} failed)")
-    print(f"  Total:   {total_size:,} bytes")
-    print(f"{'='*60}")
+    logger.info("\n{'=' * 60}")
+    logger.info("  repo index generation complete")
+    logger.info("{'=' * 60}")
+    logger.info("  repo:    repo name", REPO_NAME=REPO_NAME)
+    logger.info("  output:  repo index dir", REPO_INDEX_DIR=REPO_INDEX_DIR)
+    logger.error(
+        "  files:   {len(results)} (success count ok, fail count failed)",
+        success_count=success_count,
+        fail_count=fail_count,
+    )
+    logger.info("  total:   {total_size:,} bytes")
+    logger.info("{'=' * 60}")
     for filename, size in sorted(results.items()):
         status = "OK" if size > 0 else "FAIL"
-        print(f"  [{status:>4}] {filename:35} {size:>10,} bytes")
-    print(f"{'='*60}\n")
+        logger.info("  [{status:>4}] filename {size:>10,} bytes", filename=filename)
+    logger.info("{'=' * 60}\n")
 
     # Phase 2: Ingest to Memory (pgvector)
     logger.info("\n" + "=" * 60)
     logger.info("🧠 PHASE 2: Ingesting indexes to L9 Memory...")
     logger.info("=" * 60)
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             [sys.executable, "scripts/memory/ingest_repo_indexes.py", "--verbose"],
             capture_output=True,
             text=True,
@@ -2789,7 +2842,7 @@ def main():
             logger.info(f"   Using C1 external Neo4j: {neo4j_url}")
 
         if neo4j_url and neo4j_password:
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
                 [
                     sys.executable,
                     "scripts/memory/load_indexes_to_neo4j.py",

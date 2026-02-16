@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -146,6 +146,7 @@ class PostgresIntrospector:
         """
         self._pool = pool
 
+    @must_stay_async("callers use await")
     async def get_tables(
         self,
         schema_name: str = "public",
@@ -169,14 +170,13 @@ class PostgresIntrospector:
 
         async with self._pool.acquire() as conn:
             # Get tables
-            # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             tables_query = f"""
                 SELECT table_schema, table_name, table_type
                 FROM information_schema.tables
                 WHERE table_schema = $1
                 AND table_type IN ({type_filter})
                 ORDER BY table_name
-            """
+            """  # noqa: S608 — type_filter is from internal constants, not user input
             table_rows = await conn.fetch(tables_query, schema_name)
 
             results = []
@@ -209,6 +209,7 @@ class PostgresIntrospector:
             logger.debug(f"Found {len(results)} tables in schema {schema_name}")
             return results
 
+    @must_stay_async("callers use await")
     async def _get_columns(
         self,
         conn: Any,
@@ -262,6 +263,7 @@ class PostgresIntrospector:
             for row in rows
         ]
 
+    @must_stay_async("callers use await")
     async def get_indexes(self, schema_name: str = "public") -> list[IndexInfo]:
         """
         Get all indexes in a schema.
@@ -619,6 +621,7 @@ class SchemaIntrospector:
             neo4j_version=neo4j_version,
         )
 
+    @must_stay_async("callers use await")
     async def get_summary_for_context(
         self, schema_name: str = "public"
     ) -> dict[str, Any]:

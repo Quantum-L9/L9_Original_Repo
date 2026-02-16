@@ -1,8 +1,8 @@
 # ADR-0088: No Pickle Serialization
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Source:** Bug Audit PR #84 (CRITICAL Security Fix)  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Source:** Bug Audit PR #84 (CRITICAL Security Fix)
 
 ## Context
 
@@ -37,17 +37,17 @@ data = json.loads(cached_data, object_hook=custom_decoder)
 
 ### Acceptable Alternatives
 
-| Format | Use Case |
-|--------|----------|
-| `json` | General structured data |
-| `msgpack` | Binary efficiency |
-| `protobuf` | Schema-enforced messages |
-| `pydantic.model_dump_json()` | Pydantic models |
+| Format                       | Use Case                 |
+| ---------------------------- | ------------------------ |
+| `json`                       | General structured data  |
+| `msgpack`                    | Binary efficiency        |
+| `protobuf`                   | Schema-enforced messages |
+| `pydantic.model_dump_json()` | Pydantic models          |
 
 ## Enforcement
 
 - **Semgrep rule:** `l9-no-pickle-loads` in `.semgrep/l9-rules.yaml`
-- **ADR rule:** ADR-0041 (extended)
+- **ADR rule:** ADR-0095 (extended)
 - **CI gate:** ERROR - Blocks merge
 - **Scope:** All Python files
 

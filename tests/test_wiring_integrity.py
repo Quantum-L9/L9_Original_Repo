@@ -21,12 +21,15 @@ from pathlib import Path
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Test 1: Memory Substrate Service Exports
 # =============================================================================
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_memory_substrate_service_canonical_export():
     """Verify canonical get_service() function exists and is callable."""
     from memory.substrate_service import get_service
@@ -42,6 +45,7 @@ async def test_memory_substrate_service_canonical_export():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_memory_substrate_service_legacy_alias():
     """Verify deprecated get_memory_substrate_service() alias exists for backward compatibility."""
     from memory.substrate_service import get_memory_substrate_service
@@ -55,6 +59,7 @@ async def test_memory_substrate_service_legacy_alias():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_memory_substrate_service_signature_compatibility():
     """Verify both function signatures are compatible (same return type)."""
     from memory.substrate_service import get_memory_substrate_service, get_service

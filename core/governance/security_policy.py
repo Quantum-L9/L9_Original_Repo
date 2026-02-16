@@ -30,7 +30,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import os
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -38,6 +37,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+import structlog
 import yaml
 
 logger = structlog.get_logger(__name__)

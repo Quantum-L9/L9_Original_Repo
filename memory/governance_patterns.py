@@ -31,7 +31,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -80,7 +80,7 @@ class GovernancePattern(BaseModel):
     conditions: list[str] = Field(
         default_factory=list, description="Conditions/tags for this decision"
     )
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     approved_by: str = Field(default="Igor", description="Decision maker")
     task_id: str = Field(..., description="Original task ID")
 

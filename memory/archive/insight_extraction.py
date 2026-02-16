@@ -14,6 +14,7 @@ All operations are async-safe with proper logging.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -117,6 +118,7 @@ class InsightExtractionPipeline:
         """Return extraction statistics."""
         return self._stats.copy()
 
+    @must_stay_async("callers use await")
     async def extract_from_packet(
         self,
         envelope: PacketEnvelope,
@@ -347,6 +349,7 @@ class InsightExtractionPipeline:
 
         return list(entities)[:20]
 
+    @must_stay_async("callers use await")
     async def _store_insights(
         self,
         insights: list[ExtractedInsight],
@@ -401,6 +404,7 @@ class InsightExtractionPipeline:
             except Exception as e:
                 logger.error(f"Failed to store fact: {e}")
 
+    @must_stay_async("callers use await")
     async def detect_anomalies(
         self,
         packet: PacketEnvelope,

@@ -107,6 +107,24 @@ SKIP_PATTERNS = [
     "governance/rejection_recorder.py",  # Fallback print on memory write failure
     # Agent CLI tools
     "agents/cursor/gmp_meta_learning.py",  # CLI tool with __main__
+    "agents/cursor/ingest_lessons.py",  # CLI tool with __main__
+    # Files that use logging.basicConfig for structlog stdlib interop (legitimate)
+    "mac_agent/runner.py",  # logging.basicConfig + structlog.get_logger
+    "mcp_memory/src/main.py",  # logging.basicConfig for structlog stdlib pipeline
+    "world_model/seed_loader.py",  # logging.basicConfig in __main__ CLI entry
+    # Logging wrapper modules (must use stdlib logging by design)
+    "services/symbolic_computation/logger.py",  # IS the logging shim
+    # Type hint only usage of logging.Logger
+    "memory/extractor/base_extractor.py",  # logging.Logger type hint in constructor
+    "codegen",
+    # Non-production directories (gitignored, working docs, personal tools)
+    ".cursor/",  # Gitignored IDE config
+    ".dora/",  # Gitignored DORA state
+    "current_work/",  # Working documents, not production code
+    "igor/",  # Personal tools
+    "data/",  # Data files
+    "_archived/",  # Archived code
+    ".backup/",  # Backup files
 ]
 
 

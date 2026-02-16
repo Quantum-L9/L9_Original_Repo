@@ -17,11 +17,11 @@ Version: 1.0.0
 from __future__ import annotations
 
 import asyncio
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
 
 # ============================================================================
 # FIXTURES
@@ -226,8 +226,10 @@ class TestToolSearchErrorHandling:
             assert "error" in result or "tools" in result
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_discovery_timeout_handled(self):
         """If discovery times out, tool_search must not hang indefinitely."""
+
         async def slow_discovery(*args, **kwargs):
             await asyncio.sleep(60)  # Simulate hang
             return []
@@ -241,9 +243,7 @@ class TestToolSearchErrorHandling:
 
             # Should either timeout or return within reasonable time
             try:
-                result = await asyncio.wait_for(
-                    tool_search(query="test"), timeout=5.0
-                )
+                result = await asyncio.wait_for(tool_search(query="test"), timeout=5.0)
                 assert isinstance(result, dict)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 pass  # Acceptable — the tool itself should handle this

@@ -21,6 +21,11 @@ Requirements:
 import os
 
 import pytest
+import structlog
+
+from core.decorators import must_stay_async
+
+logger = structlog.get_logger(__name__)
 
 # Skip all tests if Neo4j not available
 pytestmark = pytest.mark.skipif(
@@ -50,6 +55,7 @@ async def neo4j_client():
 
 
 @pytest.fixture
+@must_stay_async("callers use await")
 async def strategy_memory_service(neo4j_client):
     """Create Strategy Memory service with real Neo4j."""
     from memory.neo4j_strategy_memory import Neo4jStrategyMemoryService
@@ -74,7 +80,7 @@ async def cleanup_test_strategies(neo4j_client):
             """
             await neo4j_client.execute_query(query, {"id": strategy_id})
         except Exception:
-            pass
+            logger.debug("test_strategy_memory.cleanup_failed", strategy_id=strategy_id)
 
 
 # =============================================================================
@@ -300,6 +306,7 @@ class TestGoldenStrategySeeding:
     """Tests for golden strategy seeding script."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_seed_golden_strategies_dry_run(self):
         """Verify golden strategy definitions are valid."""
         from scripts.memory.seed_golden_strategies import GOLDEN_STRATEGIES
@@ -431,6 +438,7 @@ class TestAutoCaptureIntegration:
     """Integration tests for Phase 1 auto-capture functionality."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_auto_capture_on_successful_execution(
         self,
         strategy_memory_service,
@@ -614,6 +622,7 @@ class TestAutoCaptureIntegration:
         )
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_auto_capture_skipped_below_threshold(
         self,
         strategy_memory_service,

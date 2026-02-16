@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -86,6 +86,7 @@ config/
 ├── rls_config.py
 ├── schemas/__init__.py
 ├── settings.py
+├── tool_schemas.py
 ```
 
 | File | Purpose |
@@ -162,7 +163,7 @@ class RLSConfig:
 
 **Public Methods:** `tenant_uuid`, `org_uuid`, `user_uuid`
 
-**Lines:** 76-111 in `rls_config.py`
+**Lines:** 76-126 in `rls_config.py`
 
 ### `ai_eval_settings.py` — HallucinationSettings
 
@@ -174,7 +175,7 @@ class HallucinationSettings:
 
 ```
 
-**Lines:** 41-58 in `ai_eval_settings.py`
+**Lines:** 41-67 in `ai_eval_settings.py`
 
 ### `ai_eval_settings.py` — BiasSettings
 
@@ -186,7 +187,7 @@ class BiasSettings:
 
 ```
 
-**Lines:** 61-74 in `ai_eval_settings.py`
+**Lines:** 70-104 in `ai_eval_settings.py`
 
 
 ---
@@ -205,6 +206,7 @@ class BiasSettings:
 | Constant | Value | Line |
 |----------|-------|------|
 | `RLS_UUID_NAMESPACE` | `uuid.NAMESPACE_DNS` | 55 |
+| `TOOL_SCHEMAS` | `{'memory_search': {'type': 'object', 'pr...` | 36 |
 | `SCHEMAS_DIR` | `Path(__file__).parent` | 33 |
 
 ### Key Schemas
@@ -212,7 +214,7 @@ class BiasSettings:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class ConfigRequest(BaseModel):
     """Request model for config operations."""
@@ -328,7 +330,7 @@ Generate a deterministic UUID from a string identifier.
 
 Get or create RLS config singleton. CACHED.
 
-- **File:** `rls_config.py:115`
+- **File:** `rls_config.py:130`
 - **Async:** No
 - **Returns:** `RLSConfig`
 
@@ -336,7 +338,7 @@ Get or create RLS config singleton. CACHED.
 
 Get RLS UUIDs for PostgreSQL RLS session variables.
 
-- **File:** `rls_config.py:130`
+- **File:** `rls_config.py:145`
 - **Async:** No
 - **Returns:** `tuple[str, str, str]`
 
@@ -370,7 +372,7 @@ Config operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "config",
   "message": "Operation completed",

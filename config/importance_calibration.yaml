@@ -1,0 +1,116 @@
+# ============================================================================
+# DORA META
+# ============================================================================
+# component_name: "Importance Calibration Config"
+# module_version: "1.0.0"
+# created_by: "Phase 2 Sprint 1 — B5"
+# created_at: "2026-02-14T04:15:00Z"
+# layer: "configuration"
+# domain: "memory_substrate"
+# status: "placeholder"
+# ============================================================================
+
+# =============================================================================
+# L9 Memory — Importance Calibration Configuration
+# =============================================================================
+#
+# This config controls the importance scoring formula used by:
+#   - memory/importance_recipe.py (compute_importance)
+#   - memory/importance_manager.py (decay_importance via ENABLE_IMPORTANCE_RECIPE)
+#   - memory/active_encoder.py (_compute_importance via ENABLE_IMPORTANCE_RECIPE)
+#   - memory/intake_leverage.py (score_intake_leverage)
+#
+# Phase 1 (current): Deterministic formula with hardcoded weights.
+# Phase 2 (future):  LLM-refined calibration — an LLM periodically reviews
+#                     importance score distributions and proposes weight
+#                     adjustments, subject to governance approval.
+#
+# Feature flag: ENABLE_IMPORTANCE_CALIBRATION (not yet wired)
+# =============================================================================
+
+importance_calibration:
+  version: "1.0.0"
+  status: placeholder  # placeholder | active | deprecated
+
+  # ---------------------------------------------------------------------------
+  # Phase 1: Deterministic tier weights (used by ImportanceRecipe)
+  # ---------------------------------------------------------------------------
+  tier_weights:
+    procedural: 0.85
+    semantic: 0.65
+    episodic: 0.45
+    default: 0.50
+
+  # ---------------------------------------------------------------------------
+  # Phase 1: Access boost parameters
+  # ---------------------------------------------------------------------------
+  access_boost:
+    frequency_coefficient: 0.1     # log1p multiplier
+    recency_decay_rate: 0.01       # exponential decay per hour
+    max_boost: 2.0                 # ceiling
+
+  # ---------------------------------------------------------------------------
+  # Phase 1: Outcome boost parameters
+  # ---------------------------------------------------------------------------
+  outcome_boost:
+    success_signal_increment: 0.05  # per signal, capped at 20
+    reflection_bonus: 0.1
+    max_boost: 1.5                  # ceiling
+
+  # ---------------------------------------------------------------------------
+  # Phase 1: Intake leverage weights (used by IntakeLeverageScorer)
+  # ---------------------------------------------------------------------------
+  intake_leverage:
+    role_weight_factor: 0.40
+    tier_modifier_factor: 0.35
+    access_pattern_factor: 0.25
+    access_count_cap: 50
+
+  # ---------------------------------------------------------------------------
+  # Phase 1: ImportanceManager decay config
+  # ---------------------------------------------------------------------------
+  decay:
+    half_life_days: 30.0
+    floor: 0.1
+    exempt_tiers:
+      - identity
+
+  # ---------------------------------------------------------------------------
+  # Phase 1: Pruning config
+  # ---------------------------------------------------------------------------
+  pruning:
+    threshold: 0.15
+    min_age_days: 90
+    exempt_tiers:
+      - identity
+      - project
+
+  # ---------------------------------------------------------------------------
+  # Phase 2 (FUTURE): LLM calibration — NOT YET ACTIVE
+  # ---------------------------------------------------------------------------
+  # When ENABLE_IMPORTANCE_CALIBRATION=true, an LLM reviews score distributions
+  # and proposes adjustments to the weights above. Adjustments require T1
+  # governance approval before being applied.
+  #
+  # llm_calibration:
+  #   enabled: false
+  #   model: "anthropic/claude-sonnet"
+  #   schedule_hours: 24           # How often to run calibration
+  #   max_weight_delta: 0.10       # Max change per calibration cycle
+  #   approval_required: true      # T1 governance gate
+  #   metrics_window_days: 7       # Score distribution lookback
+  #   target_metrics:
+  #     - name: "mean_importance"
+  #       target_range: [0.35, 0.65]
+  #     - name: "pruning_rate_pct"
+  #       target_range: [1.0, 10.0]
+  #     - name: "elevation_rate_pct"
+  #       target_range: [5.0, 25.0]
+
+# ============================================================================
+# DORA FOOTER
+# ============================================================================
+# tags: ["configuration", "importance", "calibration", "memory", "placeholder"]
+# keywords: ["importance", "calibration", "weights", "decay", "pruning"]
+# last_modified: "2026-02-14T04:15:00Z"
+# ============================================================================

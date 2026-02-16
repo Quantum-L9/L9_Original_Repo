@@ -5,6 +5,7 @@ Generated from: research_factory_schema.yaml
 Implements the 5-pass structured research pipeline as LangGraph node functions.
 
 Each node follows the signature:
+    @must_stay_async("callers use await")
     async def pass_X(state: ResearchState) -> ResearchState
 
 The pipeline flow:
@@ -39,7 +40,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -240,7 +241,7 @@ async def pass_3_execute_retrieval(
         retrieval_batches = []
 
         for prompt in state.superprompts:
-            start_time = datetime.now(timezone.utc)
+            start_time = datetime.now(UTC)
 
             # Use injected backend or default mock
             if retrieval_backend:
@@ -252,11 +253,11 @@ async def pass_3_execute_retrieval(
                         "source": "mock_database",
                         "data": {"result": f"Mock result for query {prompt.query_id}"},
                         "confidence": 0.85,
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                     }
                 ]
 
-            end_time = datetime.now(timezone.utc)
+            end_time = datetime.now(UTC)
             latency_ms = (end_time - start_time).total_seconds() * 1000
 
             retrieval_batches.append(
@@ -318,7 +319,7 @@ async def pass_4_extract_results(
                         "source": raw.get("source", "unknown"),
                         "data": raw.get("data", {}),
                         "timestamp": raw.get(
-                            "timestamp", datetime.now(timezone.utc).isoformat()
+                            "timestamp", datetime.now(UTC).isoformat()
                         ),
                     }
                     confidence = raw.get("confidence", 0.5)

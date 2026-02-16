@@ -1,8 +1,8 @@
 # ADR-0072: Diagnose Before Fix
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Author:** Igor Beylin  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Author:** Igor Beylin
 
 ## Context
 
@@ -25,17 +25,18 @@ Before fixing ANY error:
 
 ### Anti-Patterns
 
-| Anti-Pattern | Why It's Wrong | Correct Approach |
-|--------------|----------------|------------------|
-| `2>/dev/null` | Hides the real error | Read the error, fix the cause |
-| `|| true` | Continues despite failure | Fix why it fails |
-| `# type: ignore` | Masks type errors | Fix the type issue |
-| `# noqa` everywhere | Hides lint violations | Fix the violations |
-| `try: ... except: pass` | Swallows all errors | Handle specific exceptions |
+| Anti-Pattern            | Why It's Wrong        | Correct Approach              |
+| ----------------------- | --------------------- | ----------------------------- | ------------------------- | ---------------- |
+| `2>/dev/null`           | Hides the real error  | Read the error, fix the cause |
+| `                       |                       | true`                         | Continues despite failure | Fix why it fails |
+| `# type: ignore`        | Masks type errors     | Fix the type issue            |
+| `# noqa` everywhere     | Hides lint violations | Fix the violations            |
+| `try: ... except: pass` | Swallows all errors   | Handle specific exceptions    |
 
 ### Valid Suppression (Rare)
 
 Suppression is acceptable ONLY when:
+
 - The "error" is expected behavior (e.g., `mkdir -p` on existing dir)
 - You've documented WHY suppression is acceptable
 - There's no fix possible (third-party code, read-only)
@@ -75,14 +76,17 @@ command || {
 ## Consequences
 
 ### Positive
+
 - Problems actually get fixed
 - No hidden technical debt
 - Fewer repeat failures
 - Codebase improves over time
 
 ### Negative
+
 - Initial fix takes longer
 - Requires deeper investigation
 
 ## Related
+
 - ADR-0071: Fix Violations, Don't Exclude

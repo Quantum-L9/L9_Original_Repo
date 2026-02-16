@@ -225,6 +225,7 @@ class ToolAuditService:
             except Exception as e:
                 logger.error("Auto-flush error", error=str(e))
 
+    @must_stay_async("callers use await")
     async def get_tool_metrics(
         self,
         agent_id: str | None = None,
@@ -269,7 +270,7 @@ class ToolAuditService:
                     {time_filter}
                     GROUP BY tool_name
                     ORDER BY total_cost DESC
-                """,
+                """,  # noqa: S608 — where_clause/time_filter are internal SQL, user values parameterized
                     *params,
                 )
 

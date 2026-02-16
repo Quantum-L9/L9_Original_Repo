@@ -25,6 +25,8 @@ import structlog
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
+from core.decorators import must_stay_async
+
 # Local dev mode flag
 LOCAL_DEV = os.getenv("LOCAL_DEV", "false").lower() == "true"
 from openai import OpenAI
@@ -110,6 +112,7 @@ def health():
 
 
 @app.post("/chat", response_model=ChatResponse)
+@must_stay_async("callers use await")
 async def chat(
     payload: ChatRequest,
     authorization: str = Header(None),
@@ -275,6 +278,7 @@ if settings.email_enabled:
         app.include_router(email_agent_router)
     except Exception as e:
         logger.error(f"WARNING: Failed to load Email Agent router: {e}")
+
 
 # === Shutdown handler for HTTP client cleanup (ADR-0084) ===
 @app.on_event("shutdown")

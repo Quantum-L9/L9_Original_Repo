@@ -1,5 +1,3 @@
-from unittest.mock import AsyncMock, MagicMock
-
 import pytest
 
 from core.agents.executor import _generate_tasks_from_query

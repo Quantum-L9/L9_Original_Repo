@@ -16,6 +16,25 @@ memory.enrichment_dag — DEPRECATED compatibility shim.
 
 from __future__ import annotations
 
+__dora_meta__ = {
+    "component_name": "Enrichment Dag",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.981003+00:00",
+    "updated_at": "2026-02-13T23:37:34.981003+00:00",
+    "layer": "core",
+    "domain": "memory",
+    "module_name": "memory.enrichment_dag",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
 import warnings
 
 warnings.warn(
@@ -27,7 +46,7 @@ warnings.warn(
 )
 
 # Re-export everything from the archived module
-from memory.archive.enrichment_dag import (  # noqa: F401
+from memory.archive.enrichment_dag import (
     EnrichmentConfig,
     EnrichmentDAG,
     EnrichmentResult,
@@ -36,7 +55,7 @@ from memory.archive.enrichment_dag import (  # noqa: F401
 )
 
 # Also re-export telemetry function used by tests that patch this module
-from telemetry.memory_metrics import record_memory_enrichment  # noqa: F401
+from telemetry.memory_metrics import record_memory_enrichment
 
 __all__ = [
     "EnrichmentConfig",

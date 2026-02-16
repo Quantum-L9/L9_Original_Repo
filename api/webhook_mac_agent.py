@@ -33,6 +33,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from api.routes.registry import router_registry
+from core.decorators import must_stay_async
 from orchestrators.agent_execution.task_queue import (
     complete_task,  # Legacy API for backward compatibility
     get_next_task,
@@ -100,6 +101,7 @@ def get_next_mac_task():
 
 
 @router.post("/tasks/{task_id}/result")
+@must_stay_async("callers use await")
 async def submit_task_result(task_id: str, payload: TaskResultRequest):
     """
     Submit the result of a Mac task execution (file-based system).
@@ -195,13 +197,16 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
                     )
 
                     if payload.screenshot_path:
-                        message_parts.append(f"\n📸 Screenshot: {payload.screenshot_path}")
+                        message_parts.append(
+                            f"\n📸 Screenshot: {payload.screenshot_path}"
+                        )
 
                     message = "\n".join(message_parts)
-                    await slack_client.post_message(channel=task.channel, text=message)
-                    logger.info(
-                        f"[MAC-AGENT] Posted result for task {task_id} to Slack channel {task.channel}"
-                    )
+                    if task.channel:
+                        await slack_client.post_message(channel=task.channel, text=message)
+                        logger.info(
+                            f"[MAC-AGENT] Posted result for task {task_id} to Slack channel {task.channel}"
+                        )
         except Exception as e:
             logger.error(f"[MAC-AGENT] Failed to post result to Slack: {e}")
             # Don't fail the request if Slack posting fails

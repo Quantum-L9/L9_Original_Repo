@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -105,17 +105,17 @@ See source files for component details.
 | Constant | Value | Line |
 |----------|-------|------|
 | `L9_API_URL` | `os.getenv('L9_API_URL', 'http://localhos...` | 63 |
-| `L9_API_KEY` | `os.getenv('L9_API_KEY', '9c4753df3b7ee85...` | 64 |
-| `LOCAL_HOST` | `'127.0.0.1'` | 69 |
-| `LOCAL_PORT` | `5050` | 70 |
-| `HTML_TEMPLATE` | `'\n<!DOCTYPE html>\n<html lang="en">\n<h...` | 85 |
+| `L9_API_KEY` | `os.getenv('L9_API_KEY', '')` | 64 |
+| `LOCAL_HOST` | `'127.0.0.1'` | 67 |
+| `LOCAL_PORT` | `5050` | 68 |
+| `HTML_TEMPLATE` | `'\n<!DOCTYPE html>\n<html lang="en">\n<h...` | 83 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class LocalDashboardRequest(BaseModel):
     """Request model for local_dashboard operations."""
@@ -207,21 +207,21 @@ LOCAL_DASHBOARD_ENABLED=true
 
 Serve the dashboard.
 
-- **File:** `app.py:537`
+- **File:** `app.py:535`
 - **Async:** Yes
 
 #### `async def chat(request)`
 
 Send message to L9 Agent Executor in Docker.
 
-- **File:** `app.py:543`
+- **File:** `app.py:541`
 - **Async:** Yes
 
 #### `async def health()`
 
 Local health check.
 
-- **File:** `app.py:613`
+- **File:** `app.py:611`
 - **Async:** Yes
 
 
@@ -254,7 +254,7 @@ Local Dashboard operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "local_dashboard",
   "message": "Operation completed",

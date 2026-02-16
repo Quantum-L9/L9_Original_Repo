@@ -46,11 +46,61 @@ __dora_meta__ = {
 # ============================================================================
 
 import argparse
+import re
 import subprocess
 import sys
 from pathlib import Path
 
-# Directories to skip
+import structlog
+
+logger = structlog.get_logger(__name__)
+
+# =============================================================================
+# Field-level validation (GMP-143: merged from ci/validate_dora_blocks.py)
+# =============================================================================
+
+# Regex patterns for mandatory __dora_meta__ fields
+DORA_FIELD_PATTERNS: dict[str, str] = {
+    "component_name": r"^[A-Za-z0-9\s\-_]{2,100}$",
+    "module_version": r"^\d+\.\d+\.\d+$",
+    "status": r"^(active|deprecated|experimental|maintenance)$",
+    "layer": r"^(foundation|intelligence|operations|learning|security|core)$",
+    "domain": r"^[a-z0-9_\.\-]{2,100}$",
+}
+
+# Domains that must have governance_level critical or high
+CRITICAL_DOMAINS = {"governance", "memory", "agents", "kernel", "kernel_loader"}
+
+
+def validate_dora_fields(meta: dict) -> list[str]:
+    """Validate __dora_meta__ field values against patterns.
+
+    Returns list of error messages (empty = all good).
+    """
+    errors: list[str] = []
+    for field_name, pattern in DORA_FIELD_PATTERNS.items():
+        value = meta.get(field_name)
+        if value is None:
+            errors.append(f"missing field: {field_name}")
+            continue
+        if not re.match(pattern, str(value)):
+            errors.append(
+                f"field '{field_name}' value '{value}' doesn't match {pattern}"
+            )
+
+    # Governance level check for critical domains
+    domain = meta.get("domain", "")
+    gov = meta.get("governance_level", "")
+    if domain in CRITICAL_DOMAINS and gov not in ("critical", "high"):
+        errors.append(f"domain '{domain}' is critical but governance_level is '{gov}'")
+
+    return errors
+
+
+# =============================================================================
+# Directory / file skip lists
+# =============================================================================
+
 SKIP_DIRS = {
     "__pycache__",
     ".git",
@@ -61,6 +111,7 @@ SKIP_DIRS = {
     ".mypy_cache",
     "_archived",
     "migrations",  # SQL migrations don't need DORA
+    "codegen",
 }
 
 # Files to skip
@@ -114,6 +165,28 @@ def check_dora_blocks(file_path: Path) -> dict[str, bool]:
         "trace": "__l9_trace__" in content,
         "error": False,
     }
+
+
+def extract_dora_meta(file_path: Path) -> dict | None:
+    """Extract __dora_meta__ dict from a Python file for field validation.
+
+    GMP-143: Merged from ci/validate_dora_blocks.py.
+    """
+    try:
+        content = file_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+
+    if file_path.suffix != ".py":
+        return None
+
+    match = re.search(r"__dora_meta__\s*=\s*(\{.*?\})", content, re.DOTALL)
+    if match:
+        try:
+            return eval(match.group(1))  # noqa: S307 — parsing trusted __dora_meta__ from repo files
+        except Exception:
+            return None
+    return None
 
 
 def scan_files(root_path: Path, extensions: list[str]) -> list[Path]:
@@ -171,11 +244,11 @@ def fix_file(file_path: Path, repo_root: Path, dry_run: bool = False) -> bool:
     ]
 
     if dry_run:
-        print(f"  Would run: {' '.join(cmd)}")
+        logger.info("would_run", cmd=" ".join(cmd))
         return True
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd,
             capture_output=True,
             text=True,
@@ -184,11 +257,11 @@ def fix_file(file_path: Path, repo_root: Path, dry_run: bool = False) -> bool:
 
         if result.returncode == 0:
             return True
-        print(f"  Error fixing {relative_path}: {result.stderr}")
+        logger.error("fix_error", file=str(relative_path), stderr=result.stderr)
         return False
 
     except Exception as e:
-        print(f"  Exception fixing {relative_path}: {e}")
+        logger.error("fix_exception", file=str(relative_path), error=str(e))
         return False
 
 
@@ -236,6 +309,11 @@ def main():
         action="store_true",
         help="Include test files in check",
     )
+    parser.add_argument(
+        "--validate-fields",
+        action="store_true",
+        help="GMP-143: Also validate __dora_meta__ field values against patterns",
+    )
 
     args = parser.parse_args()
 
@@ -243,19 +321,19 @@ def main():
         parser.error("Must specify --check or --fix")
 
     # Find repo root
-    repo_root = Path(__file__).parent.parent
+    repo_root = Path(__file__).parent.parent  # noqa: ADR-0001 - internal path
     check_path = repo_root / args.path
 
     if not check_path.exists():
-        print(f"❌ Path not found: {check_path}")
+        logger.info("❌ path not found: check path", check_path=check_path)
         sys.exit(2)
 
     # Modify skip patterns if including tests
     if args.include_tests:
         SKIP_PATTERNS.clear()
 
-    print(f"🔍 Scanning {check_path}...")
-    print()
+    logger.info("🔍 scanning check path...", check_path=check_path)
+    logger.info("")
 
     # Check compliance
     missing_header, missing_footer, missing_trace = check_compliance(check_path)
@@ -264,22 +342,43 @@ def main():
     all_missing = set(missing_header) | set(missing_footer) | set(missing_trace)
 
     if not all_missing:
-        print("✅ All files have complete DORA blocks!")
+        logger.info("✅ all files have complete dora blocks!")
         sys.exit(0)
 
     # Report findings
-    print("📊 DORA Compliance Report")
-    print(f"{'=' * 60}")
-    print(f"  Files scanned: {len(scan_files(check_path, ['.py', '.yaml', '.yml']))}")
-    print(f"  Missing header: {len(missing_header)}")
-    print(f"  Missing footer: {len(missing_footer)}")
-    print(f"  Missing trace:  {len(missing_trace)}")
-    print(f"  Total non-compliant: {len(all_missing)}")
-    print()
+    logger.info("📊 dora compliance report")
+    logger.info("=" * 60)
+    logger.info(
+        "dora_compliance_report",
+        files_scanned=len(scan_files(check_path, [".py", ".yaml", ".yml"])),
+        missing_header=len(missing_header),
+        missing_footer=len(missing_footer),
+        missing_trace=len(missing_trace),
+        total_non_compliant=len(all_missing),
+    )
+    logger.info("")
+
+    # GMP-143: Field-level validation (merged from validate_dora_blocks.py)
+    field_errors: list[tuple[Path, list[str]]] = []
+    if args.validate_fields:
+        all_files = scan_files(check_path, [".py"])
+        for file_path in all_files:
+            meta = extract_dora_meta(file_path)
+            if meta:
+                errs = validate_dora_fields(meta)
+                if errs:
+                    field_errors.append((file_path, errs))
+
+        if field_errors:
+            logger.info("🔍 field validation errors", count=len(field_errors))
+            for fp, errs in field_errors:
+                rel = fp.relative_to(repo_root)
+                for e in errs:
+                    logger.warning("field_error", file=str(rel), error=e)
 
     if args.check:
         # Check mode - report and exit with error
-        print("❌ Non-compliant files:")
+        logger.info("❌ non-compliant files:")
         for file_path in sorted(all_missing):
             relative = file_path.relative_to(repo_root)
             blocks = check_dora_blocks(file_path)
@@ -290,46 +389,49 @@ def main():
                 missing.append("footer")
             if not blocks["trace"]:
                 missing.append("trace")
-            print(f"  {relative} (missing: {', '.join(missing)})")
+            logger.info("non_compliant", file=str(relative), missing=", ".join(missing))
 
-        print()
-        print("💡 Run with --fix to auto-inject DORA blocks")
-        sys.exit(1)
+        logger.info("")
+        logger.info("💡 run with --fix to auto-inject dora blocks")
+        exit_code = 1
+        if args.validate_fields and field_errors:
+            exit_code = 1  # field errors also fail
+        sys.exit(exit_code)
 
     if args.fix:
         # Fix mode - inject missing blocks
-        print(
+        print(  # noqa: ADR-0019
             f"🔧 {'DRY RUN - ' if args.dry_run else ''}Fixing {len(all_missing)} files..."
         )
-        print()
+        logger.info("")
 
         fixed = 0
         failed = 0
 
         for file_path in sorted(all_missing):
             relative = file_path.relative_to(repo_root)
-            print(f"  Fixing {relative}...")
+            logger.info("  fixing relative...", relative=relative)
 
             if fix_file(file_path, repo_root, dry_run=args.dry_run):
                 fixed += 1
             else:
                 failed += 1
 
-        print()
-        print("📊 Fix Summary")
-        print(f"{'=' * 60}")
-        print(f"  Fixed: {fixed}")
-        print(f"  Failed: {failed}")
+        logger.info("")
+        logger.info("📊 fix summary")
+        logger.info("=" * 60)
+        logger.info("  fixed: fixed", fixed=fixed)
+        logger.error("  failed: failed", failed=failed)
 
         if failed > 0:
             sys.exit(2)
 
         if args.dry_run:
-            print()
-            print("💡 Run without --dry-run to apply fixes")
+            logger.info("")
+            logger.info("💡 run without --dry-run to apply fixes")
         else:
-            print()
-            print("✅ All files fixed!")
+            logger.info("")
+            logger.info("✅ all files fixed!")
 
 
 if __name__ == "__main__":

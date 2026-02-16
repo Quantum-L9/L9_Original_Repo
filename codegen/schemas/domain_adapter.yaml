@@ -1,0 +1,260 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Domain Adapter"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2025-12-16T16:32:42Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "domain_adapter"
+# type: "adapter"
+# status: "active"
+# ============================================================================
+
+# Domain Adapter Schema v6.0
+# ==========================
+#
+# A domain adapter schema for bridging external domains to L9.
+# Based on the PlastOS adapter pattern.
+#
+# Version: 6.0.0
+
+---
+title: L9 Example Domain Adapter
+purpose: Bridge external domain data to L9 for tensor scoring and analysis.
+summary: >
+  Domain adapter that receives data from external systems, transforms it
+  into L9 packet format, routes to tensor layer for analysis, and returns
+  enriched results to the originating domain.
+
+system:
+  system: L9 Example Domain Adapter
+  module: domain_adapter
+  name: ExampleDomainAdapter
+  role: >
+    Domain adapter that bridges external domain data to L9. Receives
+    transactions from domain APIs, transforms to PacketEnvelope format,
+    coordinates tensor scoring, and returns enriched analysis to domain.
+  rootpath: L9/agents/adapters/example_domain
+
+integration:
+  connectto:
+    - L9/core
+    - L9/core/tensoraios
+    - L9/agents/main
+    - L9/governance
+    - L9/memory
+  shareddomains:
+    - ExampleDomain
+
+governance:
+  anchors:
+    - Igor
+    - Domain Oversight
+  mode: hybrid
+  humanoverride: true
+  complianceauditor: L9/governance/domain_adapter_audit.py
+  escalationpolicy: >
+    Auto-escalate if:
+    - Transaction value > $100,000
+    - Confidence score < 0.6
+    - Anomaly detected by tensor layer
+    - External system reports error
+  auditscope:
+    - data_ingestion
+    - transformation
+    - tensor_coordination
+    - result_delivery
+
+memorytopology:
+  workingmemory:
+    storagetype: redis_cluster
+    purpose: >
+      Active transaction state, pending transformations,
+      awaiting tensor results. TTL=5 minutes.
+    keyspace: domainadapter:example:working:*
+    
+  episodicmemory:
+    storagetype: postgres + pgvector
+    purpose: >
+      Transaction logs, transformation history, tensor scores,
+      delivery confirmations. Searchable by domain, timestamp.
+    retention: 90 days
+    indexby:
+      - domain
+      - transaction_id
+      - timestamp
+      - tensor_score
+      
+  semanticmemory:
+    storagetype: neo4j_auradb
+    purpose: >
+      Entity graph: domain entities, relationships, tensor predictions.
+      Nodes: Customers, Products, Transactions.
+      Edges: PURCHASED, PREDICTED_MATCH, FLAGGED.
+    structure:
+      - node_type: domain_entity
+        fields:
+          - entity_id
+          - entity_type
+          - domain
+          - last_updated
+      - edge_type: tensor_prediction
+        fields:
+          - source_id
+          - target_id
+          - score
+          - model_version
+          
+  longtermpersistence:
+    storagetype: s3_durable_archive
+    purpose: Archived transactions, audit trail. Immutable.
+    retention: indefinite
+    
+  crossagentsharing:
+    enabled: true
+    layer: cognition_bus
+
+communicationstack:
+  input:
+    - structuredapi
+    - webhook
+    - messagesqueue
+  output:
+    - structuredapi
+    - eventstream
+    - callback
+  channels:
+    slack: true
+    email: true
+    api: true
+    webhook: true
+
+reasoningengine:
+  framework: multimodal_reflective
+  model: gpt-4o
+  secondarymodels:
+    - gpt-3.5-turbo
+  strategymodes:
+    - data_transformation
+    - risk_assessment
+    - pattern_matching
+  temporalscope: rolling_90_days
+  knowledgefusionlayer:
+    mode: blend
+    sourceblend:
+      - domain_data
+      - tensor_scores
+      - historical_patterns
+  reasoningfeedbackloop:
+    policy: reinforcement_reflection
+    rewardfunction: >
+      Successful delivery + positive domain feedback +
+      accurate tensor predictions
+    penaltyfunction: >
+      Failed delivery + data transformation errors +
+      missed anomalies
+    retrainintervalhours: 168
+
+collaborationnetwork:
+  collaborators:
+    - name: MainAgent
+      role: Orchestrator
+      interaction: api_call
+    - name: TensorAIOS
+      role: Neural scoring
+      interaction: api_call
+  protocol: PacketEnvelope
+
+learningsystem:
+  architecture: continuous_metalearning
+  modules:
+    - transformation_optimizer
+    - domain_pattern_extractor
+    - anomaly_threshold_tuner
+  feedbackchannels:
+    - domain_api_feedback
+    - governance_bus
+    - tensor_results
+  autonomyprofile:
+    mode: controlled_autonomy
+    tasklimit: 100_parallel
+    decisionlatencymaxms: 500
+    escalationtriggers:
+      - high_value_transaction
+      - tensor_anomaly
+      - transformation_failure
+
+worldmodelintegration:
+  enabled: true
+  sources:
+    - domain_entity_graph
+    - market_conditions
+    - temporal_patterns
+  updatefrequency: realtime
+  contextwindow: 90_days
+
+cursorinstructions:
+  createifmissing:
+    - L9/agents/adapters/example_domain
+    - L9/agents/adapters/example_domain/transformers
+    - L9/tests/adapters/example_domain
+  generatefiles:
+    - controller.py
+    - __init__.py
+    - transformer.py
+    - domain_client.py
+    - tensor_coordinator.py
+  linkexisting:
+    - L9/core/governance.py
+    - L9/core/packetprotocol.py
+    - L9/core/tensoraios/tensor_scorer.py
+  generatedocs:
+    - README.md
+    - CONFIG.md
+    - API_SPEC.md
+    - DEPLOYMENT.md
+  postgeneration:
+    manifest: L9/manifests/example_domain/manifest.json
+    validatedependencies: true
+    generatetests: true
+
+deployment:
+  runtime: python_3.11_async
+  endpoints:
+    - /adapter/example/ingest
+    - /adapter/example/transform
+    - /adapter/example/status
+    - /adapter/example/health
+  healthcheck: /adapter/example/health
+  telemetry:
+    metrics: true
+    tracing: true
+    logging: true
+    dashboardpath: L9/monitoring/example_domain_dashboard.py
+  replicas: 3
+  resources:
+    cpu: 4
+    memory: 8Gi
+
+metadata:
+  version: "6.0.0"
+  created: "2025-01-15"
+  updated: "2025-01-15"
+  status: production
+  owner: Domain Team
+  tags:
+    - domain-adapter
+    - tensor-integration
+    - external-bridge
+    - production
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["adapter", "agent-config", "api-config", "code-generation", "configuration", "foundation", "model-config", "redis-config"]
+# keywords: ["adapter", "collaborationnetwork", "communicationstack", "domain", "governance", "integration"]
+# last_modified: "2025-12-16T16:32:42Z"
+# ============================================================================

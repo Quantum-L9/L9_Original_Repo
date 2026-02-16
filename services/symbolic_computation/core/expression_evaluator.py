@@ -10,6 +10,8 @@ Version: 6.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Expression Evaluator",
@@ -39,8 +41,7 @@ __dora_meta__ = {
 
 import hashlib
 import time
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 import sympy
@@ -49,6 +50,9 @@ from sympy.utilities.lambdify import lambdify
 
 from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 from services.symbolic_computation.core.models import ComputationResult
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -72,7 +76,8 @@ class ExpressionEvaluator:
             variables={"x": 3},
             backend="numpy"
         )
-        print(result.result)  # 16.0  # noqa: ADR-0019
+        # print(result.result)  # 16.0  # noqa: ADR-0019
+        logger.debug("expression_evaluated", result=result.result)
     """
 
     def __init__(
@@ -103,6 +108,7 @@ class ExpressionEvaluator:
             default_backend=self.config.default_backend,
         )
 
+    @must_stay_async("callers use await")
     async def evaluate_expression(
         self,
         expr: str,

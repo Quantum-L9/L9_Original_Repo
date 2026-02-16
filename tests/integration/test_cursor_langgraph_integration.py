@@ -5,7 +5,7 @@ L9 Integration Tests - Cursor LangGraph Integration (GMP-48)
 Tests for Cursor + LangGraph + L9 Memory integration.
 
 Verifies:
-- Decision write to packetstore v2.0.0
+- Decision write to packet_store v2.0.0
 - Semantic search hits pgvector
 - Graph search uses Redis cache
 - Igor high-impact decision escalation
@@ -26,6 +26,7 @@ from agents.cursor.integrations.cursor_gateway import (
     CursorScopeViolationError,
 )
 from agents.cursor.integrations.cursor_langgraph import CursorAgentState
+from core.decorators import must_stay_async
 from core.governance.approval_gate import escalate_to_igor, is_high_impact_decision
 from core.governance.approval_manager import ApprovalManager, ApprovalStatus
 from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
@@ -44,11 +45,12 @@ def create_mock_substrate_service():
     return mock_service
 
 
-class TestDecisionWrittenToPacketstoreV2:
-    """Test that decisions are written to packetstore as PacketEnvelope v2.0.0."""
+class TestDecisionWrittenToPacketStoreV2:
+    """Test that decisions are written to packet_store as PacketEnvelope v2.0.0."""
 
     @pytest.mark.asyncio
-    async def test_decision_written_to_packetstore_v2(self):
+    @must_stay_async("callers use await")
+    async def test_decision_written_to_packet_store_v2(self):
         """Run simple Cursor task and assert cursor_decision PacketEnvelope v2.0.0 is written."""
         # Mock dependencies
         from core.schemas import PacketWriteResult
@@ -92,6 +94,7 @@ class TestSemanticSearchHitsPgvector:
     """Test that semantic search returns results from pgvector."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_semantic_search_hits_pgvector(self):
         """Insert known packets + embeddings, run search, assert expected results."""
         # Mock substrate service
@@ -132,6 +135,7 @@ class TestGraphSearchUsesRedisCache:
     """Test that graph search uses Redis cache."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_graph_search_uses_redis_cache(self):
         """Mock Neo4j and Redis, verify first call hits Neo4j, second hits cache."""
         # Mock Redis client
@@ -195,6 +199,7 @@ class TestIgorHighImpactDecisionEscalation:
     """Test that high-impact decisions escalate to Igor."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_igor_high_impact_decision_escalation(self):
         """Create high-impact decision, assert CursorDecisionGateNode uses ApprovalManager."""
         # Test high-impact detection
@@ -239,6 +244,7 @@ class TestCheckpointAndResumeThread:
     """Test checkpoint and resume functionality."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_checkpoint_and_resume_thread(self):
         """Simulate partial execution, checkpoint, interruption, resume."""
         # Mock dependencies

@@ -32,6 +32,8 @@ Version: 2.0.0 (full ingestor implementation per README_RUNTIMES.md)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Knowledge Ingestor",
@@ -62,7 +64,7 @@ __dora_meta__ = {
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -106,7 +108,7 @@ class IngestResult:
     patterns_normalized: int = 0
     heuristics_normalized: int = 0
     errors: list[str] = field(default_factory=list)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Returns a dictionary representation of the IngestResult, including ingestion ID, source type, success status, and entity counts for domain-specific knowledge ingestion."""
@@ -299,6 +301,7 @@ class KnowledgeIngestor:
         self._world_model_service = service
         logger.info("WorldModelService attached to KnowledgeIngestor for DB sync")
 
+    @must_stay_async("callers use await")
     async def sync_to_db(
         self,
         tenant_id: str | None = None,

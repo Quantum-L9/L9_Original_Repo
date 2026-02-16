@@ -32,11 +32,13 @@ import json
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import aiofiles
 import structlog
+
+from core.decorators import must_stay_async
 
 from .interface import (
     AgentExecutionRequest,
@@ -95,6 +97,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
             self._post_result_async = None
             self._AutomationExecutor = None
 
+    @must_stay_async("callers use await")
     async def execute(self, request: AgentExecutionRequest) -> AgentExecutionResponse:
         """
         Execute a Mac Agent task.
@@ -171,6 +174,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                 task_id=request.task_id,
             )
 
+    @must_stay_async("callers use await")
     async def poll_and_execute(self) -> None:
         """
         Main polling loop (file-based task system).
@@ -281,7 +285,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                     "action": "orchestrator_error",
                                     "status": "error",
                                     "details": str(e),
-                                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                                    "timestamp": datetime.now(UTC).isoformat(),
                                 }
                             ],
                             "screenshots": [],
@@ -306,7 +310,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                     str(desktop_screenshot)
                                 ]
                             except Exception:
-                                pass
+                                logger.debug("agent_execution.crash_screenshot_failed")
 
                         # Try to post failure to Slack
                         if self._post_result:
@@ -316,7 +320,9 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                 if channel:
                                     self._post_result(channel, task, failure_result)
                             except Exception:
-                                pass
+                                logger.debug(
+                                    "agent_execution.slack_failure_post_failed"
+                                )
 
                         # Save failure JSON
                         try:
@@ -333,7 +339,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                     )
                                 )
                         except Exception:
-                            pass
+                            logger.debug("agent_execution.failure_json_save_failed")
 
                         mark_task_completed(task_id)
                     except Exception as inner_e:

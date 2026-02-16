@@ -41,7 +41,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import uuid as uuid_module
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -51,6 +51,8 @@ from sqlalchemy import Boolean, Column, DateTime, Float, Index, Integer, String,
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
+
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -92,7 +94,7 @@ class GMPExecutionResult(BaseModel):
     )
     audit_result: str = Field(..., description="PASS, CONDITIONAL, or FAIL")
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Execution timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Execution timestamp"
     )
     l9_kernel_versions: dict[str, str] = Field(
         default_factory=dict, description="Kernel versions at execution"
@@ -120,7 +122,7 @@ class LearnedHeuristic(BaseModel):
     impact_estimate: str = Field(
         ..., description="Expected impact (faster, fewer_errors, safer, etc.)"
     )
-    generated_date: datetime = Field(default_factory=datetime.utcnow)
+    generated_date: datetime = Field(default_factory=lambda: datetime.now(UTC))
     active: bool = Field(True, description="Whether this heuristic is currently used")
 
     def __hash__(self):
@@ -149,7 +151,7 @@ class AutonomyGraduationMetrics(BaseModel):
     l3_to_l4_ready: bool = Field(False, description="Can graduate to L4?")
     l4_to_l5_ready: bool = Field(False, description="Can graduate to L5?")
 
-    last_updated: datetime = Field(default_factory=datetime.utcnow)
+    last_updated: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 # ============================================================================
@@ -178,7 +180,10 @@ class GMPExecutionHistoryDB(Base):
     l9_kernel_versions = Column(JSONB, nullable=False, default=dict)
     feature_flags_enabled = Column(ARRAY(String), nullable=False, default=list)
     created_at = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.utcnow, index=True
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        index=True,
     )
 
     __table_args__ = (
@@ -201,7 +206,10 @@ class LearnedHeuristicDB(Base):
     supporting_gmp_ids = Column(ARRAY(String), nullable=False, default=list)
     impact_estimate = Column(String(50), nullable=False)
     generated_date = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.utcnow, index=True
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        index=True,
     )
     active = Column(Boolean, nullable=False, default=True, index=True)
 
@@ -220,7 +228,7 @@ class AutonomyMetricsDB(Base):
     l3_to_l4_ready = Column(Boolean, nullable=False, default=False)
     l4_to_l5_ready = Column(Boolean, nullable=False, default=False)
     last_updated = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.utcnow
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
     )
 
 
@@ -273,6 +281,7 @@ class GMPMetaLearningEngine:
             await conn.run_sync(Base.metadata.create_all)
         logger.info("GMP learning tables created/verified")
 
+    @must_stay_async("callers use await")
     async def log_execution(self, result: GMPExecutionResult) -> bool:
         """
         Log a GMP execution result to the database.
@@ -325,7 +334,7 @@ class GMPMetaLearningEngine:
         try:
             async with self.async_session() as session:
                 # Get all executions from past 30 days
-                threshold_date = datetime.now(timezone.utc) - timedelta(days=30)
+                threshold_date = datetime.now(UTC) - timedelta(days=30)
 
                 stmt = select(GMPExecutionHistoryDB).where(
                     GMPExecutionHistoryDB.created_at >= threshold_date
@@ -383,7 +392,7 @@ class GMPMetaLearningEngine:
 
         try:
             async with self.async_session() as session:
-                threshold_date = datetime.now(timezone.utc) - timedelta(days=30)
+                threshold_date = datetime.now(UTC) - timedelta(days=30)
 
                 stmt = select(GMPExecutionHistoryDB).where(
                     GMPExecutionHistoryDB.created_at >= threshold_date
@@ -583,7 +592,7 @@ class GMPMetaLearningEngine:
                     if metrics.consistency_score_l3 >= 0.95:
                         metrics.l3_to_l4_ready = True
 
-                metrics.last_updated = datetime.now(timezone.utc)
+                metrics.last_updated = datetime.now(UTC)
                 await session.commit()
 
                 # Refresh to get updated values
@@ -782,7 +791,7 @@ class AutonomyController:
                 else:
                     return False, "Already at maximum level L5"
 
-                metrics.last_updated = datetime.now(timezone.utc)
+                metrics.last_updated = datetime.now(UTC)
                 await session.commit()
 
                 self._logger.info(f"Graduated to autonomy level {new_level}")
@@ -833,28 +842,28 @@ async def main():
 
     # Analyze patterns
     stats = await engine.analyze_execution_patterns()
-    print(f"Pattern Analysis: {stats}")
+    logger.info("pattern analysis: stats", stats=stats)
 
     # Generate heuristics
     heuristics = await engine.generate_heuristics()
-    print(f"Generated {len(heuristics)} heuristics")
+    logger.info("generated {len(heuristics)} heuristics")
 
     # Get active heuristics for next GMP
     active = await engine.get_active_heuristics()
-    print(f"Active heuristics: {len(active)}")
+    logger.info("active heuristics: {len(active)}")
 
     # Update autonomy metrics
     metrics = await engine.update_autonomy_metrics(result)
-    print(f"Updated metrics: {metrics}")
+    logger.info("updated metrics: metrics", metrics=metrics)
 
     # Check autonomy level
     controller = AutonomyController(engine)
     level = await controller.get_current_autonomy_level()
-    print(f"Current autonomy level: {level}")
+    logger.info("current autonomy level: level", level=level)
 
     # Check if can graduate
     can_grad, reason = await controller.can_graduate_to_next_level()
-    print(f"Can graduate: {can_grad} ({reason})")
+    logger.info("can graduate: can grad (reason)", can_grad=can_grad, reason=reason)
 
 
 if __name__ == "__main__":

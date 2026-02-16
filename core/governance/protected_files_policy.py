@@ -13,6 +13,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+import fnmatch
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Protected Files Policy",
@@ -110,15 +112,56 @@ def _load_protected_files_policy() -> dict:
                     ]
                 },
             },
+            "protected_patterns": [
+                {"pattern": "Dockerfile", "reason": "Root container image"},
+                {"pattern": "Dockerfile.*", "reason": "Variant container images"},
+                {
+                    "pattern": ".github/workflows/*.yml",
+                    "reason": "CI pipeline definitions",
+                },
+                {
+                    "pattern": ".github/scripts/*.py",
+                    "reason": "CI and governance scripts",
+                },
+                {
+                    "pattern": "requirements*.txt",
+                    "reason": "Python dependency lockfiles",
+                },
+                {"pattern": "pyproject.toml", "reason": "Project and tool config"},
+                {"pattern": "Makefile", "reason": "Build and task entrypoints"},
+                {"pattern": "runtime/*", "reason": "Runtime core"},
+                {
+                    "pattern": "scripts/deployment/*",
+                    "reason": "Deploy and release scripts",
+                },
+            ],
         }
         logger.debug("protected_files_policy.using_fallback")
 
     return _PROTECTED_FILES_POLICY
 
 
+def _get_protected_patterns() -> list[str]:
+    """Return list of fnmatch-style patterns from policy."""
+    policy = _load_protected_files_policy()
+    raw = policy.get("protected_patterns", [])
+    out: list[str] = []
+    for item in raw:
+        if isinstance(item, dict) and "pattern" in item:
+            out.append(item["pattern"])
+        elif isinstance(item, str):
+            out.append(item)
+    return out
+
+
 # =============================================================================
 # Public API
 # =============================================================================
+
+
+def get_protected_patterns() -> list[str]:
+    """Get protected file patterns (fnmatch-style). Applies to all including L."""
+    return _get_protected_patterns()
 
 
 def get_lcto_controlled_files() -> set[str]:
@@ -159,13 +202,24 @@ def get_all_protected_files() -> set[str]:
 def is_protected(file_path: str) -> bool:
     """Check if a file is protected.
 
+    Applies to everyone including L (CTO). Checks exact paths and fnmatch patterns.
+
     Args:
-        file_path: Path to check
+        file_path: Path to check (use forward slashes, no leading ./)
 
     Returns:
         True if file is protected
     """
-    return file_path in get_all_protected_files()
+    # Normalize: strip leading ./ only (do not strip leading . so .github/ is preserved)
+    normalized = file_path.replace("\\", "/")
+    if normalized.startswith("./"):
+        normalized = normalized[2:]
+    if normalized in get_all_protected_files():
+        return True
+    for pat in _get_protected_patterns():
+        if fnmatch.fnmatch(normalized, pat):
+            return True
+    return False
 
 
 def is_lcto_controlled(file_path: str) -> bool:

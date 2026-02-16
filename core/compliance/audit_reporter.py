@@ -9,6 +9,8 @@ Version: 1.0.0 (GMP-21)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Audit Reporter",
@@ -34,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -50,9 +52,9 @@ class ComplianceReport:
     """Compliance report for a time period."""
 
     report_id: UUID = field(default_factory=uuid4)
-    generated_at: datetime = field(default_factory=datetime.utcnow)
-    from_date: datetime = field(default_factory=datetime.utcnow)
-    to_date: datetime = field(default_factory=datetime.utcnow)
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    from_date: datetime = field(default_factory=lambda: datetime.now(UTC))
+    to_date: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Summary counts
     total_commands: int = 0
@@ -120,6 +122,12 @@ class ComplianceReporter:
         """
         self._substrate = substrate_service
 
+    def _require_substrate(self) -> Any:
+        """Return the substrate service; raise if not configured."""
+        if self._substrate is None:
+            raise RuntimeError("ComplianceReporter not configured with substrate service")
+        return self._substrate
+
     async def generate_daily_report(
         self,
         date: datetime | None = None,
@@ -133,12 +141,13 @@ class ComplianceReporter:
         Returns:
             ComplianceReport
         """
-        date = date or datetime.now(timezone.utc)
-        from_date = datetime(date.year, date.month, date.day, 0, 0, 0)
+        date = date or datetime.now(UTC)
+        from_date = datetime(date.year, date.month, date.day, 0, 0, 0, tzinfo=UTC)
         to_date = from_date + timedelta(days=1)
 
         return await self.generate_report(from_date, to_date)
 
+    @must_stay_async("callers use await")
     async def generate_report(
         self,
         from_date: datetime,
@@ -196,7 +205,7 @@ class ComplianceReporter:
     ) -> None:
         """Process command audit entries."""
         try:
-            entries = await self._substrate.search_packets_by_type(
+            entries = await self._require_substrate().search_packets_by_type(
                 packet_type="audit_command",
                 limit=1000,
             )
@@ -228,7 +237,7 @@ class ComplianceReporter:
     ) -> None:
         """Process tool execution audit entries."""
         try:
-            entries = await self._substrate.search_packets_by_type(
+            entries = await self._require_substrate().search_packets_by_type(
                 packet_type="audit_tool",
                 limit=1000,
             )
@@ -277,7 +286,7 @@ class ComplianceReporter:
     ) -> None:
         """Process approval audit entries."""
         try:
-            entries = await self._substrate.search_packets_by_type(
+            entries = await self._require_substrate().search_packets_by_type(
                 packet_type="audit_approval",
                 limit=1000,
             )
@@ -306,7 +315,7 @@ class ComplianceReporter:
     ) -> None:
         """Process memory write audit entries."""
         try:
-            entries = await self._substrate.search_packets_by_type(
+            entries = await self._require_substrate().search_packets_by_type(
                 packet_type="audit_memory_write",
                 limit=1000,
             )
@@ -346,6 +355,7 @@ class ComplianceReporter:
         except (ValueError, AttributeError):
             return False
 
+    @must_stay_async("callers use await")
     async def export_audit_log(
         self,
         from_date: datetime,
@@ -367,6 +377,7 @@ class ComplianceReporter:
             return []
 
         all_entries = []
+        substrate = self._require_substrate()
 
         # Query all audit types
         for packet_type in [
@@ -376,7 +387,7 @@ class ComplianceReporter:
             "audit_memory_write",
         ]:
             try:
-                entries = await self._substrate.search_packets_by_type(
+                entries = await substrate.search_packets_by_type(
                     packet_type=packet_type,
                     limit=1000,
                 )

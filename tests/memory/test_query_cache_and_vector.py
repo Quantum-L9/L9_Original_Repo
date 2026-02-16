@@ -8,9 +8,11 @@ Date: 2026-01-17
 """
 
 import asyncio
+import os
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.query_cache import QueryCache, reset_cache
 from memory.vector_search_config import VectorSearchConfig
 
@@ -23,6 +25,7 @@ class TestQueryCache:
         reset_cache()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ttl_cache_basic(self):
         """Test basic TTL caching."""
         cache = QueryCache()
@@ -51,12 +54,18 @@ class TestQueryCache:
         assert call_count == 2
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_lru_cache_basic(self):
-        """Test basic LRU caching."""
-        cache = QueryCache()
+        """Test basic LRU caching.
+
+        NOTE: QueryCache.lru(maxsize=N) does not create a per-decorator cache;
+        it uses the shared lru_cache from __init__. Set lru_maxsize on the
+        QueryCache constructor to control eviction behavior.
+        """
+        cache = QueryCache(lru_maxsize=2)
         call_count = 0
 
-        @cache.lru(maxsize=2)
+        @cache.lru()
         async def get_data(key: str):
             nonlocal call_count
             call_count += 1
@@ -81,6 +90,7 @@ class TestQueryCache:
         assert call_count == 4
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cache_stats(self):
         """Test cache statistics."""
         cache = QueryCache()
@@ -101,6 +111,7 @@ class TestQueryCache:
         assert stats["ttl"]["hit_rate"] == 0.5
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cache_invalidation(self):
         """Test cache invalidation."""
         cache = QueryCache()
@@ -125,6 +136,7 @@ class TestQueryCache:
         assert call_count == 2
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cache_disabled(self):
         """Test caching can be disabled."""
         cache = QueryCache(enabled=False)
@@ -176,6 +188,7 @@ class TestCachingPerformance:
     """Test caching performance improvements."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cache_speedup(self):
         """Test that caching provides significant speedup."""
         import time
@@ -201,6 +214,7 @@ class TestCachingPerformance:
         assert cached_time < uncached_time / 10  # At least 10x faster
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cache_memory_efficiency(self):
         """Test cache memory limits."""
         cache = QueryCache(lru_maxsize=10)
@@ -219,22 +233,28 @@ class TestCachingPerformance:
 
 # Integration test (requires database)
 @pytest.mark.integration
+@pytest.mark.skipif(
+    not os.getenv("TEST_DATABASE_URL"),
+    reason="Requires TEST_DATABASE_URL (integration test — set to a reachable PostgreSQL URL)",
+)
 class TestVectorSearchIntegration:
     """Integration tests for vector search optimization."""
 
     @pytest.mark.asyncio
-    async def test_vector_search_with_optimization(self, substrate_repo):
+    @must_stay_async("callers use await")
+    async def test_vector_search_with_optimization(self):
         """Test vector search with optimization applied."""
         # This test requires a real database connection
-        # Skip if substrate_repo fixture not available
-        pytest.skip("Requires database connection")
+        pytest.skip("Requires database connection — placeholder for integration test")
 
     @pytest.mark.asyncio
-    async def test_vector_search_performance(self, substrate_repo):
+    @must_stay_async("callers use await")
+    async def test_vector_search_performance(self):
         """Test vector search performance improvement."""
         # This test requires a real database with data
-        # Skip if substrate_repo fixture not available
-        pytest.skip("Requires database with test data")
+        pytest.skip(
+            "Requires database with test data — placeholder for integration test"
+        )
 
 
 if __name__ == "__main__":

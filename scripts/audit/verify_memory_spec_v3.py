@@ -16,7 +16,12 @@ Usage:
 
 from __future__ import annotations
 
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Verify Memory Spec V3",
     "module_version": "1.0.0",
@@ -70,7 +75,7 @@ DEPRECATED_SPEC_PATTERNS = [
 def load_spec() -> dict[str, Any]:
     """Load and parse the memory spec v3.0."""
     if not SPEC_FILE.exists():
-        print(f"❌ CRITICAL: Spec file not found: {SPEC_FILE}")
+        logger.info("❌ critical: spec file not found: spec file", SPEC_FILE=SPEC_FILE)
         sys.exit(1)
 
     with open(SPEC_FILE) as f:
@@ -131,7 +136,9 @@ def check_required_modules(spec: dict, verbose: bool = False) -> tuple[bool, lis
                     f"Layer '{layer_name}' references missing module: {module}"
                 )
             elif verbose:
-                print(f"  ✓ {layer_name} → {module}")
+                logger.info(
+                    "  ✓ layer name → module", layer_name=layer_name, module=module
+                )
 
     # Extract module references from pipelines
     pipelines = spec.get("pipelines", {})
@@ -144,7 +151,11 @@ def check_required_modules(spec: dict, verbose: bool = False) -> tuple[bool, lis
                     f"Pipeline '{pipeline_name}' references missing entrypoint: {entrypoint}"
                 )
             elif verbose:
-                print(f"  ✓ {pipeline_name} → {entrypoint}")
+                logger.info(
+                    "  ✓ pipeline name → entrypoint",
+                    pipeline_name=pipeline_name,
+                    entrypoint=entrypoint,
+                )
 
         # Check binding modules
         binding = pipeline_config.get("binding", {})
@@ -164,7 +175,7 @@ def check_required_modules(spec: dict, verbose: bool = False) -> tuple[bool, lis
         if not qc_path.exists():
             issues.append(f"Query classifier references missing module: {qc_module}")
         elif verbose:
-            print(f"  ✓ query_classifier → {qc_module}")
+            logger.info("  ✓ query classifier → qc module", qc_module=qc_module)
 
     passed = len(issues) == 0
     return passed, issues
@@ -254,7 +265,12 @@ def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, lis
                             f"missing method: {method_name} (in {module_name})"
                         )
                     elif verbose:
-                        print(f"  ✓ {layer_name}.{resp_name} → {method_name}")
+                        logger.info(
+                            "  ✓ layer name.resp name → method name",
+                            layer_name=layer_name,
+                            resp_name=resp_name,
+                            method_name=method_name,
+                        )
 
     # Check pipeline-specific modules (reasoning_replay, consolidation)
     pipelines = spec.get("pipelines", {})
@@ -286,7 +302,12 @@ def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, lis
                             f"missing method: {method_name} (in {entrypoint})"
                         )
                     elif verbose:
-                        print(f"  ✓ {pipeline_name}.{resp_name} → {method_name}")
+                        logger.info(
+                            "  ✓ pipeline name.resp name → method name",
+                            pipeline_name=pipeline_name,
+                            resp_name=resp_name,
+                            method_name=method_name,
+                        )
 
     passed = len(issues) == 0
     return passed, issues
@@ -315,7 +336,9 @@ def check_feature_flags(spec: dict, verbose: bool = False) -> tuple[bool, list[s
             if flag_name in content:
                 found = True
                 if verbose:
-                    print(f"  ✓ {flag_name} found in {py_file.name}")
+                    logger.info(
+                        "  ✓ flag name found in {py file.name}", flag_name=flag_name
+                    )
                 break
 
         # Check core directory
@@ -340,7 +363,7 @@ def check_feature_flags(spec: dict, verbose: bool = False) -> tuple[bool, list[s
 
     if verbose and warnings:
         for w in warnings:
-            print(f"  ⚠ {w}")
+            logger.info("  ⚠ w", w=w)
 
     # Feature flags not found is not a failure - they may be planned
     return True, []
@@ -385,7 +408,11 @@ def check_contracts(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]
                                         f"'{must_call}' - method not found"
                                     )
                                 elif verbose:
-                                    print(f"  ✓ Contract {pipeline_name} → {must_call}")
+                                    logger.info(
+                                        "  ✓ contract pipeline name → must call",
+                                        pipeline_name=pipeline_name,
+                                        must_call=must_call,
+                                    )
 
     passed = len(issues) == 0
     return passed, issues
@@ -401,92 +428,76 @@ def run_verification(
 ) -> bool:
     """Run all verification checks."""
     if not quiet:
-        print("=" * 60)
-        print("Memory Spec v3.0 Verification")
-        print("=" * 60)
-        print(f"Spec file: {SPEC_FILE.relative_to(REPO_ROOT)}")
-        print()
-
+        logger.info("=" * 60)
+        logger.info("memory spec v3.0 verification")
+        logger.info("=" * 60)
+        logger.info("spec file", path=str(SPEC_FILE.relative_to(REPO_ROOT)))
     spec = load_spec()
     all_passed = True
 
     # Check 1: No duplicates
     if not quiet:
-        print("▶ Check 1: No Duplicate Specs")
+        logger.info("▶ check 1: no duplicate specs")
     passed, issues = check_no_duplicate_specs(verbose)
     if passed:
         if not quiet:
-            print("  ✅ PASS - No deprecated specs found")
+            logger.info("  ✅ pass - no deprecated specs found")
     else:
-        print("  ❌ FAIL")
+        logger.error("  ❌ fail")
         for issue in issues:
-            print(f"    - {issue}")
+            logger.info("    - issue", issue=issue)
         all_passed = False
-    if not quiet:
-        print()
-
     # Check 2: Required modules
     if not quiet:
-        print("▶ Check 2: Required Modules Exist")
+        logger.info("▶ check 2: required modules exist")
     passed, issues = check_required_modules(spec, verbose)
     if passed:
         if not quiet:
-            print("  ✅ PASS - All modules exist")
+            logger.info("  ✅ pass - all modules exist")
     else:
-        print("  ❌ FAIL")
+        logger.error("  ❌ fail")
         for issue in issues:
-            print(f"    - {issue}")
+            logger.info("    - issue", issue=issue)
         all_passed = False
-    if not quiet:
-        print()
-
     # Check 3: Required methods
     if not quiet:
-        print("▶ Check 3: Required Methods Implemented")
+        logger.info("▶ check 3: required methods implemented")
     passed, issues = check_required_methods(spec, verbose)
     if passed:
         if not quiet:
-            print("  ✅ PASS - All required methods found")
+            logger.info("  ✅ pass - all required methods found")
     else:
-        print("  ⚠️  PARTIAL")
+        logger.info("  ⚠️  partial")
         for issue in issues:
-            print(f"    - {issue}")
+            logger.info("    - issue", issue=issue)
         # Don't fail on missing methods - spec may be aspirational
-    if not quiet:
-        print()
-
     # Check 4: Feature flags
     if not quiet:
-        print("▶ Check 4: Feature Flags (Informational)")
+        logger.info("▶ check 4: feature flags (informational)")
     passed, issues = check_feature_flags(spec, verbose)
     if not quiet:
-        print("  ℹ️  INFO - Feature flag check complete")
-        print()
-
+        logger.info("  ℹ️  info - feature flag check complete")
     # Check 5: Contracts
     if not quiet:
-        print("▶ Check 5: Contract Validation")
+        logger.info("▶ check 5: contract validation")
     passed, issues = check_contracts(spec, verbose)
     if passed:
         if not quiet:
-            print("  ✅ PASS - Contracts validated")
+            logger.info("  ✅ pass - contracts validated")
     else:
-        print("  ⚠️  PARTIAL")
+        logger.info("  ⚠️  partial")
         for issue in issues:
-            print(f"    - {issue}")
-    if not quiet:
-        print()
-
+            logger.info("    - issue", issue=issue)
     # Summary
     if not quiet:
-        print("=" * 60)
+        logger.info("=" * 60)
         if all_passed:
-            print("✅ VERIFICATION PASSED")
-            print("   memory_spec_v3.0.yaml is the sole active spec")
+            logger.info("✅ verification passed")
+            logger.info("   memory_spec_v3.0.yaml is the sole active spec")
         else:
-            print("❌ VERIFICATION FAILED")
-            print("   See issues above")
-        print("=" * 60)
+            logger.error("❌ verification failed")
+            logger.info("   see issues above")
+        logger.info("=" * 60)
 
     return all_passed
 

@@ -133,12 +133,15 @@ class TestToolRegistration:
     def test_registered_tools_have_category(self):
         """All registered tools must have category in metadata."""
         try:
-            from runtime.tool_registry import get_registered_tools
+            from core.tools.base_registry import get_tool_registry
 
-            tools = get_registered_tools()
-            for name, tool_fn in tools.items():
-                if hasattr(tool_fn, "_tool_metadata"):
-                    meta = tool_fn._tool_metadata
-                    assert "category" in meta, f"Tool {name} missing category"
+            registry = get_tool_registry()
+            tools = registry.list_all()
+
+            # Check tools have required metadata
+            for tool in tools:
+                # ToolMetadata objects have tool_type which serves as category
+                assert tool.tool_type is not None, f"Tool {tool.id} missing tool_type"
+                assert tool.name, f"Tool {tool.id} missing name"
         except ImportError:
             pytest.skip("Tool registry not available")

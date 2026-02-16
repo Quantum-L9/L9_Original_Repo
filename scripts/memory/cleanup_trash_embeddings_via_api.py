@@ -41,6 +41,8 @@ import httpx
 import structlog
 from dotenv import load_dotenv
 
+from core.decorators import must_stay_async
+
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -84,6 +86,7 @@ def is_trash_embedding(payload: dict) -> bool:
     return len(text) < 20
 
 
+@must_stay_async("callers use await")
 async def find_trash_embeddings_via_search(
     dry_run: bool = False,
     verbose: bool = False,
@@ -108,7 +111,7 @@ async def find_trash_embeddings_via_search(
     trash_embedding_ids = []
     checked_count = 0
 
-    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
+    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:  # noqa: S501 — internal VPS service, cert validation not required
         for query in search_queries:
             try:
                 response = await client.post(
@@ -174,22 +177,24 @@ async def main(dry_run: bool = False, verbose: bool = False):
         logger.error(f"Failed: {result['error']}")
         return
 
-    print("\n" + "=" * 60)
-    print("TRASH EMBEDDINGS DETECTION (via API)")
-    print("=" * 60)
-    print(f"  Embeddings checked: {result['checked']}")
-    print(f"  Trash embeddings found: {result['trash_found']}")
+    logger.info("\n" + "=" * 60)
+    logger.info("trash embeddings detection (via api)")
+    logger.info("=" * 60)
+    logger.info(f"  embeddings checked: {result['checked']}")
+    logger.info(f"  trash embeddings found: {result['trash_found']}")
 
     if dry_run:
-        print("\n  ⚠️  DRY RUN - Sample trash IDs:")
+        logger.info("\n  ⚠️  dry run - sample trash ids:")
         for eid in result.get("trash_ids", [])[:10]:
-            print(f"    - {eid}")
-        print("\n  Run without --dry-run to get full list for deletion")
+            logger.info("    - eid", eid=eid)
+        logger.info("\n  run without --dry-run to get full list for deletion")
     else:
-        print(f"\n  Found {len(result.get('trash_ids', []))} trash embedding IDs")
-        print("  Note: Use cleanup_trash_embeddings.py with DATABASE_URL for deletion")
+        logger.info("\n  found {len(result.get('trash_ids', []))} trash embedding ids")
+        logger.info(
+            "  note: use cleanup_trash_embeddings.py with database_url for deletion"
+        )
 
-    print("=" * 60 + "\n")
+    logger.info("=" * 60 + "\n")
 
 
 if __name__ == "__main__":

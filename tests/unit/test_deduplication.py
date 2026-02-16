@@ -17,6 +17,7 @@ Mutation Testing Target: 85%+ score
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.deduplication import (
     DeduplicationEngine,
     DeduplicationReport,
@@ -197,6 +198,7 @@ class TestMutationTargets:
     """Tests specifically designed to kill common mutations."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_similarity_threshold_comparison(self):
         """Kill mutation: >= threshold -> > threshold."""
         engine = DeduplicationEngine(similarity_threshold=0.95)

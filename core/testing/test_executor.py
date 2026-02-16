@@ -10,6 +10,8 @@ Version: 1.0.0 (GMP-19)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Test Executor",
@@ -39,7 +41,7 @@ import asyncio
 import os
 import tempfile
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
@@ -65,7 +67,7 @@ class TestResults:
     """Results of a test run."""
 
     run_id: UUID = field(default_factory=uuid4)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     total_tests: int = 0
     passed: int = 0
     failed: int = 0
@@ -127,6 +129,7 @@ class TestExecutor:
         self._timeout = timeout_seconds
         self._coverage = coverage_enabled
 
+    @must_stay_async("callers use await")
     async def run_tests(
         self,
         test_code: str,
@@ -144,7 +147,7 @@ class TestExecutor:
         Returns:
             TestResults with execution results
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Create temp directory for test execution
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -182,12 +185,11 @@ def mock_substrate():
                 )
 
         # Calculate duration
-        results.duration_ms = (
-            datetime.now(timezone.utc) - start_time
-        ).total_seconds() * 1000
+        results.duration_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         return results
 
+    @must_stay_async("callers use await")
     async def _run_pytest(
         self,
         working_dir: Path,

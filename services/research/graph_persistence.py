@@ -48,7 +48,7 @@ __dora_meta__ = {
 
 import threading
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, TypedDict
 
@@ -240,7 +240,7 @@ class ResearchGraphPersistence:
 
         # Generate ID if not provided
         finding_id = finding.get("finding_id") or f"find_{uuid.uuid4().hex[:12]}"
-        timestamp = finding.get("timestamp") or datetime.now(timezone.utc).isoformat()
+        timestamp = finding.get("timestamp") or datetime.now(UTC).isoformat()
 
         # Validate finding type
         finding_type = finding.get("finding_type", FindingType.INSIGHT.value)
@@ -309,7 +309,7 @@ class ResearchGraphPersistence:
         params = {
             "finding_id": finding_id,
             "query_text": query_text,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         try:
@@ -524,9 +524,7 @@ class ResearchGraphPersistence:
                 source_agent=source_agent,
                 key_facts=evidence.get("metadata", {}).get("key_facts", []),
                 tags=evidence.get("metadata", {}).get("sources", []),
-                timestamp=evidence.get(
-                    "timestamp", datetime.now(timezone.utc).isoformat()
-                ),
+                timestamp=evidence.get("timestamp", datetime.now(UTC).isoformat()),
             )
 
             try:

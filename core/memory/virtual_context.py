@@ -7,6 +7,8 @@ Purpose: MemGPT-style virtual context with automatic tier management.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Virtual Context",
@@ -221,6 +223,7 @@ class VirtualContextManager:
 
         logger.info("LRU eviction complete", archived=len(to_archive))
 
+    @must_stay_async("callers use await")
     async def _evict_semantic(self, context: Context) -> None:
         """
         LLM-driven semantic eviction: keep most relevant memories.
@@ -452,6 +455,7 @@ Facts only, no explanations or numbering."""
 
         return facts[:10]  # Limit to top 10
 
+    @must_stay_async("callers use await")
     async def consolidate_graph_state(
         self,
         agent_id: str = "L",

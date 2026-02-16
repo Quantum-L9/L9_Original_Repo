@@ -21,6 +21,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Construct Enhancer",
@@ -157,6 +159,7 @@ class ConstructEnhancer:
             strict_validation=strict_validation,
         )
 
+    @must_stay_async("callers use await")
     async def enhance_spec(
         self,
         spec: dict[str, Any],
@@ -381,6 +384,7 @@ class BatchEnhancer:
             rate_limit_delay=rate_limit_delay,
         )
 
+    @must_stay_async("callers use await")
     async def enhance_directory(
         self,
         directory: str,

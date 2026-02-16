@@ -43,11 +43,12 @@ __dora_meta__ = {
 
 import hashlib
 import json
-import structlog
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
+
+import structlog
 
 from core.decorators import must_stay_async
 

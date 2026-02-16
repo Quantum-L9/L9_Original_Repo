@@ -23,6 +23,7 @@ Changelog:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -54,7 +55,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import math
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
@@ -205,19 +206,27 @@ class RetrievalPipeline:
     # Semantic Search
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def semantic_search(
         self,
         query: str,
         top_k: int = 10,
         agent_id: str | None = None,
+        tags: list[str] | None = None,
+        tag_boost_factor: float = 1.15,
     ) -> SemanticSearchResult:
         """
         Perform semantic search using vector similarity.
+
+        When tags are provided, results are filtered to memories with at least
+        one matching tag and scores are boosted for tag matches (increased accuracy).
 
         Args:
             query: Natural language search query
             top_k: Number of results to return
             agent_id: Optional agent filter
+            tags: Optional list of tags to filter and boost by (uses packet_store + payload tags)
+            tag_boost_factor: Score multiplier when hit tags match (default 1.15)
 
         Returns:
             SemanticSearchResult with hits
@@ -228,10 +237,16 @@ class RetrievalPipeline:
             logger.warning("Semantic service not configured")
             return SemanticSearchResult(query=query, hits=[])
 
+        tags_include = tags
+        tags_boost = tags
+
         hits = await self._semantic_service.search(
             query=query,
             top_k=top_k,
             agent_id=agent_id,
+            tags_include=tags_include,
+            tags_boost=tags_boost,
+            tag_boost_factor=tag_boost_factor,
         )
 
         return SemanticSearchResult(
@@ -250,6 +265,7 @@ class RetrievalPipeline:
     # Keyword Search (Full-Text Search)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def keyword_search(
         self,
         query: str,
@@ -354,6 +370,7 @@ class RetrievalPipeline:
     # Hybrid Search
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def hybrid_search(
         self,
         query: str,
@@ -395,10 +412,15 @@ class RetrievalPipeline:
         # Step 1: Parallel retrieval - Semantic + Keyword search
         import asyncio
 
+        tag_list: list[str] | None = None
+        if filters.get("tags"):
+            t = filters["tags"]
+            tag_list = t if isinstance(t, list) else [t]
         semantic_task = self.semantic_search(
             query=query,
             top_k=top_k * 2,  # Get more to allow filtering
             agent_id=agent_id,
+            tags=tag_list,
         )
         keyword_task = self.keyword_search(
             query=query,
@@ -642,6 +664,7 @@ class RetrievalPipeline:
     # Thread Reconstruction
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def fetch_thread(
         self,
         thread_id: UUID,
@@ -675,7 +698,6 @@ class RetrievalPipeline:
         async with self._repository.acquire() as conn:
             order_clause = "ASC" if order == "asc" else "DESC"
 
-            # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             rows = await conn.fetch(
                 f"""
                 SELECT * FROM packet_store
@@ -683,7 +705,7 @@ class RetrievalPipeline:
                 {filter_clause}
                 ORDER BY timestamp {order_clause}
                 LIMIT $2
-                """,
+                """,  # noqa: S608, ADR-0087 — internal SQL clauses, user values parameterized
                 thread_id,
                 limit,
                 *filter_params,
@@ -704,6 +726,7 @@ class RetrievalPipeline:
     # Lineage Traversal
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def fetch_lineage(
         self,
         packet_id: UUID,
@@ -767,13 +790,12 @@ class RetrievalPipeline:
             else:
                 # Traverse down to children (with scope filter)
                 async with self._repository.acquire() as conn:
-                    # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     rows = await conn.fetch(
                         f"""
                         SELECT packet_id FROM packet_store
                         WHERE $1 = ANY(parent_ids)
                         {filter_clause}
-                        """,
+                        """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                         current_id,
                         *filter_params,
                     )
@@ -791,6 +813,7 @@ class RetrievalPipeline:
     # Knowledge Facts & Insights
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def fetch_facts(
         self,
         subject: str | None = None,
@@ -830,7 +853,6 @@ class RetrievalPipeline:
         else:
             # Fetch recent facts (with scope filter via JOIN)
             async with self._repository.acquire() as conn:
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
                     f"""
                     SELECT knowledge_facts.*
@@ -839,7 +861,7 @@ class RetrievalPipeline:
                     WHERE TRUE {filter_clause}
                     ORDER BY knowledge_facts.created_at DESC
                     LIMIT $1
-                    """,
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     limit,
                     *filter_params,
                 )
@@ -858,6 +880,7 @@ class RetrievalPipeline:
 
         return [f.model_dump(mode="json") for f in facts]
 
+    @must_stay_async("callers use await")
     async def fetch_insights(
         self,
         packet_id: UUID | None = None,
@@ -888,7 +911,6 @@ class RetrievalPipeline:
 
         async with self._repository.acquire() as conn:
             if packet_id:
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store
@@ -897,13 +919,12 @@ class RetrievalPipeline:
                     {filter_clause}
                     ORDER BY timestamp DESC
                     LIMIT $2
-                    """,
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     str(packet_id),
                     limit,
                     *filter_params,
                 )
             elif insight_type:
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store
@@ -912,7 +933,7 @@ class RetrievalPipeline:
                     {filter_clause}
                     ORDER BY timestamp DESC
                     LIMIT $2
-                    """,
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     insight_type,
                     limit,
                     *filter_params,
@@ -921,7 +942,6 @@ class RetrievalPipeline:
                 filter_clause_2, filter_params_2, _ = build_scope_project_filter(
                     ctx, param_idx=2, table_alias="packet_store"
                 )
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store
@@ -929,7 +949,7 @@ class RetrievalPipeline:
                     {filter_clause_2}
                     ORDER BY timestamp DESC
                     LIMIT $1
-                    """,
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     limit,
                     *filter_params_2,
                 )
@@ -947,6 +967,7 @@ class RetrievalPipeline:
     # Replay Chain
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def replay_chain(
         self,
         start_packet_id: UUID,
@@ -1029,6 +1050,7 @@ class RetrievalPipeline:
     # Tier-Aware Retrieval (GMP-80-A5: Identity Tier)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def get_identity_context(
         self,
         max_facts: int = 20,
@@ -1086,6 +1108,7 @@ class RetrievalPipeline:
             lines.append(f"- {f.fact_text}")
         return "\n".join(lines)
 
+    @must_stay_async("callers use await")
     async def hierarchical_search(
         self,
         query: str,
@@ -1199,6 +1222,7 @@ class RetrievalPipeline:
     # Strategy-Based Retrieval (GMP-80-A6)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def strategy_search(
         self,
         query: str,
@@ -1303,13 +1327,14 @@ class RetrievalPipeline:
     # Unified Search Dispatcher
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def search(
         self,
         query: str,
         agent_id: str | None = None,
         limit: int = 10,
         min_similarity: float = 0.5,
-        scope: str = "shared",
+        scope: str = "cursor",  # Valid: developer, global, cursor, l-private, agent
         force_mode: str | None = None,
     ) -> list[dict[str, Any]]:
         """
@@ -1358,42 +1383,53 @@ class RetrievalPipeline:
         # entity_lookup, reasoning_trace, temporal, exploratory, factual, default
         if query_type == "factual":
             return await self.keyword_search(
-                query=query, top_k=limit,
+                query=query,
+                top_k=limit,
             )
-        elif query_type == "entity_lookup":
+        if query_type == "entity_lookup":
             return await self.graph_enriched_search(
-                query=query, agent_id=agent_id, limit=limit,
-                min_similarity=min_similarity, scope=scope,
+                query=query,
+                agent_id=agent_id,
+                limit=limit,
+                min_similarity=min_similarity,
+                scope=scope,
             )
-        elif query_type == "temporal":
+        if query_type == "temporal":
             return await self.hierarchical_search(
-                query=query, max_per_tier=limit,
+                query=query,
+                max_per_tier=limit,
             )
-        elif query_type == "reasoning_trace":
+        if query_type == "reasoning_trace":
             return await self.strategy_search(
-                query=query, max_results=limit,
+                query=query,
+                max_results=limit,
             )
-        elif query_type == "exploratory":
+        if query_type == "exploratory":
             return await self.semantic_search(
-                query=query, agent_id=agent_id, top_k=limit,
+                query=query,
+                agent_id=agent_id,
+                top_k=limit,
             )
-        else:  # "default" or unknown
-            return await self.hybrid_search(
-                query=query, agent_id=agent_id, top_k=limit,
-                min_score=min_similarity,
-            )
+        # "default" or unknown
+        return await self.hybrid_search(
+            query=query,
+            agent_id=agent_id,
+            top_k=limit,
+            min_score=min_similarity,
+        )
 
     # =========================================================================
     # Graph-Enriched Search
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def graph_enriched_search(
         self,
         query: str,
         agent_id: str | None = None,
         limit: int = 10,
         min_similarity: float = 0.5,
-        scope: str = "shared",
+        scope: str = "cursor",  # Valid: developer, global, cursor, l-private, agent
     ) -> list[dict[str, Any]]:
         """
         Graph-enriched search: vector similarity + Neo4j relationship context.
@@ -1421,7 +1457,9 @@ class RetrievalPipeline:
                 "graph_enriched_search: Neo4j unavailable, falling back to semantic",
             )
             return await self.semantic_search(
-                query=query, agent_id=agent_id, top_k=limit,
+                query=query,
+                agent_id=agent_id,
+                top_k=limit,
             )
 
         pipeline = HybridRAGPipeline(
@@ -1505,6 +1543,7 @@ def init_retrieval_pipeline(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def get_governance_patterns(
     tool_name: str | None = None,
     task_type: str | None = None,

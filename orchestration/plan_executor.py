@@ -53,12 +53,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -72,6 +71,9 @@ from memory.strategymemory import (
     StrategyFeedback,
     StrategyRetrievalRequest,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -303,6 +305,7 @@ class PlanExecutor:
     # Strategy Memory Integration (Phase 0)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def maybe_apply_strategy(
         self,
         task_id: str,
@@ -369,6 +372,7 @@ class PlanExecutor:
             logger.warning(f"Strategy retrieval failed: {e}")
             return None
 
+    @must_stay_async("callers use await")
     async def record_strategy_feedback(
         self,
         strategy_id: str,
@@ -427,6 +431,7 @@ class PlanExecutor:
         except Exception as e:
             logger.warning(f"Strategy feedback recording failed: {e}")
 
+    @must_stay_async("callers use await")
     async def _maybe_capture_strategy(
         self,
         plan: Any,
@@ -566,6 +571,7 @@ class PlanExecutor:
     # Main Execution
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         plan: Any,  # ExecutionPlan
@@ -588,7 +594,7 @@ class PlanExecutor:
         result = ExecutionResult(
             plan_id=plan.plan_id,
             status=ExecutionStatus.RUNNING,
-            started_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
         )
 
         self._active_executions[result.execution_id] = result
@@ -625,7 +631,7 @@ class PlanExecutor:
             result.status = ExecutionStatus.FAILED
             result.errors.append(str(e))
 
-        result.completed_at = datetime.now(timezone.utc)
+        result.completed_at = datetime.now(UTC)
 
         # Emit completion packet
         await self._emit_execution_complete_packet(result)
@@ -681,6 +687,7 @@ class PlanExecutor:
 
         return result
 
+    @must_stay_async("callers use await")
     async def _execute_steps(
         self,
         plan: Any,
@@ -759,7 +766,7 @@ class PlanExecutor:
         result: ExecutionResult,
     ) -> StepResult:
         """Execute a single step with retries."""
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         retries = 0
 
         while retries <= self._config.max_retries:
@@ -784,7 +791,7 @@ class PlanExecutor:
                     duration_ms=self._elapsed_ms(start_time),
                     retries=retries,
                     started_at=start_time,
-                    completed_at=datetime.now(timezone.utc),
+                    completed_at=datetime.now(UTC),
                 )
 
             except Exception as e:
@@ -805,7 +812,7 @@ class PlanExecutor:
                         duration_ms=self._elapsed_ms(start_time),
                         retries=retries,
                         started_at=start_time,
-                        completed_at=datetime.now(timezone.utc),
+                        completed_at=datetime.now(UTC),
                     )
 
         # Should not reach here
@@ -923,7 +930,7 @@ class PlanExecutor:
             backup_path = None
             if path.exists():
                 backup_path = path.with_suffix(
-                    path.suffix + f".bak.{int(datetime.now(timezone.utc).timestamp())}"
+                    path.suffix + f".bak.{int(datetime.now(UTC).timestamp())}"
                 )
                 path.rename(backup_path)
                 logger.info(f"Backed up existing file to: {backup_path}")
@@ -1074,6 +1081,7 @@ class PlanExecutor:
     # Memory Integration
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _emit_execution_start_packet(
         self,
         result: ExecutionResult,
@@ -1105,6 +1113,7 @@ class PlanExecutor:
         except Exception as e:
             logger.warning(f"Failed to emit execution start packet: {e}")
 
+    @must_stay_async("callers use await")
     async def _emit_step_packet(
         self,
         step_result: StepResult,
@@ -1139,6 +1148,7 @@ class PlanExecutor:
         except Exception as e:
             logger.warning(f"Failed to emit step packet: {e}")
 
+    @must_stay_async("callers use await")
     async def _emit_execution_complete_packet(
         self,
         result: ExecutionResult,
@@ -1176,6 +1186,7 @@ class PlanExecutor:
     # World Model Integration
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _update_world_model(
         self,
         result: ExecutionResult,
@@ -1250,7 +1261,7 @@ class PlanExecutor:
         if execution_id in self._active_executions:
             result = self._active_executions[execution_id]
             result.status = ExecutionStatus.CANCELLED
-            result.completed_at = datetime.now(timezone.utc)
+            result.completed_at = datetime.now(UTC)
             logger.info(f"Cancelled execution {execution_id}")
             return True
         return False
@@ -1279,7 +1290,7 @@ class PlanExecutor:
 
     def _elapsed_ms(self, start: datetime) -> int:
         """Calculate elapsed milliseconds from start time."""
-        return int((datetime.now(timezone.utc) - start).total_seconds() * 1000)
+        return int((datetime.now(UTC) - start).total_seconds() * 1000)
 
 
 # ============================================================================

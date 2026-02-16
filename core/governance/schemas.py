@@ -41,7 +41,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -284,7 +284,7 @@ class EvaluationRequest(BaseModel):
         default_factory=dict, description="Additional context"
     )
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Request timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Request timestamp"
     )
 
     model_config = {"extra": "forbid"}
@@ -316,7 +316,7 @@ class EvaluationResult(BaseModel):
     policy_id: str | None = Field(None, description="Matching policy ID")
     policy_name: str | None = Field(None, description="Matching policy name")
     reason: str = Field(..., description="Explanation")
-    evaluated_at: datetime = Field(default_factory=datetime.utcnow)
+    evaluated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     duration_ms: int = Field(default=0, ge=0, description="Evaluation duration")
 
     model_config = {"extra": "forbid"}

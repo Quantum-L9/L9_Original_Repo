@@ -65,6 +65,54 @@ REPORT_GENERATOR = REPO_ROOT / "scripts" / "generate_gmp_report.py"
 STATE_FILE = REPO_ROOT / ".harvest_executor_state.json"
 HARVEST_DIR = REPO_ROOT / "current_work" / "harvested"
 
+# Language tag → (file extension, syntax-checkable)
+# Covers: Python, YAML, JSON, TOML, Shell, SQL, JavaScript, TypeScript,
+#         Dockerfile, HCL/Terraform, Makefile, HTML, CSS
+SUPPORTED_LANGUAGES: dict[str, tuple[str, bool]] = {
+    # Python
+    "python": (".py", True),
+    "py": (".py", True),
+    # YAML
+    "yaml": (".yaml", False),
+    "yml": (".yml", False),
+    # JSON
+    "json": (".json", False),
+    # TOML
+    "toml": (".toml", False),
+    # Shell / Bash
+    "bash": (".sh", False),
+    "sh": (".sh", False),
+    "shell": (".sh", False),
+    "zsh": (".sh", False),
+    # SQL
+    "sql": (".sql", False),
+    # JavaScript / TypeScript
+    "javascript": (".js", False),
+    "js": (".js", False),
+    "typescript": (".ts", False),
+    "ts": (".ts", False),
+    "tsx": (".tsx", False),
+    "jsx": (".jsx", False),
+    # Dockerfile
+    "dockerfile": (".Dockerfile", False),
+    "docker": (".Dockerfile", False),
+    # HCL / Terraform
+    "hcl": (".hcl", False),
+    "terraform": (".tf", False),
+    "tf": (".tf", False),
+    # Makefile
+    "makefile": (".mk", False),
+    "make": (".mk", False),
+    # HTML / CSS
+    "html": (".html", False),
+    "css": (".css", False),
+    # Rust / Go (common in infra tooling)
+    "rust": (".rs", False),
+    "rs": (".rs", False),
+    "go": (".go", False),
+    "golang": (".go", False),
+}
+
 
 # =============================================================================
 # Data Models
@@ -197,73 +245,170 @@ class HarvestExecutor:
     # =========================================================================
     # STEP 2: PARSE CODE BLOCKS
     # =========================================================================
+    # -- Header pattern regexes for filename extraction -----------------------
+    # Matches: ### File 1: `.github/workflows/_lint.yml`
+    #          ### File: `ci/adr_gate.py`
+    #          ### Grafana Dashboard: `grafana/dashboards/dora.json`
+    #          ### pyproject.toml addition
+    # Group 1 = backtick-wrapped path, Group 2 = bold-wrapped path
+    _HEADER_PATH_RE = re.compile(
+        r"^#{1,4}\s+.*?(?:`([^`]+\.\w+)`|[*]{2}([^*]+\.\w+)[*]{2})"
+    )
+
+    # Fragment indicators — headers containing these words describe patches /
+    # snippets, NOT standalone files.  Skip them.
+    _FRAGMENT_KEYWORDS: frozenset[str] = frozenset(
+        {
+            "add step",
+            "add to",
+            "addition",
+            "change default",
+            "update ",
+            "expand ",
+            "ci integration",
+            "replace ",
+            "append ",
+        }
+    )
+
+    def _find_filename_from_headers(
+        self,
+        lines: list[str],
+        code_start: int,
+        ext: str,
+        item_num: int,
+    ) -> tuple[str | None, bool]:
+        """Scan up to 8 lines above a code block for a filename header.
+
+        Returns:
+            (filename_or_None, is_fragment)
+        """
+        for j in range(code_start - 2, max(-1, code_start - 9), -1):
+            if j < 0:
+                break
+            header = lines[j]
+
+            # Only inspect markdown heading lines
+            if not header.startswith("#"):
+                continue
+
+            # Check for fragment keywords first
+            header_lower = header.lower()
+            if any(kw in header_lower for kw in self._FRAGMENT_KEYWORDS):
+                return None, True
+
+            # Try to extract a backtick or bold path from the heading
+            m = self._HEADER_PATH_RE.match(header)
+            if m:
+                return (m.group(1) or m.group(2)), False
+
+            # Bare heading with a filename-like word (e.g. ### pyproject.toml addition)
+            bare_match = re.search(r"(\S+\.\w{1,10})\b", header)
+            if bare_match:
+                candidate = bare_match.group(1).strip("`*")
+                # Only accept if it looks like a real filename with a known ext
+                if "." in candidate:
+                    return candidate, False
+
+            # If we hit a heading that doesn't match, stop scanning
+            break
+
+        return None, False
+
     def _step_parse_code_blocks(self) -> bool:
         self._print_header("PARSE CODE BLOCKS")
 
-        # Find all code blocks with their line numbers
         lines = self.document_content.split("\n")
         items = []
+        skipped_fragments = []
         item_num = 1
 
         in_code_block = False
         code_start = 0
         code_lang = ""
-        current_code = []
 
         for i, line in enumerate(lines, 1):
             if line.startswith("```") and not in_code_block:
-                # Start of code block
                 in_code_block = True
                 code_start = i
                 code_lang = line[3:].strip()
-                current_code = []
             elif line.startswith("```") and in_code_block:
-                # End of code block
                 in_code_block = False
                 code_end = i
 
-                # Determine file name from context or language
-                if code_lang in ("python", "py"):
-                    # Look for filename hints in surrounding text
-                    pattern = f"code_block_{item_num}.py"
-                    # Check previous lines for filename hints
-                    for j in range(max(0, code_start - 5), code_start):
-                        prev_line = lines[j - 1] if j > 0 else ""
-                        # Look for patterns like `filename.py` or **filename.py**
-                        match = re.search(
-                            r"`([^`]+\.py)`|[*]{2}([^*]+\.py)[*]{2}", prev_line
-                        )
-                        if match:
-                            pattern = match.group(1) or match.group(2)
-                            break
+                # Check if this language is supported
+                lang_key = code_lang.lower()
+                if lang_key not in SUPPORTED_LANGUAGES:
+                    continue
 
-                    items.append(
-                        {
-                            "number": item_num,
-                            "pattern": pattern,
-                            "source_start": code_start,
-                            "source_end": code_end,
-                            "target_file": f"{item_num}_{pattern}",
-                            "status": "pending",
-                            "language": code_lang,
-                            "lines": code_end - code_start - 1,
-                        }
+                ext, _checkable = SUPPORTED_LANGUAGES[lang_key]
+
+                # --- Filename extraction from headers ---
+                filename, is_fragment = self._find_filename_from_headers(
+                    lines,
+                    code_start,
+                    ext,
+                    item_num,
+                )
+
+                if is_fragment:
+                    skipped_fragments.append(
+                        f"  SKIP lines {code_start}-{code_end} (fragment)"
                     )
-                    item_num += 1
+                    continue
+
+                if filename is None:
+                    # Fallback: generic name
+                    filename = f"code_block_{item_num}{ext}"
+
+                # Use the basename for the output file (preserve original path
+                # in "pattern" for the harvest table)
+                original_path = filename
+                basename = Path(filename).name
+
+                items.append(
+                    {
+                        "number": item_num,
+                        "pattern": original_path,
+                        "source_start": code_start,
+                        "source_end": code_end,
+                        "target_file": f"{item_num}_{basename}",
+                        "status": "pending",
+                        "language": code_lang,
+                        "lines": code_end - code_start - 1,
+                    }
+                )
+                item_num += 1
 
         self.state.items = items
 
-        print(f"Found {len(items)} code blocks:")  # noqa: ADR-0019
-        print("-" * 60)  # noqa: ADR-0019
-        print("| # | Pattern | Lines | Range |")  # noqa: ADR-0019
-        print("|---|---------|-------|-------|")  # noqa: ADR-0019
-        for item in items[:20]:
-            print(
-                f"| {item['number']:2} | {item['pattern'][:25]:25} | {item['lines']:4} | {item['source_start']}-{item['source_end']} |"
-            )  # noqa: ADR-0019
-        if len(items) > 20:
-            print(f"| ... and {len(items) - 20} more |")  # noqa: ADR-0019
-        print("-" * 60)  # noqa: ADR-0019
+        # Summary by language
+        lang_counts: dict[str, int] = {}
+        for item in items:
+            lang = item["language"]
+            lang_counts[lang] = lang_counts.get(lang, 0) + 1
+
+        print(
+            f"Found {len(items)} extractable code blocks across {len(lang_counts)} language(s):"
+        )  # noqa: ADR-0019
+        if skipped_fragments:
+            print(f"  (skipped {len(skipped_fragments)} fragment(s))")  # noqa: ADR-0019
+            for sf in skipped_fragments:
+                print(sf)  # noqa: ADR-0019
+        for lang, count in sorted(lang_counts.items()):
+            print(f"  {lang}: {count} block(s)")  # noqa: ADR-0019
+        print("-" * 80)  # noqa: ADR-0019
+        print(
+            f"| {'#':>2} | {'Target File':35} | {'Source Path':35} | {'Lang':6} | {'Lines':>5} | {'Range':12} |"
+        )  # noqa: ADR-0019
+        print(f"|{'---':>4}|{'-' * 37}|{'-' * 37}|{'-' * 8}|{'-' * 7}|{'-' * 14}|")  # noqa: ADR-0019
+        for item in items[:30]:
+            print(  # noqa: ADR-0019
+                f"| {item['number']:2} | {item['target_file'][:35]:35} | {item['pattern'][:35]:35} | {item['language'][:6]:6} | {item['lines']:5} | {item['source_start']}-{item['source_end']:>5} |"
+            )
+        if len(items) > 30:
+            print(f"| ... and {len(items) - 30} more |")  # noqa: ADR-0019
+        print("-" * 80)  # noqa: ADR-0019
 
         return len(items) > 0
 
@@ -338,35 +483,137 @@ class HarvestExecutor:
         self._print_header("VALIDATE SYNTAX")
 
         validations = []
-        py_files = [f for f in self.state.files_created if f.endswith(".py")]
 
-        if not py_files:
-            print("⚠️  No Python files to validate")  # noqa: ADR-0019
-            validations.append({"check": "py_compile", "status": "⚠️ N/A"})
+        if not self.state.files_created:
+            print("⚠️  No files to validate")  # noqa: ADR-0019
+            validations.append({"check": "all", "status": "⚠️ N/A"})
             self.state.validation_results = validations
             return True
 
-        # py_compile each file
-        passed = 0
-        for f in py_files:
-            code, _stdout, stderr = self._run_shell(f'python3 -m py_compile "{f}"')
-            if code == 0:
-                passed += 1
-                print(f"✅ {Path(f).name}")  # noqa: ADR-0019
-            else:
-                print(f"❌ {Path(f).name}: {stderr[:60]}")  # noqa: ADR-0019
+        # Group files by extension for targeted validation
+        py_files = [f for f in self.state.files_created if f.endswith(".py")]
+        json_files = [f for f in self.state.files_created if f.endswith(".json")]
+        yaml_files = [
+            f for f in self.state.files_created if f.endswith((".yaml", ".yml"))
+        ]
+        toml_files = [f for f in self.state.files_created if f.endswith(".toml")]
+        other_files = [
+            f
+            for f in self.state.files_created
+            if not f.endswith((".py", ".json", ".yaml", ".yml", ".toml"))
+        ]
 
-        validations.append(
-            {
-                "check": "py_compile",
-                "status": f"✅ {passed}/{len(py_files)}"
-                if passed == len(py_files)
-                else f"⚠️ {passed}/{len(py_files)}",
-            }
-        )
+        # --- Python: py_compile ---
+        if py_files:
+            passed = 0
+            for f in py_files:
+                code, _stdout, stderr = self._run_shell(f'python3 -m py_compile "{f}"')
+                if code == 0:
+                    passed += 1
+                    print(f"✅ [py] {Path(f).name}")  # noqa: ADR-0019
+                else:
+                    print(f"❌ [py] {Path(f).name}: {stderr[:60]}")  # noqa: ADR-0019
+            validations.append(
+                {
+                    "check": "py_compile",
+                    "status": f"✅ {passed}/{len(py_files)}"
+                    if passed == len(py_files)
+                    else f"⚠️ {passed}/{len(py_files)}",
+                }
+            )
+
+        # --- JSON: json.tool ---
+        if json_files:
+            passed = 0
+            for f in json_files:
+                code, _stdout, stderr = self._run_shell(
+                    f'python3 -m json.tool "{f}" > /dev/null'
+                )
+                if code == 0:
+                    passed += 1
+                    print(f"✅ [json] {Path(f).name}")  # noqa: ADR-0019
+                else:
+                    print(f"❌ [json] {Path(f).name}: {stderr[:60]}")  # noqa: ADR-0019
+            validations.append(
+                {
+                    "check": "json_validate",
+                    "status": f"✅ {passed}/{len(json_files)}"
+                    if passed == len(json_files)
+                    else f"⚠️ {passed}/{len(json_files)}",
+                }
+            )
+
+        # --- YAML: python yaml.safe_load ---
+        if yaml_files:
+            passed = 0
+            for f in yaml_files:
+                code, _stdout, stderr = self._run_shell(
+                    f"python3 -c \"import yaml; yaml.safe_load(open('{f}'))\" 2>&1"
+                )
+                if code == 0:
+                    passed += 1
+                    print(f"✅ [yaml] {Path(f).name}")  # noqa: ADR-0019
+                else:
+                    print(f"❌ [yaml] {Path(f).name}: {stderr[:60]}")  # noqa: ADR-0019
+            validations.append(
+                {
+                    "check": "yaml_validate",
+                    "status": f"✅ {passed}/{len(yaml_files)}"
+                    if passed == len(yaml_files)
+                    else f"⚠️ {passed}/{len(yaml_files)}",
+                }
+            )
+
+        # --- TOML: python tomllib ---
+        if toml_files:
+            passed = 0
+            for f in toml_files:
+                code, _stdout, stderr = self._run_shell(
+                    f"python3 -c \"import tomllib; tomllib.load(open('{f}', 'rb'))\" 2>&1"
+                )
+                if code == 0:
+                    passed += 1
+                    print(f"✅ [toml] {Path(f).name}")  # noqa: ADR-0019
+                else:
+                    print(f"❌ [toml] {Path(f).name}: {stderr[:60]}")  # noqa: ADR-0019
+            validations.append(
+                {
+                    "check": "toml_validate",
+                    "status": f"✅ {passed}/{len(toml_files)}"
+                    if passed == len(toml_files)
+                    else f"⚠️ {passed}/{len(toml_files)}",
+                }
+            )
+
+        # --- Other files: existence check only ---
+        if other_files:
+            passed = sum(
+                1
+                for f in other_files
+                if Path(f).exists() and Path(f).stat().st_size > 0
+            )
+            for f in other_files:
+                p = Path(f)
+                if p.exists() and p.stat().st_size > 0:
+                    print(f"✅ [file] {p.name} ({p.stat().st_size} bytes)")  # noqa: ADR-0019
+                else:
+                    print(f"❌ [file] {p.name}: empty or missing")  # noqa: ADR-0019
+            validations.append(
+                {
+                    "check": "file_exists",
+                    "status": f"✅ {passed}/{len(other_files)}"
+                    if passed == len(other_files)
+                    else f"⚠️ {passed}/{len(other_files)}",
+                }
+            )
 
         self.state.validation_results = validations
-        print(f"\n✅ Syntax valid: {passed}/{len(py_files)} files")  # noqa: ADR-0019
+
+        total = len(self.state.files_created)
+        total_passed = sum(int(v["status"].startswith("✅")) for v in validations)
+        print(
+            f"\nValidation: {total_passed}/{len(validations)} checks passed across {total} files"
+        )  # noqa: ADR-0019
 
         return True
 

@@ -37,12 +37,14 @@ __dora_meta__ = {
 
 import hashlib
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import httpx
 import structlog
+
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -126,9 +128,9 @@ def save_to_s3(
 
     # Determine date for path structure
     if created_timestamp:
-        file_date = datetime.fromtimestamp(created_timestamp)
+        file_date = datetime.fromtimestamp(created_timestamp, tz=UTC)
     else:
-        file_date = datetime.now()
+        file_date = datetime.now(tz=UTC)
 
     # Build date-based prefix: slack/YYYY/MM/DD
     year = file_date.strftime("%Y")
@@ -296,9 +298,9 @@ def save_to_disk(
     """
     # Determine date for subfolder structure
     if created_timestamp:
-        file_date = datetime.fromtimestamp(created_timestamp)
+        file_date = datetime.fromtimestamp(created_timestamp, tz=UTC)
     else:
-        file_date = datetime.now()
+        file_date = datetime.now(tz=UTC)
 
     # Build date-based subfolder: YYYY/MM/DD
     year = file_date.strftime("%Y")
@@ -664,6 +666,7 @@ def process_slack_file(file_id: str, file_info: dict[str, Any]) -> dict[str, Any
     return artifact
 
 
+@must_stay_async("callers use await")
 async def get_file_info(file_id: str) -> dict[str, Any]:
     """
     Retrieve file metadata from Slack API using files.info (async).
@@ -706,6 +709,7 @@ async def get_file_info(file_id: str) -> dict[str, Any]:
         await http_client.aclose()
 
 
+@must_stay_async("callers use await")
 async def process_file_attachments(files: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Process multiple file attachments from a Slack message (async).

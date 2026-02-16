@@ -48,18 +48,21 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from collections.abc import AsyncGenerator, Sequence
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 import yaml
 
 from config.rls_config import get_rls_config
+from core.config_constants import ALLOWED_SCOPES_CURSOR, ALLOWED_SCOPES_L
 from core.decorators import must_stay_async
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, Sequence
 
 logger = structlog.get_logger(__name__)
 
@@ -103,16 +106,16 @@ def _load_memory_scope_policies() -> dict[str, dict[str, Any]]:
                 error=str(e),
             )
 
-    # Fallback to hardcoded defaults if not loaded
+    # Fallback to config_constants if policy file not loaded (ADR-0098)
     if not _SCOPE_ACCESS_MATRIX:
         _SCOPE_ACCESS_MATRIX = {
-            "L": {"allowed_scopes": ["developer", "global", "l-private"]},
+            "L": {"allowed_scopes": ALLOWED_SCOPES_L},
             "C": {
-                "allowed_scopes": ["developer", "global"],
+                "allowed_scopes": ALLOWED_SCOPES_CURSOR,
                 "denied_scopes": ["l-private"],
             },
             "default": {
-                "allowed_scopes": ["developer", "global"],
+                "allowed_scopes": ALLOWED_SCOPES_CURSOR,
                 "denied_scopes": ["l-private"],
             },
         }
@@ -256,7 +259,7 @@ def _fallback_context() -> MemoryGovernanceContext:
     """
     caller_id = os.getenv("L9_MEMORY_CALLER_ID")
     project_id = os.getenv("L9_PROJECT_ID")
-    scope = os.getenv("L9_MEMORY_SCOPE", "shared")
+    scope = os.getenv("L9_MEMORY_SCOPE", "cursor")  # Default to valid DB scope
     if not caller_id or not project_id:
         raise RuntimeError(
             "Fallback governance context requires L9_MEMORY_CALLER_ID and L9_PROJECT_ID"
@@ -278,6 +281,7 @@ def _fallback_context() -> MemoryGovernanceContext:
 
 
 @asynccontextmanager
+@must_stay_async("callers use await")
 async def ensure_governance_context(
     operation: str,
 ) -> AsyncGenerator[MemoryGovernanceContext, None]:

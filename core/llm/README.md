@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -106,19 +106,19 @@ class OpenAILLMService:
 
     def __init__(self, ...) -> None: ...
 
-    def _get_client(self, ...) -> AsyncOpenAI: ...
+    async def _get_client(self, ...) -> AsyncOpenAI: ...
+
+    async def close(self, ...) -> None: ...
 
     async def complete(self, ...) -> str: ...
 
     async def chat(self, ...) -> str: ...
 
-    async def embed(self, ...) -> list[float]: ...
-
 ```
 
-**Public Methods:** `__init__`, `_get_client`, `complete`, `chat`, `embed`
+**Public Methods:** `__init__`, `_get_client`, `close`, `complete`, `chat`
 
-**Lines:** 65-284 in `llm_service.py`
+**Lines:** 68-299 in `llm_service.py`
 
 ### `llm_service.py` — MockLLMService
 
@@ -140,7 +140,7 @@ class MockLLMService:
 
 **Public Methods:** `__init__`, `complete`, `chat`, `embed`
 
-**Lines:** 287-345 in `llm_service.py`
+**Lines:** 302-363 in `llm_service.py`
 
 
 ---
@@ -156,15 +156,15 @@ class MockLLMService:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `DEFAULT_CHAT_MODEL` | `'gpt-4o'` | 56 |
-| `DEFAULT_EMBEDDING_MODEL` | `'text-embedding-3-large'` | 57 |
+| `DEFAULT_CHAT_MODEL` | `'gpt-4o'` | 59 |
+| `DEFAULT_EMBEDDING_MODEL` | `'text-embedding-3-large'` | 60 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreLlmRequest(BaseModel):
     """Request model for core_llm operations."""
@@ -256,7 +256,7 @@ CORE_LLM_ENABLED=true
 
 Get the default chat model.
 
-- **File:** `llm_service.py:60`
+- **File:** `llm_service.py:63`
 - **Async:** No
 - **Returns:** `str`
 
@@ -264,7 +264,7 @@ Get the default chat model.
 
 Factory function to create LLMService implementation.
 
-- **File:** `llm_service.py:348`
+- **File:** `llm_service.py:366`
 - **Async:** No
 - **Returns:** `LLMService`
 
@@ -298,7 +298,7 @@ Core Llm operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.llm",
   "message": "Operation completed",

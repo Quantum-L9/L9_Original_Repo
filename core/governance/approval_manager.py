@@ -85,7 +85,7 @@ class ApprovalRequest:
     operation_summary: str
     risk_level: str
     arguments: dict[str, Any]
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     expires_at: datetime | None = None
     status: ApprovalStatus = ApprovalStatus.PENDING
 
@@ -185,6 +185,7 @@ class ApprovalManager:
         """
         return tool_id in self.HIGH_RISK_TOOLS
 
+    @must_stay_async("callers use await")
     async def request_approval(
         self,
         tool_id: str,
@@ -232,7 +233,7 @@ class ApprovalManager:
                         "operation_summary": operation_summary,
                         "status": "pending",
                         "created_at": request.created_at.isoformat(),
-                        "expires_at": request.expires_at.isoformat(),
+                        "expires_at": request.expires_at.isoformat() if request.expires_at else None,
                     },
                     metadata={"agent": agent_id},
                 )
@@ -317,6 +318,7 @@ class ApprovalManager:
 
         return None
 
+    @must_stay_async("callers use await")
     async def approve(
         self,
         request_id: str,
@@ -374,6 +376,7 @@ class ApprovalManager:
 
         return decision
 
+    @must_stay_async("callers use await")
     async def _create_approval_checkpoint(
         self,
         request: ApprovalRequest,
@@ -498,7 +501,7 @@ class ApprovalManager:
             f"• Agent: `{request.agent_id}`\n"
             f"• Operation: {request.operation_summary}\n"
             f"• Request ID: `{request.request_id}`\n"
-            f"• Expires: {request.expires_at.isoformat()}\n\n"
+            f"• Expires: {request.expires_at.isoformat() if request.expires_at else 'N/A'}\n\n"
             f"Reply with `/approve {request.request_id}` or `/reject {request.request_id}`"
         )
 

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -120,7 +120,7 @@ class SwarmLoaderError:
 
 ```
 
-**Lines:** 50-53 in `quantum_swarm_loader.py`
+**Lines:** 52-55 in `quantum_swarm_loader.py`
 
 ### `quantum_swarm_loader.py` — QuantumSwarmLoader
 
@@ -144,7 +144,7 @@ class QuantumSwarmLoader:
 
 **Public Methods:** `__init__`, `load_quantum_swarm`, `_load_capsule`, `_warmup_cache`, `get_stats`
 
-**Lines:** 56-256 in `quantum_swarm_loader.py`
+**Lines:** 58-259 in `quantum_swarm_loader.py`
 
 ### `input_segmenter.py` — SegmenterConfig
 
@@ -208,9 +208,9 @@ class InputSegmenter:
 
 ### Exported Symbols (`__all__`)
 
-`CellOrchestrator`, `CellStep`, `CellWorkflow`, `ChainStatus`, `ChainStep`, `ControllerConfig`, `ControllerPhase`, `ControllerResult`, `ControllerState`, `ExecutionChain`
+`CellStep`, `CellWorkflow`, `ChainStatus`, `ChainStep`, `ControllerConfig`, `ControllerPhase`, `ControllerResult`, `ControllerState`, `ExecutionChain`, `ExecutionMode`
 
-*...and 39 more*
+*...and 34 more*
 
 ### Module Constants
 
@@ -229,7 +229,7 @@ class InputSegmenter:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class OrchestrationRequest(BaseModel):
     """Request model for orchestration operations."""
@@ -321,7 +321,7 @@ ORCHESTRATION_ENABLED=true
 
 Convenience function to load and execute a quantum swarm.
 
-- **File:** `quantum_swarm_loader.py:259`
+- **File:** `quantum_swarm_loader.py:262`
 - **Async:** Yes
 - **Returns:** `dict[str, Any]`
 
@@ -353,7 +353,7 @@ Segment input to task dicts using default segmenter.
 
 Generate an artifact (plan, code, docs) using LLM.
 
-- **File:** `long_plan_graph.py:58`
+- **File:** `long_plan_graph.py:59`
 - **Async:** Yes
 - **Returns:** `str | None`
 
@@ -387,7 +387,7 @@ Orchestration operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "orchestration",
   "message": "Operation completed",

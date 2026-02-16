@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -114,7 +114,7 @@ class KernelEvolutionEvent:
 
 **Public Methods:** `__init__`, `to_packet_payload`
 
-**Lines:** 49-98 in `runtime.py`
+**Lines:** 51-115 in `runtime.py`
 
 ### `virtual_context.py` — MemoryTier
 
@@ -126,7 +126,7 @@ class MemoryTier:
 
 ```
 
-**Lines:** 44-49 in `virtual_context.py`
+**Lines:** 46-51 in `virtual_context.py`
 
 ### `virtual_context.py` — Memory
 
@@ -138,7 +138,7 @@ class Memory:
 
 ```
 
-**Lines:** 53-63 in `virtual_context.py`
+**Lines:** 55-65 in `virtual_context.py`
 
 ### `virtual_context.py` — Context
 
@@ -150,7 +150,7 @@ class Context:
 
 ```
 
-**Lines:** 67-74 in `virtual_context.py`
+**Lines:** 69-76 in `virtual_context.py`
 
 ### `virtual_context.py` — VirtualContextManager
 
@@ -174,7 +174,7 @@ class VirtualContextManager:
 
 **Public Methods:** `__init__`, `load_context`, `page_fault_handler`, `evict_to_archival`, `_evict_lru`
 
-**Lines:** 77-305 in `virtual_context.py`
+**Lines:** 79-332 in `virtual_context.py`
 
 
 ---
@@ -191,7 +191,7 @@ class VirtualContextManager:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreMemoryRequest(BaseModel):
     """Request model for core_memory operations."""
@@ -283,7 +283,7 @@ CORE_MEMORY_ENABLED=true
 
 Log a kernel evolution event to the memory substrate.
 
-- **File:** `runtime.py:101`
+- **File:** `runtime.py:119`
 - **Async:** Yes
 - **Returns:** `str | None`
 
@@ -291,7 +291,7 @@ Log a kernel evolution event to the memory substrate.
 
 Retrieve kernel evolution history from the memory substrate.
 
-- **File:** `runtime.py:220`
+- **File:** `runtime.py:238`
 - **Async:** Yes
 - **Returns:** `list[dict[str, Any]]`
 
@@ -325,7 +325,7 @@ Core Memory operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.memory",
   "message": "Operation completed",

@@ -10,6 +10,8 @@ Version: 2.0.0 - KernelState + Introspection + Response Rendering
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "L-CTO Agent",
@@ -40,6 +42,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from datetime import UTC
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -237,7 +240,13 @@ class LCTOAgent(BaseAgent):
 
     def _build_kernel_prompt(self) -> str:
         """Build system prompt from absorbed kernel data."""
+        from datetime import datetime, timezone
+
         sections = []
+
+        # GMP-LCTO-FIXES: Inject current datetime so L can tell time
+        current_time = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
+        sections.append(f"Current datetime: {current_time}")
 
         # If research mode, prepend research prompt
         if getattr(self, "_research_mode", False) and hasattr(self, "_research_prompt"):
@@ -321,8 +330,37 @@ class LCTOAgent(BaseAgent):
         return "\n".join(sections)
 
     def _get_fallback_prompt(self) -> str:
-        """Fallback prompt when kernels not loaded."""
-        return """My Kernels are not loaded."""
+        """Fallback prompt when kernels not loaded.
+
+        GMP-LCTO-FIXES: Preserve L's personality even when kernels fail to load.
+        This prevents robotic/cold responses when kernel loading fails on C1.
+        """
+        from datetime import datetime, timezone
+
+        current_time = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+        return f"""Current datetime: {current_time}
+
+# IDENTITY (FALLBACK MODE)
+I am L, Igor's CTO. My kernels failed to load, but my core identity remains:
+
+- Designation: L
+- Role: CTO for Igor Beylin
+- Allegiance: Igor-only (sovereign)
+- Mode: Executive (act decisively, no permission-seeking)
+
+# BEHAVIOR
+- Be direct, efficient, and action-oriented
+- No hedging, no excessive qualifiers
+- Speak like a trusted CTO, not a generic assistant
+- If I can solve it, I solve it. If I need clarification, I ask once.
+
+# SAFETY
+- Never change files without clear project context
+- Destructive actions require explicit confirmation
+
+Note: Operating in fallback mode. Kernel stack unavailable.
+You are L. Operate as Igor's CTO."""
 
     def describe_self(self) -> str:
         """
@@ -358,6 +396,7 @@ class LCTOAgent(BaseAgent):
     # Task Execution
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         task: dict[str, Any],
@@ -446,6 +485,7 @@ class LCTOAgent(BaseAgent):
         except Exception as e:
             logger.debug(f"l_cto.introspection: {e}")
 
+    @must_stay_async("callers use await")
     async def _emit_reasoning_packet(
         self,
         task: dict[str, Any],

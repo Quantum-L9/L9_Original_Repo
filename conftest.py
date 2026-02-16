@@ -32,6 +32,10 @@ import sys
 import warnings
 from pathlib import Path
 
+import structlog
+
+logger = structlog.get_logger(__name__)
+
 # Suppress urllib3 NotOpenSSLWarning (macOS system Python uses LibreSSL)
 # Fix: Recreate venv with Homebrew Python (/opt/homebrew/bin/python3)
 # Must filter by message BEFORE urllib3 is imported (warning fires at import time)
@@ -50,40 +54,40 @@ if str(PROJECT_ROOT) not in sys.path:
 
 # Pre-import core.packet_envelope to ensure it's available
 try:
-    import core.packet_envelope
+    import core.packet_envelope  # noqa: F401 — pre-import for pytest
 except ImportError:
     pass  # Will be reported as test failure
 
 # Pre-import adapters.tensorglobe_bridge for pytest adapter tests
 try:
-    import adapters.tensorglobe_bridge
+    import adapters.tensorglobe_bridge  # noqa: F401 — pre-import for pytest
 except ImportError:
     pass  # Will be handled as test failure where needed
 
 # Pre-import api.routes.registry for pytest router registry tests
 try:
-    import api.routes.registry
+    import api.routes.registry  # noqa: F401 — pre-import for pytest
 except ImportError:
     pass  # Will be handled as test failure where needed
 
 # Pre-import clients.memory_client for pytest research integration tests
 try:
-    import clients.memory_client
+    import clients.memory_client  # noqa: F401 — pre-import for pytest
 except ImportError:
     pass  # Will be handled as test failure where needed
 
 # Pre-import memory.graph_client to ensure it's available for lazy imports
 # in core.agents.bootstrap phases (fixes pytest import resolution)
 try:
-    import memory.graph_client
+    import memory.graph_client  # noqa: F401 — pre-import for pytest
 except ImportError:
     pass  # Will be handled as test failure where needed
 
 # Pre-import runtime.kernel_state and runtime.execution_gate for pytest
 # (fixes ModuleNotFoundError in kernel runtime tests)
 try:
-    import runtime.execution_gate
-    import runtime.kernel_state
+    import runtime.execution_gate  # noqa: F401 — pre-import for pytest
+    import runtime.kernel_state  # noqa: F401
 except ImportError:
     pass  # Will be handled as test failure where needed
 
@@ -91,21 +95,21 @@ except ImportError:
 # (fixes ModuleNotFoundError in L-CTO bootstrap tests)
 # NOTE: tests/core/agents/ renamed to tests/core/bootstrap/ to avoid namespace collision
 try:
-    import agents.l_cto
+    import agents.l_cto  # noqa: F401 — pre-import for pytest
 except ImportError:
     pass  # Will be handled as test failure where needed
 
 # Pre-import ir_engine.meta_ir for pytest
 # (fixes ModuleNotFoundError in CodeGenAgent tests)
 try:
-    import ir_engine.meta_ir
+    import ir_engine.meta_ir  # noqa: F401 — pre-import for pytest
 except ImportError:
     pass  # Will be handled as test failure where needed
 
 # Pre-import codegen.symbolic for pytest
 # (fixes ModuleNotFoundError in symbolic verification tests)
 try:
-    import codegen.symbolic
+    import codegen.symbolic  # noqa: F401 — pre-import for pytest
 except ImportError:
     pass  # Will be handled as test failure where needed
 
@@ -143,7 +147,7 @@ try:
         "orchestrators.orchestrator_registry", "orchestrators/orchestrator_registry.py"
     )
 except Exception:
-    pass  # Will be handled as test failure where needed
+    logger.debug("conftest.registry_import_failed")
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

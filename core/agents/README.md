@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -96,7 +96,7 @@ core/agents/
 ├── bootstrap/phase_5_bind_tools.py
 ├── bootstrap/phase_6_wire_governance.py
 ├── bootstrap/phase_7_verify_and_lock.py
-└── ... (14 more files)
+└── ... (24 more files)
 ```
 
 | File | Purpose |
@@ -135,7 +135,7 @@ class KernelAwareAgent:
 
 **Public Methods:** `get_kernel_section`
 
-**Lines:** 90-98 in `prompt_builder.py`
+**Lines:** 100-108 in `prompt_builder.py`
 
 ### `registry.py` — AgentRegistry
 
@@ -183,7 +183,7 @@ class AgentInstance:
 
 **Public Methods:** `__init__`, `instance_id`, `config`, `task`, `state`
 
-**Lines:** 99-812 in `agent_instance.py`
+**Lines:** 107-815 in `agent_instance.py`
 
 ### `kernel_registry.py` — KernelAwareAgentRegistry
 
@@ -235,7 +235,7 @@ The following data models define the contracts for this subsystem:
 
 `ACTIVE_BOOTSTRAPS`, `AGENT_EXECUTOR_NAMESPACE`, `AGENT_LABEL`, `AIOSResult`, `AIOSResultType`, `AIOSRuntime`, `AgentBootstrapContext`, `AgentBootstrapError`, `AgentBootstrapOrchestrator`, `AgentConfig`
 
-*...and 93 more*
+*...and 125 more*
 
 ### Module Constants
 
@@ -250,14 +250,14 @@ The following data models define the contracts for this subsystem:
 | `ITERATION_THRESHOLD` | `int(os.environ.get('L9_REFLECTION_ITERAT...` | 59 |
 | `TOKEN_THRESHOLD` | `int(os.environ.get('L9_REFLECTION_TOKEN_...` | 62 |
 
-*...and 49 more constants*
+*...and 51 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreAgentsRequest(BaseModel):
     """Request model for core_agents operations."""
@@ -430,7 +430,7 @@ Core Agents operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.agents",
   "message": "Operation completed",

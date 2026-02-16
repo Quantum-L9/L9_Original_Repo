@@ -7,11 +7,12 @@ Tests for test generation, execution, and integration with approvals.
 Version: 1.0.0
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.testing.test_agent import TestAgent, TestAgentResult, spawn_test_agent
 from core.testing.test_executor import TestResults
 from core.testing.test_generator import (
@@ -164,7 +165,7 @@ class TestTestAgentResult:
             tests_skipped=0,
             coverage_percent=80.0,
             duration_ms=1000,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             recommendations=["Fix failing test"],
             test_results=None,
             success=False,
@@ -187,7 +188,7 @@ class TestTestAgentResult:
             tests_skipped=0,
             coverage_percent=90.0,
             duration_ms=500,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             recommendations=["All tests passed"],
             test_results=None,
             success=True,
@@ -206,6 +207,7 @@ class TestTestAgent:
     """Test the TestAgent class."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_validate_proposal_generates_tests(self):
         """Test that validate_proposal generates tests."""
         agent = TestAgent()
@@ -228,6 +230,7 @@ def process_data(data):
         assert result.error is None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_validate_proposal_with_dependencies(self):
         """Test validate_proposal with dependencies."""
         agent = TestAgent()

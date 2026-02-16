@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -183,7 +183,7 @@ class QueryRequest:
 
 ```
 
-**Lines:** 93-97 in `router.py`
+**Lines:** 94-98 in `router.py`
 
 ### `router.py` — GetRequest
 
@@ -195,7 +195,7 @@ class GetRequest:
 
 ```
 
-**Lines:** 100-103 in `router.py`
+**Lines:** 101-104 in `router.py`
 
 
 ---
@@ -210,7 +210,7 @@ The following data models define the contracts for this subsystem:
 
 ### Exported Symbols (`__all__`)
 
-`GmailClient`, `create_flow`, `exchange_code_for_tokens`, `execute_email_task`, `load_client_secrets`, `load_tokens`, `run_daily_digest`, `save_tokens`, `summarize_inbox`
+`GmailClient`, `execute_email_task`, `load_client_secrets`, `load_tokens`, `run_daily_digest`, `save_tokens`, `summarize_inbox`
 
 ### Module Constants
 
@@ -232,7 +232,7 @@ The following data models define the contracts for this subsystem:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class EmailAgentRequest(BaseModel):
     """Request model for email_agent operations."""
@@ -389,7 +389,7 @@ Email Agent operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "email_agent",
   "message": "Operation completed",

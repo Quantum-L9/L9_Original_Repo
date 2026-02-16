@@ -14,6 +14,8 @@ Created: 2026-01-21
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Slack Tools Test Suite",
@@ -417,6 +419,7 @@ async def test_slack_file_fetch_invalid_file_id():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_slack_file_list_success():
     """Test successful file listing for a channel."""
     from runtime.l_tools import slack_file_list

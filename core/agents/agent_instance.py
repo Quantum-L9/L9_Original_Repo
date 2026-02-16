@@ -50,6 +50,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 # DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -90,6 +92,12 @@ from uuid import UUID, uuid4
 import structlog
 
 from core.agents.schemas import AgentConfig, AgentTask, ExecutorState, ToolBinding
+from core.tools.dynamic_discovery import (
+    cache_tools,
+    discover_tools_for_task,
+    get_cached_tools,
+    is_dynamic_discovery_enabled,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -382,6 +390,7 @@ class AgentInstance:
             )
         return definitions
 
+    @must_stay_async("callers use await")
     async def prepare_dynamic_tools(self) -> int:
         """
         Discover and cache relevant tools for this task using semantic search.
@@ -402,13 +411,6 @@ class AgentInstance:
             Number of tools discovered
         """
         try:
-            from core.tools.dynamic_discovery import (
-                cache_tools,
-                discover_tools_for_task,
-                get_cached_tools,
-                is_dynamic_discovery_enabled,
-            )
-
             if not is_dynamic_discovery_enabled():
                 logger.debug("Dynamic tool discovery disabled, using static binding")
                 return 0
@@ -510,7 +512,7 @@ class AgentInstance:
                     openai_name in self._tool_name_map
                     and self._tool_name_map[openai_name] != tool_id
                 ):
-                    suffix = hashlib.sha1(tool_id.encode("utf-8")).hexdigest()[:8]
+                    suffix = hashlib.sha1(tool_id.encode("utf-8")).hexdigest()[:8]  # noqa: S324 — used for name dedup, not security
                     openai_name = f"{openai_name}_{suffix}"
                 logger.warning(
                     "tool_name_sanitized",

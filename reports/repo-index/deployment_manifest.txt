@@ -2,8 +2,8 @@
 # Deployment Manifest
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -55,6 +55,8 @@
 - `deploy/c1/MRI-Results-2.md`
 - `deploy/c1/README.md`
 - `deploy/c1/c1-firewall-rules.md`
+- `deploy/c1/scripts/10X_Deploy_Script.sh`
+- `deploy/c1/scripts/Deep_MRI_Results.md`
 - `deploy/c1/scripts/build-images.sh`
 - `deploy/c1/scripts/c1-compose-deploy.sh`
 - `deploy/c1/scripts/c1-deploy-on-vps.sh`
@@ -62,6 +64,8 @@
 - `deploy/c1/scripts/c1-deploy.sh`
 - `deploy/c1/scripts/c1-full-deploy.sh`
 - `deploy/c1/scripts/c1-rollback.sh`
+- `deploy/c1/scripts/deep_mri.sh`
+- `deploy/c1/scripts/deep_mri_2.md`
 - `deploy/c1/scripts/init_mcp_memory.sh`
 - `deploy/c1/scripts/sync-env.sh`
 - `deploy/c1/scripts/tunnel-l9.sh`
@@ -79,8 +83,8 @@
 
 | Variable | Default |
 |----------|---------|
-| `MEMORY_DSN` | `postgresql://postgres:YOUR_PASSWORD@host.docker.internal:5432/l9_memory` |
-| `DATABASE_URL` | `postgresql://postgres:YOUR_PASSWORD@host.docker.internal:5432/l9_memory` |
+| `MEMORY_DSN` | `postgresql://postgres:...@host.docker.internal:5432/l9_memory` |
+| `DATABASE_URL` | `postgresql://postgres:...@host.docker.internal:5432/l9_memory` |
 | `POSTGRES_USER` | `postgres` |
 | `POSTGRES_PASSWORD` | `***` |
 | `POSTGRES_DB` | `l9_memory` |
@@ -153,6 +157,8 @@
 | `L9_STAGE4_CONSOLIDATION` | `true` |
 | `L9_CONSOLIDATION_INTERVAL_HOURS` | `4` |
 | `L9_SKIP_STARTUP_CHECKS` | `false` |
+| `ENABLE_PIPELINE_ROUTER` | `false` |
+| `ENABLE_IMPORTANCE_RECIPE` | `false` |
 | `EMAIL_AGENT_ENABLED` | `false` |
 | `L9_EMAIL_MULTI_ACCOUNT` | `true` |
 | `MAC_AGENT_ENABLED` | `true` |
@@ -161,3 +167,5 @@
 | `WABA_ENABLED` | `false` |
 | `GEMINI_API_KEY` | `***` |
 | `PERPLEXITY_API_KEY` | `***` |
+| `IGOR_SLACK_USER_ID` | `your_slack_member_id` |
+| `L_CTO_GOVERNANCE_BYPASS` | `false` |

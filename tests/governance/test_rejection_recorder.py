@@ -18,9 +18,8 @@ ADR: 0013 (governance hierarchy), 0019 (structlog)
 
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Any
-from unittest.mock import MagicMock, Mock, patch
+from datetime import datetime, timezone
+from unittest.mock import Mock
 
 import pytest
 
@@ -51,7 +50,7 @@ def mock_memory_service() -> Mock:
 def test_record_rejection_writes_failure_artifact(mock_memory_service: Mock) -> None:
     """
     Contract: record_rejection stores FAILURE with DO_NOT_REPEAT rule.
-    
+
     Verifies:
     - memory_service.write called with kind='FAILURE'
     - content includes reason, context, rule
@@ -59,27 +58,27 @@ def test_record_rejection_writes_failure_artifact(mock_memory_service: Mock) -> 
     """
     reason = "test_failure"
     context = {"code": "print('hello')", "test": "test_example"}
-    
+
     record_rejection(
         memory_service=mock_memory_service,
         reason=reason,
         context=context,
     )
-    
+
     # Verify write was called
     mock_memory_service.write.assert_called_once()
-    
+
     # Extract call arguments
     call_args = mock_memory_service.write.call_args
     assert call_args.kwargs["kind"] == "FAILURE"
-    
+
     content = call_args.kwargs["content"]
     assert content["type"] == "FAILURE"
     assert content["reason"] == reason
     assert content["context"] == context
     assert content["rule"] == "DO_NOT_REPEAT"
     assert "recorded_at" in content
-    
+
     # Verify timestamp is ISO 8601
     timestamp = content["recorded_at"]
     datetime.fromisoformat(timestamp)  # Should not raise
@@ -90,7 +89,7 @@ def test_record_rejection_includes_repo_id_when_provided(
 ) -> None:
     """
     Contract: repo_id is included when provided.
-    
+
     Verifies:
     - repo_id scoping works
     """
@@ -100,7 +99,7 @@ def test_record_rejection_includes_repo_id_when_provided(
         context={},
         repo_id="L9",
     )
-    
+
     call_args = mock_memory_service.write.call_args
     content = call_args.kwargs["content"]
     assert content["repo_id"] == "L9"
@@ -111,7 +110,7 @@ def test_record_rejection_repo_id_none_by_default(
 ) -> None:
     """
     Contract: repo_id defaults to None.
-    
+
     Verifies:
     - repo_id is optional
     """
@@ -120,7 +119,7 @@ def test_record_rejection_repo_id_none_by_default(
         reason="test",
         context={},
     )
-    
+
     call_args = mock_memory_service.write.call_args
     content = call_args.kwargs["content"]
     assert content["repo_id"] is None
@@ -136,7 +135,7 @@ def test_record_rejection_handles_write_failure_gracefully(
 ) -> None:
     """
     Contract: Write failures are logged but don't crash.
-    
+
     Verifies:
     - Exception from memory_service.write is caught
     - Error message printed
@@ -144,14 +143,14 @@ def test_record_rejection_handles_write_failure_gracefully(
     """
     mock_service = Mock()
     mock_service.write = Mock(side_effect=Exception("Redis connection failed"))
-    
+
     # Should not raise
     record_rejection(
         memory_service=mock_service,
         reason="test",
         context={},
     )
-    
+
     # Verify error was printed
     captured = capfd.readouterr()
     assert "[RejectionRecorder] failed to record" in captured.out
@@ -168,7 +167,7 @@ def test_record_governance_violation_calls_record_rejection(
 ) -> None:
     """
     Contract: record_governance_violation wraps record_rejection correctly.
-    
+
     Verifies:
     - Formats reason as 'governance_violation:{type}'
     - Includes code, violation, detail in context
@@ -179,10 +178,10 @@ def test_record_governance_violation_calls_record_rejection(
         attempted_code="rm -rf /",
         reason="Attempted to modify protected file",
     )
-    
+
     call_args = mock_memory_service.write.call_args
     content = call_args.kwargs["content"]
-    
+
     assert content["reason"] == "governance_violation:protected_file_write"
     assert content["context"]["code"] == "rm -rf /"
     assert content["context"]["violation"] == "protected_file_write"
@@ -194,7 +193,7 @@ def test_record_governance_violation_with_repo_id(
 ) -> None:
     """
     Contract: record_governance_violation passes repo_id.
-    
+
     Verifies:
     - repo_id scoping works
     """
@@ -205,7 +204,7 @@ def test_record_governance_violation_with_repo_id(
         reason="Rate limit exceeded",
         repo_id="L9",
     )
-    
+
     call_args = mock_memory_service.write.call_args
     content = call_args.kwargs["content"]
     assert content["repo_id"] == "L9"
@@ -216,7 +215,7 @@ def test_record_governance_violation_with_none_code(
 ) -> None:
     """
     Contract: attempted_code can be None.
-    
+
     Verifies:
     - None code is stored correctly
     """
@@ -226,7 +225,7 @@ def test_record_governance_violation_with_none_code(
         attempted_code=None,
         reason="Detected credentials in logs",
     )
-    
+
     call_args = mock_memory_service.write.call_args
     content = call_args.kwargs["content"]
     assert content["context"]["code"] is None
@@ -242,7 +241,7 @@ def test_record_test_failure_calls_record_rejection(
 ) -> None:
     """
     Contract: record_test_failure wraps record_rejection correctly.
-    
+
     Verifies:
     - Reason is 'test_failure'
     - Includes test_name, test_output, solution_attempted in context
@@ -253,10 +252,10 @@ def test_record_test_failure_calls_record_rejection(
         test_output="AssertionError: expected True, got False",
         attempted_solution="def should_promote(): return False",
     )
-    
+
     call_args = mock_memory_service.write.call_args
     content = call_args.kwargs["content"]
-    
+
     assert content["reason"] == "test_failure"
     assert content["context"]["test_name"] == "test_promotion_rules"
     assert "AssertionError" in content["context"]["test_output"]
@@ -268,7 +267,7 @@ def test_record_test_failure_with_repo_id(
 ) -> None:
     """
     Contract: record_test_failure passes repo_id.
-    
+
     Verifies:
     - repo_id scoping works
     """
@@ -279,7 +278,7 @@ def test_record_test_failure_with_repo_id(
         attempted_solution=None,
         repo_id="L9",
     )
-    
+
     call_args = mock_memory_service.write.call_args
     content = call_args.kwargs["content"]
     assert content["repo_id"] == "L9"
@@ -290,7 +289,7 @@ def test_record_test_failure_with_none_solution(
 ) -> None:
     """
     Contract: attempted_solution can be None.
-    
+
     Verifies:
     - None solution is stored correctly
     """
@@ -300,7 +299,7 @@ def test_record_test_failure_with_none_solution(
         test_output="FAILED",
         attempted_solution=None,
     )
-    
+
     call_args = mock_memory_service.write.call_args
     content = call_args.kwargs["content"]
     assert content["context"]["solution_attempted"] is None
@@ -316,7 +315,7 @@ def test_multiple_rejections_are_independent(
 ) -> None:
     """
     Contract: Multiple rejections can be recorded independently.
-    
+
     Verifies:
     - Each call is independent
     - No state pollution
@@ -326,15 +325,15 @@ def test_multiple_rejections_are_independent(
         reason="first",
         context={"id": 1},
     )
-    
+
     record_rejection(
         memory_service=mock_memory_service,
         reason="second",
         context={"id": 2},
     )
-    
+
     assert mock_memory_service.write.call_count == 2
-    
+
     # Verify each call had different content
     calls = mock_memory_service.write.call_args_list
     assert calls[0].kwargs["content"]["reason"] == "first"

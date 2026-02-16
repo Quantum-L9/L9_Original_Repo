@@ -62,14 +62,16 @@ MINIMUM_EMBEDDABLE_LENGTH: int = 10
 # Skip Patterns (GMP-42: Filter low-value content from semantic index)
 # ============================================================================
 
-SKIP_EMBEDDING_PATTERNS: frozenset[str] = frozenset({
-    "Sorry, I encountered a temporary error. Please try again.",
-    "Sorry, I encountered an error processing your command.",
-    "No response generated.",
-    "This message has already been processed.",
-    "L9 agent executor not available. Please try again later.",
-    "Mac agent is not available on this server.",
-})
+SKIP_EMBEDDING_PATTERNS: frozenset[str] = frozenset(
+    {
+        "Sorry, I encountered a temporary error. Please try again.",
+        "Sorry, I encountered an error processing your command.",
+        "No response generated.",
+        "This message has already been processed.",
+        "L9 agent executor not available. Please try again later.",
+        "Mac agent is not available on this server.",
+    }
+)
 
 SKIP_EMBEDDING_PREFIXES: tuple[str, ...] = (
     "Sorry, I encountered",

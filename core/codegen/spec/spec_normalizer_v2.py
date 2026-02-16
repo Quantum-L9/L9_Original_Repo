@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 L9 Spec Normalizer v2.0.0
 =========================
@@ -43,8 +45,6 @@ __dora_meta__ = {
     },
 }
 # ============================================================================
-
-from __future__ import annotations
 
 import json
 import re
@@ -183,9 +183,7 @@ class NormalizedSpec:
     memory_substrates: tuple[str, ...] = field(default_factory=tuple)
 
     # Metadata
-    normalized_at: str = field(
-        default_factory=lambda: datetime.now(UTC).isoformat()
-    )
+    normalized_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     normalized_from: str = "unknown"  # 'yaml', 'json', 'dict'
 
     def to_dict(self) -> dict[str, Any]:

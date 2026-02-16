@@ -13,6 +13,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.kernels.kernelloader import KERNEL_ORDER, load_kernels, reload_kernels
 
 # =============================================================================
@@ -190,6 +191,7 @@ class TestKernelEvolutionLogging:
     """Tests for kernel evolution logging."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_log_kernel_evolution_creates_event(self):
         """log_kernel_evolution() creates an evolution event."""
         from core.memory.runtime import log_kernel_evolution
@@ -230,6 +232,7 @@ class TestKernelEvolutionLogging:
         assert event_id is not None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_log_kernel_evolution_handles_substrate_unavailable(self):
         """log_kernel_evolution() handles unavailable substrate gracefully."""
         from core.memory.runtime import log_kernel_evolution
@@ -273,6 +276,7 @@ class TestKernelReloadEndpoint:
     """Tests for /kernels/reload API endpoint."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_endpoint_requires_api_key(self):
         """/kernels/reload requires API key authentication."""
         # Import from the correct location
@@ -300,6 +304,7 @@ class TestKernelReloadEndpoint:
         assert response.kernels_reloaded == 10
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_endpoint_response_structure(self):
         """/kernels/reload returns correct response structure."""
         import sys

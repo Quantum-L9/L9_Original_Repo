@@ -91,6 +91,7 @@ class RetentionResult:
     checkpoints_deleted: int
     checkpoints_after: int
     policy_applied: RetentionPolicy
+    checkpoints_soft_expired: int = 0
     executed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     error: str | None = None
 
@@ -155,6 +156,7 @@ class RetentionEngine:
         self._refcount_service = refcount_service
         logger.info("Retention refcount service updated")
 
+    @must_stay_async("callers use await")
     async def run_cleanup(self, agent_id: str) -> RetentionResult:
         """
         Run retention cleanup for a specific agent.
@@ -219,6 +221,7 @@ class RetentionEngine:
                 checkpoints_deleted=deleted_count,
                 checkpoints_after=checkpoints_after,
                 policy_applied=self._policy,
+                checkpoints_soft_expired=soft_expired_count,
             )
 
             logger.info(
@@ -248,6 +251,7 @@ class RetentionEngine:
                 error=str(e),
             )
 
+    @must_stay_async("callers use await")
     async def _run_refcount_aware_cleanup(
         self,
         agent_id: str,
@@ -281,6 +285,8 @@ class RetentionEngine:
             )
 
             try:
+                if self._refcount_service is None or self._persistence is None:
+                    break
                 is_safe = await self._refcount_service.is_safe_to_delete(checkpoint_id)
 
                 if is_safe:

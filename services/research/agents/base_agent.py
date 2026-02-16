@@ -32,7 +32,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from abc import ABC, abstractmethod  # noqa: ADR-0026 - shared impl: __init__, call_llm, call_llm_json
+from abc import (  # noqa: ADR-0026 - shared impl: __init__, call_llm, call_llm_json
+    ABC,
+    abstractmethod,
+)
 from typing import Any
 
 import structlog
@@ -82,6 +85,7 @@ class BaseAgent(ABC):
 
         logger.info(f"Initialized {self.__class__.__name__} with model={self.model}")
 
+    @must_stay_async("callers use await")
     async def call_llm(
         self,
         messages: list[dict[str, str]],

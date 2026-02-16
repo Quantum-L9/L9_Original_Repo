@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pytest
 
+from core.decorators import must_stay_async
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -36,6 +38,7 @@ class DummyCaller:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_cursor_cannot_write_l_private(monkeypatch) -> None:
     async def _noop_execute(*_args, **_kwargs):
         return None

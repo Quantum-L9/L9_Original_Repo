@@ -1,0 +1,431 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Dora.Meta"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-18T01:12:45Z"
+# updated_at: "2026-01-18T03:36:29Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "dora.meta"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# component_name: "Dora.Meta"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-18T01:12:45Z"
+# updated_at: "2026-01-18T01:12:45Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "dora.meta"
+# type: "utility"
+# status: "active"
+
+# Source of truth for DORA block generation across all file types
+# Reference: .dora/dora-contract.yaml
+#
+# THREE DISTINCT BLOCKS:
+#   1. HEADER META (TOP) - Module identity, governance (14 mandatory fields)
+#   2. FOOTER META (BOTTOM) - Extended metadata (header references this)
+#   3. DORA BLOCK (VERY END) - L9_TRACE_TEMPLATE (runtime trace, auto-updates)
+
+version: "1.1.0"
+schema: "dora-contract.yaml"
+
+# ============================================================================
+# HEADER META TEMPLATE
+# ============================================================================
+header_meta:
+  # --- MANDATORY FIELDS (14 total) ---
+
+  component_id:
+    description: "Unique identifier for this component"
+    format: "{LAYER}-{ABBREV}-{NUM}"
+    pattern: "[A-Z]{3}-[A-Z]{3,4}-\\d{3}"
+    examples:
+      - "SYM-CORE-001"
+      - "API-RT-002"
+      - "MEM-STORE-003"
+    required: true
+    auto_generate: true
+    generator: "layer_domain_counter"
+
+  component_name:
+    description: "Human-readable name of the component"
+    format: "Title Case, 2-5 words"
+    examples:
+      - "SymPy Expression Evaluator"
+      - "API Route Handler"
+      - "Memory Cache Manager"
+    required: true
+    auto_generate: true
+    generator: "filename_to_title"
+
+  module_version:
+    description: "Semantic version of the module"
+    format: "MAJOR.MINOR.PATCH"
+    default: "1.0.0"
+    required: true
+
+  created_at:
+    description: "ISO8601 timestamp when file was generated"
+    format: "YYYY-MM-DDTHH:MM:SSZ"
+    required: true
+    auto_generate: true
+    generator: "utc_timestamp"
+
+  created_by:
+    description: "System or user that created this file"
+    default: "L9_Codegen_Engine"
+    required: true
+
+  layer:
+    description: "Architectural layer this component belongs to"
+    enum:
+      - foundation
+      - intelligence
+      - operations
+      - learning
+      - security
+    required: true
+    auto_generate: true
+    generator: "infer_from_path"
+    mapping:
+      core: foundation
+      agents: intelligence
+      api: operations
+      memory: learning
+      runtime: operations
+      services: operations
+      orchestration: intelligence
+      orchestrators: intelligence
+      world_model: learning
+      governance: security
+      config: foundation
+
+  domain:
+    description: "Domain or subsystem this component serves"
+    examples:
+      - symbolic_computation
+      - governance
+      - memory_substrate
+      - agent_execution
+      - tool_registry
+    required: true
+    auto_generate: true
+    generator: "infer_from_path"
+
+  type:
+    description: "Type of component"
+    enum:
+      - service
+      - collector
+      - tracker
+      - engine
+      - utility
+      - adapter
+      - schema
+      - config
+    required: true
+    auto_generate: true
+    generator: "infer_from_filename"
+    patterns:
+      service: ["service", "client", "adapter"]
+      engine: ["engine", "executor", "processor"]
+      collector: ["collector", "extractor", "loader"]
+      tracker: ["tracker", "monitor", "observer"]
+      schema: ["schema", "model", "config"]
+
+  status:
+    description: "Current status of the component"
+    enum:
+      - active
+      - deprecated
+      - experimental
+      - maintenance
+    default: "active"
+    required: true
+
+  governance_level:
+    description: "Governance strictness level"
+    enum:
+      - critical
+      - high
+      - medium
+      - low
+    required: true
+    auto_generate: true
+    generator: "infer_from_domain_layer"
+    rules:
+      critical_domains:
+        - governance
+        - memory_substrate
+        - agent_execution
+        - security
+        - kernel
+      critical_layers:
+        - security
+        - foundation
+
+  compliance_required:
+    description: "Whether compliance auditing is required"
+    type: boolean
+    default: true
+    required: true
+
+  audit_trail:
+    description: "Whether all operations must be logged"
+    type: boolean
+    default: true
+    required: true
+
+  purpose:
+    description: "One-sentence business purpose"
+    format: "Single sentence, 10-100 characters"
+    required: true
+    auto_generate: true
+    generator: "generate_from_context"
+
+  dependencies:
+    description: "List of internal dependencies"
+    type: array
+    required: true
+    auto_generate: true
+    generator: "extract_from_imports"
+
+# ============================================================================
+# FOOTER META TEMPLATE
+# ============================================================================
+footer_meta:
+  component_id:
+    description: "Must match header component_id"
+    required: true
+    source: "header_meta.component_id"
+
+  security_classification:
+    description: "Data security classification"
+    enum:
+      - internal
+      - confidential
+      - restricted
+      - public
+    default: "internal"
+
+  execution_mode:
+    description: "How this component executes"
+    enum:
+      - realtime
+      - scheduled
+      - on-demand
+      - streaming
+    default: "on-demand"
+
+  timeout_seconds:
+    description: "Timeout in seconds for operations"
+    type: integer
+    default: 30
+
+  performance_tier:
+    description: "Performance characteristics"
+    enum:
+      - realtime
+      - batch
+      - background
+    default: "batch"
+
+  last_modified:
+    description: "ISO8601 timestamp of last modification"
+    required: true
+    auto_generate: true
+
+  modified_by:
+    description: "Who/what last modified this file"
+    required: true
+    auto_generate: true
+
+  change_summary:
+    description: "Brief description of last change"
+    default: "Initial generation"
+
+dora_block:
+  # This is the ACTUAL "DORA Block" - runtime execution trace
+  # 100% machine-managed - auto-updates on EVERY execution
+  # NEVER edited by humans
+
+  variable_names:
+    python: "__l9_trace__"
+    yaml: "l9_trace"
+    json: "_l9_trace"
+
+  location: "VERY END of file - after ALL code and footer meta"
+  updates: "100% machine-managed - auto-updates on EVERY execution"
+  human_editable: false
+
+  fields:
+    trace_id:
+      description: "Unique execution trace ID"
+      type: string
+      auto_generate: true
+
+    task:
+      description: "What task/operation was performed"
+      type: string
+      auto_generate: true
+
+    timestamp:
+      description: "ISO8601 timestamp of last execution"
+      type: string
+      format: "YYYY-MM-DDTHH:MM:SSZ"
+      auto_generate: true
+
+    patterns_used:
+      description: "List of patterns/strategies invoked"
+      type: array
+      auto_generate: true
+
+    graph:
+      description: "Execution graph state"
+      type: object
+      properties:
+        nodes:
+          type: array
+          default: []
+        edges:
+          type: array
+          default: []
+      auto_generate: true
+
+    inputs:
+      description: "Runtime inputs to this execution"
+      type: object
+      auto_generate: true
+
+    outputs:
+      description: "Runtime outputs from this execution"
+      type: object
+      auto_generate: true
+
+    metrics:
+      description: "Execution quality metrics"
+      type: object
+      properties:
+        confidence:
+          type: string
+          default: ""
+        errors_detected:
+          type: array
+          default: []
+        stability_score:
+          type: string
+          default: ""
+      auto_generate: true
+
+# ============================================================================
+# FILE TYPE FORMATS
+# ============================================================================
+formats:
+  python:
+    header_var: "__dora_meta__"
+    footer_var: "__dora_footer__"
+    trace_var: "__l9_trace__"
+    comment_start: "# "
+    block_delimiter: "# ============================================================================"
+
+  yaml:
+    header_key: "dora_meta"
+    footer_key: "dora_footer"
+    trace_key: "l9_trace"
+    comment_start: "# "
+    block_delimiter: "# ============================================================================"
+
+  json:
+    header_key: "_dora_meta"
+    footer_key: "_dora_footer"
+    trace_key: "_l9_trace"
+    # JSON uses object structure, no comments
+
+  markdown:
+    header_section: "## DORA HEADER META"
+    footer_section: "## DORA FOOTER META"
+    trace_section: "## L9 DORA BLOCK"
+    format: "table"
+
+# ============================================================================
+# VALIDATION RULES
+# ============================================================================
+validation:
+  mandatory_field_count: 14
+  component_id_pattern: "[A-Z]{3}-[A-Z]{3,4}-\\d{3}"
+  semver_pattern: "\\d+\\.\\d+\\.\\d+"
+  iso8601_pattern: "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"
+
+  rules:
+    - name: "presence"
+      check: "All three blocks must be present"
+      enforcement: "CRITICAL"
+
+    - name: "field_coverage"
+      check: "All 14 mandatory header fields must be present"
+      enforcement: "CRITICAL"
+
+    - name: "no_placeholders"
+      check: "No empty strings, null, TODO, or FILL_IN values"
+      enforcement: "CRITICAL"
+
+    - name: "unique_component_id"
+      check: "component_id must be globally unique"
+      enforcement: "CRITICAL"
+
+    - name: "valid_enums"
+      check: "Enum fields must use allowed values"
+      enforcement: "CRITICAL"
+
+    - name: "governance_compliance"
+      check: "Critical domains must have high/critical governance_level"
+      enforcement: "CRITICAL"
+
+# ============================================================================
+# INJECTION POINTS
+# ============================================================================
+injection:
+  header:
+    location: "TOP of file"
+    after:
+      - shebang
+      - encoding declaration
+      - module docstring
+    before: "all code"
+
+  footer:
+    location: "BOTTOM of file"
+    after: "all code"
+    before: "dora_block"
+
+  dora_block:
+    location: "VERY END of file"
+    after: "footer_meta"
+    before: "nothing (EOF)"
+
+# ============================================================================
+# RUNTIME HOOKS
+# ============================================================================
+runtime:
+  decorator: "runtime.dora.l9_traced"
+  data_model: "runtime.dora.DoraTraceBlock"
+  file_updater: "runtime.dora.update_dora_block_in_file"
+  executor_hook: "runtime.dora.emit_executor_trace"
+
+# ============================================================================
+# END DORA META TEMPLATE
+# ============================================================================
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "code-generation", "configuration", "foundation", "kernel", "model-config", "schema"]
+# keywords: ["dora.meta", "dora_block", "footer_meta", "formats", "header_meta", "injection"]
+# last_modified: "2026-01-18T03:36:29Z"
+# ============================================================================

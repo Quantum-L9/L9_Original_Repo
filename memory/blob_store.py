@@ -22,6 +22,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Blob Store",
@@ -143,6 +145,7 @@ class BlobStore:
             content = content.encode("utf-8")
         return len(content) > self.threshold_bytes
 
+    @must_stay_async("callers use await")
     async def store(
         self,
         content: str | bytes,
@@ -226,6 +229,7 @@ class BlobStore:
             )
             raise RuntimeError(f"Failed to store blob: {e}") from e
 
+    @must_stay_async("callers use await")
     async def retrieve(self, blob_id: str) -> bytes | None:
         """
         Retrieve content from S3 blob storage.
@@ -332,6 +336,7 @@ class BlobStore:
 
         return url
 
+    @must_stay_async("callers use await")
     async def delete(self, blob_id: str) -> bool:
         """
         Delete a blob from S3.
@@ -360,6 +365,7 @@ class BlobStore:
             )
             raise
 
+    @must_stay_async("callers use await")
     async def exists(self, blob_id: str) -> bool:
         """Check if a blob exists in S3."""
         s3_key = self._get_s3_key(blob_id)

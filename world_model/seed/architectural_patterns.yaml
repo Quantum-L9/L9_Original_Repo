@@ -17,7 +17,7 @@ patterns:
   # =========================================================================
   # Core Runtime Patterns
   # =========================================================================
-  
+
   - id: packet_envelope
     name: "PacketEnvelope Audit Trail"
     category: "observability"

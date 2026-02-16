@@ -17,7 +17,12 @@ Exit codes:
 
 from __future__ import annotations
 
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Check Imports",
     "module_version": "1.0.0",
@@ -605,15 +610,15 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.list:
-        print("Available patterns:\n")
-        print("CRITICAL (always checked):")
+        logger.info("available patterns:\n")
+        logger.info("critical (always checked):")
         for p in sorted(CRITICAL_PATTERNS):
             _, fix = STDLIB_PATTERNS[p]
-            print(f"  {p:20} -> {fix}")
-        print(f"\nEXTENDED (--all flag, {len(EXTENDED_PATTERNS)} patterns):")
+            logger.info("  p -> fix", p=p, fix=fix)
+        logger.info("\nextended (--all flag, {len(extended_patterns)} patterns):")
         for p in sorted(EXTENDED_PATTERNS):
             _, fix = STDLIB_PATTERNS[p]
-            print(f"  {p:20} -> {fix}")
+            logger.info("  p -> fix", p=p, fix=fix)
         return 0
 
     patterns = CRITICAL_PATTERNS if not args.all else set(STDLIB_PATTERNS.keys())
@@ -635,7 +640,7 @@ def main() -> int:
             all_issues.append((filepath, module_name, fix, attrs))
 
     if all_issues:
-        print(f"❌ Missing imports found ({len(all_issues)}):\n")
+        logger.info("❌ missing imports found ({len(all_issues)}):\n")
         for filepath, module_name, fix, attrs in all_issues:
             rel = (
                 filepath.relative_to(L9_ROOT)
@@ -645,9 +650,13 @@ def main() -> int:
             attrs_str = ", ".join(sorted(attrs)[:3])
             if len(attrs) > 3:
                 attrs_str += f", ... ({len(attrs)} total)"
-            print(f"  {rel}")
-            print(f"    Uses: {module_name}.{{{attrs_str}}}")
-            print(f"    Fix:  {fix}\n")
+            logger.info("  rel", rel=rel)
+            logger.info(
+                "    uses: module name.{{attrs str}}",
+                module_name=module_name,
+                attrs_str=attrs_str,
+            )
+            logger.info("    fix:  fix\n", fix=fix)
 
         return 1
 

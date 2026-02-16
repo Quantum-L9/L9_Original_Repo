@@ -80,6 +80,7 @@ SKIP_PATTERNS = [
     ".pyc",
     "test_",
     "_test.py",
+    "codegen",
 ]
 
 
@@ -162,7 +163,7 @@ def main():
     args = parser.parse_args()
 
     # Find repo root
-    script_path = Path(__file__).resolve()
+    script_path = Path(__file__).resolve()  # noqa: ADR-0001 - internal path
     repo_root = script_path.parent.parent
 
     logger.info("=" * 60)

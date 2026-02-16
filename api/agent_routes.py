@@ -150,6 +150,7 @@ async def agent_status():
 
 
 @router.post("/task")
+@must_stay_async("callers use await")
 async def submit_task(
     payload: dict,
     _: bool = Depends(verify_api_key),
@@ -193,6 +194,7 @@ async def submit_task(
 
 
 @router.post("/execute", response_model=ExecuteTaskResponse)
+@must_stay_async("callers use await")
 async def execute_task(
     request: Request,
     body: ExecuteTaskRequest,
@@ -209,7 +211,7 @@ async def execute_task(
 
     Multi-part directive support (harvested from tokenizer):
     - If segment_multi_part=True (default), compound directives like
-      "Deploy RIL, test ToT, sync Supabase" are automatically segmented
+      "Deploy RIL, test ToT, sync embeddings" are automatically segmented
       and processed as separate tasks.
 
     For long-running tasks, consider using /task for async submission.
@@ -220,7 +222,7 @@ async def execute_task(
         POST /agent/execute
         Authorization: Bearer {L9_EXECUTOR_API_KEY}
         {
-            "message": "Deploy RIL, test ToT, sync Supabase",
+            "message": "Deploy RIL, test ToT, sync embeddings",
             "agent_id": "l9-standard-v1",
             "segment_multi_part": true
         }
@@ -426,6 +428,7 @@ class SegmentPreviewResponse(BaseModel):
 
 
 @router.post("/segment", response_model=SegmentPreviewResponse)
+@must_stay_async("callers use await")
 async def segment_preview(
     body: SegmentPreviewRequest,
 ) -> SegmentPreviewResponse:
@@ -436,10 +439,10 @@ async def segment_preview(
 
     Example:
         POST /agent/segment
-        {"message": "Deploy RIL, test ToT, sync Supabase"}
+        {"message": "Deploy RIL, test ToT, sync embeddings"}
 
     Returns:
-        {"segments": ["deploy ril", "test tot", "sync supabase"], "segment_count": 3, ...}
+        {"segments": ["deploy ril", "test tot", "sync embeddings"], "segment_count": 3, ...}
     """
     segmenter = get_segmenter()
     result = segmenter.segment(body.message)

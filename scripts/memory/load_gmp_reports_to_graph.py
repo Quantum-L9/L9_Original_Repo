@@ -21,6 +21,8 @@ Created: 2026-01-06
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Load Gmp Reports To Graph",
@@ -45,7 +47,7 @@ __dora_meta__ = {
 import asyncio
 import os
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -156,7 +158,7 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
 
     if "executed" not in result:
         # Use file modification time
-        mtime = datetime.fromtimestamp(file_path.stat().st_mtime)
+        mtime = datetime.fromtimestamp(file_path.stat().st_mtime, tz=UTC)
         result["executed"] = mtime.strftime("%Y-%m-%d")
 
     # Extract risk level
@@ -210,7 +212,7 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
     return result
 
 
-async def create_gmp_nodes(driver: "AsyncDriver", reports: list[dict]) -> dict:
+async def create_gmp_nodes(driver: AsyncDriver, reports: list[dict]) -> dict:
     """Create GMP nodes in Neo4j.
 
     Returns dict with creation statistics.
@@ -272,7 +274,7 @@ async def create_gmp_nodes(driver: "AsyncDriver", reports: list[dict]) -> dict:
     return stats
 
 
-async def create_gmp_schema(driver: "AsyncDriver") -> int:
+async def create_gmp_schema(driver: AsyncDriver) -> int:
     """Create GMP-related constraints and indexes.
 
     Returns number of constraints created.
@@ -299,7 +301,8 @@ async def create_gmp_schema(driver: "AsyncDriver") -> int:
     return created
 
 
-async def load_gmp_reports(driver: "AsyncDriver") -> dict:
+@must_stay_async("callers use await")
+async def load_gmp_reports(driver: AsyncDriver) -> dict:
     """Load all GMP reports from reports/ directory into Neo4j.
 
     Returns dict with statistics.

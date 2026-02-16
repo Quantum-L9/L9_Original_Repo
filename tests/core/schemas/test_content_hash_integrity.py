@@ -14,7 +14,7 @@ Verifies:
 
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
@@ -31,7 +31,7 @@ class TestContentHashComputation:
         packet = PacketEnvelope(
             packet_type="test",
             payload={"key": "value", "nested": {"a": 1}},
-            timestamp=datetime(2024, 1, 1, 12, 0, 0),
+            timestamp=datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC),
         )
 
         hash1 = packet.compute_content_hash()
@@ -42,7 +42,7 @@ class TestContentHashComputation:
 
     def test_different_payloads_different_hashes(self):
         """Different payloads produce different hashes."""
-        timestamp = datetime(2024, 1, 1, 12, 0, 0)
+        timestamp = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
 
         packet1 = PacketEnvelope(
             packet_type="test",
@@ -62,7 +62,7 @@ class TestContentHashComputation:
 
     def test_different_metadata_different_hashes(self):
         """Different metadata produces different hashes."""
-        timestamp = datetime(2024, 1, 1, 12, 0, 0)
+        timestamp = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
         payload = {"data": "value"}
 
         packet1 = PacketEnvelope(
@@ -90,12 +90,12 @@ class TestContentHashComputation:
         packet1 = PacketEnvelope(
             packet_type="test",
             payload=payload,
-            timestamp=datetime(2024, 1, 1, 12, 0, 0),
+            timestamp=datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC),
         )
         packet2 = PacketEnvelope(
             packet_type="test",
             payload=payload,
-            timestamp=datetime(2024, 1, 1, 12, 0, 1),  # 1 second later
+            timestamp=datetime(2024, 1, 1, 12, 0, 1, tzinfo=UTC),  # 1 second later
         )
 
         hash1 = packet1.compute_content_hash()
@@ -140,7 +140,7 @@ class TestWithContentHash:
         packet = PacketEnvelope(
             packet_type="test",
             payload={"data": "value"},
-            timestamp=datetime(2024, 1, 1, 12, 0, 0),
+            timestamp=datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC),
         )
 
         hashed = packet.with_content_hash()
@@ -160,7 +160,7 @@ class TestVerifyIntegrity:
         packet = PacketEnvelope(
             packet_type="test",
             payload={"data": "value"},
-            timestamp=datetime(2024, 1, 1, 12, 0, 0),
+            timestamp=datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC),
         )
 
         hashed = packet.with_content_hash()
@@ -197,7 +197,7 @@ class TestUpcastingWithContentHash:
             "packet_id": str(uuid4()),
             "packet_type": "event",
             "payload": {"data": "test"},
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         result = upcast(raw, "2.0.0")
@@ -211,7 +211,7 @@ class TestUpcastingWithContentHash:
         raw = {
             "packet_type": "event",
             "payload": {"data": "test"},
-            "timestamp": datetime(2024, 1, 1, 12, 0, 0).isoformat(),
+            "timestamp": datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC).isoformat(),
         }
 
         result = upcast(raw, "2.0.0")
@@ -248,7 +248,7 @@ class TestHashAlgorithmProperties:
     def test_hash_is_collision_resistant(self):
         """Different similar payloads produce different hashes (no collisions)."""
         hashes = set()
-        timestamp = datetime(2024, 1, 1, 12, 0, 0)
+        timestamp = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
 
         for i in range(100):
             packet = PacketEnvelope(

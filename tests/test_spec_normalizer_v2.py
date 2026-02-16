@@ -13,7 +13,6 @@ Tests:
 
 import json
 import tempfile
-from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -24,6 +23,7 @@ from core.codegen.spec import (
     SpecParseError,
     SpecValidationError,
 )
+from core.decorators import must_stay_async
 
 # =============================================================================
 # FIXTURES
@@ -85,6 +85,7 @@ def minimal_spec_dict():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_parse_valid_yaml(normalizer, valid_spec_dict):
     """Test parsing valid YAML spec"""
     yaml_content = """

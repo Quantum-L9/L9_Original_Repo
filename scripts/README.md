@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Automation and utility scripts
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -90,14 +90,14 @@ scripts/
 ├── audit/inject_dora_complete.py
 ├── audit/inject_dora_multiformat_complete.py
 ├── audit/migrate_dora_legacy.py
-└── ... (65 more files)
+└── ... (78 more files)
 ```
 
-| File                     | Purpose                              |
-| ------------------------ | ------------------------------------ |
-| `generate_gmp_report.py` | A single TODO item from Phase 0.     |
+| File | Purpose |
+|------|---------|
+| `generate_gmp_report.py` | A single TODO item from Phase 0. |
 | `generate_gmp_report.py` | A change made during implementation. |
-| `generate_gmp_report.py` | A validation gate result.            |
+| `generate_gmp_report.py` | A validation gate result. |
 
 ### Naming Conventions
 
@@ -120,7 +120,7 @@ class TodoItem:
 
 ```
 
-**Lines:** 60-68 in `generate_gmp_report.py`
+**Lines:** 85-93 in `generate_gmp_report.py`
 
 ### `generate_gmp_report.py` — ChangeItem
 
@@ -132,7 +132,7 @@ class ChangeItem:
 
 ```
 
-**Lines:** 72-78 in `generate_gmp_report.py`
+**Lines:** 97-103 in `generate_gmp_report.py`
 
 ### `generate_gmp_report.py` — ValidationResult
 
@@ -144,7 +144,7 @@ class ValidationResult:
 
 ```
 
-**Lines:** 82-87 in `generate_gmp_report.py`
+**Lines:** 107-112 in `generate_gmp_report.py`
 
 ### `generate_gmp_report.py` — PhaseStatus
 
@@ -156,7 +156,7 @@ class PhaseStatus:
 
 ```
 
-**Lines:** 91-96 in `generate_gmp_report.py`
+**Lines:** 116-121 in `generate_gmp_report.py`
 
 ### `generate_gmp_report.py` — GMPReportData
 
@@ -168,7 +168,8 @@ class GMPReportData:
 
 ```
 
-**Lines:** 100-117 in `generate_gmp_report.py`
+**Lines:** 125-142 in `generate_gmp_report.py`
+
 
 ---
 
@@ -179,12 +180,27 @@ The following data models define the contracts for this subsystem:
 - **`ParameterSchema`** — Parameter schema for MCP.
 - **`MCPSchema`** — MCP tool schema.
 
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `REPO_ROOT` | `Path(os.getenv('L9_REPO_ROOT', '/Users/i...` | 70 |
+| `REPORTS_DIR` | `REPO_ROOT / 'reports' / 'GMP Reports'` | 71 |
+| `WORKFLOW_STATE_PATH` | `REPO_ROOT / 'workflow_state.md'` | 72 |
+| `VALID_TIERS` | `['KERNEL_TIER', 'RUNTIME_TIER', 'INFRA_T...` | 74 |
+| `VALID_ACTIONS` | `['CREATE', 'INSERT', 'REPLACE', 'DELETE'...` | 75 |
+| `VALID_STATUSES` | `['✅ COMPLETE', '⚠️ PARTIAL', '❌ FAILED']` | 76 |
+| `SKIP_DIRS` | `{'tests', 'current_work', 'codegen', 'ig...` | 48 |
+| `REASON_MAP` | `{'FastAPI/ASGI route handler requires as...` | 61 |
+
+*...and 132 more constants*
+
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class ScriptsRequest(BaseModel):
     """Request model for scripts operations."""
@@ -242,9 +258,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Scripts feature flags
-L9_ENABLE_SCRIPTS_TRACING: true # Enable detailed tracing
-L9_ENABLE_SCRIPTS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_SCRIPTS_AUDIT: true # Enable audit logging
+L9_ENABLE_SCRIPTS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_SCRIPTS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_SCRIPTS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -271,40 +287,46 @@ SCRIPTS_ENABLED=true
 
 ### Public Functions
 
-#### `def parse_todo(s)`
+#### `def parse_todo(s) -> TodoItem`
 
 Parse a TODO string: 'T1|file|lines|action|description'.
 
-- **File:** `generate_gmp_report.py:398`
+- **File:** `generate_gmp_report.py:432`
 - **Async:** No
+- **Returns:** `TodoItem`
 
-#### `def parse_change(s)`
+#### `def parse_change(s) -> ChangeItem`
 
 Parse a CHANGE string: 'file|lines|action|description'.
 
-- **File:** `generate_gmp_report.py:415`
+- **File:** `generate_gmp_report.py:449`
 - **Async:** No
+- **Returns:** `ChangeItem`
 
-#### `def parse_validation(s)`
+#### `def parse_validation(s) -> ValidationResult`
 
 Parse a VALIDATION string: 'gate|result' or 'gate|result|details'.
 
-- **File:** `generate_gmp_report.py:430`
+- **File:** `generate_gmp_report.py:464`
 - **Async:** No
+- **Returns:** `ValidationResult`
 
-#### `def interactive_mode()`
+#### `def interactive_mode() -> GMPReportData`
 
 Interactive mode to collect GMP data.
 
-- **File:** `generate_gmp_report.py:442`
+- **File:** `generate_gmp_report.py:476`
 - **Async:** No
+- **Returns:** `GMPReportData`
 
-#### `def from_json_file(path)`
+#### `def from_json_file(path) -> GMPReportData`
 
 Load GMP data from a JSON file.
 
-- **File:** `generate_gmp_report.py:518`
+- **File:** `generate_gmp_report.py:552`
 - **Async:** No
+- **Returns:** `GMPReportData`
+
 
 ### Usage Example
 
@@ -335,7 +357,7 @@ Scripts operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "scripts",
   "message": "Operation completed",
@@ -346,7 +368,6 @@ Scripts operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -354,12 +375,12 @@ Scripts operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                          | Type      | Description                    |
-| ------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `scripts_operation_duration_ms` | Histogram | Operation latency distribution |
-| `scripts_operation_total`       | Counter   | Total operations processed     |
-| `scripts_error_total`           | Counter   | Total errors encountered       |
-| `scripts_active_connections`    | Gauge     | Current active connections     |
+| `scripts_operation_total` | Counter | Total operations processed |
+| `scripts_error_total` | Counter | Total errors encountered |
+| `scripts_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -377,7 +398,6 @@ Scripts emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/scripts/`:
-
 - `test_scripts.py` — Core unit tests
 - `test_scripts_integration.py` — Integration tests (if applicable)
 
@@ -421,7 +441,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -15,13 +15,33 @@ Usage:
     batch_size = await batcher.get_optimal_batch_size()
 """
 
-import asyncio
+__dora_meta__ = {
+    "component_name": "Adaptive Batching",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.996180+00:00",
+    "updated_at": "2026-02-13T23:37:34.996180+00:00",
+    "layer": "core",
+    "domain": "memory",
+    "module_name": "memory.consolidation.adaptive_batching",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
+
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 import psutil
 import structlog
+
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -124,6 +144,7 @@ class AdaptiveBatcher:
             f"default={default_batch}"
         )
 
+    @must_stay_async("callers use await")
     async def get_system_metrics(self, db_pool=None) -> SystemMetrics:
         """
         Collect current system resource metrics.
@@ -197,10 +218,7 @@ class AdaptiveBatcher:
         metrics = await self.get_system_metrics(db_pool)
 
         # Check if we should adjust (respect cooldown)
-        if (
-            datetime.now(tz=UTC) - self.last_adjustment
-            < self.adjustment_cooldown
-        ):
+        if datetime.now(tz=UTC) - self.last_adjustment < self.adjustment_cooldown:
             return self.current_batch
 
         # If resources are constrained, reduce batch size
@@ -241,6 +259,7 @@ class AdaptiveBatcher:
 
         return self.current_batch
 
+    @must_stay_async("callers use await")
     async def record_batch_result(
         self, batch_size: int, duration_ms: float, success: bool
     ) -> None:

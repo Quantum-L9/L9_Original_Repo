@@ -38,6 +38,7 @@ from uuid import uuid4
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelopeIn
 from memory.ingestion import ingest_packet
 from memory.substrate_service import get_service
@@ -45,6 +46,7 @@ from memory.substrate_service import get_service
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def smoke_test() -> dict[str, any]:
     """
     Run smoke test to verify memory system.

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -78,21 +78,21 @@ DAG-based workflow execution engine with session management
 ```
 workflows/
 ├── __init__.py
-├── harvest_deploy.py
-├── nodes/__init__.py
-├── nodes/checkpoint.py
-├── nodes/deploy.py
-├── nodes/extract.py
-├── nodes/inject.py
-├── nodes/report.py
-├── nodes/validate.py
-├── runner.py
-├── session/__init__.py
-├── session/dags/__init__.py
-├── session/dags/harvest_deploy_dag.py
-├── session/dags/readme_pipeline_dag.py
-├── session/dags/refactoring_dag.py
-└── ... (3 more files)
+├── dags/__init__.py
+├── dags/component_audit_dag.py
+├── dags/confirm_wiring_dag.py
+├── dags/dag_authoring_dag.py
+├── dags/gmp/__init__.py
+├── dags/gmp/executor.py
+├── dags/gmp/graph.py
+├── dags/gmp/nodes/__init__.py
+├── dags/gmp/nodes/core.py
+├── dags/gmp/routing.py
+├── dags/gmp/state.py
+├── dags/gmp_execution_dag.py
+├── dags/gmp_langgraph_executor.py
+├── dags/harvest_deploy_dag.py
+└── ... (27 more files)
 ```
 
 | File | Purpose |
@@ -190,24 +190,31 @@ class WorkflowState:
 
 ### Exported Symbols (`__all__`)
 
-`ExtractionPattern`, `FileMapping`, `GateType`, `HARVEST_DEPLOY_DAG`, `NodeType`, `README_PIPELINE_DAG`, `REFACTORING_DAG`, `SessionDAG`, `SessionEdge`, `SessionNode`
+`COMPONENT_AUDIT_DAG`, `CONFIRM_WIRING_DAG`, `DAG_AUTHORING_DAG`, `GMPLangGraphExecutor`, `GMPPhase`, `GMPState`, `GMP_EXECUTION_DAG`, `GateType`, `HARVEST_DEPLOY_DAG`, `INSPECT_DAG`
 
-*...and 16 more*
+*...and 40 more*
 
 ### Module Constants
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `README_PIPELINE_DAG` | `SessionDAG(id='readme-pipeline-v1', name...` | 31 |
-| `HARVEST_DEPLOY_DAG` | `SessionDAG(id='harvest-deploy-v1', name=...` | 31 |
-| `REFACTORING_DAG` | `SessionDAG(id='refactoring-v1', name='Re...` | 31 |
+| `REPO_ROOT` | `Path(__file__).parent.parent` | 63 |
+| `REPORT_GENERATOR` | `REPO_ROOT / 'scripts' / 'generate_gmp_re...` | 64 |
+| `STATE_FILE` | `REPO_ROOT / '.harvest_executor_state.jso...` | 65 |
+| `HARVEST_DIR` | `REPO_ROOT / 'current_work' / 'harvested'` | 66 |
+| `SUPPORTED_LANGUAGES` | `{'python': ('.py', True), 'py': ('.py', ...` | 71 |
+| `STEP_ORDER` | `['read_document', 'parse_code_blocks', '...` | 157 |
+| `REPO_ROOT` | `Path(__file__).parent.parent` | 64 |
+| `REPORT_GENERATOR` | `REPO_ROOT / 'scripts' / 'generate_gmp_re...` | 65 |
+
+*...and 43 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class WorkflowsRequest(BaseModel):
     """Request model for workflows operations."""
@@ -298,42 +305,38 @@ WORKFLOWS_ENABLED=true
 
 #### `def main()`
 
+Main entry point for the L9 DAG Workflow Runner that initializes argument parsing and executes workflows.
+
+- **File:** `runner.py:743`
+- **Async:** No
+
+#### `def main()`
+
 No description
 
-- **File:** `runner.py:722`
+- **File:** `harvest_executor.py:807`
 - **Async:** No
 
-#### `def route_after_extract(state) -> Literal['deploy', 'report']`
+#### `def main()`
 
-Route after extraction: deploy if successful, report otherwise.
+No description
 
-- **File:** `harvest_deploy.py:95`
+- **File:** `migrate_executor.py:654`
 - **Async:** No
-- **Returns:** `Literal['deploy', 'report']`
 
-#### `def route_after_deploy(state) -> Literal['inject', 'validate', 'report']`
+#### `def main()`
 
-Route after deploy: inject if needed, else validate.
+No description
 
-- **File:** `harvest_deploy.py:102`
+- **File:** `use_harvest_executor.py:583`
 - **Async:** No
-- **Returns:** `Literal['inject', 'validate', 'report']`
 
-#### `def route_after_inject(state) -> Literal['validate', 'report']`
+#### `def main()`
 
-Route after inject: validate if successful, report otherwise.
+No description
 
-- **File:** `harvest_deploy.py:114`
+- **File:** `gmp_executor.py:898`
 - **Async:** No
-- **Returns:** `Literal['validate', 'report']`
-
-#### `def route_after_validate(state) -> Literal['report']`
-
-Route after validate: always go to report.
-
-- **File:** `harvest_deploy.py:121`
-- **Async:** No
-- **Returns:** `Literal['report']`
 
 
 ### Usage Example
@@ -365,7 +368,7 @@ Workflows operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "workflows",
   "message": "Operation completed",

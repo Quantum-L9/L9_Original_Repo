@@ -20,6 +20,7 @@ from unittest.mock import patch
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.instrumentation.decorators import (
     capture_source_location,
     get_current_correlation_id,
@@ -90,6 +91,7 @@ class TestTracedDecorator:
     """Test @traced decorator."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_traced_async_function(self):
         """Test @traced decorator on async function."""
 
@@ -119,6 +121,7 @@ class TestTracedDecorator:
         assert trace_id is not None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_traced_with_custom_trace_id(self):
         """Test @traced decorator with custom trace_id."""
         custom_trace_id = "custom-trace-id-789"
@@ -132,6 +135,7 @@ class TestTracedDecorator:
         assert result == custom_trace_id
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_traced_propagates_trace_id(self):
         """Test @traced decorator propagates trace_id across calls."""
 
@@ -152,6 +156,7 @@ class TestTracedDecorator:
         assert result == "parent-trace-id"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_traced_handles_exceptions(self):
         """Test @traced decorator logs exceptions."""
 
@@ -189,6 +194,7 @@ class TestTimedDecorator:
     """Test @timed decorator."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_timed_async_function(self):
         """Test @timed decorator on async function."""
 
@@ -216,6 +222,7 @@ class TestTimedDecorator:
         assert result == "result"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_timed_with_threshold(self):
         """Test @timed decorator with log_threshold_ms."""
         call_count = [0]
@@ -231,6 +238,7 @@ class TestTimedDecorator:
         assert call_count[0] == 1
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_timed_logs_even_on_exception(self):
         """Test @timed decorator logs duration even on exception."""
 
@@ -247,6 +255,7 @@ class TestLoggedDecorator:
     """Test @logged decorator."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_logged_async_function(self):
         """Test @logged decorator on async function."""
 
@@ -270,6 +279,7 @@ class TestLoggedDecorator:
         assert result == "result"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_logged_with_args(self):
         """Test @logged decorator with log_args=True."""
 
@@ -282,6 +292,7 @@ class TestLoggedDecorator:
         assert result == "a-b-c"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_logged_with_result(self):
         """Test @logged decorator with log_result=True."""
 
@@ -355,6 +366,7 @@ class TestDecoratorIntegration:
     """Test decorator combinations and integration."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_traced_and_timed_together(self):
         """Test @traced and @timed decorators together."""
 
@@ -370,6 +382,7 @@ class TestDecoratorIntegration:
         assert get_current_trace_id() is not None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_all_decorators_together(self):
         """Test all decorators together."""
 
@@ -404,6 +417,7 @@ class TestMutationTargets:
         assert result == "test-trace"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_traced_generates_trace_id_if_none(self):
         """Kill mutation: generate trace_id -> use None."""
         # Clear trace context
@@ -419,6 +433,7 @@ class TestMutationTargets:
         assert len(result) > 0
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_timed_threshold_comparison(self):
         """Kill mutation: >= threshold -> > threshold."""
         logged_durations = []

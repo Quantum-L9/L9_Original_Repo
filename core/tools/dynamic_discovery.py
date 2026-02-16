@@ -31,6 +31,8 @@ Created: 2026-01-25
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Dynamic Tool Discovery Integration",
@@ -132,6 +134,7 @@ def _infer_task_type(task_payload: str) -> str:
     return "generic"
 
 
+@must_stay_async("callers use await")
 async def discover_tools_for_task(
     task_payload: str,
     top_k: int | None = None,
@@ -205,7 +208,7 @@ async def discover_tools_for_task(
         if settings.l9_tool_feedback_enabled:
             try:
                 # If you have a central substrate accessor, use that here
-                substrate_service = get_memory_substrate_service()  # or pass in
+                substrate_service = await get_memory_substrate_service()  # or pass in
                 feedback_service = get_tool_feedback_service(substrate_service)
 
                 task_type = _infer_task_type(task_payload)
@@ -343,6 +346,7 @@ async def _format_and_filter_tools(
     return tools
 
 
+@must_stay_async("callers use await")
 async def _get_tool_schemas() -> dict[str, dict[str, Any]]:
     """
     Get tool input schemas from registry for full parameter definitions.
@@ -422,7 +426,10 @@ def _get_tool_cache_key(task_id: str) -> str:
     return f"l9:tool_cache:{task_id}"
 
 
-async def _mcp_cache_call(tool_name: str, arguments: dict[str, Any]) -> dict[str, Any] | None:
+@must_stay_async("callers use await")
+async def _mcp_cache_call(
+    tool_name: str, arguments: dict[str, Any]
+) -> dict[str, Any] | None:
     """
     Call MCP cache tool via HTTP API.
 
@@ -451,12 +458,14 @@ async def _mcp_cache_call(tool_name: str, arguments: dict[str, Any]) -> dict[str
 
     try:
         url = f"{mcp_url}/mcp/call"
-        payload = json.dumps({
-            "tool_name": tool_name,
-            "arguments": arguments,
-        }).encode("utf-8")
+        payload = json.dumps(
+            {
+                "tool_name": tool_name,
+                "arguments": arguments,
+            }
+        ).encode("utf-8")
 
-        req = urllib.request.Request(
+        req = urllib.request.Request(  # noqa: S310 — URL from trusted config
             url,
             data=payload,
             headers={
@@ -471,7 +480,7 @@ async def _mcp_cache_call(tool_name: str, arguments: dict[str, Any]) -> dict[str
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
 
-        with urllib.request.urlopen(req, timeout=10, context=ctx) as resp:
+        with urllib.request.urlopen(req, timeout=10, context=ctx) as resp:  # noqa: S310 — URL from trusted config
             response = json.loads(resp.read().decode("utf-8"))
             # MCP wraps result: {"status": "success", "result": {...}, "caller": "C"}
             # Extract the inner result
@@ -479,13 +488,18 @@ async def _mcp_cache_call(tool_name: str, arguments: dict[str, Any]) -> dict[str
                 result = response.get("result", {})
                 # Check if Redis was available on the MCP server
                 if result.get("available") is False or result.get("error"):
-                    logger.debug(f"MCP cache call: Redis not available on server", error=result.get("error"))
+                    logger.debug(
+                        "MCP cache call: Redis not available on server",
+                        error=result.get("error"),
+                    )
                     return None
-                logger.debug(f"MCP cache call success: {tool_name}", result_keys=list(result.keys()))
+                logger.debug(
+                    f"MCP cache call success: {tool_name}",
+                    result_keys=list(result.keys()),
+                )
                 return result
-            else:
-                logger.debug(f"MCP cache call failed: status={response.get('status')}")
-                return None
+            logger.debug(f"MCP cache call failed: status={response.get('status')}")
+            return None
 
     except urllib.error.URLError as e:
         logger.debug(f"MCP cache call failed (network): {e}")
@@ -499,6 +513,7 @@ async def _direct_redis_available() -> bool:
     """Check if direct Redis connection is available."""
     try:
         from runtime.redis_client import get_redis_client
+
         redis = await get_redis_client()
         return redis is not None and redis.is_available()
     except Exception:
@@ -558,6 +573,7 @@ async def get_cached_tools(task_id: str) -> list[dict[str, Any]] | None:
         return None
 
 
+@must_stay_async("callers use await")
 async def cache_tools(task_id: str, tools: list[dict[str, Any]]) -> bool:
     """
     Cache discovered tools for multi-turn reuse.
@@ -581,11 +597,14 @@ async def cache_tools(task_id: str, tools: list[dict[str, Any]]) -> bool:
     ttl = settings.l9_tool_cache_ttl
 
     # 1. Try MCP cache_set (PRIMARY - GMP-130)
-    mcp_result = await _mcp_cache_call("cache_set", {
-        "key": cache_key,
-        "value": tools,
-        "ttl": ttl,
-    })
+    mcp_result = await _mcp_cache_call(
+        "cache_set",
+        {
+            "key": cache_key,
+            "value": tools,
+            "ttl": ttl,
+        },
+    )
     if mcp_result and mcp_result.get("success"):
         logger.debug(
             "Tools cached for multi-turn (MCP)",
@@ -668,7 +687,9 @@ async def invalidate_all_tool_caches() -> int:
         Number of cache entries invalidated
     """
     # 1. Try MCP cache_keys + cache_delete (PRIMARY - GMP-130)
-    mcp_keys_result = await _mcp_cache_call("cache_keys", {"pattern": "l9:tool_cache:*"})
+    mcp_keys_result = await _mcp_cache_call(
+        "cache_keys", {"pattern": "l9:tool_cache:*"}
+    )
     if mcp_keys_result and mcp_keys_result.get("success"):
         keys = mcp_keys_result.get("keys", [])
         if not keys:
@@ -680,7 +701,9 @@ async def invalidate_all_tool_caches() -> int:
             if delete_result and delete_result.get("success"):
                 count += 1
 
-        logger.debug("tool_cache.invalidated_all (MCP)", count=count, keys_found=len(keys))
+        logger.debug(
+            "tool_cache.invalidated_all (MCP)", count=count, keys_found=len(keys)
+        )
         return count
 
     # 2. Fallback to direct Redis (LEGACY)
@@ -702,7 +725,11 @@ async def invalidate_all_tool_caches() -> int:
             if await redis.delete(key, raw=True):
                 count += 1
 
-        logger.debug("tool_cache.invalidated_all (Redis direct)", count=count, keys_found=len(keys))
+        logger.debug(
+            "tool_cache.invalidated_all (Redis direct)",
+            count=count,
+            keys_found=len(keys),
+        )
         return count
 
     except Exception as e:

@@ -40,7 +40,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -59,8 +59,8 @@ from memory.audit_utils import prepare_packet_for_ingest
 
 if TYPE_CHECKING:
     from memory.agent_persistence import AgentPersistenceService
+    from memory.substrate_repository import SubstrateRepository
 from memory.consolidation import ConsolidationPipeline
-from memory.enrichment_dag import EnrichmentDAG
 from memory.governance_gate import (
     enforce_packet_governance,
     ensure_governance_context,
@@ -72,7 +72,7 @@ from memory.reasoning_replay import ReasoningReplayPipeline
 from memory.retention_engine import RetentionEngine
 from memory.saga import SagaExecutor, SagaResult
 from memory.saga_patterns import SagaPatterns
-from memory.substrate_repository import SubstrateRepository
+from memory.substrate_dag import SubstrateDAG
 from memory.substrate_semantic import (
     EmbeddingProvider,
     SemanticService,
@@ -135,11 +135,13 @@ class MemorySubstrateService:
             repository=repository,
         )
 
-        # Initialize DAG (EnrichmentDAG with multi-tier fallback)
-        self._dag = EnrichmentDAG(
+        # Initialize DAG (SubstrateDAG — LangGraph-based pipeline)
+        # GMP-SDAG: Replaced deprecated EnrichmentDAG with SubstrateDAG.
+        # SubstrateDAG uses native LangGraph execution with 8 nodes:
+        #   intake → reasoning → memory_write → graph_sync → [embed?] → insights → world_model → checkpoint
+        self._dag = SubstrateDAG(
             repository=repository,
             semantic_service=self._semantic_service,
-            saga_executor=None,  # Lazy-initialized via _get_saga_executor()
         )
 
         # Initialize circuit breaker for DAG operations
@@ -393,6 +395,45 @@ class MemorySubstrateService:
         )
 
         return result
+
+    async def record_audit_failure(
+        self,
+        category: str,
+        error: str,
+        file_path: str | None = None,
+    ) -> PacketWriteResult:
+        """
+        Record an audit failure as a packet in the memory substrate.
+
+        Args:
+            category: Audit category
+            error: Error message
+            file_path: Optional file path being audited
+
+        Returns:
+            PacketWriteResult
+        """
+        from core.schemas import PacketEnvelopeIn
+
+        packet = PacketEnvelopeIn(
+            packet_type="audit_failure",
+            payload={
+                "category": category,
+                "error": error,
+                "file_path": file_path,
+                "timestamp": datetime.now(tz=UTC).isoformat(),
+            },
+            metadata={
+                "source": "perplexity_audit_agent",
+                "severity": "error",
+            },
+        )
+
+        # Use fallback context if none exists (for CLI tools)
+        from memory.governance_gate import ensure_governance_context
+
+        async with ensure_governance_context("record_audit_failure"):
+            return await self.write_packet(packet)
 
     async def get_packet(self, packet_id: str) -> dict[str, Any] | None:
         """
@@ -668,6 +709,31 @@ class MemorySubstrateService:
             ],
         )
 
+    async def find_similar_fixes(
+        self, category: str, adr_id: str | None = None
+    ) -> list[dict[str, Any]]:
+        """
+        Find similar past fixes in memory substrate for learning loop.
+
+        Args:
+            category: Audit category (security, reliability, etc.)
+            adr_id: Optional ADR ID to narrow search
+
+        Returns:
+            List of similar fix patterns
+        """
+        query = f"fix for {category}"
+        if adr_id:
+            query += f" violation {adr_id}"
+
+        search_req = SemanticSearchRequest(
+            query=query,
+            top_k=5,
+            min_score=0.7,
+        )
+        result = await self.semantic_search(search_req)
+        return [hit.payload for hit in result.hits]
+
     async def embed_text(
         self, text: str, payload: dict[str, Any], agent_id: str | None = None
     ) -> str:
@@ -780,9 +846,10 @@ class MemorySubstrateService:
         Write extracted insights to the substrate.
 
         Persists insights and associated facts to knowledge_facts table.
+        Scope is extracted from each insight's metadata if available.
 
         Args:
-            insights: List of ExtractedInsight dicts
+            insights: List of ExtractedInsight dicts (each may contain 'scope' key)
 
         Returns:
             Status dict with counts
@@ -790,15 +857,27 @@ class MemorySubstrateService:
         facts_written = 0
 
         for insight in insights:
+            # Get scope from insight metadata if available
+            fact_scope = insight.get("scope")
             # Write associated facts
             for fact in insight.get("facts", []):
-                await self._repository.insert_knowledge_fact(
-                    subject=fact.get("subject", "unknown"),
-                    predicate=fact.get("predicate", "unknown"),
-                    object_value=fact.get("object"),
-                    confidence=fact.get("confidence"),
-                    source_packet=insight.get("source_packet"),
-                )
+                if fact_scope:
+                    await self._repository.insert_knowledge_fact(
+                        subject=fact.get("subject", "unknown"),
+                        predicate=fact.get("predicate", "unknown"),
+                        object_value=fact.get("object"),
+                        confidence=fact.get("confidence"),
+                        source_packet=insight.get("source_packet"),
+                        scope=fact_scope,
+                    )
+                else:
+                    await self._repository.insert_knowledge_fact(
+                        subject=fact.get("subject", "unknown"),
+                        predicate=fact.get("predicate", "unknown"),
+                        object_value=fact.get("object"),
+                        confidence=fact.get("confidence"),
+                        source_packet=insight.get("source_packet"),
+                    )
                 facts_written += 1
 
         return {
@@ -1385,6 +1464,26 @@ async def get_memory_substrate_service() -> MemorySubstrateService:
         stacklevel=2,
     )
     return await get_service()
+
+
+# Alias used by runtime/l_tools.py (sync wrapper for backward compat)
+def get_substrate_service() -> MemorySubstrateService:
+    """
+    Synchronous getter for the substrate service singleton.
+
+    .. deprecated:: 2.0.0
+        Use ``get_service()`` (async) instead.
+
+    Returns the already-initialized singleton without awaiting.
+    Raises RuntimeError if not yet initialized.
+
+    Note: All SQL in this module uses parameterized queries ($1, $2).
+    """
+    if _service is None:
+        raise RuntimeError(
+            "MemorySubstrateService not initialized. Call init_service() first."
+        )
+    return _service
 
 
 async def init_service(

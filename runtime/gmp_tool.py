@@ -12,6 +12,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "GMP Tool Implementation",
@@ -42,6 +44,7 @@ from runtime.gmp_worker import store_pending_task
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def gmp_run_tool(
     gmp_markdown: str,
     repo_root: str,
@@ -130,7 +133,11 @@ async def gmp_run_tool(
 
         # Log tool call via ToolGraph
         try:
-            from core.tools.tool_graph import ToolGraph
+            # Use runtime import to avoid circular dependency
+            import importlib
+
+            module = importlib.import_module("core.tools.tool_graph")
+            ToolGraph = module.ToolGraph
 
             await ToolGraph.log_tool_call(
                 tool_name="gmp_run",
@@ -173,7 +180,11 @@ async def gmp_run_tool(
 
         # Log failed tool call
         try:
-            from core.tools.tool_graph import ToolGraph
+            # Use runtime import to avoid circular dependency
+            import importlib
+
+            module = importlib.import_module("core.tools.tool_graph")
+            ToolGraph = module.ToolGraph
 
             await ToolGraph.log_tool_call(
                 tool_name="gmp_run",
@@ -183,7 +194,7 @@ async def gmp_run_tool(
                 error=str(e),
             )
         except Exception:
-            pass
+            logger.debug("gmp_tool.log_tool_call_failed")
 
         return {
             "task_id": None,

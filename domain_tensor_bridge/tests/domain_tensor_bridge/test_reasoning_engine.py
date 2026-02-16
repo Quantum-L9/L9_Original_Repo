@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
 from domain_tensor_bridge.reasoning_engine import ReasoningEngine, ReasoningResult
 
 
@@ -62,6 +63,7 @@ class TestConfidenceThresholds:
         assert 0.0 <= result.confidence <= 1.0
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_low_confidence_warning(self, engine):
         """Test low confidence generates warning."""
         # Would need mock setup for low confidence
@@ -72,6 +74,7 @@ class TestErrorPaths:
     """Tests for error handling."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_reasoner_failure_handling(self, engine):
         """Test graceful handling of reasoner failure."""
         engine.causal_reasoner.apply_causal_logic = AsyncMock(

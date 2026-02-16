@@ -12,6 +12,8 @@ from pathlib import Path
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Always use core.governance.session_startup which has check_kernel_readiness()
 # Note: .cursor-commands/startup/session_startup.py has check_cursor_workflow_kernel() instead
 from core.governance.session_startup import SessionStartup, StartupResult
@@ -29,6 +31,7 @@ class TestSessionStartupExecution:
     """Tests for SessionStartup.execute() method."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_returns_startup_result(self):
         """SessionStartup.execute() returns a StartupResult dataclass."""
         startup = SessionStartup(TEST_WORKSPACE_ROOT)
@@ -45,6 +48,7 @@ class TestSessionStartupExecution:
         assert hasattr(result, "kernel_hash_snapshot")
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_preflight_checks(self):
         """SessionStartup runs preflight checks."""
         startup = SessionStartup(TEST_WORKSPACE_ROOT)
@@ -53,6 +57,7 @@ class TestSessionStartupExecution:
         assert hasattr(result, "preflight_passed")
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_preflight_failure_sets_status(self):
         """SessionStartup sets status to 'BLOCKED' if preflight fails."""
         # Use a non-existent workspace to trigger preflight failure
@@ -62,6 +67,7 @@ class TestSessionStartupExecution:
         assert result.status == "BLOCKED"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_loads_mandatory_files(self):
         """SessionStartup loads mandatory files."""
         startup = SessionStartup(TEST_WORKSPACE_ROOT)
@@ -70,6 +76,7 @@ class TestSessionStartupExecution:
         assert isinstance(result.files_loaded, list)
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_checks_kernel_readiness(self):
         """SessionStartup checks kernel readiness."""
         startup = SessionStartup(TEST_WORKSPACE_ROOT, check_kernels=True)
@@ -150,6 +157,7 @@ class TestAPIServerStartupGate:
     """Tests for API server startup gate integration."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_health_endpoint_includes_startup_status(self):
         """Health endpoint includes startup readiness status."""
 
@@ -187,6 +195,7 @@ class TestAPIServerStartupGate:
         assert health_response["startup"]["kernels_ready"] is True
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_health_endpoint_degraded_when_startup_fails(self):
         """Health endpoint returns 'degraded' when startup fails."""
         mock_result = StartupResult(

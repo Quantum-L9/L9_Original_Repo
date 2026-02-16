@@ -55,7 +55,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 
@@ -123,7 +123,7 @@ class WorldModelRegistry:
         self._entity_types: dict[str, EntityTypeSchema] = {}
         self._relation_types: dict[str, RelationTypeSchema] = {}
         self._type_hierarchy: dict[str, list[str]] = {}  # type → [subtypes]
-        self._created_at: datetime = datetime.now(timezone.utc)
+        self._created_at: datetime = datetime.now(UTC)
 
     # =========================================================================
     # Entity Type Operations

@@ -248,9 +248,9 @@ class AuditOrchestrator:
     def _generate_run_id(self) -> str:
         """Generate unique run ID."""
         import uuid
-        from datetime import datetime, timezone
+        from datetime import UTC, datetime
 
-        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        ts = datetime.now(tz=UTC).strftime("%Y%m%d_%H%M%S")
         uid = str(uuid.uuid4())[:8]
         return f"audit_run_{ts}_{uid}"
 
@@ -371,7 +371,7 @@ class AuditOrchestrator:
                     uncalled.extend(analyze_file_for_uncalled(filepath, all_content))
                     orphans.extend(analyze_file_for_orphans(filepath, all_content))
                 except Exception:
-                    pass
+                    logger.debug("run_all.file_analysis_failed", filepath=str(filepath))
 
             # Detect circular imports
             circular = detect_circular_imports(self.repo_root)
@@ -597,7 +597,7 @@ class AuditOrchestrator:
           Phase 4: generate_gmp_todos.auto_fix_dead_code() - Auto-fix + GMP report
         """
         try:
-            from datetime import datetime, timezone
+            from datetime import UTC, datetime
 
             from categorize_dead_code import categorize_dead_code
             from find_dead_code import run_dead_code_audit as find_dead_code_baseline
@@ -636,7 +636,7 @@ class AuditOrchestrator:
 
             # Phase 4: Auto-fix safe items + generate GMP report
             logger.info("Dead Code Phase 4: Auto-fix + GMP report generation...")
-            gmp_id = f"DeadCode-{datetime.now().strftime('%Y%m%d')}"
+            gmp_id = f"DeadCode-{datetime.now(tz=UTC).strftime('%Y%m%d')}"
             gmp_report_output = self.repo_root / "reports" / f"GMP_Report_{gmp_id}.md"
             gmp_report = auto_fix_dead_code(
                 categorized_file=categorized_output,
@@ -750,7 +750,7 @@ class AuditOrchestrator:
 
             # Run the verification script and capture output
             proc = subprocess.run(
-                ["python3", "scripts/audit/verify_memory_spec_v3.py"],
+                ["python3", "scripts/audit/verify_memory_spec_v3.py"],  # noqa: S607 — trusted system command
                 cwd=self.repo_root,
                 capture_output=True,
                 text=True,

@@ -41,6 +41,8 @@ import json
 import sys
 from pathlib import Path
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
@@ -159,6 +161,7 @@ def create_agent(agent_type: str, model: str):
     return None  # PatternOrchestrator will use StubAgent
 
 
+@must_stay_async("callers use await")
 async def run_pattern(args: argparse.Namespace) -> dict:
     """Execute pattern with given arguments."""
     from orchestrators.pattern import PatternOrchestrator
@@ -229,40 +232,43 @@ async def run_pattern(args: argparse.Namespace) -> dict:
 def print_result(result: dict, as_json: bool):
     """Print execution result."""
     if as_json:
-        print(json.dumps(result, indent=2, default=str))
+        logger.info("output", value=json.dumps(result, indent=2, default=str))
         return
 
     # Human-readable output
-    print("\n" + "=" * 60)
-    print("PATTERN EXECUTION RESULT")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info("pattern execution result")
+    logger.info("=" * 60)
 
     status_icon = "✅" if result["success"] else "❌"
-    print(f"\nStatus: {status_icon} {result['status']}")
-    print(f"Pipeline ID: {result['pipeline_id']}")
-    print(f"Duration: {result['duration_ms']}ms")
-    print(f"Nodes Executed: {result['nodes_executed']}")
+    logger.info("\nstatus: status icon {result['status']}", status_icon=status_icon)
+    logger.info("pipeline id: {result['pipeline_id']}")
+    logger.info("duration: {result['duration_ms']}ms")
+    logger.info("nodes executed: {result['nodes_executed']}")
 
     if result["node_results"]:
-        print("\nNode Results:")
+        logger.info("\nnode results:")
         for nr in result["node_results"]:
             node_icon = "✅" if nr["status"] == "success" else "❌"
             print(
                 f"  {node_icon} {nr['node_id']}: {nr['status']} ({nr['duration_ms']:.1f}ms)"
             )
             if nr.get("error"):
-                print(f"      ⚠️  {nr['error']}")
+                logger.error("      ⚠️  {nr['error']}")
 
     if result.get("error"):
-        print(f"\nError: {result['error']}")
+        logger.error("\nerror: {result['error']}")
 
     if result["final_output"]:
-        print("\nFinal Output:")
-        print(json.dumps(result["final_output"], indent=2, default=str)[:500])
+        logger.info("\nfinal output:")
+        logger.info(
+            "output",
+            value=json.dumps(result["final_output"], indent=2, default=str)[:500],
+        )
         if len(json.dumps(result["final_output"])) > 500:
-            print("  ... (truncated)")
+            logger.info("  ... (truncated)")
 
-    print("\n" + "=" * 60)
+    logger.info("\n" + "=" * 60)
 
 
 def main():
@@ -287,15 +293,17 @@ def main():
         sys.exit(0 if result["success"] else 1)
 
     except KeyboardInterrupt:
-        print("\n⚠️  Execution cancelled by user")
+        logger.info("\n⚠️  execution cancelled by user")
         sys.exit(130)
 
     except Exception as e:
         logger.error(f"Execution failed: {e}", exc_info=True)
         if args.json:
-            print(json.dumps({"success": False, "error": str(e)}))
+            logger.error(
+                "output", value=json.dumps({"success": False, "error": str(e)})
+            )
         else:
-            print(f"\n❌ Error: {e}")
+            logger.error("\n❌ error: e", e=e)
         sys.exit(1)
 
 

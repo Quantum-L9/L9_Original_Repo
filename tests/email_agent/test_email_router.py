@@ -22,6 +22,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Add project root to path FIRST - before any other imports
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
@@ -224,6 +226,7 @@ class TestMemoryIngestion:
     """Pre/post events ingested to memory."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_query_ingests_pre_post(
         self, client, auth_headers, mock_gmail_client, mock_memory_ingest
     ):
@@ -252,6 +255,7 @@ class TestMemoryIngestion:
         assert post_call.kwargs["payload"]["status"] == "success"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_action_includes_account(
         self, client, auth_headers, mock_gmail_client, mock_memory_ingest
     ):
@@ -404,7 +408,9 @@ class TestRequestValidation:
 
     def test_get_request_requires_id(self):
         """GetRequest requires id field."""
-        with pytest.raises(Exception):  # Pydantic validation error
+        with pytest.raises(  # noqa: B017 — intentionally testing broad exception handling
+            Exception
+        ):  # noqa: B017 — intentionally testing broad exception handling
             GetRequest()
 
 

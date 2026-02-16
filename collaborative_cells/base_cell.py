@@ -42,7 +42,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
+from abc import (  # noqa: ADR-0026 - ABC provides shared implementation
+    ABC,
+    abstractmethod,
+)
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
@@ -258,6 +261,7 @@ class BaseCell(ABC):
     # Main Execution
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         task: dict[str, Any],
@@ -273,7 +277,7 @@ class BaseCell(ABC):
         Returns:
             CellResult with output and metadata
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         context = context or {}
         rounds: list[CellRound] = []
         current_output: dict[str, Any] | None = None
@@ -353,9 +357,7 @@ class BaseCell(ABC):
             logger.error(f"Cell execution failed: {e}")
             errors.append(str(e))
 
-        duration_ms = int(
-            (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
-        )
+        duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
         return CellResult(
             cell_id=self._cell_id,

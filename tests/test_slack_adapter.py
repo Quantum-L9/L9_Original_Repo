@@ -45,7 +45,7 @@ class TestSlackSignatureVerification:
     """Test Slack HMAC-SHA256 signature verification."""
 
     def setup_method(self):
-        self.signing_secret = "test_secret_123"
+        self.signing_secret = "test_secret_123"  # noqa: S105 — test fixture
         self.validator = SlackRequestValidator(self.signing_secret)
 
     def test_signature_verification_success(self):

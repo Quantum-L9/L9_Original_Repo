@@ -35,6 +35,7 @@ import random
 import structlog
 from openai import AsyncOpenAI
 
+from core.decorators import must_stay_async
 from src.config import settings
 
 logger = structlog.get_logger(__name__)
@@ -68,7 +69,7 @@ async def _with_retries(coro_func, *, operation: str):
             if attempt == MAX_RETRIES:
                 break
             delay = BASE_BACKOFF * (2 ** (attempt - 1))
-            jitter = random.random() * 0.1
+            jitter = random.random() * 0.1  # noqa: S311 — used for jitter, not security
             logger.warning(
                 "Embedding request failed, retrying",
                 operation=operation,
@@ -90,6 +91,7 @@ async def _with_retries(coro_func, *, operation: str):
     ) from last_error
 
 
+@must_stay_async("callers use await")
 async def embed_text(text: str) -> list[float]:
     """Generate embedding for single text with retry logic."""
 
@@ -111,6 +113,7 @@ async def embed_text(text: str) -> list[float]:
     return await _with_retries(_embed, operation="embed_text")
 
 
+@must_stay_async("callers use await")
 async def embed_texts(texts: list[str]) -> list[list[float]]:
     """Generate embeddings for batch of texts with retry logic."""
 

@@ -51,6 +51,8 @@ from typing import Any
 import structlog
 from dotenv import load_dotenv
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -166,6 +168,7 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
     }
 
 
+@must_stay_async("callers use await")
 async def index_gmp_report(
     report_data: dict[str, Any],
     substrate_service: Any,
@@ -279,6 +282,7 @@ Files Modified:
         }
 
 
+@must_stay_async("callers use await")
 async def main(dry_run: bool = False, verbose: bool = False):
     """Main indexing function."""
     logger.info("Starting GMP reports indexing", dry_run=dry_run)

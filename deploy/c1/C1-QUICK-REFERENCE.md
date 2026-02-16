@@ -77,7 +77,7 @@ kubectl logs -n l9-c1 -l app=l9-orchestrator -f
 | ---------- | -------- | ----------------- |
 | PostgreSQL | l9_user  | C1_Postgres-2026! |
 | Neo4j      | C1_neo4j | C1_Neo4j-2026!    |
-| Grafana    | admin | C1_Grafana-2026!  |
+| Grafana    | admin    | C1_Grafana-2026!  |
 
 ## **All credentials stored in:** `.env.c1.hetzner`
 

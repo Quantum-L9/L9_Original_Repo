@@ -58,7 +58,7 @@ __dora_meta__ = {
 
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -170,7 +170,7 @@ class RoutingDecision:
     confidence: float = 0.8
     reasoning: str = ""
     analysis: dict[str, Any] = field(default_factory=dict)
-    decided_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    decided_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         return {

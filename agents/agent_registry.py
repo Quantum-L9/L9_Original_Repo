@@ -39,6 +39,7 @@ from typing import Any
 import structlog
 
 from core.auto_registry import AutoRegistry
+from functools import wraps
 
 logger = structlog.get_logger(__name__)
 
@@ -97,6 +98,7 @@ def register_agent(
     if category:
         tags.append(category)
 
+    @wraps(name)
     def decorator(cls: type) -> type:
         """
         Registers an agent class for automatic discovery within the agent registry system.

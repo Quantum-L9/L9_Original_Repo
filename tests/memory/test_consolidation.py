@@ -13,16 +13,17 @@ import pytest
 from memory.consolidation import ConsolidationPipeline, ConsolidationReport
 from memory.substrate_service import MemorySubstrateService, close_service, init_service
 
-TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
+TEST_DB_URL = os.getenv("TEST_DATABASE_URL")
+
+pytestmark = pytest.mark.skipif(
+    not TEST_DB_URL,
+    reason="Requires TEST_DATABASE_URL (integration test — set to a reachable PostgreSQL URL)",
+)
 
 
 @pytest.fixture
 async def memory_substrate_service():
     """Provide a memory substrate service for testing."""
-    if not TEST_DB_URL:
-        pytest.skip(
-            "TEST_DATABASE_URL or DATABASE_URL not set; skipping consolidation tests."
-        )
     service = await init_service(TEST_DB_URL)
     yield service
     await close_service()

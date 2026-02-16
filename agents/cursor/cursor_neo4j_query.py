@@ -71,7 +71,9 @@ USE_LOCAL = "--local" in sys.argv or "-l" in sys.argv
 
 NEO4J_URL = os.getenv("NEO4J_URL", LOCAL_NEO4J_URL if USE_LOCAL else VPS_NEO4J_URL)
 NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
-NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "FVmgaD1diPcz41zRbYLLP0UzyGvAi4E")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "")
+if not NEO4J_PASSWORD:
+    logger.warning("NEO4J_PASSWORD env var not set — Neo4j queries will fail")
 
 
 def query_neo4j(cypher: str) -> dict:
@@ -85,7 +87,7 @@ def query_neo4j(cypher: str) -> dict:
     # Create auth header
     credentials = base64.b64encode(f"{NEO4J_USER}:{NEO4J_PASSWORD}".encode()).decode()
 
-    req = urllib.request.Request(
+    req = urllib.request.Request(  # noqa: S310 — URL from trusted config
         url,
         data=data,
         headers={
@@ -95,7 +97,7 @@ def query_neo4j(cypher: str) -> dict:
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=30) as response:
+        with urllib.request.urlopen(req, timeout=30) as response:  # noqa: S310 — URL from trusted config
             return json.loads(response.read().decode())
     except urllib.error.URLError as e:
         return {"error": str(e), "errors": [{"message": str(e)}]}

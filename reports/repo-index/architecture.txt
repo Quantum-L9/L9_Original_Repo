@@ -2,8 +2,8 @@
 # Architecture
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -12,6 +12,7 @@ adapters/ -
 adapters/tensorglobe_bridge/ - 
 agents/ - 
 agents/architect_agent/ - 
+agents/codegenagent/ - 
 agents/coder_agent/ - 
 agents/cursor/ - 
 agents/cursor/extractors/ - 
@@ -35,7 +36,8 @@ codegen/dev_layer/ -
 codegen/dev_layer/am_engine/ - 
 codegen/dev_layer/modules/ - 
 codegen/dev_layer/runtime/ - 
-codegenagent/ - 
+codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/ - 
+codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/ - No module docstring
 collaborative_cells/ - 
 config/ - L9 Configuration Module.
 config/schemas/ - 
@@ -43,6 +45,7 @@ core/ -
 core/accountability/ - No module docstring
 core/agents/ - 
 core/agents/bootstrap/ - 
+core/agents/codegenagent/ - 
 core/agents/graph_state/ - 
 core/aios/ - 
 core/bayesian/ - 
@@ -98,6 +101,7 @@ mcp_memory/src/routes/ - Route modules for L9 MCP Memory Server.
 mcp_memory/src/safety/ - L9 Safety - Policy Enforcement & Security Event Management.
 mcp_memory/tests/ - L9 MCP Memory Server Tests.
 memory/ - 
+memory/archive/ - 
 memory/checkpoint/ - 
 memory/consolidation/ - No module docstring
 memory/extractor/ - 
@@ -146,6 +150,7 @@ tests/collaborative_cells/ -
 tests/core/ - No module docstring
 tests/core/agents/ - No module docstring
 tests/core/agents/bootstrap/ - No module docstring
+tests/core/agents/codegenagent/ - 
 tests/core/aios/ - 
 tests/core/bayesian/ - Tests for core.bayesian module.
 tests/core/bootstrap/ - Tests for core.agents module.
@@ -157,6 +162,7 @@ tests/core/security/ -
 tests/core/tools/ - 
 tests/cursor/ - No module docstring
 tests/docker/ - Docker smoke tests for L9 stack validation.
+tests/e2e/ - No module docstring
 tests/email_agent/ - 
 tests/integration/ - Integration tests for L9.
 tests/ir_engine/ - 
@@ -182,8 +188,10 @@ tests/world_model/ - World Model Tests
 tools/ - 
 tools/adr/ - 
 tools/architecture_reports/ - No module docstring
+tools/bug_detection/ - Bug detection tools for L9 codebase.
 tools/codegen/ - 
 tools/superpack_reports/ - No module docstring
+tools/validation/ - L9 Validation Tools — External code validation before integr
 workers/ - 
 workflows/ - 
 workflows/dags/ - 

@@ -6,6 +6,8 @@ Pauses workflow for user confirmation before proceeding.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Checkpoint",
@@ -28,7 +30,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 
@@ -37,6 +39,7 @@ from workflows.state import StepResult, WorkflowState
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def checkpoint_node(state: WorkflowState) -> dict:
     """
     Pause workflow for user confirmation.
@@ -76,7 +79,7 @@ async def checkpoint_node(state: WorkflowState) -> dict:
             error=None,
             duration_ms=duration_ms,
             artifacts={"awaiting": True},
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(tz=UTC).isoformat(),
         )
 
         logger.info("checkpoint.paused", message=message)
@@ -100,7 +103,7 @@ async def checkpoint_node(state: WorkflowState) -> dict:
             error=None,
             duration_ms=duration_ms,
             artifacts={"confirmed": True},
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(tz=UTC).isoformat(),
         )
 
         logger.info("checkpoint.confirmed")
@@ -121,7 +124,7 @@ async def checkpoint_node(state: WorkflowState) -> dict:
         error="Workflow stopped by user",
         duration_ms=duration_ms,
         artifacts={"confirmed": False},
-        timestamp=datetime.now().isoformat(),
+        timestamp=datetime.now(tz=UTC).isoformat(),
     )
 
     logger.info("checkpoint.declined")

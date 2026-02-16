@@ -65,27 +65,27 @@ if $MRI_ONLY; then
     echo "│ MRI DIAGNOSTICS                                                │"
     echo "└─────────────────────────────────────────────────────────────────┘"
     echo ""
-    
+
     echo "[1/5] Container status..."
     c1 "cd $C1_PATH && docker compose -f docker-compose.yml -f docker-compose.prod.yml ps"
     echo ""
-    
+
     echo "[2/5] Git status on C1..."
     c1 "cd $C1_PATH && git log -1 --oneline && git status -s | head -5"
     echo ""
-    
+
     echo "[3/5] API health..."
     c1 "curl -sf http://127.0.0.1:8000/health 2>/dev/null | head -c 200 || echo 'API not responding'"
     echo ""
-    
+
     echo "[4/5] Recent API logs..."
     c1 "cd $C1_PATH && docker compose -f docker-compose.yml -f docker-compose.prod.yml logs l9-api --tail=20" 2>/dev/null || true
     echo ""
-    
+
     echo "[5/5] Bootstrap status..."
     c1 "cd $C1_PATH && docker compose -f docker-compose.yml -f docker-compose.prod.yml ps -a | grep -E 'bootstrap|NAME'"
     echo ""
-    
+
     echo "✅ MRI complete"
     exit 0
 fi
@@ -124,12 +124,12 @@ if [ "$STAGED" -gt 0 ]; then
     git diff --cached --name-only | head -15 | sed 's/^/    /'
     [ "$STAGED" -gt 15 ] && echo "    ... and $((STAGED - 15)) more"
     echo ""
-    
+
     # Commit message
     if [ -z "$COMMIT_MSG" ]; then
         COMMIT_MSG="deploy: $(date '+%Y-%m-%d %H:%M') - $STAGED file(s)"
     fi
-    
+
     echo "[4/4] Committing..."
     git commit -m "$COMMIT_MSG"
     echo "  ✅ Committed: $COMMIT_MSG"

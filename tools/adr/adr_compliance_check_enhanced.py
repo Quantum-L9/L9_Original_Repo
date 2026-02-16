@@ -16,7 +16,12 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "ADRComplianceChecker",
     "module_version": "2.0.0",
@@ -359,7 +364,7 @@ def main():
     # Generate report
     format = "json" if args.json else "text"
     report = checker.generate_report(format)
-    print(report)
+    logger.info("output", value=report)
 
     # Check threshold
     if args.strict:

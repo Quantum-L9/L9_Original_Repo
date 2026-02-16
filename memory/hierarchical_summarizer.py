@@ -15,6 +15,8 @@ Each tier has configurable compression ratios and LLM prompts.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Hierarchical Summarizer",
@@ -40,7 +42,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -82,7 +84,7 @@ class SummaryResult:
     compression_ratio: float = 0.0
     importance_score: float = 0.5
     source_ids: list[UUID] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
@@ -175,6 +177,7 @@ class HierarchicalSummarizer:
             tiers=list(self._tier_configs.keys()),
         )
 
+    @must_stay_async("callers use await")
     async def run_cascade(
         self,
         cutoff_time: datetime | None = None,
@@ -188,7 +191,7 @@ class HierarchicalSummarizer:
         Returns:
             Dict mapping tiers to generated summaries
         """
-        cutoff_time = cutoff_time or datetime.now(timezone.utc)
+        cutoff_time = cutoff_time or datetime.now(UTC)
         results: dict[SummaryTier, list[SummaryResult]] = {}
 
         logger.info(
@@ -223,6 +226,7 @@ class HierarchicalSummarizer:
 
         return results
 
+    @must_stay_async("callers use await")
     async def _summarize_tier(
         self,
         tier: SummaryTier,
@@ -369,6 +373,7 @@ class HierarchicalSummarizer:
 
         return windows
 
+    @must_stay_async("callers use await")
     async def _generate_summary(
         self,
         tier: SummaryTier,
@@ -433,7 +438,9 @@ class HierarchicalSummarizer:
             source_ids=[s for s in source_ids if s],
             metadata={
                 "window_start": (
-                    items[0].get("created_at").isoformat() if items else None
+                    items[0].get("created_at").isoformat()
+                    if items and items[0].get("created_at") is not None
+                    else None
                 ),
                 "total_source_chars": total_chars,
             },

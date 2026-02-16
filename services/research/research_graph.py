@@ -36,7 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Literal
 from uuid import uuid4
 
@@ -45,6 +45,7 @@ from langgraph.graph import END, START, StateGraph
 
 # Memory client for substrate writes
 from clients.memory_client import PacketWriteResult, get_memory_client
+from core.decorators import must_stay_async
 from services.research.agents import CriticAgent, PlannerAgent, ResearcherAgent
 from services.research.graph_persistence import get_graph_persistence
 from services.research.graph_state import (
@@ -109,6 +110,7 @@ async def planning_node(state: ResearchGraphState) -> ResearchGraphState:
         }
 
 
+@must_stay_async("callers use await")
 async def research_node(state: ResearchGraphState) -> ResearchGraphState:
     """
     Research node - Execute research steps and gather evidence.
@@ -265,6 +267,7 @@ async def critic_node(state: ResearchGraphState) -> ResearchGraphState:
         }
 
 
+@must_stay_async("callers use await")
 async def finalize_node(state: ResearchGraphState) -> ResearchGraphState:
     """
     Finalize node - Package final output.
@@ -283,7 +286,7 @@ async def finalize_node(state: ResearchGraphState) -> ResearchGraphState:
         "quality_score": state.get("critic_score", 0.0),
         "feedback": state.get("critic_feedback", ""),
         "thread_id": state.get("thread_id", ""),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
     # Save checkpoint to memory substrate
@@ -304,6 +307,7 @@ async def finalize_node(state: ResearchGraphState) -> ResearchGraphState:
     }
 
 
+@must_stay_async("callers use await")
 async def store_insights_node(state: ResearchGraphState) -> ResearchGraphState:
     """
     Store Insights node - Extract and persist insights to Memory Substrate.
@@ -500,6 +504,7 @@ def build_research_graph() -> StateGraph:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def run_research(
     query: str,
     user_id: str = "anonymous",

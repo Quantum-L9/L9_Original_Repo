@@ -50,10 +50,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+import structlog
+
+logger = structlog.get_logger(__name__)
+
 try:
     import yaml
 except ImportError:
-    print("ERROR: pyyaml not installed. Run: pip install pyyaml")
+    logger.error("error: pyyaml not installed. run: pip install pyyaml")
     sys.exit(1)
 
 
@@ -243,7 +247,9 @@ class CodeFactExtractor:
                         "docstring": ast.get_docstring(node) or "",
                     }
         except Exception as e:
-            print(f"WARNING: Could not parse {filepath}: {e}")
+            logger.warning(
+                "warning: could not parse filepath: e", filepath=filepath, e=e
+            )
 
         return {}
 
@@ -293,7 +299,9 @@ class CodeFactExtractor:
                                     }
                                 )
             except Exception as e:
-                print(f"WARNING: Could not parse {py_file}: {e}")
+                logger.warning(
+                    "warning: could not parse py file: e", py_file=py_file, e=e
+                )
 
         return models
 
@@ -407,35 +415,38 @@ def main():
     docs_dir = repo_root / "docs"
     docs_dir.mkdir(exist_ok=True)
 
-    print("🔍 Extracting code facts from L9 repository...")
+    logger.info("🔍 extracting code facts from l9 repository...")
 
     extractor = CodeFactExtractor(repo_root)
 
     # Generate CODE-MAP.yaml
-    print("📝 Generating docs/CODE-MAP.yaml...")
+    logger.info("📝 generating docs/code-map.yaml...")
     code_map = generate_code_map(repo_root, extractor)
 
     code_map_path = docs_dir / "CODE-MAP.yaml"
     with open(code_map_path, "w") as f:
         yaml.dump(code_map, f, default_flow_style=False, sort_keys=False)
-    print(f"✅ Generated {code_map_path}")
+    logger.info("✅ generated code map path", code_map_path=code_map_path)
 
     # Generate README.meta.yaml for each subsystem
     for subsystem_name in SUBSYSTEMS:
         subsystem_path = repo_root / SUBSYSTEMS[subsystem_name]["path"]
         subsystem_path.mkdir(parents=True, exist_ok=True)
 
-        print(f"📝 Generating {subsystem_name} README.meta.yaml...")
+        logger.info(
+            "📝 generating subsystem name readme.meta.yaml...",
+            subsystem_name=subsystem_name,
+        )
         meta_yaml = generate_meta_yaml(subsystem_name)
 
         meta_path = subsystem_path / "README.meta.yaml"
         with open(meta_path, "w") as f:
             yaml.dump(meta_yaml, f, default_flow_style=False, sort_keys=False)
-        print(f"✅ Generated {meta_path}")
+        logger.info("✅ generated meta path", meta_path=meta_path)
 
-    print("\n✨ Code facts extraction complete!")
-    print(f"📊 Generated {len(SUBSYSTEMS)} subsystem metadata files")
-    print("📋 All files committed to source control")
+    logger.info("\n✨ code facts extraction complete!")
+    logger.info("📊 generated {len(subsystems)} subsystem metadata files")
+    logger.info("📋 all files committed to source control")
     return 0
 
 

@@ -14,6 +14,7 @@ from uuid import uuid4
 import pytest
 
 from core.agents.schemas import AgentConfig, AgentTask, TaskKind
+from core.decorators import must_stay_async
 
 
 class TestDynamicDiscovery:
@@ -47,7 +48,7 @@ class TestDynamicDiscovery:
         """Discovered tools should be in OpenAI function calling format."""
         with (
             patch(
-                "core.tools.dynamic_discovery.find_relevant_tools",
+                "core.tools.tool_embeddings.find_relevant_tools",
                 new_callable=AsyncMock,
                 return_value=mock_tool_embedding_results,
             ),
@@ -58,7 +59,9 @@ class TestDynamicDiscovery:
         ):
             from core.tools.dynamic_discovery import discover_tools_for_task
 
-            tools = await discover_tools_for_task("search for user preferences")
+            tools = await discover_tools_for_task(
+                "search for user preferences", use_hybrid=False
+            )
 
             assert len(tools) == 2
             assert tools[0]["type"] == "function"
@@ -68,6 +71,7 @@ class TestDynamicDiscovery:
             assert "parameters" in tools[0]["function"]
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_discover_tools_respects_token_budget(
         self, mock_tool_embedding_results
     ):
@@ -85,7 +89,7 @@ class TestDynamicDiscovery:
             many_results.append(mock)
 
         with patch(
-            "core.tools.dynamic_discovery.find_relevant_tools",
+            "core.tools.tool_embeddings.find_relevant_tools",
             new_callable=AsyncMock,
             return_value=many_results,
         ):
@@ -95,6 +99,7 @@ class TestDynamicDiscovery:
             tools = await discover_tools_for_task(
                 "test query",
                 max_tokens=500,  # Very small budget
+                use_hybrid=False,
             )
 
             # Should have loaded fewer than 20 tools due to budget
@@ -112,6 +117,7 @@ class TestDynamicDiscovery:
         assert tools == []
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_is_dynamic_discovery_enabled_checks_settings(self):
         """Should check settings for feature flag."""
         with patch("core.tools.dynamic_discovery.get_integration_settings") as mock:
@@ -145,12 +151,13 @@ class TestAgentInstanceDynamicDiscovery:
         """Create test task."""
         return AgentTask(
             id=uuid4(),
-            kind=TaskKind.CHAT,
+            kind=TaskKind.CONVERSATION,
             payload={"query": "How do I search memory?"},
             agent_id="test-agent",
         )
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_prepare_dynamic_tools_caches_discovered_tools(
         self, agent_config, agent_task
     ):
@@ -216,7 +223,7 @@ class TestAgentInstanceDynamicDiscovery:
 
         task = AgentTask(
             id=uuid4(),
-            kind=TaskKind.CHAT,
+            kind=TaskKind.CONVERSATION,
             payload={"query": "test query"},
             agent_id="test",
         )
@@ -228,7 +235,7 @@ class TestAgentInstanceDynamicDiscovery:
         # Try content field
         task2 = AgentTask(
             id=uuid4(),
-            kind=TaskKind.CHAT,
+            kind=TaskKind.CONVERSATION,
             payload={"content": "test content"},
             agent_id="test",
         )
@@ -288,6 +295,7 @@ class TestInvalidateAllToolCaches:
     """Tests for invalidate_all_tool_caches() (GMP-79)."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_invalidate_all_tool_caches_deletes_matching_keys(self):
         """Should delete all keys matching l9:tool_cache:* pattern."""
         from core.tools.dynamic_discovery import invalidate_all_tool_caches
@@ -415,7 +423,9 @@ class TestCachedToolRegistryAsyncMethods:
             await cache_wrapper.register_tool("tool_id", {"name": "test"})
 
             mock_invalidate.assert_awaited_once()
-            mock_registry.register_tool.assert_called_once_with("tool_id", {"name": "test"})
+            mock_registry.register_tool.assert_called_once_with(
+                "tool_id", {"name": "test"}
+            )
 
     @pytest.mark.asyncio
     async def test_unregister_tool_calls_invalidate_all(self):

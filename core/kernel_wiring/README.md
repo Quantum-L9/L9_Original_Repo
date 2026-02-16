@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -121,7 +121,7 @@ See source files for component details.
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreKernelWiringRequest(BaseModel):
     """Request model for core_kernel_wiring operations."""
@@ -210,7 +210,7 @@ CORE_KERNEL_WIRING_ENABLED=true
 
 #### `def get_output_verbosity() -> str`
 
-No description
+Returns the current output verbosity setting from behavioral rules, defaulting to "minimal" if not specified.
 
 - **File:** `behavioral_wiring.py:41`
 - **Async:** No
@@ -218,15 +218,15 @@ No description
 
 #### `def is_topic_blocked(topic) -> bool`
 
-No description
+Checks if a given topic is listed as prohibited in behavioral kernel rules.
 
-- **File:** `behavioral_wiring.py:49`
+- **File:** `behavioral_wiring.py:50`
 - **Async:** No
 - **Returns:** `bool`
 
 #### `def get_packet_protocol() -> dict`
 
-No description
+Returns the packet protocol configuration from the kernel registry used in WebSocket task routing and event streaming.
 
 - **File:** `packet_protocol_wiring.py:41`
 - **Async:** No
@@ -234,17 +234,17 @@ No description
 
 #### `def get_allowed_event_types() -> list`
 
-No description
+Returns a list of allowed event types based on packet protocol rules from kernel configurations.
 
-- **File:** `packet_protocol_wiring.py:45`
+- **File:** `packet_protocol_wiring.py:46`
 - **Async:** No
 - **Returns:** `list`
 
 #### `def get_default_channel() -> str`
 
-No description
+Returns the default communication channel for packet protocol routing in the WebSocket task router.
 
-- **File:** `packet_protocol_wiring.py:52`
+- **File:** `packet_protocol_wiring.py:54`
 - **Async:** No
 - **Returns:** `str`
 
@@ -278,7 +278,7 @@ Core Kernel Wiring operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.kernel_wiring",
   "message": "Operation completed",

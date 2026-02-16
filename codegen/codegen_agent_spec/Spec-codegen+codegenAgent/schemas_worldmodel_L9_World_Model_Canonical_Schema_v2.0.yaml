@@ -1,0 +1,45 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Schemas Worldmodel L9 World Model Canonical Schema V2.0"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-06T16:58:23Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "schemas_worldmodel_L9_World_Model_Canonical_Schema_v2.0"
+# type: "schema"
+# status: "active"
+# ============================================================================
+
+# ============================================================
+# PATCH — L9_World_Model_Canonical_Schema_v2.0.yaml
+# Purpose: Add construct impact mappings and traceability fields
+# ============================================================
+
+filename: schemas/worldmodel/L9_World_Model_Canonical_Schema_v2.0.yaml
+patch_type: trace_overlay
+language: yaml
+description: |
+  Adds support for reasoning impact mapping, output traceability,
+  and runtime loop closure fields to worldmodel schema.
+
+patch:
+  impact_hooks:
+    - construct_id
+    - output_slots
+    - reasoning_tags
+    - memory_update_paths
+    - patch_history_log
+    - sub-agent_suggestions
+    - reroute_trace_links
+    - world_facts_asserted
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "code-generation", "foundation", "model-config", "schema"]
+# keywords: ["canonical", "description", "filename", "language", "model", "patch"]
+# last_modified: "2026-01-06T16:58:23Z"
+# ============================================================================

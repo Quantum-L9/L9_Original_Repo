@@ -36,7 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -322,7 +322,7 @@ class L9Relationship(BaseModel):
         default_factory=dict, description="Relationship properties"
     )
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Creation timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Creation timestamp"
     )
 
     def to_edge_dict(self) -> dict[str, Any]:
