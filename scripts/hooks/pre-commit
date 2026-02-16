@@ -54,6 +54,27 @@ export TIMEOUT_TYPE="${L9_HOOK_TIMEOUT_TYPE:-60}"
 export TIMEOUT_TEST="${L9_HOOK_TIMEOUT_TEST:-120}"
 export TIMEOUT_ADR="${L9_HOOK_TIMEOUT_ADR:-15}"
 
+# =============================================================================
+# PYTHON 3.12 TOOL PATHS — Ensure we use Python 3.12 tools, not system Python 3.9
+# =============================================================================
+# Priority: 1) venv, 2) Homebrew Python 3.12 user site, 3) PATH
+VENV_BIN="$REPO_ROOT/.venv/bin"
+PY312_USER_BIN="$HOME/Library/Python/3.12/bin"
+
+# Add Python 3.12 paths to front of PATH for this hook
+if [ -d "$VENV_BIN" ]; then
+    export PATH="$VENV_BIN:$PATH"
+fi
+if [ -d "$PY312_USER_BIN" ]; then
+    export PATH="$PY312_USER_BIN:$PATH"
+fi
+
+# Verify we have Python 3.12+ (PEP 695 syntax requires it)
+PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null || echo "0.0")
+if [[ "$PYTHON_VERSION" < "3.12" ]]; then
+    printf "%b⚠ WARNING: Python %s detected, need 3.12+ for PEP 695 syntax%b\n" "$YELLOW" "$PYTHON_VERSION" "$NC" >&2
+fi
+
 # Metrics
 readonly HOOK_START=$(date +%s)
 TOTAL_CHECKS=11

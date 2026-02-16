@@ -57,6 +57,11 @@ SKIP_PATTERNS = [
     "docs/Quantum Research Factory",  # Legacy docs
     "docs/12-23-25",  # Legacy documentation scripts
     "codegen",
+    "current_work",  # WIP/scratch directory
+    "_archived",  # Archived code
+    ".backup",  # Backup files
+    "private",  # Private specs
+    "igor",  # User working directory
 ]
 
 

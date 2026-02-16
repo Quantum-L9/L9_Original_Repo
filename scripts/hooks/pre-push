@@ -11,6 +11,21 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m'
 
+# =============================================================================
+# PYTHON 3.12 TOOL PATHS — Ensure we use Python 3.12 tools, not system Python 3.9
+# =============================================================================
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+VENV_BIN="$REPO_ROOT/.venv/bin"
+PY312_USER_BIN="$HOME/Library/Python/3.12/bin"
+
+# Add Python 3.12 paths to front of PATH for this hook
+if [ -d "$VENV_BIN" ]; then
+    export PATH="$VENV_BIN:$PATH"
+fi
+if [ -d "$PY312_USER_BIN" ]; then
+    export PATH="$PY312_USER_BIN:$PATH"
+fi
+
 echo -e "${BLUE}🚀 L9 Pre-Push Validations${NC}"
 echo "========================================"
 
