@@ -198,6 +198,7 @@ _Last updated: 2026-02-16 22:00 EST (end-session)_
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-16: CI wiring: check_syntax.py (Gate 0), auto_stub_adr_enforcement.py (dry-run). Renamed lint_forbidden_imports.py→check_forbidden_imports.py, dora_compliance_check.py→check_dora_compliance.py for naming convention alignment.
 - 2026-02-16: GMP-115 enterprise-grade SQL security: recreated core/exceptions (security.py), config/policies/sql_security.yaml, tests/security/test_sql_injection.py (34 tests), ci/check_stale_noqa.py; added operation validation in memory_unified.py; wired check_stale_noqa into CI and pre-commit. All 34 security tests pass; stale noqa check passes.
 - 2026-02-16: PR #113 analysis and merge resolution: analyzed mypy P0 hotspot PR; merge blocked by conflicts; local rebase resolved findings.yaml (kept main); closed PR 113 as superseded by PR #114 (changes already on main).
 - 2026-02-16: Phase0 scope schema: protected_files now reference config/policies/protected_files.yaml; removed duplicated default list. Single source of truth for protected files.
@@ -251,10 +252,10 @@ _Last updated: 2026-02-16 22:00 EST (end-session)_
 
 ## Next Steps (Next Session)
 
+- [ ] Wire remaining 2 unwired CI scripts: `ci/validate_codegen.py`, `ci/validate_spec_v25.py`
 - [ ] Fix remaining 9 mypy union-attr errors (substrate_semantic.py line 640, webhook_mac_agent.py lines 205-208, hierarchical_summarizer.py line 441)
 - [ ] Tackle next mypy category: attr-defined (172 errors) — real attribute mismatches, biggest win after union-attr
 - [ ] Tackle mypy arg-type (121 errors) — wrong argument types passed to functions
-- [ ] Review distiller 5am cron results (check `$HOME/Dropbox/Cursor Governance/GlobalCommands/ops/logs/distiller_reports/`)
 - [ ] Execute migration 0032 + 0034 on C1 during next Docker rebuild and capture health proof
 
 **Recent Sessions (7-day window):**
