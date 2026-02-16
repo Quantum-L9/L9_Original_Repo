@@ -2186,7 +2186,7 @@ def _build_system_prompt(
     This gives the AIOS model context about the conversation thread and
     any related prior knowledge from the memory substrate.
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     # GMP-LCTO-FIXES: Inject current datetime so L can tell time
     current_time = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")

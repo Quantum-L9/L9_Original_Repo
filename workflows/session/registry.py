@@ -34,7 +34,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
 
@@ -46,7 +46,9 @@ try:
 except ImportError:
     logger = structlog.get_logger(__name__)
 
-from workflows.session.interface import SessionDAG
+
+if TYPE_CHECKING:
+    from workflows.session.interface import SessionDAG
 
 
 class SessionDAGRegistry:

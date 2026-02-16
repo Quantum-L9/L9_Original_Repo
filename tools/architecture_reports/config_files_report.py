@@ -21,8 +21,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from .config import RepoLayout
 from .filesystem import open_report
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .config import RepoLayout
 
 _CONFIG_EXT = {".yml", ".yaml", ".toml", ".ini", ".json", ".env", ".cfg"}
 

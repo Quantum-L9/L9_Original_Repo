@@ -34,14 +34,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, ParamSpec, TypeVar
+from typing import Any, ParamSpec, TypeVar, TYPE_CHECKING
 
 import structlog
 
 from core.auto_registry import AutoRegistry
 from core.singleton_registry import SingletonLifecycle
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

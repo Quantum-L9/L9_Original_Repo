@@ -31,7 +31,7 @@ __dora_meta__ = {
 
 import asyncio
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import structlog
@@ -185,7 +185,7 @@ async def inject_files_node(state: WorkflowState) -> dict:
         error="; ".join(errors) if errors else None,
         duration_ms=duration_ms,
         artifacts={"modified_count": len(modified_files)},
-        timestamp=datetime.now().isoformat(),
+        timestamp=datetime.now(tz=UTC).isoformat(),
     )
 
     logger.info(

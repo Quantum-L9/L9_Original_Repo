@@ -10,16 +10,9 @@ Reference: ci/auto_fix_adr.py::validate_syntax, validate_noqa_not_in_string
 
 from __future__ import annotations
 
-from pathlib import Path
-from tempfile import NamedTemporaryFile
-
-import pytest
 
 from ci.auto_fix_adr import (
-    fix_fastapi_depends,
     fix_lru_cache_maxsize,
-    fix_neo4j_cypher,
-    fix_packet_envelope,
     fix_path_safety,
     fix_pickle_usage,
     fix_registry_pattern,
@@ -30,6 +23,10 @@ from ci.auto_fix_adr import (
     validate_noqa_not_in_string,
     validate_syntax,
 )
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestValidateSyntax:

@@ -35,7 +35,10 @@ __dora_meta__ = {
 from dataclasses import dataclass
 
 import structlog
-from fastapi import APIRouter, FastAPI
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from fastapi import APIRouter, FastAPI
 
 logger = structlog.get_logger(__name__)
 

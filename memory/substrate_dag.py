@@ -49,12 +49,11 @@ __dora_meta__ = {
 
 import asyncio
 import os
-from datetime import UTC, datetime, timezone
-from typing import Any, TypedDict
+from datetime import UTC, datetime
+from typing import Any, TypedDict, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 import structlog
-from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, StateGraph
 
 from core.decorators import must_stay_async
@@ -66,6 +65,9 @@ from memory.substrate_models import (
     KnowledgeFact,
     StructuredReasoningBlock,
 )
+
+if TYPE_CHECKING:
+    from langchain_core.runnables import RunnableConfig
 
 logger = structlog.get_logger(__name__)
 

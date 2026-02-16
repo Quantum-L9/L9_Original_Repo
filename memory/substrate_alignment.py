@@ -144,7 +144,7 @@ class SubstrateAlignmentChecker:
 
     async def check_postgres_to_neo4j(self, limit: int = 1000) -> AlignmentReport:
         """Verify all Postgres packets have Neo4j nodes."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         report = AlignmentReport(checked_at=datetime.now(UTC).isoformat())
 
@@ -175,7 +175,7 @@ class SubstrateAlignmentChecker:
 
     async def check_neo4j_to_postgres(self, limit: int = 1000) -> AlignmentReport:
         """Verify all Neo4j memory nodes have Postgres packets."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         report = AlignmentReport(checked_at=datetime.now(UTC).isoformat())
 
@@ -218,7 +218,7 @@ class SubstrateAlignmentChecker:
         pg_report = await self.check_postgres_to_neo4j(limit)
         neo_report = await self.check_neo4j_to_postgres(limit)
 
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         combined = AlignmentReport(
             postgres_count=pg_report.postgres_count,

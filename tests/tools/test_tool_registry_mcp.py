@@ -21,8 +21,11 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+import structlog
 
 from core.decorators import must_stay_async
+
+logger = structlog.get_logger(__name__)
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -44,7 +47,7 @@ def _reset_mcp_metadata():
         try:
             tool_executor_registry.unregister(tid)
         except Exception:
-            pass
+            logger.debug("test_tool_registry_mcp.cleanup_unregister_failed", tool_id=tid)
 
 
 @pytest.fixture

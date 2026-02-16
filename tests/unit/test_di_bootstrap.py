@@ -8,12 +8,12 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from core.di.bootstrap import bootstrap_di_container
 from core.di.container import (
     DIContainer,
     get_di_container,
     reset_di_container,
 )
-from core.di.bootstrap import bootstrap_di_container
 
 
 class TestBootstrapDIContainer:

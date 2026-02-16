@@ -49,7 +49,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
@@ -63,6 +62,7 @@ from .models import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from core.agents.schemas import AgentConfig
     from memory.substrate_service import MemorySubstrateService
 

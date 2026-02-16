@@ -34,7 +34,7 @@ import time
 from collections import defaultdict
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from functools import wraps
 from typing import Any, Protocol
@@ -58,7 +58,7 @@ class RateLimitStrategy(str, Enum):
 
     FIXED_WINDOW = "fixed_window"
     SLIDING_WINDOW = "sliding_window"
-    TOKEN_BUCKET = "token_bucket"
+    TOKEN_BUCKET = "token_bucket"  # noqa: S105 — enum value, not a credential
     LEAKY_BUCKET = "leaky_bucket"
 
 
@@ -350,7 +350,7 @@ class StandardRateLimiter:
         else:
             reset_timestamp = time.monotonic() + self.policy.window_seconds
 
-        return datetime.fromtimestamp(reset_timestamp)
+        return datetime.fromtimestamp(reset_timestamp, tz=UTC)
 
     def _acquire_fixed_window(self, key: str, amount: int) -> bool:
         """Acquire tokens using fixed window strategy.

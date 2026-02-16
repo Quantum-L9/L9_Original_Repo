@@ -19,8 +19,7 @@ ADR: 0013 (governance hierarchy), 0019 (structlog)
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock
 
 import pytest
 

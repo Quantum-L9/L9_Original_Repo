@@ -40,6 +40,7 @@ import argparse
 import ast
 import sys
 from pathlib import Path
+
 import structlog
 
 # L9 module directories to scan (not "src" - L9 uses flat structure)
@@ -184,7 +185,6 @@ def main() -> int:
     # Report
     if violations_summary:
         logger.info("⚠️  aios compliance issues:")
-        logger.info("output", value=)
         for filepath, violations in sorted(violations_summary.items()):
             rel_path = (
                 Path(filepath).relative_to(repo_root)
@@ -192,8 +192,9 @@ def main() -> int:
                 else filepath
             )
             for violation in violations:
-                logger.info("  rel path: violation", rel_path=rel_path, violation=violation)
-        logger.info("output", value=)
+                logger.info(
+                    "  rel path: violation", rel_path=rel_path, violation=violation
+                )
         print(
             f"Total: {sum(len(v) for v in violations_summary.values())} issues in {len(violations_summary)} files"
         )

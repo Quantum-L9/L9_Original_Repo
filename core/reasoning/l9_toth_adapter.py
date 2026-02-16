@@ -25,7 +25,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -443,7 +443,7 @@ class L9ToThAdapter:
                 "query": result.query,
                 "conclusion": result.final_conclusion,
                 "confidence": result.overall_confidence,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(tz=UTC).isoformat(),
                 "embedding": None,  # Would generate embedding for vector search
             }
 
@@ -529,7 +529,7 @@ class L9ToThAdapter:
             "overall_confidence": avg_confidence,
             "recommendation": self._extract_board_recommendation(perspectives),
             "dissenting_views": self._extract_dissenting_views(perspectives),
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(tz=UTC).isoformat(),
         }
 
     def _synthesize_ceo_decision(
@@ -549,7 +549,7 @@ class L9ToThAdapter:
             "confidence": avg_confidence,
             "risk_assessment": self._extract_risk_assessment(temporal_reasoning),
             "action_plan": self._extract_action_plan(temporal_reasoning),
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(tz=UTC).isoformat(),
         }
 
     def _synthesize_research_recommendation(

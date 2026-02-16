@@ -10,8 +10,6 @@ Coverage:
 
 from __future__ import annotations
 
-import pytest
-
 from memory.ranking_extensions import (
     ExtendedRankingItem,
     ExtendedWeights,

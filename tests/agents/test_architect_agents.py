@@ -21,7 +21,6 @@ if str(project_root) not in sys.path:
 try:
     from agents.architect_agent_a import ArchitectAgentA
     from agents.architect_agent_b import ArchitectAgentB
-    from agents.base_agent import AgentConfig
 except ImportError as e:
     pytest.skip(f"Could not import architect agents: {e}", allow_module_level=True)
 

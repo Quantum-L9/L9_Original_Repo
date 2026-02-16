@@ -46,7 +46,7 @@ import asyncio
 from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from uuid import uuid4
 
 import structlog
@@ -54,8 +54,10 @@ import yaml
 from pydantic import BaseModel, Field
 
 from orchestrators.pattern.cell_adapter import CellAgentAdapter
-from orchestrators.pattern.interface import PipelineResult
 from orchestrators.pattern.orchestrator import PatternOrchestrator
+
+if TYPE_CHECKING:
+    from orchestrators.pattern.interface import PipelineResult
 
 logger = structlog.get_logger(__name__)
 

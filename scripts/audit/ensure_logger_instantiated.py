@@ -437,8 +437,12 @@ def main():
         logger.info("{'=' * 60}")
         logger.info("\nscanned: {len(results)} files with module-level logger usage")
         logger.info("ok:      {len(files_ok)} files (logger properly instantiated)")
-        logger.info("missing: {len(files_needing_fix)} files (need logger instantiation)\n")
-        logger.info("note: files using only self.logger are excluded (instance loggers).\n")
+        logger.info(
+            "missing: {len(files_needing_fix)} files (need logger instantiation)\n"
+        )
+        logger.info(
+            "note: files using only self.logger are excluded (instance loggers).\n"
+        )
 
         # Verbose output - show all OK files
         if args.verbose and files_ok:
@@ -453,8 +457,6 @@ def main():
                     else analysis.path
                 )
                 logger.info("  rel path", rel_path=rel_path)
-            logger.info("output", value=)
-
         if files_needing_fix:
             logger.info("{'=' * 60}")
             logger.info("files missing logger instantiation:")
@@ -482,8 +484,6 @@ def main():
                     )
                 if len(analysis.logger_usages) > 3:
                     logger.info("      ... and {len(analysis.logger_usages) - 3} more")
-                logger.info("output", value=)
-
     # Fix files if requested
     if args.fix and files_needing_fix:
         logger.info("\n{'=' * 60}")

@@ -33,17 +33,19 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from uuid import uuid4
 
 import structlog
 from pydantic import BaseModel, Field
 
-from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
 from agents.cursor.integrations.cursor_langgraph import CursorAgentState
-from core.governance.approval_manager import ApprovalManager
-from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
-from memory.substrate_service import MemorySubstrateService
+
+if TYPE_CHECKING:
+    from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
+    from memory.substrate_service import MemorySubstrateService
+    from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
+    from core.governance.approval_manager import ApprovalManager
 
 logger = structlog.get_logger(__name__)
 

@@ -267,7 +267,7 @@ async def find_relevant_tools(
                 {exclude_clause}
                 ORDER BY embedding <=> $1
                 LIMIT $2
-                """,
+                """,  # noqa: S608 — exclude_clause is internal SQL, user values parameterized
                 *params,
             )
 

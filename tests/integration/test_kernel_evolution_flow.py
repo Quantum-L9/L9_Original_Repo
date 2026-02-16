@@ -407,7 +407,7 @@ class TestExecutorIntegration:
     async def test_executor_runs_self_reflection(self):
         """Executor should run self-reflection after task completion."""
         try:
-            from core.agents.executor import AgentExecutorService, _has_self_reflection
+            from core.agents.executor import _has_self_reflection
 
             # Verify self-reflection is available
             assert _has_self_reflection is True

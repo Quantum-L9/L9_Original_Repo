@@ -73,7 +73,7 @@ def get_changed_files() -> set[str]:
     try:
         # Get diff between main and HEAD
         result = subprocess.run(
-            ["git", "diff", "--name-only", "origin/main...HEAD"],
+            ["git", "diff", "--name-only", "origin/main...HEAD"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             check=True,
@@ -90,7 +90,7 @@ def get_commit_message() -> str:
     """Get the HEAD commit message for approval marker check."""
     try:
         result = subprocess.run(
-            ["git", "log", "-1", "--format=%B"],
+            ["git", "log", "-1", "--format=%B"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             check=True,

@@ -40,7 +40,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -58,6 +58,7 @@ from core.singleton_auto_registry import register_singleton, register_singleton_
 from memory.audit_utils import prepare_packet_for_ingest
 
 if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
     from memory.agent_persistence import AgentPersistenceService
 from memory.consolidation import ConsolidationPipeline
 from memory.governance_gate import (
@@ -72,7 +73,6 @@ from memory.retention_engine import RetentionEngine
 from memory.saga import SagaExecutor, SagaResult
 from memory.saga_patterns import SagaPatterns
 from memory.substrate_dag import SubstrateDAG
-from memory.substrate_repository import SubstrateRepository
 from memory.substrate_semantic import (
     EmbeddingProvider,
     SemanticService,

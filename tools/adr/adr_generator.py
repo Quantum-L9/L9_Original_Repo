@@ -28,8 +28,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import re
-from datetime import date
-from pathlib import Path
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def slugify(text: str) -> str:
@@ -82,7 +85,7 @@ def generate_adr(
     adr_file = adr_dir / filename
 
     # Get today's date
-    today = date.today().isoformat()
+    today = datetime.now(tz=UTC).date().isoformat()
 
     # Read template
     template_file = adr_dir / "template.md"

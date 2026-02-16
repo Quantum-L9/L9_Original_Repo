@@ -233,7 +233,7 @@ class CodeGenerator:
                     expr,
                     args=syms,
                     backend="cython",
-                    tempdir="/tmp/sympy_autowrap",
+                    tempdir="/tmp/sympy_autowrap",  # noqa: S108 — intentional temp path for sympy compilation
                 )
 
                 logger.info(

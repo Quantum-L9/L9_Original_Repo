@@ -491,7 +491,6 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
     GMP-C1-GOVERNANCE: Sets MemoryGovernanceContext before tool execution.
     This ensures all downstream DB operations have proper RLS context.
     """
-    import os
 
     try:
         payload = await request.json()

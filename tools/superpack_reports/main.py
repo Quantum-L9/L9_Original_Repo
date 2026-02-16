@@ -27,7 +27,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import argparse
-from collections.abc import Callable
 
 from .api_report import generate_api_route_inventory, generate_api_superpack
 from .config import SuperpackLayout, default_layout
@@ -39,6 +38,10 @@ from .index_report import generate_superpack_index
 from .memory_report import generate_memory_integration_map, generate_memory_superpack
 from .tools_report import generate_tools_inventory, generate_tools_superpack
 from .workers_report import generate_orchestration_superpack, generate_worker_inventory
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def generate_all_superpacks(layout: SuperpackLayout | None = None) -> None:

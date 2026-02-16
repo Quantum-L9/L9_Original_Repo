@@ -11,7 +11,7 @@ Tests for:
 - Async context compatibility (pure function, no I/O)
 """
 
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 

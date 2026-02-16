@@ -1,12 +1,13 @@
 # test_l_cto_yaml.py
 
-import pytest
 import asyncio
 
+import pytest
 import yaml
 
 from agents.l_cto import LCTOAgent
 from core.decorators import must_stay_async
+
 # from runtime.kernel_loader import KernelLoader
 # KernelLoader is a module of functions, not a class.
 # We skip the test that uses it as a class.

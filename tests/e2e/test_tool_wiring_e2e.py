@@ -25,8 +25,7 @@ import importlib
 import inspect
 import sys
 from pathlib import Path
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -395,7 +394,7 @@ class TestSystemInvariants:
             del sys.modules[k]
 
         try:
-            import runtime.tool_search_meta
+            import runtime.tool_search_meta  # noqa: F401 — import test
 
             assert True  # If we get here, no circular import
         except ImportError as e:

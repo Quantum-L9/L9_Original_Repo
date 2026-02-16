@@ -36,13 +36,16 @@ import os
 import re
 import stat
 import unicodedata
-from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import unquote
 
 from core.decorators import must_stay_async
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
 
 _ABSOLUTE_DRIVE_RE = re.compile(r"^[a-zA-Z]:[\\/]")
 _UNC_PREFIXES = ("\\\\", "//")

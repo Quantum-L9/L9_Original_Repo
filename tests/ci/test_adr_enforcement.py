@@ -29,8 +29,6 @@ from pathlib import Path
 
 import pytest
 
-from core.decorators import must_stay_async
-
 # ============================================================================
 # Configuration
 # ============================================================================

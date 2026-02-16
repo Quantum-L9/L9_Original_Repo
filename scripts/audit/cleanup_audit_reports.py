@@ -56,10 +56,10 @@ import argparse
 import shutil
 import sys
 from collections import defaultdict
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
-import structlog
 
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -149,15 +149,15 @@ def get_audit_files() -> list[Path]:
 
 def get_file_age_days(filepath: Path) -> float:
     """Get file age in days."""
-    mtime = datetime.fromtimestamp(filepath.stat().st_mtime)
-    age = datetime.now() - mtime
+    mtime = datetime.fromtimestamp(filepath.stat().st_mtime, tz=UTC)
+    age = datetime.now(tz=UTC) - mtime
     return age.total_seconds() / 86400
 
 
 def format_file_info(filepath: Path) -> str:
     """Format file info for display."""
     size_kb = filepath.stat().st_size / 1024
-    mtime = datetime.fromtimestamp(filepath.stat().st_mtime)
+    mtime = datetime.fromtimestamp(filepath.stat().st_mtime, tz=UTC)
     age_days = get_file_age_days(filepath)
     return f"{filepath.name:50} {size_kb:8.1f} KB  {mtime:%Y-%m-%d %H:%M}  ({age_days:.1f}d old)"
 
@@ -170,14 +170,14 @@ def list_files(files: list[Path]) -> None:
 
     logger.info("\n📋 found {len(files)} audit report files:\n")
     logger.info("{'filename':50} {'size':>10}  {'modified':16}  {'age'}")
-    logger.info("-" * 90")
+    logger.info("-" * 90)
 
     total_size = 0
     for f in files:
         logger.info("output", value=format_file_info(f))
         total_size += f.stat().st_size
 
-    logger.info("-" * 90")
+    logger.info("-" * 90)
     logger.info("total: {len(files)} files, {total_size / 1024:.1f} kb")
 
 
@@ -291,7 +291,9 @@ Examples:
 
     if args.action == "list":
         list_files(all_files)
-        logger.info("\nprotected files (never deleted): keep files", KEEP_FILES=KEEP_FILES)
+        logger.info(
+            "\nprotected files (never deleted): keep files", KEEP_FILES=KEEP_FILES
+        )
         return 0
 
     # Filter by age if specified
@@ -307,10 +309,10 @@ Examples:
 
     # Show what will be affected
     logger.info("\n{'dry run - ' if args.dry_run else ''}files to {args.action}:")
-    logger.info("-" * 50")
+    logger.info("-" * 50)
     for f in files_to_process:
         logger.info("  {f.name}")
-    logger.info("-" * 50")
+    logger.info("-" * 50)
     logger.info("total: {len(files_to_process)} files")
     logger.info("keeping: {min(args.keep, len(all_files))} most recent files")
 

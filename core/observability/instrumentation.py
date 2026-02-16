@@ -32,8 +32,6 @@ from typing import Any, TypeVar
 
 import structlog
 
-from core.decorators import must_stay_async
-
 from .models import (
     GovernanceCheckSpan,
     LLMGenerationSpan,

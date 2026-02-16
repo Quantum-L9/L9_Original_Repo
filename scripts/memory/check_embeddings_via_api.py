@@ -31,7 +31,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from core.decorators import must_stay_async
 import asyncio
 import os
 import sys
@@ -40,6 +39,8 @@ from pathlib import Path
 import httpx
 import structlog
 from dotenv import load_dotenv
+
+from core.decorators import must_stay_async
 
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -80,7 +81,7 @@ async def check_embeddings_via_search(limit: int = 20):
     async with httpx.AsyncClient(verify=False, timeout=30.0) as client:
         for query in test_queries:
             logger.info("\n🔍 query: 'query'", query=query)
-            logger.info("-" * 60")
+            logger.info("-" * 60)
 
             try:
                 response = await client.post(
@@ -113,14 +114,16 @@ async def check_embeddings_via_search(limit: int = 20):
                         logger.info("      agent: {payload.get('agent_id', 'unknown')}")
                         logger.info("      text: {text[:150]}...")
                 else:
-                    logger.error("  ❌ error: {response.status_code} - {response.text[:200]}")
+                    logger.error(
+                        "  ❌ error: {response.status_code} - {response.text[:200]}"
+                    )
 
             except Exception as e:
                 logger.info("  ❌ exception: e", e=e)
 
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("summary")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("\nif you see:")
     logger.error("  - empty/error messages → trash embeddings from slack glitch")
     logger.info("  - meaningful content → embeddings are valid")

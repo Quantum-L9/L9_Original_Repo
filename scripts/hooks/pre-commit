@@ -233,8 +233,8 @@ CRED_VIOLATIONS=0
 STAGED_ALL=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true)
 
 if [ -n "$STAGED_ALL" ]; then
-    # Exclude ADR/documentation files (they contain examples)
-    STAGED_NON_DOC=$(echo "$STAGED_ALL" | grep -v 'readme/adr/' | grep -v '\.md$' || true)
+    # Exclude ADR/documentation files and config files that contain detection patterns
+    STAGED_NON_DOC=$(echo "$STAGED_ALL" | grep -v 'readme/adr/' | grep -v '\.md$' | grep -v 'config/adr-enforcement.yaml' || true)
     
     if [ -n "$STAGED_NON_DOC" ]; then
         # AWS Access Keys
@@ -447,13 +447,8 @@ else
             if timeout_cmd "$TIMEOUT_TEST" pytest $TEST_FILES -q --tb=line --maxfail=3 2>&1 | tail -15; then
                 gate_success "Tests passed"
             else
-                local test_exit=$?
-                if [ "$test_exit" -eq 124 ]; then
-                    gate_warn "Tests timed out (${TIMEOUT_TEST}s budget exceeded)"
-                else
-                    log_audit "tests_failed" "HIGH"
-                    gate_fail "Tests failed" 6
-                fi
+                log_audit "tests_failed" "HIGH"
+                gate_fail "Tests failed" 6
             fi
         else
             gate_success "No test files found for staged modules"
@@ -466,6 +461,17 @@ fi
 # =============================================================================
 
 gate_header "7" "ADR ENFORCEMENT"
+
+# Auto-stub new ADRs into enforcement manifest
+STAGED_ADR_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '^readme/adr/[0-9]\{4\}-.*\.md$' || true)
+if [ -n "$STAGED_ADR_FILES" ]; then
+    printf "  Auto-stubbing new ADRs into enforcement manifest...\n"
+    if python3 ci/auto_stub_adr_enforcement.py 2>&1; then
+        gate_success "ADR enforcement manifest updated"
+    else
+        gate_warn "ADR auto-stub failed (non-blocking)"
+    fi
+fi
 
 if [ -z "$STAGED_PY_FILES" ]; then
     gate_success "No Python files to check"

@@ -39,11 +39,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-from collections.abc import Callable, Coroutine
 from functools import wraps
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Coroutine
 
 logger = structlog.get_logger(__name__)
 

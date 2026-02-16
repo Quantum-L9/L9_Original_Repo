@@ -29,9 +29,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from memory.substrate_service import MemorySubstrateService
+
+if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
 
 
 class CheckpointManager:

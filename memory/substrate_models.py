@@ -59,7 +59,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -274,7 +274,6 @@ class KnowledgeFact(BaseModel):
     )
     source_packet: UUID | None = Field(None, description="Originating packet ID")
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    scope: str | None = Field(None, description="RLS scope from source context")
 
 
 class KnowledgeFactRow(BaseModel):

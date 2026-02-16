@@ -96,7 +96,7 @@ async def delete_trash_embeddings():
                     f"""
                     DELETE FROM semantic_memory
                     WHERE embedding_id::text IN ({placeholders})
-                    """,
+                    """,  # noqa: S608 — placeholders are $N params, not user input
                     *batch,
                 )
 
@@ -119,16 +119,16 @@ async def delete_trash_embeddings():
 
 async def main():
     """Main function."""
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("delete trash embeddings")
-    logger.info("=" * 60")
-    logger.info("output", value=)
-
+    logger.info("=" * 60)
     success = await delete_trash_embeddings()
 
     if success:
         logger.info("\n✅ trash embeddings deleted successfully")
-        logger.info("\nnext: run re-indexing scripts to populate with high-value content")
+        logger.info(
+            "\nnext: run re-indexing scripts to populate with high-value content"
+        )
     else:
         logger.error("\n❌ deletion failed - check logs above")
         logger.info("\nalternative: run sql manually:")

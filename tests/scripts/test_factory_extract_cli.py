@@ -3,12 +3,15 @@ from __future__ import annotations
 import asyncio
 import importlib
 import sys
-from pathlib import Path
 from types import ModuleType
 
 import pytest
 
 from core.decorators import must_stay_async
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class DummySchema:

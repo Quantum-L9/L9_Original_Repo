@@ -13,7 +13,7 @@ import tempfile
 
 import pytest
 
-from core.agents.codegenagent.c_gmp_engine import CGMPEngine, CGMPEngineError
+from core.agents.codegenagent.c_gmp_engine import CGMPEngine
 from core.agents.codegenagent.meta_loader import MetaLoader
 
 

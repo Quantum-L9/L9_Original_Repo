@@ -36,6 +36,7 @@ GMP: GMP-129 (Memory Pipeline Governance)
 """
 
 from __future__ import annotations
+
 import structlog
 
 # ============================================================================
@@ -240,11 +241,9 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("  memory pipeline bypass check (gmp-129)")
-    logger.info("=" * 60")
-    logger.info("output", value=)
-
+    logger.info("=" * 60)
     violations = scan_directory(args.base_path, SCAN_DIRS)
 
     if violations:
@@ -252,9 +251,9 @@ def main() -> int:
         for v in violations:
             logger.info("  v\n", v=v)
 
-        logger.info("\n" + "=" * 60")
+        logger.info("\n" + "=" * 60)
         logger.info("how to fix:")
-        logger.info("=" * 60")
+        logger.info("=" * 60)
         print("""
 1. Replace direct INSERT with MemorySubstrateService:
 

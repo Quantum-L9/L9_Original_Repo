@@ -143,7 +143,7 @@ class TestPhase1LoadKernels:
         from core.agents.bootstrap.phase_1_load_kernels import load_and_parse_kernels
 
         # Use a nonexistent path - function should handle gracefully
-        kernels = await load_and_parse_kernels("/tmp/nonexistent")
+        kernels = await load_and_parse_kernels("/tmp/nonexistent")  # noqa: S108 — test fixture
 
         # Should return empty dict for nonexistent path
         assert isinstance(kernels, dict)

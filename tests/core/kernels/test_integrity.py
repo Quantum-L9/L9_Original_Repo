@@ -12,12 +12,14 @@ Goals:
 
 from __future__ import annotations
 
-import hashlib
-from pathlib import Path
 
 import pytest
 
 from core.kernels import integrity
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_compute_hash_is_deterministic(tmp_path: Path) -> None:

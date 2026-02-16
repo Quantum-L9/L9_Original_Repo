@@ -20,14 +20,15 @@ Environment:
     NEO4J_PASSWORD: Neo4j password (required)
 """
 
-from core.decorators import must_stay_async
 import asyncio
 import os
 import sys
 from pathlib import Path
 
-import yaml
 import structlog
+import yaml
+
+from core.decorators import must_stay_async
 
 # Add project root to path
 
@@ -72,7 +73,12 @@ async def create_entities(tx, entities: list):
         RETURN e
         """
         await tx.run(query, id=entity_id, name=name, properties=properties)
-        logger.info("  ✓ created entity type: name (entity id)", entity_type=entity_type, name=name, entity_id=entity_id)
+        logger.info(
+            "  ✓ created entity type: name (entity id)",
+            entity_type=entity_type,
+            name=name,
+            entity_id=entity_id,
+        )
 
 
 async def create_relations(tx, relations: list):
@@ -96,9 +102,19 @@ async def create_relations(tx, relations: list):
         )
         record = await result.single()
         if record:
-            logger.info("  ✓ created from id -[rel type]-> to id", from_id=from_id, rel_type=rel_type, to_id=to_id)
+            logger.info(
+                "  ✓ created from id -[rel type]-> to id",
+                from_id=from_id,
+                rel_type=rel_type,
+                to_id=to_id,
+            )
         else:
-            logger.info("  ⚠ could not create from id -[rel type]-> to id", from_id=from_id, rel_type=rel_type, to_id=to_id)
+            logger.info(
+                "  ⚠ could not create from id -[rel type]-> to id",
+                from_id=from_id,
+                rel_type=rel_type,
+                to_id=to_id,
+            )
 
 
 async def create_tool_capabilities(tx, tool_caps: dict):
@@ -123,7 +139,9 @@ async def create_tool_capabilities(tx, tool_caps: dict):
                 description=tool.get("description", ""),
                 requires_approval=tool.get("requires_approval", True),
             )
-            logger.info("  ✓ agent id can execute {tool['tool']} (high risk)", agent_id=agent_id)
+            logger.info(
+                "  ✓ agent id can execute {tool['tool']} (high risk)", agent_id=agent_id
+            )
 
         # Standard tools
         for tool in caps.get("standard", []):
@@ -185,7 +203,9 @@ async def create_directives(tx, directives: list):
             rule=directive["rule"],
             enforced_by=directive["enforced_by"],
         )
-        logger.info("  ✓ created directive: {directive['id']} ({directive['priority']})")
+        logger.info(
+            "  ✓ created directive: {directive['id']} ({directive['priority']})"
+        )
 
     # Link directives to L-CTO
     query = """
@@ -225,12 +245,14 @@ async def main():
     """Main entry point."""
     if not NEO4J_PASSWORD:
         logger.error("error: neo4j_password environment variable required")
-        logger.info("usage: neo4j_password=xxx python scripts/load_agent_world_model.py")
+        logger.info(
+            "usage: neo4j_password=xxx python scripts/load_agent_world_model.py"
+        )
         sys.exit(1)
 
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("l9 agent world model loader")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("neo4j uri: neo4j uri", NEO4J_URI=NEO4J_URI)
     logger.info("seed file: seed file", SEED_FILE=SEED_FILE)
     logger.info("output", value="")
@@ -280,9 +302,9 @@ async def main():
                     create_responsibilities, data["responsibilities"]
                 )
 
-        logger.info("\n" + "=" * 60")
+        logger.info("\n" + "=" * 60)
         logger.info("✓ agent world model loaded successfully!")
-        logger.info("=" * 60")
+        logger.info("=" * 60)
 
         # Print summary query
         logger.info("\nverification queries:")

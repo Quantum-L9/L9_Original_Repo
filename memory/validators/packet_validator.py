@@ -38,15 +38,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import Iterable
-from datetime import UTC, datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import Any, TYPE_CHECKING
 
 import structlog
 from pydantic import ValidationError
 
 from core.schemas import VALID_DERIVE_TYPES, PacketEnvelopeIn
 from memory.audit_utils import detect_injection_markers, detect_pii_types
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 logger = structlog.get_logger(__name__)
 

@@ -240,7 +240,7 @@ def main():
                     if "# NOTE: Must stay async" in content:
                         files_with_comments.append(filepath)
                 except Exception:
-                    pass
+                    logger.debug("fix_async_decorators.file_read_failed", filepath=filepath)
 
     logger.info("found {len(files_with_comments)} files with async comments\n")
 

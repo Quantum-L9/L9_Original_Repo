@@ -29,7 +29,7 @@ __dora_meta__ = {
 
 import pytest
 
-from memory.governance_gate import build_governance_context, governance_context
+from memory.governance_gate import build_governance_context
 
 
 @pytest.fixture

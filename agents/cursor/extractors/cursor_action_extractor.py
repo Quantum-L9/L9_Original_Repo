@@ -28,7 +28,7 @@ __dora_meta__ = {
 
 import logging  # noqa: ADR-0019
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
@@ -50,7 +50,7 @@ class CursorActionExtractor(BaseExtractor):
 
         # Extract all components
         manifest = {
-            "extracted_at": datetime.now().isoformat(),
+            "extracted_at": datetime.now(tz=UTC).isoformat(),
             "source_file": str(input_path),
             "files": [],
         }

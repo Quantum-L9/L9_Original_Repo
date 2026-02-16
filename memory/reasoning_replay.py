@@ -41,13 +41,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import UTC, datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import Any, TYPE_CHECKING
 from uuid import UUID
 
 import structlog
 
-from memory.substrate_repository import SubstrateRepository
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 

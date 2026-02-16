@@ -30,9 +30,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass
 from typing import Any
+
+import structlog
 
 from world_model.interfaces import Entity, Relation
 from world_model.state import WorldModelState
@@ -46,7 +47,7 @@ class Neo4jConfig:
 
     uri: str = "bolt://localhost:7687"
     username: str = "neo4j"
-    password: str = "password"
+    password: str = "password"  # noqa: S105 — default/placeholder, overridden by env
     database: str = "neo4j"
 
 

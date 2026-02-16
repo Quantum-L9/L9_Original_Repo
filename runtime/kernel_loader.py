@@ -55,13 +55,10 @@ import hashlib
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import Any, Protocol
 
 import structlog
 import yaml
-
-if TYPE_CHECKING:
-    pass
 
 logger = structlog.get_logger(__name__)
 

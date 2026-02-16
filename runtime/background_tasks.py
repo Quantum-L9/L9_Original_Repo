@@ -34,10 +34,12 @@ __dora_meta__ = {
 
 import asyncio
 import os
-from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
 
 logger = structlog.get_logger(__name__)
 

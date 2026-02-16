@@ -60,7 +60,6 @@ import asyncio
 import fnmatch
 import os
 import re
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
@@ -76,6 +75,7 @@ from world_model.registry import WorldModelRegistry
 from world_model.state import Entity, Relation, WorldModelState
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from memory.substrate_service import MemorySubstrateService
     from simulation.simulation_engine import SimulationEngine
     from world_model.causal_mapper import CausalMapper

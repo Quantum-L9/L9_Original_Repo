@@ -55,7 +55,7 @@ import argparse
 import json
 import sys
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -404,7 +404,7 @@ class GMPEnforcer:
             gmp_id=gmp_id,
             tier=tier,
             task_description=task_description,
-            started_at=datetime.now().isoformat(),
+            started_at=datetime.now(tz=UTC).isoformat(),
             steps=steps,
             current_step="memory_read",
         )
@@ -500,7 +500,7 @@ class GMPEnforcer:
 
         # Mark complete
         step.status = StepStatus.COMPLETED
-        step.completed_at = datetime.now().isoformat()
+        step.completed_at = datetime.now(tz=UTC).isoformat()
         step.output = output
 
         # Find next step

@@ -12,7 +12,7 @@ Tests:
 Run: pytest tests/memory/test_substrate_dag_native.py -v
 """
 
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import TypedDict
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4

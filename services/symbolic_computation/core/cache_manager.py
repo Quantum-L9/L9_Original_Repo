@@ -37,13 +37,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
-from collections.abc import Callable
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
 
 from core.decorators import must_stay_async
 from services.symbolic_computation.config import SymbolicComputationConfig, get_config
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

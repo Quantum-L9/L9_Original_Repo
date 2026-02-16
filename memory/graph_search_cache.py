@@ -37,14 +37,16 @@ __dora_meta__ = {
 import hashlib
 import json
 import random
-from datetime import datetime, timezone, UTC
-from typing import Any, Literal
+from datetime import UTC, datetime
+from typing import Any, Literal, TYPE_CHECKING
 
 import structlog
 from pydantic import BaseModel, Field
 
-from memory.graph_client import Neo4jClient
-from runtime.redis_client import RedisClient
+
+if TYPE_CHECKING:
+    from runtime.redis_client import RedisClient
+    from memory.graph_client import Neo4jClient
 
 logger = structlog.get_logger(__name__)
 

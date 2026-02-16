@@ -16,7 +16,7 @@ pytest.skip(
     "Legacy memory substrate — memory.substrate_models not available.",
     allow_module_level=True,
 )
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 # =============================================================================

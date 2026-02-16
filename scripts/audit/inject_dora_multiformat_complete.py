@@ -41,14 +41,15 @@ import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+
 import structlog
 
 # ============================================================================
 # DATA MODELS
 
 
-
 logger = structlog.get_logger(__name__)
+
 
 @dataclass
 class HeaderMeta:
@@ -596,7 +597,10 @@ l9_trace:
             existing = self._check_existing_blocks(file_path, "yaml")
 
             if existing["legacy"]:
-                logger.info("⚠️  file path has legacy l9 dora - needs migration", file_path=file_path)
+                logger.info(
+                    "⚠️  file path has legacy l9 dora - needs migration",
+                    file_path=file_path,
+                )
                 return results
 
             with open(file_path, encoding="utf-8") as f:
@@ -629,12 +633,20 @@ l9_trace:
                 if not dry_run:
                     with open(file_path, "w", encoding="utf-8") as f:
                         f.write(content)
-                    logger.info("✅ injected dora blocks into file path", file_path=file_path)
+                    logger.info(
+                        "✅ injected dora blocks into file path", file_path=file_path
+                    )
                 else:
                     injected = [k for k, v in results.items() if v]
-                    logger.info("🔍 [dry run] would inject injected into file path", injected=injected, file_path=file_path)
+                    logger.info(
+                        "🔍 [dry run] would inject injected into file path",
+                        injected=injected,
+                        file_path=file_path,
+                    )
             else:
-                logger.info("⏭️  skipping file path (all blocks exist)", file_path=file_path)
+                logger.info(
+                    "⏭️  skipping file path (all blocks exist)", file_path=file_path
+                )
 
             return results
 
@@ -657,7 +669,9 @@ l9_trace:
             existing = self._check_existing_blocks(file_path, "json")
 
             if all([existing["header"], existing["footer"], existing["trace"]]):
-                logger.info("⏭️  skipping file path (all blocks exist)", file_path=file_path)
+                logger.info(
+                    "⏭️  skipping file path (all blocks exist)", file_path=file_path
+                )
                 return results
 
             with open(file_path, encoding="utf-8") as f:
@@ -676,10 +690,16 @@ l9_trace:
                 if not dry_run:
                     with open(file_path, "w", encoding="utf-8") as f:
                         json.dump(data, f, indent=2)
-                    logger.info("✅ injected dora blocks into file path", file_path=file_path)
+                    logger.info(
+                        "✅ injected dora blocks into file path", file_path=file_path
+                    )
                 else:
                     injected = [k for k, v in results.items() if v]
-                    logger.info("🔍 [dry run] would inject injected into file path", injected=injected, file_path=file_path)
+                    logger.info(
+                        "🔍 [dry run] would inject injected into file path",
+                        injected=injected,
+                        file_path=file_path,
+                    )
 
             return results
 
@@ -702,7 +722,10 @@ l9_trace:
             existing = self._check_existing_blocks(file_path, "md")
 
             if existing["legacy"]:
-                logger.info("⚠️  file path has legacy dora block - needs migration", file_path=file_path)
+                logger.info(
+                    "⚠️  file path has legacy dora block - needs migration",
+                    file_path=file_path,
+                )
                 return results
 
             with open(file_path, encoding="utf-8") as f:
@@ -741,12 +764,20 @@ l9_trace:
                 if not dry_run:
                     with open(file_path, "w", encoding="utf-8") as f:
                         f.write(content)
-                    logger.info("✅ injected dora blocks into file path", file_path=file_path)
+                    logger.info(
+                        "✅ injected dora blocks into file path", file_path=file_path
+                    )
                 else:
                     injected = [k for k, v in results.items() if v]
-                    logger.info("🔍 [dry run] would inject injected into file path", injected=injected, file_path=file_path)
+                    logger.info(
+                        "🔍 [dry run] would inject injected into file path",
+                        injected=injected,
+                        file_path=file_path,
+                    )
             else:
-                logger.info("⏭️  skipping file path (all blocks exist)", file_path=file_path)
+                logger.info(
+                    "⏭️  skipping file path (all blocks exist)", file_path=file_path
+                )
 
             return results
 
@@ -757,7 +788,7 @@ l9_trace:
     def process_all_files(self, dry_run: bool = True) -> dict:
         """Process all files and inject DORA blocks."""
         logger.info("\n{'🔍 dry run mode' if dry_run else '🚀 execution mode'}")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
 
         results = {
             "total_files": len(self.files_to_process),
@@ -815,7 +846,7 @@ l9_trace:
             json.dump(results, f, indent=2)
 
         logger.info("\n📊 injection report")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         logger.info("total files processed: {results['total_files']}")
         logger.info("✅ header meta injected: {results['header_injected']}")
         logger.info("✅ footer meta injected: {results['footer_injected']}")

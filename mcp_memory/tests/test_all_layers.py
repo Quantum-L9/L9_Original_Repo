@@ -22,7 +22,7 @@ import asyncio
 import os
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import pytest
@@ -91,7 +91,7 @@ class TestRedisLayer:
     async def test_redis_set_get(self, redis_client):
         """Test Redis set/get operations."""
         test_key = f"test:all_layers:{uuid.uuid4()}"
-        test_value = f"test_value_{datetime.now().isoformat()}"
+        test_value = f"test_value_{datetime.now(tz=UTC).isoformat()}"
 
         # Set value
         result = await redis_client.set(test_key, test_value, ttl=60)
@@ -130,7 +130,7 @@ class TestRedisLayer:
         task_data = {
             "action": "test_action",
             "payload": {"key": "value"},
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(tz=UTC).isoformat(),
         }
 
         # Enqueue
@@ -463,7 +463,7 @@ class TestAllLayersIntegration:
 async def check_all_connections() -> dict[str, Any]:
     """Quick health check for all database layers."""
     results = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(tz=UTC).isoformat(),
         "redis": {"available": False, "error": None},
         "postgres": {"available": False, "error": None, "version": None},
         "neo4j": {"available": False, "error": None},

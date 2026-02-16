@@ -212,10 +212,10 @@ def mcp_call_tool(tool_name: str, arguments: dict) -> dict:
     }
 
     body = json.dumps(payload).encode()
-    req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+    req = urllib.request.Request(url, data=body, headers=headers, method="POST")  # noqa: S310 — URL from trusted config
 
     try:
-        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:
+        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:  # noqa: S310 — URL from trusted config
             result = json.loads(response.read().decode())
             # MCP server returns {"status": "success", "result": {...}, "caller": "C"}
             if result.get("status") == "success":
@@ -257,10 +257,10 @@ def api_request(method: str, path: str, data: dict | None = None) -> dict:
     }
 
     body = json.dumps(data).encode() if data else None
-    req = urllib.request.Request(url, data=body, headers=headers, method=method)
+    req = urllib.request.Request(url, data=body, headers=headers, method=method)  # noqa: S310 — URL from trusted config
 
     try:
-        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:
+        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:  # noqa: S310 — URL from trusted config
             return json.loads(response.read().decode())
     except urllib.error.HTTPError as e:
         return {"error": f"HTTP {e.code}", "detail": e.read().decode()}
@@ -329,10 +329,10 @@ def cmd_health():
     # TEST 2: Direct API Health (FALLBACK)
     url = f"{L9_API_URL}/health"
     headers = {"Content-Type": "application/json"}
-    req = urllib.request.Request(url, headers=headers, method="GET")
+    req = urllib.request.Request(url, headers=headers, method="GET")  # noqa: S310 — URL from trusted config
 
     try:
-        with urllib.request.urlopen(req, timeout=10, context=ssl_context) as response:
+        with urllib.request.urlopen(req, timeout=10, context=ssl_context) as response:  # noqa: S310 — URL from trusted config
             api_result = json.loads(response.read().decode())
             results["api_health"] = {
                 "status": "healthy",

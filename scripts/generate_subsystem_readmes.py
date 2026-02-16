@@ -87,10 +87,10 @@ def verify_system_time() -> tuple[datetime, bool, str]:
     # Try worldtimeapi.org first
     try:
         url = "http://worldtimeapi.org/api/timezone/UTC"
-        req = urllib.request.Request(
+        req = urllib.request.Request(  # noqa: S310 — URL from trusted config
             url, headers={"User-Agent": "L9-README-Generator/1.0"}
         )
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, timeout=5) as response:  # noqa: S310 — URL from trusted config
             data = json.loads(response.read().decode())
             api_time = datetime.fromisoformat(
                 data["utc_datetime"].replace("Z", "+00:00")
@@ -100,15 +100,15 @@ def verify_system_time() -> tuple[datetime, bool, str]:
                 return now, True, f"worldtimeapi.org (drift: {drift:.1f}s)"
             return now, False, f"worldtimeapi.org (DRIFT TOO HIGH: {drift:.1f}s)"
     except Exception:
-        pass
+        logger.debug("generate_readmes.worldtimeapi_unavailable")
 
     # Fallback: try timeapi.io
     try:
         url = "https://timeapi.io/api/Time/current/zone?timeZone=UTC"
-        req = urllib.request.Request(
+        req = urllib.request.Request(  # noqa: S310 — URL from trusted config
             url, headers={"User-Agent": "L9-README-Generator/1.0"}
         )
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, timeout=5) as response:  # noqa: S310 — URL from trusted config
             data = json.loads(response.read().decode())
             api_time = datetime(
                 data["year"],
@@ -124,7 +124,7 @@ def verify_system_time() -> tuple[datetime, bool, str]:
                 return now, True, f"timeapi.io (drift: {drift:.1f}s)"
             return now, False, f"timeapi.io (DRIFT TOO HIGH: {drift:.1f}s)"
     except Exception:
-        pass
+        logger.debug("generate_readmes.timeapi_unavailable")
 
     # Fallback: use system time but mark as unverified
     return now, False, "system clock (UNVERIFIED - no API response)"

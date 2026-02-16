@@ -57,7 +57,7 @@ def find_repo_root() -> Path:
 def rg_count_in(pattern: str, search_dir: Path) -> int:
     cmd = ["rg", "-l", "--type", "py", pattern, str(search_dir)]
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=15)  # noqa: S603 — trusted cmd, no shell
         return len(r.stdout.strip().splitlines()) if r.returncode == 0 else 0
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return 0
@@ -77,7 +77,7 @@ def rg_count_outside(pattern: str, repo_root: Path, exclude_pkg: str) -> int:
         str(repo_root),
     ]
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=15)  # noqa: S603 — trusted cmd, no shell
         return len(r.stdout.strip().splitlines()) if r.returncode == 0 else 0
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return 0
@@ -131,7 +131,7 @@ def find_internal_only_symbols(package: str, repo_root: Path) -> list[str]:
             str(repo_root),
         ]
         try:
-            r = subprocess.run(test_cmd, capture_output=True, text=True, timeout=15)
+            r = subprocess.run(test_cmd, capture_output=True, text=True, timeout=15)  # noqa: S603 — trusted cmd, no shell
             test_files = len(r.stdout.strip().splitlines()) if r.returncode == 0 else 0
         except (subprocess.TimeoutExpired, FileNotFoundError):
             test_files = 0

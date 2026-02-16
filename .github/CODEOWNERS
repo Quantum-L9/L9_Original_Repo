@@ -1,0 +1,25 @@
+# =============================================================================
+# L9 CODEOWNERS — Enforce review requirements
+# =============================================================================
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default: repo owner reviews everything
+* @cryptoxdog
+
+# CI/CD — changes to pipelines require explicit approval
+.github/ @cryptoxdog
+ci/ @cryptoxdog
+Makefile @cryptoxdog
+Dockerfile @cryptoxdog
+Dockerfile.mcp-memory @cryptoxdog
+docker-compose*.yml @cryptoxdog
+
+# Core system (highest blast radius)
+core/ @cryptoxdog
+memory/ @cryptoxdog
+api/ @cryptoxdog
+runtime/ @cryptoxdog
+
+# Security-sensitive
+.sec/ @cryptoxdog
+.semgrep/ @cryptoxdog

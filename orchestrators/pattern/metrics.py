@@ -33,11 +33,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import Generator
 from contextlib import contextmanager
 from time import perf_counter
 
 import structlog
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 logger = structlog.get_logger(__name__)
 

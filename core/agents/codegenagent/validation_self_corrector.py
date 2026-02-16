@@ -14,6 +14,8 @@ from typing import Any
 
 import structlog
 
+logger = structlog.get_logger(__name__)
+
 # ---------------------------------------------------------------------------
 # DORA Metadata Block (ADR-0014)
 # ---------------------------------------------------------------------------
@@ -94,7 +96,7 @@ __dora_meta__ = {{
                     lines.insert(end_idx + 1, dora_block)
                     return "\n".join(lines)
             except Exception:
-                pass
+                logger.debug("validation.dora_insertion_failed")
 
         return dora_block + "\n" + content
 

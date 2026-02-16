@@ -45,11 +45,11 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+
 import structlog
 
-
-
 logger = structlog.get_logger(__name__)
+
 
 class N1DetectorVisitor(ast.NodeVisitor):
     """AST visitor to detect N+1 query patterns"""
@@ -238,7 +238,7 @@ def get_changed_files() -> list[Path]:
     """Get list of changed Python files from git"""
     try:
         result = subprocess.run(
-            ["git", "diff", "--name-only", "--cached", "HEAD"],
+            ["git", "diff", "--name-only", "--cached", "HEAD"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             check=True,
@@ -367,15 +367,14 @@ def main():
 
             logger.info("⚠️  filepath", filepath=filepath)
             for line, _issue_type, description in sorted(issues):
-                logger.info("    line line: description", line=line, description=description)
-            logger.info("output", value=)
-
+                logger.info(
+                    "    line line: description", line=line, description=description
+                )
     # Summary
     if total_issues > 0:
         print(
             f"❌ Found {total_issues} potential N+1 pattern(s) in {files_with_issues} file(s)"
         )
-        logger.info("output", value=)
         logger.info("💡 tips:")
         logger.info("   - use any() operator for batch queries: where id = any($1)")
         logger.info("   - use executemany() for batch inserts")
@@ -384,7 +383,6 @@ def main():
 
         if args.strict:
             return 1
-        logger.info("output", value=)
         logger.error("ℹ️  run with --strict to fail ci on n+1 patterns")
         return 0
     logger.info("✅ no n+1 query patterns detected")

@@ -36,13 +36,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
 
-from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
 from agents.cursor.integrations.cursor_langgraph import CursorAgentState
-from memory.checkpoint.postgres_saver import L9PostgresSaver
+
+if TYPE_CHECKING:
+    from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
+    from memory.checkpoint.postgres_saver import L9PostgresSaver
 
 logger = structlog.get_logger(__name__)
 

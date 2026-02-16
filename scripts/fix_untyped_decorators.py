@@ -29,6 +29,7 @@ Version: 1.1.0
 """
 
 from __future__ import annotations
+
 import structlog
 
 # ============================================================================
@@ -135,7 +136,9 @@ def scan_for_untyped_decorators(
             content = py_file.read_text(encoding="utf-8")
             tree = ast.parse(content, filename=str(py_file))
         except (SyntaxError, UnicodeDecodeError) as e:
-            logger.warning("  warning: could not parse py file: e", py_file=py_file, e=e)
+            logger.warning(
+                "  warning: could not parse py file: e", py_file=py_file, e=e
+            )
             continue
 
         file_issues = analyze_file_decorators(tree, py_file, content)
@@ -434,7 +437,9 @@ def apply_fixes(fixes: list[DecoratorFix], dry_run: bool = True) -> int:
             if fix.old_code in content:
                 content = content.replace(fix.old_code, fix.new_code, 1)
                 applied += 1
-                logger.info("  {'[dry-run] ' if dry_run else ''}fixed: {fix.description}")
+                logger.info(
+                    "  {'[dry-run] ' if dry_run else ''}fixed: {fix.description}"
+                )
                 print(
                     f"    File: {fix.file_path}:{file_fixes[0].old_code.split(chr(10))[0]}"
                 )
@@ -473,12 +478,16 @@ def apply_fixes(fixes: list[DecoratorFix], dry_run: bool = True) -> int:
                         )
                     else:
                         content = import_line + content
-                    logger.info("    added import: from typing import {', '.join(missing)}")
+                    logger.info(
+                        "    added import: from typing import {', '.join(missing)}"
+                    )
 
             # Add ParamSpec/TypeVar definitions if needed
             if "Callable[P, R]" in content and "P = ParamSpec" not in content:
                 content = add_paramspec_definitions(content)
-                logger.info("    added p = paramspec('p') and r = typevar('r') definitions")
+                logger.info(
+                    "    added p = paramspec('p') and r = typevar('r') definitions"
+                )
 
         if not dry_run and content != original_content:
             file_path.write_text(content, encoding="utf-8")
@@ -503,7 +512,7 @@ def run_mypy_check(root_path: Path, files: list[Path] | None = None) -> tuple[in
         cmd.append(str(root_path))
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)  # noqa: S603 — trusted cmd, no shell
         output = result.stdout + result.stderr
         error_count = output.count("untyped-decorator")
         return error_count, output
@@ -560,10 +569,8 @@ def main():
     args = parser.parse_args()
 
     logger.info("untyped decorator fixer v1.1")
-    logger.info("=" * 40")
+    logger.info("=" * 40)
     logger.info("root path: {args.path}")
-    logger.info("output", value=)
-
     if args.command == "scan":
         logger.info("scanning for untyped decorators...")
         single_file = args.file.resolve() if args.file else None
@@ -581,8 +588,6 @@ def main():
             logger.info("    issue: {issue.issue_type}")
             logger.info("    strategy: {issue.fix_strategy}")
             logger.info("    signature: {issue.current_signature[:60]}...")
-            logger.info("output", value=)
-
         return len(issues)
 
     if args.command == "fix":
@@ -639,7 +644,9 @@ def main():
             logger.info("\n⚠️  output", output=output)
             return 1
 
-        logger.error("\n⚠️  found error count untyped-decorator error(s)", error_count=error_count)
+        logger.error(
+            "\n⚠️  found error count untyped-decorator error(s)", error_count=error_count
+        )
 
         if args.verbose:
             logger.error("\ndetailed errors:")

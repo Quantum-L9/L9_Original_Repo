@@ -23,7 +23,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
 from datetime import UTC
 from typing import Any
 
@@ -1250,7 +1249,7 @@ async def handle_tool_call(
             try:
                 import json as json_lib
                 import uuid
-                from datetime import datetime, timezone
+                from datetime import datetime
 
                 from api.memory.cache import get_redis
 
@@ -1295,7 +1294,7 @@ async def handle_tool_call(
             try:
                 import json as json_lib
                 import uuid
-                from datetime import datetime, timezone
+                from datetime import datetime
 
                 from api.memory.cache import get_redis
 

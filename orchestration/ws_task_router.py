@@ -44,13 +44,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import Callable
 
 import structlog
 
 from core.decorators import must_stay_async
 from core.schemas.tasks import AgentTask, TaskEnvelope, TaskKind
 from core.schemas.ws_event_stream import EventMessage, EventType
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

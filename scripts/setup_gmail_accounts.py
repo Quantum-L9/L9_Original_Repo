@@ -41,6 +41,7 @@ __dora_meta__ = {
 import shutil
 import sys
 from pathlib import Path
+
 import structlog
 
 # Add project root to path
@@ -78,7 +79,9 @@ def setup_account(account_name: str) -> dict:
         "errors": [],
     }
 
-    logger.info("\n[account name] setting up at {config.data root}", account_name=account_name)
+    logger.info(
+        "\n[account name] setting up at {config.data root}", account_name=account_name
+    )
 
     # Create directories
     try:
@@ -99,13 +102,18 @@ def setup_account(account_name: str) -> dict:
             shutil.copy2(source_secret, dest_secret)
             status["copied"] = True
             status["client_secret_exists"] = True
-            logger.info("  + copied {source secret.name} -> dest secret", dest_secret=dest_secret)
+            logger.info(
+                "  + copied {source secret.name} -> dest secret",
+                dest_secret=dest_secret,
+            )
         except Exception as e:
             status["errors"].append(f"Failed to copy client secret: {e}")
             logger.error("  ! error copying client secret: e", e=e)
     elif dest_secret.exists():
         status["client_secret_exists"] = True
-        logger.info("  + client secret already exists: dest secret", dest_secret=dest_secret)
+        logger.info(
+            "  + client secret already exists: dest secret", dest_secret=dest_secret
+        )
     else:
         status["errors"].append(f"Missing source: {source_secret}")
         logger.info("  ! missing source secret", source_secret=source_secret)
@@ -119,23 +127,29 @@ def setup_account(account_name: str) -> dict:
         logger.info("  + tokens exist: {config.tokens_file}")
     else:
         logger.info("  - tokens missing: {config.tokens_file}")
-        logger.info("    run: python -m email agent.oauth server --account account name", account_name=account_name)
+        logger.info(
+            "    run: python -m email agent.oauth server --account account name",
+            account_name=account_name,
+        )
 
     return status
 
 
 def main():
     """Main entry point."""
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("gmail multi-account setup")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("\nproject root: project root", PROJECT_ROOT=PROJECT_ROOT)
     logger.info("gmail repo dir: gmail repo dir", GMAIL_REPO_DIR=GMAIL_REPO_DIR)
     logger.info("accounts: valid accounts", VALID_ACCOUNTS=VALID_ACCOUNTS)
 
     # Check gmail repo dir
     if not GMAIL_REPO_DIR.exists():
-        logger.warning("\n! warning: gmail repo directory not found: gmail repo dir", GMAIL_REPO_DIR=GMAIL_REPO_DIR)
+        logger.warning(
+            "\n! warning: gmail repo directory not found: gmail repo dir",
+            GMAIL_REPO_DIR=GMAIL_REPO_DIR,
+        )
         logger.info("  oauth client secrets should be placed there.")
 
     # Setup each account
@@ -145,9 +159,9 @@ def main():
         results.append(result)
 
     # Summary
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("summary")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
     all_ready = True
     need_oauth = []
@@ -165,25 +179,26 @@ def main():
             all_ready = False
 
     # Next steps
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("next steps")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
     if all_ready:
         logger.info("\n✅ all accounts are configured!")
         logger.info("\ntest endpoints:")
         logger.info("  curl -x post http://localhost:8000/email/igor/query \\")
-        logger.info("    -h "authorization: bearer $l9_executor_api_key" \\")
-        logger.info("    -h "content-type: application/json" \\")
-        logger.info("    -d \'{"query": "is:unread", "max_results": 5}\")
+        logger.info('    -h "authorization: bearer $l9_executor_api_key" \\')
+        logger.info('    -h "content-type: application/json" \\')
+        logger.info('    -d \'{"query": "is:unread", "max_results": 5}\'')
     else:
         if need_oauth:
             logger.info("\n1. run oauth flow for accounts needing tokens:")
             for account in need_oauth:
-                logger.info("   python -m email agent.oauth server --account account", account=account)
+                logger.info(
+                    "   python -m email agent.oauth server --account account",
+                    account=account,
+                )
                 logger.info("   then visit: http://localhost:8080/oauth/start")
-                logger.info("output", value=)
-
         missing_secrets = [r for r in results if not r["client_secret_exists"]]
         if missing_secrets:
             logger.info("\n2. add missing oauth client secrets:")
@@ -196,9 +211,9 @@ def main():
 
         logger.info("\n3. after oauth, test endpoints:")
         logger.info("   curl -x post http://localhost:8000/email/igor/query \\")
-        logger.info("     -h "authorization: bearer $l9_executor_api_key" \\")
-        logger.info("     -h "content-type: application/json" \\")
-        logger.info("     -d \'{"query": "is:unread", "max_results": 5}\")
+        logger.info('     -h "authorization: bearer $l9_executor_api_key" \\')
+        logger.info('     -h "content-type: application/json" \\')
+        logger.info('     -d \'{"query": "is:unread", "max_results": 5}\'')
 
 
 if __name__ == "__main__":

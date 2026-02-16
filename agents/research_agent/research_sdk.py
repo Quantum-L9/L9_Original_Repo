@@ -325,11 +325,11 @@ def save_perplexity_output(
             filename="README-core-agents.md"
         )
     """
-    from datetime import datetime
+    from datetime import UTC, datetime
 
     # Build path per SOP
     repo_root = Path(__file__).parent.parent.parent
-    date_str = datetime.now().strftime("%m-%d-%Y")
+    date_str = datetime.now(tz=UTC).strftime("%m-%d-%Y")
     folder_name = f"{date_str} - {project}"
 
     output_dir = repo_root / "agents/cursor/perplexity_research_results" / folder_name

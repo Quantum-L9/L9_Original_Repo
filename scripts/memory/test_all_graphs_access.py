@@ -32,9 +32,8 @@ import os
 import sys
 
 import httpx
-from dotenv import load_dotenv
 import structlog
-
+from dotenv import load_dotenv
 
 logger = structlog.get_logger(__name__)
 
@@ -61,9 +60,9 @@ async def test_all_graphs():
         # =====================================================================
         # 1. PostgreSQL Packet Store
         # =====================================================================
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         logger.info("1. postgresql packet store")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         try:
             r = await client.get(f"{VPS_URL}/api/v1/memory/stats", headers=headers)
             if r.status_code == 200:
@@ -88,9 +87,9 @@ async def test_all_graphs():
         # =====================================================================
         # 2. Semantic Memory (pgvector)
         # =====================================================================
-        logger.info("\n" + "=" * 80")
+        logger.info("\n" + "=" * 80)
         logger.info("2. semantic memory (pgvector)")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         try:
             r = await client.post(
                 f"{VPS_URL}/api/v1/memory/semantic/search",
@@ -119,9 +118,9 @@ async def test_all_graphs():
         # =====================================================================
         # 3. Knowledge Facts
         # =====================================================================
-        logger.info("\n" + "=" * 80")
+        logger.info("\n" + "=" * 80)
         logger.info("3. knowledge facts")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         try:
             r = await client.get(
                 f"{VPS_URL}/api/v1/memory/facts", headers=headers, params={"limit": 10}
@@ -139,7 +138,9 @@ async def test_all_graphs():
                 logger.info("✅ sample retrieved: {len(facts)}")
                 if facts:
                     f = facts[0]
-                    logger.info("✅ example: {f.get('subject')} -> {f.get('predicate')}")
+                    logger.info(
+                        "✅ example: {f.get('subject')} -> {f.get('predicate')}"
+                    )
             else:
                 results["knowledge_facts"] = {"status": f"❌ HTTP {r.status_code}"}
         except Exception as e:
@@ -149,9 +150,9 @@ async def test_all_graphs():
         # =====================================================================
         # 4. Neo4j Knowledge Graph
         # =====================================================================
-        logger.info("\n" + "=" * 80")
+        logger.info("\n" + "=" * 80)
         logger.info("4. neo4j knowledge graph")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         try:
             r = await client.post(
                 f"{VPS_URL}/api/v1/memory/graph/query",
@@ -186,9 +187,9 @@ async def test_all_graphs():
         # =====================================================================
         # 5. Agent State Graph
         # =====================================================================
-        logger.info("\n" + "=" * 80")
+        logger.info("\n" + "=" * 80)
         logger.info("5. agent state graph")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         try:
             r = await client.post(
                 f"{VPS_URL}/api/v1/memory/graph/query",
@@ -236,9 +237,9 @@ async def test_all_graphs():
         # =====================================================================
         # 6. Event Timeline
         # =====================================================================
-        logger.info("\n" + "=" * 80")
+        logger.info("\n" + "=" * 80)
         logger.info("6. event timeline")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         try:
             r = await client.post(
                 f"{VPS_URL}/api/v1/memory/graph/query",
@@ -268,7 +269,9 @@ async def test_all_graphs():
                     print(
                         f"✅ Total events: {results['event_timeline']['total_events']}"
                     )
-                    logger.info("✅ event types: {results['event_timeline']['event_types']}")
+                    logger.info(
+                        "✅ event types: {results['event_timeline']['event_types']}"
+                    )
                 else:
                     results["event_timeline"] = {
                         "status": f"❌ Query failed: {data.get('error')}"
@@ -282,9 +285,9 @@ async def test_all_graphs():
         # =====================================================================
         # 7. Repo Structure Graph
         # =====================================================================
-        logger.info("\n" + "=" * 80")
+        logger.info("\n" + "=" * 80)
         logger.info("7. repo structure graph")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         try:
             r = await client.post(
                 f"{VPS_URL}/api/v1/memory/graph/query",
@@ -328,9 +331,9 @@ async def test_all_graphs():
         # =====================================================================
         # 8. World Model
         # =====================================================================
-        logger.info("\n" + "=" * 80")
+        logger.info("\n" + "=" * 80)
         logger.info("8. world model")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         try:
             # Try health check first
             r = await client.get(f"{VPS_URL}/world-model/health", headers=headers)
@@ -343,7 +346,9 @@ async def test_all_graphs():
                     "entity_count": data.get("entity_count", 0),
                 }
                 logger.info("✅ health: {results['world_model']['health']}")
-                logger.info("✅ state version: {results['world_model']['state_version']}")
+                logger.info(
+                    "✅ state version: {results['world_model']['state_version']}"
+                )
                 logger.info("✅ entity count: {results['world_model']['entity_count']}")
 
                 # Try listing entities
@@ -371,9 +376,9 @@ async def test_all_graphs():
         # =====================================================================
         # SUMMARY
         # =====================================================================
-        logger.info("\n" + "=" * 80")
+        logger.info("\n" + "=" * 80)
         logger.info("summary - graph accessibility")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
 
         accessible = sum(
             1 for r in results.values() if r.get("status", "").startswith("✅")
@@ -386,9 +391,11 @@ async def test_all_graphs():
                 f"{'✅' if status.startswith('✅') else '❌' if status.startswith('❌') else '⚠️'} {name.upper().replace('_', ' ')}: {status}"
             )
 
-        logger.info("\n" + "=" * 80")
-        logger.info("accessible: accessible/total graphs", accessible=accessible, total=total)
-        logger.info("=" * 80")
+        logger.info("\n" + "=" * 80)
+        logger.info(
+            "accessible: accessible/total graphs", accessible=accessible, total=total
+        )
+        logger.info("=" * 80)
 
         return results
 

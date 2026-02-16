@@ -611,8 +611,8 @@ def run_verification(filepath: Path, quiet: bool = False) -> bool:
     time.sleep(2)
 
     try:
-        result = subprocess.run(
-            ["python3", str(validator_script), str(filepath)],
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+            ["python3", str(validator_script), str(filepath)],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             cwd=str(REPO_ROOT),
@@ -742,7 +742,7 @@ def main():
             # Delegate to standalone update_workflow_state.py script
             import subprocess as _sp
 
-            _result = _sp.run(
+            _result = _sp.run(  # noqa: S603 — trusted cmd, no shell
                 [
                     sys.executable,
                     str(REPO_ROOT / "scripts" / "update_workflow_state.py"),

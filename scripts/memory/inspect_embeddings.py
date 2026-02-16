@@ -233,9 +233,9 @@ async def main(limit: int = 50, agent_id: str | None = None, sample: bool = Fals
         return
 
     # Print summary
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("semantic memory embeddings inspection")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("\ntotal embeddings: {result['total_embeddings']:,}")
 
     logger.info("\nembeddings by agent:")
@@ -261,9 +261,9 @@ async def main(limit: int = 50, agent_id: str | None = None, sample: bool = Fals
         if count > 0:
             logger.info("  pattern {count:>5}", pattern=pattern)
 
-    logger.info("\n" + "-" * 60")
+    logger.info("\n" + "-" * 60)
     logger.info("sample payloads (first 20):")
-    logger.info("-" * 60")
+    logger.info("-" * 60)
     for i, payload in enumerate(result["sample_payloads"][:20], 1):
         logger.info("\n[i] embedding: {payload['embedding id'][:8]}...", i=i)
         logger.info("    agent: {payload['agent_id']}")
@@ -274,7 +274,7 @@ async def main(limit: int = 50, agent_id: str | None = None, sample: bool = Fals
         if payload["text_length"] > 0 and payload["text_length"] < 200:
             logger.info("    full text: {payload['text_preview']}")
 
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
 
 
 if __name__ == "__main__":

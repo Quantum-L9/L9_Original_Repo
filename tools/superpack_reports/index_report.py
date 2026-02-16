@@ -21,10 +21,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import UTC, datetime
 
-from .config import SuperpackLayout
 from .filesystem import open_report
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .config import SuperpackLayout
 
 
 def generate_superpack_index(layout: SuperpackLayout) -> None:
@@ -108,7 +111,7 @@ def generate_superpack_index(layout: SuperpackLayout) -> None:
 
         # Footer
         f.write("---\n\n")
-        now = datetime.now().strftime("%Y-%m-%d %H:%M")
+        now = datetime.now(tz=UTC).strftime("%Y-%m-%d %H:%M")
         f.write(f"*Auto-generated: {now} | `tools/superpack_reports/`*\n")
 
 

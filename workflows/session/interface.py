@@ -59,7 +59,7 @@ class GateType(str, Enum):
     """Type of gate (decision point)."""
 
     USER_CONFIRM = "user_confirm"  # Requires explicit user approval
-    AUTO_PASS = "auto_pass"  # Passes if validation succeeds
+    AUTO_PASS = "auto_pass"  # noqa: S105 — enum value, not a credential
     AUTO_FAIL = "auto_fail"  # Fails if validation fails
     CONDITIONAL = "conditional"  # Based on condition function
 

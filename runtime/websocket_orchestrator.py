@@ -45,15 +45,17 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
-from fastapi import WebSocket
 
 from core.decorators import must_stay_async
 
 # Input segmenter for multi-part directive support (harvested from tokenizer)
 from orchestration.input_segmenter import get_segmenter
+
+if TYPE_CHECKING:
+    from fastapi import WebSocket
 
 logger = structlog.get_logger(__name__)
 

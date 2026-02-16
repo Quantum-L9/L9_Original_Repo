@@ -39,11 +39,11 @@ class TestSanitizeArguments:
         """Contract: Password fields are redacted."""
         from memory.tool_audit import _sanitize_arguments
 
-        args = {"username": "user", "password": "secret123"}
+        args = {"username": "user", "password": "secret123"}  # noqa: S105 — test fixture
         result = _sanitize_arguments(args)
 
         assert result["username"] == "user"
-        assert result["password"] == "[REDACTED]"
+        assert result["password"] == "[REDACTED]"  # noqa: S105 — test fixture
 
     def test_sanitize_removes_api_key(self):
         """Contract: API key fields are redacted."""
@@ -59,20 +59,20 @@ class TestSanitizeArguments:
         """Contract: Token fields are redacted."""
         from memory.tool_audit import _sanitize_arguments
 
-        args = {"auth_token": "bearer_xyz", "access_token": "abc123"}
+        args = {"auth_token": "bearer_xyz", "access_token": "abc123"}  # noqa: S105 — test fixture
         result = _sanitize_arguments(args)
 
-        assert result["auth_token"] == "[REDACTED]"
-        assert result["access_token"] == "[REDACTED]"
+        assert result["auth_token"] == "[REDACTED]"  # noqa: S105 — test fixture
+        assert result["access_token"] == "[REDACTED]"  # noqa: S105 — test fixture
 
     def test_sanitize_removes_secret(self):
         """Contract: Secret fields are redacted."""
         from memory.tool_audit import _sanitize_arguments
 
-        args = {"client_secret": "mysecret", "data": "normal"}
+        args = {"client_secret": "mysecret", "data": "normal"}  # noqa: S105 — test fixture
         result = _sanitize_arguments(args)
 
-        assert result["client_secret"] == "[REDACTED]"
+        assert result["client_secret"] == "[REDACTED]"  # noqa: S105 — test fixture
         assert result["data"] == "normal"
 
     def test_sanitize_truncates_long_strings(self):
@@ -101,7 +101,7 @@ class TestSanitizeArguments:
 
         assert result["config"]["url"] == "https://example.com"
         assert result["config"]["api_key"] == "[REDACTED]"
-        assert result["config"]["nested"]["password"] == "[REDACTED]"
+        assert result["config"]["nested"]["password"] == "[REDACTED]"  # noqa: S105 — test fixture
 
     def test_sanitize_preserves_normal_values(self):
         """Contract: Non-sensitive values are preserved."""
@@ -131,9 +131,9 @@ class TestSanitizeArguments:
         }
         result = _sanitize_arguments(args)
 
-        assert result["PASSWORD"] == "[REDACTED]"
+        assert result["PASSWORD"] == "[REDACTED]"  # noqa: S105 — test fixture
         assert result["ApiKey"] == "[REDACTED]"
-        assert result["Secret_Value"] == "[REDACTED]"
+        assert result["Secret_Value"] == "[REDACTED]"  # noqa: S105 — test fixture
 
     def test_sanitize_empty_dict(self):
         """Contract: Empty dict returns empty dict."""

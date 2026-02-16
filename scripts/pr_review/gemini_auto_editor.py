@@ -83,7 +83,7 @@ class GeminiAutoEditor:
         head_sha = os.getenv("HEAD_SHA")
 
         cmd = f"git diff {base_sha}...{head_sha}"
-        result = subprocess.run(cmd.split(), capture_output=True, text=True)
+        result = subprocess.run(cmd.split(), capture_output=True, text=True)  # noqa: S603 — trusted cmd, no shell
         return result.stdout
 
     def get_changed_files(self) -> list[str]:
@@ -92,7 +92,7 @@ class GeminiAutoEditor:
         head_sha = os.getenv("HEAD_SHA")
 
         cmd = f"git diff --name-only {base_sha}...{head_sha}"
-        result = subprocess.run(cmd.split(), capture_output=True, text=True)
+        result = subprocess.run(cmd.split(), capture_output=True, text=True)  # noqa: S603 — trusted cmd, no shell
         return [f.strip() for f in result.stdout.split("\n") if f.strip()]
 
     def call_gemini_api(self, diff: str, files: list[str]) -> dict[str, Any]:

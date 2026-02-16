@@ -321,7 +321,7 @@ import hashlib
 import hmac
 import time
 
-SLACK_TEST_SIGNING_SECRET = "test_slack_signing_secret_123"
+SLACK_TEST_SIGNING_SECRET = "test_slack_signing_secret_123"  # noqa: S105 — test fixture
 SLACK_TEST_CHANNEL_ID = "C12345678"
 SLACK_TEST_USER_ID = "U12345678"
 SLACK_TEST_TEAM_ID = "T12345678"

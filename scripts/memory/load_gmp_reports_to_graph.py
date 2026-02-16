@@ -47,7 +47,7 @@ __dora_meta__ = {
 import asyncio
 import os
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -158,7 +158,7 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
 
     if "executed" not in result:
         # Use file modification time
-        mtime = datetime.fromtimestamp(file_path.stat().st_mtime)
+        mtime = datetime.fromtimestamp(file_path.stat().st_mtime, tz=UTC)
         result["executed"] = mtime.strftime("%Y-%m-%d")
 
     # Extract risk level

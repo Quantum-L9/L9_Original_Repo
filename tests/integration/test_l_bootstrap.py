@@ -18,8 +18,11 @@ import sys
 from uuid import uuid4
 
 import pytest
+import structlog
 
 from core.decorators import must_stay_async
+
+logger = structlog.get_logger(__name__)
 
 # Add project root to path
 PROJECT_ROOT = os.path.dirname(
@@ -31,7 +34,7 @@ if PROJECT_ROOT not in sys.path:
 # Ensure memory package can be imported
 # This is needed because core.agents.executor imports memory.substrate_models
 try:
-    import memory
+    import memory  # noqa: F401 — pre-import for executor dependency
 except ImportError:
     # If memory can't be imported, add it explicitly
     memory_path = os.path.join(PROJECT_ROOT, "memory")
@@ -44,6 +47,7 @@ from core.governance.approvals import ApprovalManager
 from core.tools.base_registry import recall_task_history
 from core.tools.tool_graph import ToolDefinition, ToolGraph
 from orchestration.long_plan_graph import extract_tasks_from_plan
+
 # from tests.core.agents.test_executor import (
 #     MockAgentRegistry,
 #     MockAIOSRuntime,
@@ -531,7 +535,7 @@ async def test_memory_binding(
         assert isinstance(history, list)
     except Exception:
         # If substrate unavailable, that's okay - graceful degradation
-        pass
+        logger.debug("test_l_bootstrap.substrate_unavailable_for_history_query")
 
 
 # =============================================================================

@@ -54,14 +54,15 @@ import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+
 import structlog
 
 # ============================================================================
 # DATA MODELS
 
 
-
 logger = structlog.get_logger(__name__)
+
 
 @dataclass
 class FunctionInfo:
@@ -269,7 +270,9 @@ class DoraCompleteInjector:
                 self.file_functions[str(file_path)] = functions
                 self.classes_found.extend(classes)
                 self.functions_found.extend(functions)
-            logger.info("🔍 processing single file: single file", single_file=single_file)
+            logger.info(
+                "🔍 processing single file: single file", single_file=single_file
+            )
             return
 
         logger.info("🔍 scanning repository: {self.repo_path}")
@@ -412,7 +415,9 @@ class DoraCompleteInjector:
 
             return functions
         except Exception as e:
-            logger.error("⚠️  error parsing functions in file path: e", file_path=file_path, e=e)
+            logger.error(
+                "⚠️  error parsing functions in file path: e", file_path=file_path, e=e
+            )
             return []
 
     def _get_module_path(self, file_path: Path) -> str:
@@ -661,8 +666,8 @@ class DoraCompleteInjector:
 
             for pattern in patterns:
                 try:
-                    result = subprocess.run(
-                        ["rg", "-l", pattern, "--type", "py", "."],
+                    result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                        ["rg", "-l", pattern, "--type", "py", "."],  # noqa: S607 — trusted system command
                         capture_output=True,
                         text=True,
                         cwd=self.repo_path,
@@ -987,7 +992,7 @@ class DoraCompleteInjector:
             result["tags_from_docstring"] = list(set(result["tags_from_docstring"]))[:5]
 
         except Exception:
-            pass
+            logger.debug("inject_dora.docstring_parse_failed")
 
         return result
 
@@ -1043,10 +1048,10 @@ class DoraCompleteInjector:
             stat = Path(file_path).stat()
             # st_birthtime is creation time on macOS
             # st_mtime is modification time
-            created = datetime.fromtimestamp(stat.st_birthtime).strftime(
+            created = datetime.fromtimestamp(stat.st_birthtime, tz=UTC).strftime(
                 "%Y-%m-%dT%H:%M:%SZ"
             )
-            modified = datetime.fromtimestamp(stat.st_mtime).strftime(
+            modified = datetime.fromtimestamp(stat.st_mtime, tz=UTC).strftime(
                 "%Y-%m-%dT%H:%M:%SZ"
             )
             return created, modified
@@ -1054,7 +1059,7 @@ class DoraCompleteInjector:
             # Fallback if st_birthtime not available (Linux)
             try:
                 stat = Path(file_path).stat()
-                modified = datetime.fromtimestamp(stat.st_mtime).strftime(
+                modified = datetime.fromtimestamp(stat.st_mtime, tz=UTC).strftime(
                     "%Y-%m-%dT%H:%M:%SZ"
                 )
                 return modified, modified  # Use mtime for both
@@ -1066,8 +1071,8 @@ class DoraCompleteInjector:
         """Get original author from git history."""
         try:
             # Get the author of the first commit that added this file
-            result = subprocess.run(
-                [
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                [  # noqa: S607 — trusted system command
                     "git",
                     "log",
                     "--follow",
@@ -1092,8 +1097,8 @@ class DoraCompleteInjector:
         """Get actual creation date from git history."""
         try:
             # Get the date of the first commit that added this file
-            result = subprocess.run(
-                [
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                [  # noqa: S607 — trusted system command
                     "git",
                     "log",
                     "--follow",
@@ -2071,7 +2076,7 @@ __dora_footer__ = {{
             result["test_files"] = result["test_files"][:5]  # Limit to 5
 
         except Exception:
-            pass
+            logger.debug("inject_dora.test_discovery_failed")
 
         return result
 
@@ -2191,7 +2196,10 @@ __l9_trace__ = {
 
             # Skip files with legacy blocks (need manual migration)
             if existing["legacy"] and not force:
-                logger.info("⚠️  file path has legacy   dora block   - needs migration", file_path=file_path)
+                logger.info(
+                    "⚠️  file path has legacy   dora block   - needs migration",
+                    file_path=file_path,
+                )
                 return results
 
             with open(file_path, encoding="utf-8") as f:
@@ -2266,12 +2274,20 @@ __l9_trace__ = {
                 if not dry_run:
                     with open(file_path, "w", encoding="utf-8") as f:
                         f.write(new_content)
-                    logger.info("✅ injected dora blocks into file path", file_path=file_path)
+                    logger.info(
+                        "✅ injected dora blocks into file path", file_path=file_path
+                    )
                 else:
                     injected = [k for k, v in results.items() if v]
-                    logger.info("🔍 [dry run] would inject injected into file path", injected=injected, file_path=file_path)
+                    logger.info(
+                        "🔍 [dry run] would inject injected into file path",
+                        injected=injected,
+                        file_path=file_path,
+                    )
             else:
-                logger.info("⏭️  skipping file path (all blocks exist)", file_path=file_path)
+                logger.info(
+                    "⏭️  skipping file path (all blocks exist)", file_path=file_path
+                )
 
             return results
 
@@ -2285,7 +2301,7 @@ __l9_trace__ = {
         if force:
             mode_str += " (FORCE)"
         logger.info("\nmode str", mode_str=mode_str)
-        logger.info("=" * 80")
+        logger.info("=" * 80)
 
         results = {
             "total_files": len(self.files_to_process),
@@ -2335,7 +2351,7 @@ __l9_trace__ = {
             json.dump(results, f, indent=2)
 
         logger.info("\n📊 injection report")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         logger.info("total files processed: {results['total_files']}")
         logger.info("✅ header meta injected: {results['header_injected']}")
         logger.info("✅ footer meta injected: {results['footer_injected']}")

@@ -616,7 +616,7 @@ class AutoCalibrator:
             with open(self.meta_learning_log, "a") as f:
                 f.write(log_entry)
         except Exception:
-            pass  # Silent fail - logging not critical
+            logger.debug("auto_calibrator.meta_learning_log_write_failed")
 
 
 def run_nightly_calibration():

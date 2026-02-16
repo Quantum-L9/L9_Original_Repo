@@ -47,7 +47,6 @@ from core.decorators import must_stay_async
 REPO_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = structlog.get_logger(__name__)
 
 
@@ -79,7 +78,7 @@ def check_compileall() -> tuple[bool, str]:
     """Check that all Python files compile (excluding venv/node_modules)."""
     import subprocess
 
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
         [
             sys.executable,
             "-m",
@@ -103,14 +102,20 @@ def check_core_imports() -> tuple[bool, str]:
     """Check that core imports work without circular import issues."""
     try:
         # Orchestrators (no DB required)
-        from orchestrators import MetaOrchestrator, WorldModelOrchestrator
-        from world_model.runtime import WorldModelRuntime
+        from orchestrators import (  # noqa: F401 — smoke test import check
+            MetaOrchestrator,
+            WorldModelOrchestrator,
+        )
+        from world_model.runtime import WorldModelRuntime  # noqa: F401
 
         # Memory imports may need DB drivers - skip gracefully
         try:
-            from core.schemas import PacketEnvelope, PacketEnvelopeIn
-            from memory.substrate_dag import SubstrateDAG
-            from memory.substrate_service import MemorySubstrateService
+            from core.schemas import (  # noqa: F401 — smoke test import check
+                PacketEnvelope,
+                PacketEnvelopeIn,
+            )
+            from memory.substrate_dag import SubstrateDAG  # noqa: F401
+            from memory.substrate_service import MemorySubstrateService  # noqa: F401
         except ImportError as e:
             if "asyncpg" in str(e) or "psycopg" in str(e):
                 pass  # DB drivers not installed, OK for smoke test
@@ -128,7 +133,10 @@ def check_langgraph_not_shadowed() -> tuple[bool, str]:
     """Check that langgraph library is not shadowed by local package."""
     try:
         # Verify it's the actual library, not our local shim
-        from langgraph.graph import END, StateGraph
+        from langgraph.graph import (  # noqa: F401 — smoke test import check
+            END,
+            StateGraph,
+        )
 
         import langgraph
 
@@ -151,8 +159,11 @@ def check_server_module_imports() -> tuple[bool, str]:
 
         # API modules may need DB drivers
         try:
-            from api import agent_routes, os_routes
-            from api.memory.router import router as memory_router
+            from api import (  # noqa: F401 — smoke test import check
+                agent_routes,
+                os_routes,
+            )
+            from api.memory.router import router as memory_router  # noqa: F401
         except ImportError as e:
             if "asyncpg" in str(e) or "psycopg" in str(e):
                 pass  # DB drivers not installed, OK for smoke test
@@ -199,8 +210,8 @@ def check_no_nested_repos() -> tuple[bool, str]:
     """Check that there are no nested .git directories within project."""
     import subprocess
 
-    result = subprocess.run(
-        [
+    result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+        [  # noqa: S607 — trusted system command
             "find",
             str(REPO_ROOT),
             "-type",

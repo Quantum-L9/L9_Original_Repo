@@ -34,7 +34,7 @@ __dora_meta__ = {
 
 import asyncio
 from collections import defaultdict
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Optional
 
 import structlog

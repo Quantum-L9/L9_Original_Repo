@@ -97,7 +97,7 @@ async def delete_trash_embeddings_from_sql():
                     f"""
                     DELETE FROM semantic_memory
                     WHERE embedding_id::text IN ({placeholders})
-                    """,
+                    """,  # noqa: S608 — placeholders are $N params, not user input
                     *batch,
                 )
                 deleted += int(result.split()[-1])
@@ -131,7 +131,7 @@ async def reindex_content():
         try:
             import subprocess
 
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
                 [sys.executable, script_path, "--verbose"],
                 capture_output=True,
                 text=True,
@@ -163,14 +163,14 @@ async def main():
     logger.info("step 1: generating deletion sql...")
     import subprocess
 
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
         [sys.executable, "scripts/generate_delete_sql.py"],
         capture_output=True,
         text=True,
     )
 
     if result.returncode == 0:
-        async with aiofiles.open("/tmp/delete_trash.sql", "w") as f:
+        async with aiofiles.open("/tmp/delete_trash.sql", "w") as f:  # noqa: S108 — intentional temp path for generated SQL
             await f.write(result.stdout)
         logger.info("  ✅ sql generated")
     else:
@@ -191,9 +191,9 @@ async def main():
     results = await reindex_content()
 
     # Summary
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("summary")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     print(
         f"  Trash embeddings: {'✅ Deleted' if deleted else '⚠️  Manual deletion needed'}"
     )

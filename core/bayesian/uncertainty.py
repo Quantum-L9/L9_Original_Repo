@@ -150,7 +150,9 @@ import torch.nn.functional as F
 logger = structlog.get_logger(__name__)
 
 try:
-    from bayesian_torch.layers import LinearReparameterization
+    from bayesian_torch.layers import (
+        LinearReparameterization,  # noqa: F401 — availability check
+    )
 
     BAYESIAN_TORCH_AVAILABLE = True
 except ImportError:

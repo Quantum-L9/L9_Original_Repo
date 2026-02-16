@@ -2,7 +2,6 @@
 Tests for substrate-backed idempotency in agent executor.
 """
 
-import hashlib
 import json
 from unittest.mock import AsyncMock, MagicMock
 

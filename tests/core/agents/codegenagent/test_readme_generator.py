@@ -15,7 +15,6 @@ from core.agents.codegenagent.readme_generator import (
     GeneratedReadme,
     ReadmeGenerator,
     ReadmeMetadata,
-    ReadmeSection,
     generate_readme_for_module,
 )
 

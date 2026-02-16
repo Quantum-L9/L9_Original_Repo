@@ -591,9 +591,9 @@ def main():
     generate_markdown_report(result, markdown_file)
 
     # Print summary
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("dead code audit - phase 3 categorization")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("total findings: {result.total_findings}")
     logger.info("\n🔴 high risk: {len(result.high_risk)}")
     logger.info("🟡 medium risk: {len(result.medium_risk)}")
@@ -603,7 +603,7 @@ def main():
 
     logger.info("\njson output: output file", output_file=output_file)
     logger.info("markdown report: markdown file", markdown_file=markdown_file)
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
     return 0
 

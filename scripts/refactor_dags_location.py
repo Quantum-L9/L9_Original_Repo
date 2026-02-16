@@ -64,7 +64,7 @@ def find_files_with_pattern(
                 if pattern in content:
                     matches.append(filepath)
             except Exception:
-                pass
+                logger.debug("refactor_dags.file_read_failed", filepath=str(filepath))
     return matches
 
 

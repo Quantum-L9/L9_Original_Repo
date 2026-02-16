@@ -51,12 +51,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any
 
 import structlog
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
     from core.observability.circuit_breaker import CircuitBreaker
     from memory.dead_letter import DeadLetterQueue
     from memory.substrate_dag_wrapper import RetryPolicy

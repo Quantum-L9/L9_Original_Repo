@@ -84,9 +84,8 @@ __dora_meta__ = {
 import json
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import structlog
 

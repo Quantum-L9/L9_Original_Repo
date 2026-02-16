@@ -53,21 +53,23 @@ import platform
 import signal
 import socket
 import sys
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import Any, TYPE_CHECKING
 from uuid import uuid4
 
 import structlog
 
 from core.decorators import must_stay_async
 
+if TYPE_CHECKING:
+    from websockets.client import WebSocketClientProtocol
+    from collections.abc import Callable
+
 logger = structlog.get_logger(__name__)
 
 try:
     import websockets
-    from websockets.client import WebSocketClientProtocol
     from websockets.exceptions import ConnectionClosedError, ConnectionClosedOK
 except ImportError:
     logger.error(
@@ -386,7 +388,7 @@ class TaskExecutor:
             logger.warning("LocalAPI not available, using subprocess fallback")
             try:
                 cmd_parts = shlex.split(command)
-                result = subprocess.run(
+                result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
                     cmd_parts,
                     cwd=cwd,
                     capture_output=True,
@@ -566,13 +568,13 @@ class TaskExecutor:
             temp_path = f.name
 
         try:
-            result = subprocess.run(
-                ["python3", temp_path],
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                ["python3", temp_path],  # noqa: S607 — trusted system command
                 capture_output=True,
                 text=True,
                 timeout=timeout,
-                env={"PATH": "/usr/bin:/bin", "HOME": "/tmp"},  # Minimal env
-                cwd="/tmp",
+                env={"PATH": "/usr/bin:/bin", "HOME": "/tmp"},  # noqa: S108 — intentional minimal sandbox env
+                cwd="/tmp",  # noqa: S108 — intentional sandbox working directory
             )
             return {
                 "status": "completed" if result.returncode == 0 else "failed",

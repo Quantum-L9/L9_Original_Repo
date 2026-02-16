@@ -44,7 +44,7 @@ class TestSlackDispatchIntegration:
         """Signature verification works with valid signature."""
         from api.slack_adapter import SlackRequestValidator
 
-        signing_secret = "test_secret"
+        signing_secret = "test_secret"  # noqa: S105 — test fixture
         verifier = SlackRequestValidator(signing_secret)
 
         timestamp = str(int(time.time()))

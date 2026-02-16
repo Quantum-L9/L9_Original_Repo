@@ -461,10 +461,10 @@ class TestExporters:
         """Test JSONFileExporter can be created."""
         from core.observability.exporters import JSONFileExporter
 
-        exporter = JSONFileExporter("/tmp/test_spans.jsonl")
+        exporter = JSONFileExporter("/tmp/test_spans.jsonl")  # noqa: S108 — test fixture
 
         assert exporter is not None
-        assert exporter.file_path == "/tmp/test_spans.jsonl"
+        assert exporter.file_path == "/tmp/test_spans.jsonl"  # noqa: S108 — test fixture
 
     def test_substrate_exporter_requires_service(self):
         """Test SubstrateExporter requires substrate_service."""

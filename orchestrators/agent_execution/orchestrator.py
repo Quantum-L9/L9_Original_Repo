@@ -32,7 +32,7 @@ import json
 import os
 import sys
 import time
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import aiofiles
@@ -310,7 +310,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                     str(desktop_screenshot)
                                 ]
                             except Exception:
-                                pass
+                                logger.debug("agent_execution.crash_screenshot_failed")
 
                         # Try to post failure to Slack
                         if self._post_result:
@@ -320,7 +320,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                 if channel:
                                     self._post_result(channel, task, failure_result)
                             except Exception:
-                                pass
+                                logger.debug("agent_execution.slack_failure_post_failed")
 
                         # Save failure JSON
                         try:
@@ -337,7 +337,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                     )
                                 )
                         except Exception:
-                            pass
+                            logger.debug("agent_execution.failure_json_save_failed")
 
                         mark_task_completed(task_id)
                     except Exception as inner_e:

@@ -35,13 +35,15 @@ __dora_meta__ = {
 
 from dataclasses import dataclass
 from datetime import UTC
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
 
 from core.governance.approval_manager import ApprovalManager, ApprovalStatus
-from core.schemas import PacketEnvelope
 from core.schemas.capabilities import Capability, ToolName
+
+if TYPE_CHECKING:
+    from core.schemas import PacketEnvelope
 
 logger = structlog.get_logger(__name__)
 

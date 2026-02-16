@@ -34,23 +34,23 @@ __dora_meta__ = {
 
 import statistics
 import time
-import structlog
 
+import structlog
 
 logger = structlog.get_logger(__name__)
 
-logger.info("=" * 70")
+logger.info("=" * 70)
 logger.info("l9 performance optimization benchmarks")
 logger.info("query caching + vector search optimization")
-logger.info("=" * 70")
+logger.info("=" * 70)
 
 # ============================================================================
 # Benchmark 1: Query Caching
 # ============================================================================
 
-logger.info("\n" + "=" * 70")
+logger.info("\n" + "=" * 70)
 logger.info("benchmark 1: query result caching")
-logger.info("=" * 70")
+logger.info("=" * 70)
 
 logger.info("\n1. uncached queries (10 identical queries)...")
 times_uncached = []
@@ -92,9 +92,9 @@ logger.info("   time saved: {avg_uncached - avg_cached:.2f}ms per query")
 # Benchmark 2: Vector Search Optimization
 # ============================================================================
 
-logger.info("\n" + "=" * 70")
+logger.info("\n" + "=" * 70)
 logger.info("benchmark 2: vector search optimization")
-logger.info("=" * 70")
+logger.info("=" * 70)
 
 logger.info("\n1. unoptimized vector search (10 queries)...")
 times_unoptimized = []
@@ -142,9 +142,9 @@ logger.info("   - gin index for jsonb payload queries")
 # Benchmark 3: Combined Impact
 # ============================================================================
 
-logger.info("\n" + "=" * 70")
+logger.info("\n" + "=" * 70)
 logger.info("benchmark 3: combined impact")
-logger.info("=" * 70")
+logger.info("=" * 70)
 
 logger.info("\n1. realistic workload (100 operations)...")
 logger.info("   - 50 cached queries (permissions, configs)")
@@ -157,7 +157,9 @@ time_before = (
     + 30 * 200  # Vector searches (200ms each, unoptimized)
     + 20 * 10  # Uncached queries (10ms each)
 )
-logger.info("   total time: time beforems = {time before / 1000:.2f}s", time_before=time_before)
+logger.info(
+    "   total time: time beforems = {time before / 1000:.2f}s", time_before=time_before
+)
 
 logger.info("\n3. after optimization:")
 time_after = (
@@ -165,7 +167,9 @@ time_after = (
     + 30 * 40  # Vector searches (40ms each, optimized)
     + 20 * 10  # Uncached queries (10ms each, unchanged)
 )
-logger.info("   total time: time afterms = {time after / 1000:.2f}s", time_after=time_after)
+logger.info(
+    "   total time: time afterms = {time after / 1000:.2f}s", time_after=time_after
+)
 
 speedup_combined = time_before / time_after if time_after > 0 else 0
 improvement_combined = (
@@ -181,9 +185,9 @@ logger.info("   time saved: {(time_before - time_after) / 1000:.2f}s")
 # Summary
 # ============================================================================
 
-logger.info("\n" + "=" * 70")
+logger.info("\n" + "=" * 70)
 logger.info("summary")
-logger.info("=" * 70")
+logger.info("=" * 70)
 
 logger.info("\n✅ query caching:")
 logger.info("   - {speedup_cache:.1f}x faster")
@@ -198,17 +202,18 @@ logger.info("   - best for: semantic search, similarity queries")
 logger.info("\n✅ combined impact:")
 logger.info("   - {speedup_combined:.1f}x faster overall")
 logger.info("   - {improvement_combined:.1f}% improvement")
-logger.info("   - realistic workload: {time_before / 1000:.2f}s → {time_after / 1000:.2f}s")
+logger.info(
+    "   - realistic workload: {time_before / 1000:.2f}s → {time_after / 1000:.2f}s"
+)
 
-logger.info("\n" + "=" * 70")
+logger.info("\n" + "=" * 70)
 logger.info("🎉 benchmarks complete!")
-logger.info("=" * 70")
+logger.info("=" * 70)
 logger.info("\nnext steps:")
 logger.info("1. review pr and merge changes")
 logger.info("2. run migration: 0020_optimize_vector_search.sql")
 logger.info("3. monitor production metrics")
 logger.info("4. adjust cache sizes based on usage patterns")
-logger.info("output", value=)
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

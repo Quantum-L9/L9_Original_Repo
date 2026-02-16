@@ -38,8 +38,7 @@ __dora_meta__ = {
 import os
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
-from uuid import UUID
+from typing import Any, TYPE_CHECKING
 
 import structlog
 
@@ -59,6 +58,9 @@ from core.worldmodel.l9_schema import (
     ToolCategory,
     ToolRiskLevel,
 )
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 logger = structlog.get_logger(__name__)
 

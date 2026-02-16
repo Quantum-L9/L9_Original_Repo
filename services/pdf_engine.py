@@ -118,7 +118,7 @@ def extract_pdf(path: str, summarize: bool = True) -> dict[str, Any]:
                                                     if key and value:
                                                         fields[key] = value
                         except Exception:
-                            pass
+                            logger.debug("pdf_engine.table_extraction_failed")
             except Exception as e:
                 logger.warning(f"pdfplumber extraction failed: {e}, trying pypdf")
                 PDFPLUMBER_AVAILABLE = False  # Force fallback

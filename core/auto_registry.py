@@ -44,10 +44,12 @@ __dora_meta__ = {
 import importlib
 import inspect
 import pkgutil
-from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Any, TypeVar, TYPE_CHECKING
 
 import structlog
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

@@ -74,7 +74,7 @@ class Settings:
     L_CTO_USER_ID: str = "L_CTO_DEFAULT"
 
     # Audit
-    AUDIT_FALLBACK_PATH: str = "/tmp/l9_audit_fallback.jsonl"
+    AUDIT_FALLBACK_PATH: str = "/tmp/l9_audit_fallback.jsonl"  # noqa: S108 — intentional fallback path
     AUDIT_CIRCUIT_BREAKER_THRESHOLD: int = 3
     AUDIT_CIRCUIT_BREAKER_TIMEOUT: int = 60
 
@@ -113,7 +113,7 @@ class Settings:
             ),
             L_CTO_USER_ID=os.getenv("L_CTO_USER_ID", "L_CTO_DEFAULT"),
             AUDIT_FALLBACK_PATH=os.getenv(
-                "AUDIT_FALLBACK_PATH", "/tmp/l9_audit_fallback.jsonl"
+                "AUDIT_FALLBACK_PATH", "/tmp/l9_audit_fallback.jsonl"  # noqa: S108 — intentional fallback path
             ),
             AUDIT_CIRCUIT_BREAKER_THRESHOLD=int(
                 os.getenv("AUDIT_CIRCUIT_BREAKER_THRESHOLD", "3")

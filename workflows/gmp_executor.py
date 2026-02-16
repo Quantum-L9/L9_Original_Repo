@@ -57,7 +57,7 @@ import json
 import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 
@@ -846,7 +846,7 @@ from {module_path} import ...
                 gmp_id=f"GMP-{gmp_num}",
                 tier=tier,
                 task=task,
-                started_at=datetime.now().isoformat(),
+                started_at=datetime.now(tz=UTC).isoformat(),
                 current_step=STEP_ORDER[0],
             )
             self._save_state()

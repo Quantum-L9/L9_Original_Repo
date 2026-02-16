@@ -234,7 +234,7 @@ def run_env_manager(
         return True, {"command": cmd}, ""
     try:
         _log("Running env-manager sync...", verbose=verbose)
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd,
             cwd=str(workspace_root),
             capture_output=True,

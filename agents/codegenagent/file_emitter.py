@@ -45,11 +45,13 @@ __dora_meta__ = {
 import re
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
 
-from ir_engine.compile_meta_to_ir import ModuleIR, WiringSpec
+
+if TYPE_CHECKING:
+    from ir_engine.compile_meta_to_ir import ModuleIR, WiringSpec
 
 logger = structlog.get_logger(__name__)
 

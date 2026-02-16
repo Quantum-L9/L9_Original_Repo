@@ -34,17 +34,16 @@ __dora_meta__ = {
 
 import os
 from collections.abc import Iterable
-from datetime import UTC, datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any
+from datetime import UTC, datetime, timedelta
+from typing import Any, TYPE_CHECKING
 
 import structlog
 
 from core.decorators import must_stay_async
 from core.schemas import SemanticSearchRequest
-from memory.substrate_service import MemorySubstrateService
 
 if TYPE_CHECKING:
-    from memory.pipeline_router import CallerContext, PipelineRouter
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 

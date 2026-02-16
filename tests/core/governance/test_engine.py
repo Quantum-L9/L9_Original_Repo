@@ -17,8 +17,7 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import pytest
 import yaml
@@ -32,6 +31,9 @@ from core.governance.schemas import (
     EvaluationRequest,
     PolicyEffect,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # =============================================================================
 # Fixtures

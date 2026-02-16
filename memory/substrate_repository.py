@@ -43,11 +43,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
-from datetime import UTC, datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import Any, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 import asyncpg
@@ -88,6 +87,9 @@ from memory.substrate_models import (
     StructuredReasoningBlock,
 )
 from memory.substrate_semantic import EMBEDDING_DIMENSIONS
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 logger = structlog.get_logger(__name__)
 
@@ -349,7 +351,7 @@ class SubstrateRepository:
             # SAFE: filter_clause is internal SQL (e.g. "AND scope = $2"), not user input.
             # User values go through filter_params as parameterized $N placeholders.  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             row = await conn.fetchrow(
-                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",  # noqa: S608, ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 packet_id,
                 *filter_params,
             )
@@ -459,7 +461,7 @@ class SubstrateRepository:
                     {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $3 OFFSET $4
-                    """,  # noqa: ADR-0087
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     thread_id,
                     packet_type,
                     limit,
@@ -477,7 +479,7 @@ class SubstrateRepository:
                     {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $2 OFFSET $3
-                    """,  # noqa: ADR-0087
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     thread_id,
                     limit,
                     offset,
@@ -539,7 +541,7 @@ class SubstrateRepository:
                 WHERE {" AND ".join(conditions)}
                 ORDER BY timestamp DESC
                 LIMIT ${param_idx}
-            """
+            """  # noqa: S608 — conditions are internal SQL, user values parameterized
 
             rows = await conn.fetch(query, *params)
             return [self._row_to_packet_store(r) for r in rows]
@@ -984,7 +986,7 @@ class SubstrateRepository:
                 WHERE {" AND ".join(conditions)}
                 ORDER BY created_at DESC
                 LIMIT ${param_idx}
-            """
+            """  # noqa: S608 — conditions are internal SQL, user values parameterized
 
             rows = await conn.fetch(query, *params)
             return [

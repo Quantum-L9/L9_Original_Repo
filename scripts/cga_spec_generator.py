@@ -13,6 +13,10 @@ import argparse
 import json
 from datetime import UTC, datetime
 from pathlib import Path
+
+import structlog
+
+logger = structlog.get_logger(__name__)
 from typing import Any
 
 import structlog
@@ -123,9 +127,9 @@ class CGASpecGenerator:
         try:
             # This requires an async context which we don't have here in a sync method
             # In a real implementation, we'd either make this async or use a sync wrapper
-            pass
+            logger.debug("cga_spec_generator.similar_fixes_lookup_skipped")
         except Exception:
-            pass
+            logger.debug("cga_spec_generator.similar_fixes_lookup_failed")
 
         # Construct the CGA Spec YAML
         spec_data = {

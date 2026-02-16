@@ -385,7 +385,7 @@ async def health_check() -> HealthStatus:
         # Would check actual Redis connection here
         redis_ok = True
     except Exception:
-        pass
+        logger.debug("symbolic_computation.redis_health_check_failed")
 
     # Check Postgres connectivity
     postgres_ok = False
@@ -393,7 +393,7 @@ async def health_check() -> HealthStatus:
         # Would check actual Postgres connection here
         postgres_ok = True
     except Exception:
-        pass
+        logger.debug("symbolic_computation.postgres_health_check_failed")
 
     # Determine overall status
     if redis_ok and postgres_ok:

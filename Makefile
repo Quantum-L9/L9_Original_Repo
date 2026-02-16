@@ -131,12 +131,12 @@ test-smoke:
 
 lint:
 	@echo "$(GREEN)Running ruff linter...$(NC)"
-	@$(PYTHON) -m ruff check . --fix || true
-	@$(PYTHON) -m ruff format . || true
+	@$(PYTHON) -m ruff check . --fix
+	@$(PYTHON) -m ruff format .
 
 typecheck:
 	@echo "$(GREEN)Running mypy type checker...$(NC)"
-	@$(PYTHON) -m mypy api/ core/ memory/ --ignore-missing-imports || true
+	@$(PYTHON) -m mypy api/ core/ memory/ --ignore-missing-imports
 
 # =============================================================================
 # Docker (Local)

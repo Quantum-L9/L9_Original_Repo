@@ -132,7 +132,7 @@ def validate_imports(files: list[str]) -> list[Check]:
             continue
         module = f.replace("/", ".").removesuffix(".py")
         try:
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
                 [sys.executable, "-c", f"import {module}"],
                 capture_output=True,
                 text=True,

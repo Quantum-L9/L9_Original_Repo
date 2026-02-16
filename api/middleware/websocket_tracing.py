@@ -47,12 +47,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from uuid import uuid4
 
 import structlog
-from fastapi import WebSocket
-from starlette.types import ASGIApp, Receive, Scope, Send
+
+if TYPE_CHECKING:
+    from fastapi import WebSocket
+    from starlette.types import ASGIApp, Receive, Scope, Send
 
 logger = structlog.get_logger(__name__)
 

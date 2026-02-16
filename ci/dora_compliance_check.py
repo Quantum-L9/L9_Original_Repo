@@ -248,7 +248,7 @@ def fix_file(file_path: Path, repo_root: Path, dry_run: bool = False) -> bool:
         return True
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd,
             capture_output=True,
             text=True,

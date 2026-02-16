@@ -12,6 +12,9 @@ from __future__ import annotations
 import importlib
 
 import pytest
+import structlog
+
+logger = structlog.get_logger(__name__)
 
 from core.decorators import must_stay_async
 
@@ -216,7 +219,8 @@ class TestForbiddenImports:
                     or "import runtime.l_tools" in content
                 ):
                     violations.append(rel_path)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
         if violations:

@@ -51,16 +51,18 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, TypeVar
+from typing import Any, TypeVar, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 import structlog
 
 from core.decorators import must_stay_async
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

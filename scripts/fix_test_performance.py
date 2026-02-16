@@ -37,6 +37,7 @@ __dora_meta__ = {
 import re
 import sys
 from pathlib import Path
+
 import structlog
 
 # Files that scan codebase and need optimization
@@ -207,9 +208,9 @@ def fix_file(path: Path, dry_run: bool = False) -> bool:
 
 def main():
     """Run the performance fixer."""
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("l9 test performance fixer")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
     dry_run = "--dry-run" in sys.argv
     if dry_run:
@@ -225,11 +226,11 @@ def main():
         if fix_file(full_path, dry_run=dry_run):
             fixed_count += 1
 
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     print(
         f"Summary: {fixed_count}/{len(TEST_FILES_TO_FIX)} files {'would be ' if dry_run else ''}fixed"
     )
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
     if dry_run:
         logger.info("\nrun without --dry-run to apply changes.")

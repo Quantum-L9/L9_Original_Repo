@@ -40,12 +40,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import TYPE_CHECKING, Protocol
+from typing import Protocol
 
-if TYPE_CHECKING:
-    from core.observability.circuit_breaker import CircuitBreaker
-    from memory.dead_letter import DeadLetterQueue
-    from memory.substrate_dag_wrapper import RetryPolicy
+from core.observability.circuit_breaker import CircuitBreaker
+from memory.dead_letter import DeadLetterQueue
+from memory.substrate_dag_wrapper import RetryPolicy
 
 
 class ResilientService(Protocol):

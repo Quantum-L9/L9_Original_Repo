@@ -43,7 +43,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Annotated, Any, Literal, TypedDict
 
@@ -233,7 +233,7 @@ def create_initial_state(
     return WorkflowState(
         workflow_id=workflow_id,
         workflow_name=f"harvest-deploy-{workflow_id}",
-        started_at=datetime.now().isoformat(),
+        started_at=datetime.now(tz=UTC).isoformat(),
         source_document=source_document,
         plan_document=plan_document or "",
         harvest_directory=harvest_directory,

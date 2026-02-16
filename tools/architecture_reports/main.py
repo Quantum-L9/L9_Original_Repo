@@ -27,7 +27,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import argparse
-from collections.abc import Callable
 
 from .architecture_report import generate_architecture
 from .async_function_map_report import generate_async_function_map
@@ -40,6 +39,10 @@ from .imports_report import generate_imports
 from .inheritance_graph_report import generate_inheritance_graph
 from .pydantic_models_report import generate_pydantic_models
 from .route_handlers_report import generate_route_handlers
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def generate_all_reports(layout: RepoLayout | None = None) -> None:

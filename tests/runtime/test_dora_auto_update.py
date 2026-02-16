@@ -164,7 +164,7 @@ def test_update_dora_block_in_file(temp_python_file):
 
 def test_update_dora_block_nonexistent_file():
     """Test updating DORA block in nonexistent file."""
-    fake_path = Path("/tmp/nonexistent_file.py")
+    fake_path = Path("/tmp/nonexistent_file.py")  # noqa: S108 — test fixture
     trace = DoraTraceBlock.create(task="test", inputs={}, outputs={})
 
     success = update_dora_block_in_file(fake_path, trace)

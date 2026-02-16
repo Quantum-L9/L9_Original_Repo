@@ -31,8 +31,9 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from dataclasses import dataclass
+
+import structlog
 
 from world_model.interfaces import (
     Entity,
@@ -53,7 +54,7 @@ class PostgresConfig:
     port: int = 5432
     database: str = "world_model"
     user: str = "postgres"
-    password: str = "postgres"
+    password: str = "postgres"  # noqa: S105 — default/placeholder, overridden by env
     pool_size: int = 10
 
 
@@ -80,7 +81,7 @@ class PostgresSubstrate:
             ConnectionError: If connection fails
         """
         try:
-            import psycopg2
+            import psycopg2  # noqa: F401 — availability check
             from psycopg2 import pool
 
             self._pool = pool.SimpleConnectionPool(

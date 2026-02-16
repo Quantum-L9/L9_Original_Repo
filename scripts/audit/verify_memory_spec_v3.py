@@ -432,8 +432,6 @@ def run_verification(
         logger.info("memory spec v3.0 verification")
         logger.info("=" * 60)
         logger.info("spec file", path=str(spec_file.relative_to(repo_root)))
-        logger.info("output")
-
     spec = load_spec()
     all_passed = True
 
@@ -449,9 +447,6 @@ def run_verification(
         for issue in issues:
             logger.info("    - issue", issue=issue)
         all_passed = False
-    if not quiet:
-        logger.info("output")
-
     # Check 2: Required modules
     if not quiet:
         logger.info("▶ check 2: required modules exist")
@@ -464,9 +459,6 @@ def run_verification(
         for issue in issues:
             logger.info("    - issue", issue=issue)
         all_passed = False
-    if not quiet:
-        logger.info("output")
-
     # Check 3: Required methods
     if not quiet:
         logger.info("▶ check 3: required methods implemented")
@@ -479,17 +471,12 @@ def run_verification(
         for issue in issues:
             logger.info("    - issue", issue=issue)
         # Don't fail on missing methods - spec may be aspirational
-    if not quiet:
-        logger.info("output")
-
     # Check 4: Feature flags
     if not quiet:
         logger.info("▶ check 4: feature flags (informational)")
     passed, issues = check_feature_flags(spec, verbose)
     if not quiet:
         logger.info("  ℹ️  info - feature flag check complete")
-        logger.info("output")
-
     # Check 5: Contracts
     if not quiet:
         logger.info("▶ check 5: contract validation")
@@ -501,9 +488,6 @@ def run_verification(
         logger.info("  ⚠️  partial")
         for issue in issues:
             logger.info("    - issue", issue=issue)
-    if not quiet:
-        logger.info("output")
-
     # Summary
     if not quiet:
         logger.info("=" * 60)

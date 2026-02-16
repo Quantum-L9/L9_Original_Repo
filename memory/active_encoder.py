@@ -47,7 +47,7 @@ __dora_meta__ = {
 
 import os
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
@@ -55,8 +55,6 @@ import structlog
 
 if TYPE_CHECKING:
     from memory.consolidation import ConsolidationPipeline
-    from memory.importance_recipe import ImportanceInputs
-    from memory.importance_recipe import ImportanceUpdate as RecipeUpdate
     from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)

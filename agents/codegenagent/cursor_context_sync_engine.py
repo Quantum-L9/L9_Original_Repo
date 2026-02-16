@@ -35,17 +35,19 @@ __dora_meta__ = {
 
 import asyncio
 import json
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import aiofiles
 import structlog
 import yaml
 
 from core.decorators import must_stay_async
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

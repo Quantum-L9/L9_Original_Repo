@@ -7,9 +7,11 @@ Agents get authorization BEFORE invoking the DAG.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 
-from workflows.dags.gmp.state import GMPState
+
+if TYPE_CHECKING:
+    from workflows.dags.gmp.state import GMPState
 
 
 def route_after_scope_lock(

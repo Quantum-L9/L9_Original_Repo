@@ -78,7 +78,7 @@ class SymbolicComputationConfig(BaseSettings):
 
     # Code generation settings
     codegen_temp_dir: str = Field(
-        default="/tmp/sympy_codegen",
+        default="/tmp/sympy_codegen",  # noqa: S108 — intentional temp path for codegen
         env="SYMBOLIC_CODEGEN_TEMP_DIR",
         description="Temporary directory for code generation",
     )

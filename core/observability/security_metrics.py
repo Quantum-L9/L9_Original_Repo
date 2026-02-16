@@ -32,13 +32,18 @@ __dora_meta__ = {
 
 import logging  # noqa: ADR-0019 — configures stdlib log level for structlog interop
 from dataclasses import dataclass
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
 # Try to import prometheus_client, but make it optional
 try:
-    from prometheus_client import Counter, Gauge, Histogram, Summary
+    from prometheus_client import (  # noqa: F401 — Summary used conditionally
+        Counter,
+        Gauge,
+        Histogram,
+        Summary,
+    )
 
     PROMETHEUS_AVAILABLE = True
 except ImportError:

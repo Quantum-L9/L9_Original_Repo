@@ -49,9 +49,9 @@ from typing import TYPE_CHECKING, Any, Protocol
 
 import structlog
 
-from core.schemas.packet_envelope import PacketEnvelope
 
 if TYPE_CHECKING:
+    from core.schemas.packet_envelope import PacketEnvelope
     from redis.asyncio import Redis
 
 

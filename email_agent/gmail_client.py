@@ -54,7 +54,7 @@ try:
     from googleapiclient.discovery import build
     from googleapiclient.errors import HttpError
 
-    from email_agent.config import (
+    from email_agent.config import (  # noqa: F401 — availability check
         ATTACHMENTS_DIR,
         GMAIL_ACCOUNT,
         SCOPES,
@@ -62,7 +62,7 @@ try:
         get_account_config,
     )
     from email_agent.credentials import load_tokens
-    from email_agent.parser import (
+    from email_agent.parser import (  # noqa: F401 — availability check
         html_to_text,
         parse_attachments,
         parse_body,

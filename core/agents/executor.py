@@ -52,8 +52,8 @@ __dora_meta__ = {
 
 import json
 import os
-from datetime import UTC, datetime, timezone
-from typing import Any, Protocol
+from datetime import UTC, datetime
+from typing import Any, Protocol, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 import structlog
@@ -76,7 +76,6 @@ from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerCon
 from core.schemas import PacketEnvelopeIn
 from core.tools.tool_graph import ToolGraph
 from core.worldmodel.insight_emitter import get_insight_emitter
-from memory.agent_persistence import AgentPersistenceService
 from runtime.dora import emit_executor_trace, update_dora_block_in_file
 
 # GMP-LCTO-FIXES: Import governance context for tool dispatch propagation
@@ -99,7 +98,7 @@ except ImportError:
 # Optional: Calibration Services (Bayesian Upgrade - GMP-32)
 # Uses simplified interface that adapts to L9 executor patterns
 try:
-    from core.calibration import (
+    from core.calibration import (  # noqa: F401 — availability check
         CalibrationService,
         GatingPolicyService,
     )
@@ -171,7 +170,6 @@ except ImportError:
 # Prompt defense imports (GMP-60: Runtime hardening)
 try:
     from core.agents.prompt_defense import (
-        InjectionDetectionResult,
         detect_prompt_injection,
         get_blocked_response,
         should_block_request,
@@ -196,9 +194,14 @@ except ImportError:
 
 from core.decorators import must_stay_async
 
+if TYPE_CHECKING:
+    from memory.agent_persistence import AgentPersistenceService
+
 # Stage 5: Predictive Memory Warming (optional - graceful degradation)
 try:
-    from memory.warming_service import MemoryWarmingService
+    from memory.warming_service import (
+        MemoryWarmingService,  # noqa: F401 — availability check
+    )
 
     _has_memory_warming = True
 except ImportError:

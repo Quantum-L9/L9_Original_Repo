@@ -45,8 +45,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Protocol, runtime_checkable
-from uuid import UUID
+from typing import Any, Protocol, runtime_checkable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 @runtime_checkable

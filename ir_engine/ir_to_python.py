@@ -38,7 +38,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
 
@@ -49,7 +49,9 @@ try:
 except ImportError:
     HAS_JINJA2 = False
 
-from ir_engine.compile_meta_to_ir import GenerationTarget, ModuleIR
+
+if TYPE_CHECKING:
+    from ir_engine.compile_meta_to_ir import GenerationTarget, ModuleIR
 
 logger = structlog.get_logger(__name__)
 

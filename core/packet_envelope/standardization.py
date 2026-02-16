@@ -48,7 +48,7 @@ from abc import (  # TODO(ADR-0026): Convert to Protocol - no shared impl
     abstractmethod,
 )
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 

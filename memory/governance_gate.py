@@ -48,12 +48,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from collections.abc import AsyncGenerator, Sequence
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
 import yaml
@@ -61,6 +60,9 @@ import yaml
 from config.rls_config import get_rls_config
 from core.config_constants import ALLOWED_SCOPES_CURSOR, ALLOWED_SCOPES_L
 from core.decorators import must_stay_async
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, Sequence
 
 logger = structlog.get_logger(__name__)
 

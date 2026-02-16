@@ -60,7 +60,7 @@ import subprocess
 import sys
 import time
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -517,8 +517,8 @@ class DAGRunner:
         else:
             self.state = WorkflowState(
                 workflow_id=workflow_id,
-                started_at=datetime.now().isoformat(),
-                updated_at=datetime.now().isoformat(),
+                started_at=datetime.now(tz=UTC).isoformat(),
+                updated_at=datetime.now(tz=UTC).isoformat(),
                 variables=self.workflow.get("variables", {}),
             )
 
@@ -531,7 +531,7 @@ class DAGRunner:
     def _save_state(self) -> None:
         """Persist current state."""
         if self.state and self.state_file:
-            self.state.updated_at = datetime.now().isoformat()
+            self.state.updated_at = datetime.now(tz=UTC).isoformat()
             with open(self.state_file, "w") as f:
                 json.dump(self.state.__dict__, f, indent=2)
 

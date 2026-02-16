@@ -37,14 +37,15 @@ import re
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+
 import structlog
 
 # ============================================================================
 # MIGRATION ENGINE
 
 
-
 logger = structlog.get_logger(__name__)
+
 
 class DoraLegacyMigrator:
     """Migrates legacy __dora_block__ to three-block format."""
@@ -85,10 +86,13 @@ class DoraLegacyMigrator:
 
                 if "__dora_block__" in content and "__dora_meta__" not in content:
                     self.legacy_files.append(str(py_file))
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
-        logger.info("✅ found {len(self.legacy_files)} files with legacy __dora_block__")
+        logger.info(
+            "✅ found {len(self.legacy_files)} files with legacy __dora_block__"
+        )
 
     def _extract_legacy_block(self, content: str) -> dict | None:
         """Extract legacy __dora_block__ data from file content."""
@@ -200,7 +204,10 @@ class DoraLegacyMigrator:
             # Extract legacy data
             legacy_data = self._extract_legacy_block(content)
             if not legacy_data:
-                logger.info("⚠️  could not extract legacy data from file path", file_path=file_path)
+                logger.info(
+                    "⚠️  could not extract legacy data from file path",
+                    file_path=file_path,
+                )
                 return False
 
             # Remove legacy block
@@ -234,7 +241,7 @@ class DoraLegacyMigrator:
     def migrate_all(self, dry_run: bool = True) -> dict:
         """Migrate all legacy files."""
         logger.info("\n{'🔍 dry run mode' if dry_run else '🚀 execution mode'}")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
 
         results = {
             "total_legacy": len(self.legacy_files),
@@ -260,7 +267,7 @@ class DoraLegacyMigrator:
             json.dump(results, f, indent=2)
 
         logger.info("\n📊 migration report")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         logger.info("total legacy files: {results['total_legacy']}")
         logger.info("✅ successfully migrated: {results['migrated']}")
         logger.error("❌ failed: {results['failed']}")
@@ -466,7 +473,7 @@ def main():
 
     # Migrate Python files
     logger.info("\n📦 python file migration")
-    logger.info("=" * 80")
+    logger.info("=" * 80)
     py_migrator = DoraLegacyMigrator(args.repo)
     py_migrator.scan_for_legacy()
 
@@ -479,7 +486,7 @@ def main():
     # Migrate multi-format files
     if not args.python_only:
         logger.info("\n📦 multi-format file migration")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         mf_migrator = DoraMultiFormatMigrator(args.repo)
         mf_migrator.scan_for_legacy()
 

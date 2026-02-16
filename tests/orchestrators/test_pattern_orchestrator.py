@@ -26,7 +26,7 @@ import pytest
 _pattern_import_error = ""
 try:
     from orchestrators.pattern import metrics
-    from orchestrators.pattern.cell_adapter import CellAgentAdapter, DirectLLMAgent
+    from orchestrators.pattern.cell_adapter import CellAgentAdapter
     from orchestrators.pattern.interface import (
         NodeDefinition,
         NodeKind,
@@ -139,7 +139,7 @@ class TestInterfaceModels:
 
     def test_pipeline_result_creation(self):
         """Test PipelineResult model creation."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         result = PipelineResult(
             trace_id=uuid4(),

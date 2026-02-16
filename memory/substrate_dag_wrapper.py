@@ -43,9 +43,9 @@ from typing import TYPE_CHECKING
 import structlog
 
 from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
-from memory.substrate_dag import SubstrateDAG
 
 if TYPE_CHECKING:
+    from memory.substrate_dag import SubstrateDAG
     from core.observability.circuit_breaker import CircuitBreaker
     from memory.dead_letter import DeadLetterQueue
 

@@ -270,7 +270,7 @@ class ToolAuditService:
                     {time_filter}
                     GROUP BY tool_name
                     ORDER BY total_cost DESC
-                """,
+                """,  # noqa: S608 — where_clause/time_filter are internal SQL, user values parameterized
                     *params,
                 )
 

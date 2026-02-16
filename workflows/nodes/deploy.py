@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import structlog
@@ -96,7 +96,7 @@ async def deploy_files_node(state: WorkflowState) -> dict:
         error="; ".join(errors) if errors else None,
         duration_ms=duration_ms,
         artifacts={"copied_count": len(copied_files)},
-        timestamp=datetime.now().isoformat(),
+        timestamp=datetime.now(tz=UTC).isoformat(),
     )
 
     logger.info(

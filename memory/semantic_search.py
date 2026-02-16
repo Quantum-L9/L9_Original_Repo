@@ -37,7 +37,10 @@ import structlog
 from pydantic import BaseModel, Field
 
 from core.schemas import SemanticSearchRequest
-from memory.substrate_service import MemorySubstrateService
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 

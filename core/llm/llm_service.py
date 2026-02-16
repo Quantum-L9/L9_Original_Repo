@@ -48,9 +48,9 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from core.protocols import LLMService
 
 if TYPE_CHECKING:
+    from core.protocols import LLMService
     from openai import AsyncOpenAI
 
 logger = structlog.get_logger(__name__)

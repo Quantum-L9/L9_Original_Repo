@@ -50,11 +50,11 @@ import re
 import sys
 from pathlib import Path
 from typing import NamedTuple
+
 import structlog
 
-
-
 logger = structlog.get_logger(__name__)
+
 
 class Violation(NamedTuple):
     """A single violation found in the code."""
@@ -254,7 +254,7 @@ def main() -> int:
     if all_violations:
         logger.info("\n❌ packet type naming violations found\n")
         logger.info("packetenvelope uses 'packet_type', not 'kind'.")
-        logger.info("=" * 60")
+        logger.info("=" * 60)
 
         for v in all_violations:
             logger.info("\n{v.file}:{v.line_num}")
@@ -265,7 +265,9 @@ def main() -> int:
         logger.info("\nfix these before merging to prevent packet schema confusion.")
         return 1
     if args.verbose:
-        logger.info("✅ checked {len(all_files)} files - no packet_type naming violations")
+        logger.info(
+            "✅ checked {len(all_files)} files - no packet_type naming violations"
+        )
     return 0
 
 

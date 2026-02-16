@@ -45,7 +45,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
 
@@ -54,7 +54,9 @@ from agents.codegenagent.meta_loader import MetaLoader, MetaLoaderError
 from core.decorators import must_stay_async
 from ir_engine.compile_meta_to_ir import MetaToIRCompiler, ModuleIR
 from ir_engine.ir_to_python import IRToPythonCompiler
-from ir_engine.meta_ir import MetaContract, MetaContractValidationResult
+
+if TYPE_CHECKING:
+    from ir_engine.meta_ir import MetaContract, MetaContractValidationResult
 
 # Symbolic verification pipeline (optional - graceful degradation if not available)
 try:

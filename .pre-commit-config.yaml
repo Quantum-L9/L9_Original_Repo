@@ -78,6 +78,14 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
+      - id: auto-stub-adr-enforcement
+        name: Auto-stub new ADRs into enforcement manifest
+        entry: python3 ci/auto_stub_adr_enforcement.py
+        language: system
+        files: ^readme/adr/\d{4}-.*\.md$
+        pass_filenames: false
+        stages: [pre-commit]
+
       - id: check-noqa-placement
         name: Check noqa not inside strings (GMP-CI-2026-02)
         entry: python3 ci/check_noqa_placement.py

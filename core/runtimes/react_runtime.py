@@ -33,12 +33,14 @@ __dora_meta__ = {
 }
 
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
 
 from core.agents.schemas import AgentTask, ExecutionResult
-from core.aios.runtime import AIOSRuntime
+
+if TYPE_CHECKING:
+    from core.aios.runtime import AIOSRuntime
 
 logger = structlog.get_logger(__name__)
 

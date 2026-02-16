@@ -34,12 +34,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import Callable
 from dataclasses import dataclass
 
 import structlog
 
 from core.auto_registry import AutoRegistry
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

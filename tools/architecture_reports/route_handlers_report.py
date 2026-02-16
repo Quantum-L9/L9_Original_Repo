@@ -23,8 +23,11 @@ __dora_meta__ = {
 
 import ast
 
-from .config import RepoLayout
 from .filesystem import open_report
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .config import RepoLayout
 
 FASTAPI_DECORATORS = {"get", "post", "put", "delete", "patch"}
 

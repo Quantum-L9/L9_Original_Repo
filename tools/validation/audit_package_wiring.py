@@ -80,7 +80,7 @@ def rg_count(
     if include_dir:
         cmd = ["rg", "-l", "--type", type_filter, pattern, str(repo_root / include_dir)]
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)  # noqa: S603 — trusted cmd, no shell
         if result.returncode == 0:
             return len(result.stdout.strip().splitlines())
         return 0
@@ -100,7 +100,7 @@ def rg_files(
     for g in glob_exclude or []:
         cmd.extend(["--glob", f"!{g}"])
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)  # noqa: S603 — trusted cmd, no shell
         if result.returncode == 0:
             lines = result.stdout.strip().splitlines()
             # Make relative to repo_root

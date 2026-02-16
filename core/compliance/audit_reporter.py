@@ -136,7 +136,7 @@ class ComplianceReporter:
             ComplianceReport
         """
         date = date or datetime.now(UTC)
-        from_date = datetime(date.year, date.month, date.day, 0, 0, 0)
+        from_date = datetime(date.year, date.month, date.day, 0, 0, 0, tzinfo=UTC)
         to_date = from_date + timedelta(days=1)
 
         return await self.generate_report(from_date, to_date)

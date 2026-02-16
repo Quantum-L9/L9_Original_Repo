@@ -165,7 +165,7 @@ def run_shell(command: str, cwd: str = "/opt/l9") -> dict:
 
         # Use shlex.split for safer command parsing (prevents shell injection)
         cmd_args = shlex.split(command)
-        completed = subprocess.run(
+        completed = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd_args,
             shell=False,
             cwd=cwd,

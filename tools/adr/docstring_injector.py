@@ -624,10 +624,14 @@ def main() -> int:
     total_classes = sum(len(r.classes_processed) for r in results)
 
     logger.info("\n{'[dry run] ' if dry_run else ''}docstring injection summary")
-    logger.info("=" * 50")
+    logger.info("=" * 50)
     logger.info("files with missing docstrings: {len(results)}")
-    logger.info("total injections needed: total injections", total_injections=total_injections)
-    logger.info("  - functions/methods: total functions", total_functions=total_functions)
+    logger.info(
+        "total injections needed: total injections", total_injections=total_injections
+    )
+    logger.info(
+        "  - functions/methods: total functions", total_functions=total_functions
+    )
     logger.info("  - classes: total classes", total_classes=total_classes)
 
     if results and len(results) <= 20:

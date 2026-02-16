@@ -178,7 +178,7 @@ def _run_psql(sql: str, with_rls: bool = True) -> str | None:
             "-c",
             full_sql,
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)  # noqa: S603 — trusted cmd, no shell
         if result.returncode == 0:
             return result.stdout.strip()
         logger.warning("psql error", stderr=result.stderr)
@@ -207,7 +207,7 @@ def _run_cypher(query: str, tenant_id: str = CURSOR_TENANT_ID) -> str | None:
             NEO4J_PASSWORD,
             query,
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)  # noqa: S603 — trusted cmd, no shell
         if result.returncode == 0:
             return result.stdout.strip()
         logger.warning("cypher error", stderr=result.stderr)
@@ -285,7 +285,7 @@ def _run_redis(cmd_parts: list[str]) -> str | None:
             "redis-cli",
             *cmd_parts,
         ]  # security test: docker exec
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)  # noqa: S603 — trusted cmd, no shell
         if result.returncode == 0:
             return result.stdout.strip()
         logger.warning("redis error", stderr=result.stderr)
@@ -347,7 +347,7 @@ def redis_get_session_state(tenant_id: str = CURSOR_TENANT_ID) -> dict:
 def _run_psql_json(sql: str) -> list[dict]:
     """Execute SQL and return JSON result."""
     # Wrap query to return JSON
-    json_sql = f"SELECT json_agg(t) FROM ({sql}) t;"  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+    json_sql = f"SELECT json_agg(t) FROM ({sql}) t;"  # noqa: S608, ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
     result = _run_psql(json_sql)
     if result and result != "null" and result.strip():
         try:
@@ -400,7 +400,7 @@ def load_todos(session_id: str) -> list[TodoItem]:
         AND envelope->'payload'->>'session_id' = '{session_id}'
         ORDER BY timestamp DESC
         LIMIT 1
-    """
+    """  # noqa: S608 — internal session_id from caller, not user input
     rows = _run_psql_json(sql)
     if rows and rows[0] and rows[0].get("todos"):
         todos_raw = rows[0]["todos"]

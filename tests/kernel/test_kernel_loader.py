@@ -79,9 +79,6 @@ def test_load_missing_kernel_file():
     # Note: This test verifies error handling when kernel files are missing
     # The actual implementation may raise FileNotFoundError or similar
     try:
-        import sys
-        from pathlib import Path
-
         from mocks.kernel_mocks import load_kernels
 
         # Attempt to load with non-existent path (if supported)

@@ -39,8 +39,7 @@ __dora_meta__ = {
 
 import subprocess
 import time
-from collections.abc import Callable
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import structlog
 import sympy
@@ -48,6 +47,9 @@ from sympy import sympify
 
 from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 from services.symbolic_computation.core.models import CodeGenResult
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -382,8 +384,8 @@ def {function_name}({args}):
         source_file.write_text(source_code)
 
         # Compile
-        result = subprocess.run(
-            ["gcc", "-shared", "-fPIC", "-O3", "-o", str(lib_file), str(source_file)],
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+            ["gcc", "-shared", "-fPIC", "-O3", "-o", str(lib_file), str(source_file)],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
         )

@@ -57,6 +57,7 @@ from uuid import uuid4
 import structlog
 
 if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
     import asyncpg
 
     from memory.agent_persistence import AgentPersistenceService
@@ -70,7 +71,6 @@ from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
 from memory.audit_utils import prepare_packet_for_ingest
 from memory.governance_gate import enforce_packet_governance, require_governance_context
 from memory.graph_client import get_neo4j_client
-from memory.substrate_service import MemorySubstrateService
 from memory.validators.packet_validator import PacketValidationError, PacketValidator
 
 logger = structlog.get_logger(__name__)

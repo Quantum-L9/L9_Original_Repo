@@ -39,7 +39,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from uuid import UUID
 
 import structlog
@@ -47,7 +47,9 @@ import structlog
 from core.decorators import must_stay_async
 from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
 from memory.governance_gate import build_governance_context, governance_context
-from memory.substrate_service import MemorySubstrateService
+
+if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 

@@ -21,8 +21,11 @@ Requirements:
 import os
 
 import pytest
+import structlog
 
 from core.decorators import must_stay_async
+
+logger = structlog.get_logger(__name__)
 
 # Skip all tests if Neo4j not available
 pytestmark = pytest.mark.skipif(
@@ -77,7 +80,7 @@ async def cleanup_test_strategies(neo4j_client):
             """
             await neo4j_client.execute_query(query, {"id": strategy_id})
         except Exception:
-            pass
+            logger.debug("test_strategy_memory.cleanup_failed", strategy_id=strategy_id)
 
 
 # =============================================================================

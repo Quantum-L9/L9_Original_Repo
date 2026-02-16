@@ -43,7 +43,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from uuid import UUID
 
 import structlog
 
@@ -54,6 +53,10 @@ from ir_engine.ir_schema import (
     IRStatus,
     IRValidationResult,
 )
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 logger = structlog.get_logger(__name__)
 

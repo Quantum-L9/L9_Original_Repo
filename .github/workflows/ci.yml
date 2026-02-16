@@ -54,6 +54,7 @@ jobs:
   validate:
     name: CI Gates
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -82,7 +83,7 @@ jobs:
         run: |
           echo "🔍 Running L9 CI Gates..."
           chmod +x ci/run_ci_gates.sh
-          ./ci/run_ci_gates.sh --all || true
+          ./ci/run_ci_gates.sh --all
 
   # ===========================================================================
   # JOB 1B: LINT-TYPECHECK-TEST — Required status check for branch protection
@@ -92,6 +93,7 @@ jobs:
   lint-typecheck-test:
     name: Lint, typecheck, test-fast
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -115,11 +117,19 @@ jobs:
 
       - name: Typecheck (mypy)
         run: |
-          mypy api/ core/ memory/ --ignore-missing-imports
+          mypy api/ core/ memory/ runtime/ \
+            --follow-imports=skip \
+            --ignore-missing-imports \
+            --show-error-codes
 
       - name: Test (fast)
         run: |
           pytest tests/ -v --tb=short -m "not slow"
+
+      - name: Docstring coverage (interrogate)
+        run: |
+          pip install interrogate
+          interrogate -vv core/ memory/ api/ --fail-under 40
 
   # ===========================================================================
   # JOB 1A: ADR-COMPLIANCE — Architecture Decision Records Enforcement
@@ -129,6 +139,7 @@ jobs:
   adr-compliance:
     name: ADR Compliance
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -138,6 +149,9 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: pip install pyyaml structlog
 
       - name: Check ADR compliance (errors only)
         run: |
@@ -153,6 +167,11 @@ jobs:
         run: |
           echo "🛡️ Checking for memory pipeline bypass violations..."
           python3 ci/check_memory_bypass.py
+
+      - name: Check DAG single validation point (ADR-0012)
+        run: |
+          echo "🔍 Checking DAG validation single-point enforcement (ADR-0012)..."
+          python3 ci/check_dag_validation_single_point.py
 
       - name: Check hardcoded credentials (ADR-0090)
         run: |
@@ -362,10 +381,78 @@ jobs:
           echo "🔍 Checking for noqa-inside-string bugs..."
           python3 ci/check_noqa_placement.py
 
+      - name: Check ADR enforcement manifest coverage
+        run: |
+          echo "📋 Checking ADR enforcement manifest coverage..."
+          python3 ci/check_adr_enforcement_manifest.py
+
       - name: Check GMP report naming convention
         run: |
           echo "📝 Checking GMP report naming convention..."
           python3 ci/check_report_naming.py
+
+      # =======================================================================
+      # GATES FROM run_ci_gates.sh — previously only ran with explicit file args
+      # =======================================================================
+
+      - name: Check forbidden imports (Gate 5)
+        run: |
+          echo "🚫 Checking for forbidden imports (logging, aiohttp, print)..."
+          python3 ci/lint_forbidden_imports.py
+        continue-on-error: true  # TODO: 1648 pre-existing violations — clean up then remove this
+
+      - name: Check tool wiring consistency (Gate 6)
+        run: |
+          echo "🔧 Checking tool wiring consistency across registries..."
+          python3 ci/check_tool_wiring.py
+        continue-on-error: true  # TODO: requires full pip install -e . for import resolution
+
+      - name: Check deprecated services (Gate 8)
+        run: |
+          echo "🗑️ Checking for deprecated service references (Supabase, n8n)..."
+          python3 ci/check_no_deprecated_services.py
+        continue-on-error: true  # TODO: pre-existing deprecated refs — clean up then remove this
+
+      - name: Check schema deprecation (Gate 9)
+        run: |
+          echo "📦 Checking for deprecated PacketEnvelope v1 imports..."
+          python3 ci/check_schema_deprecation.py
+
+      - name: Check tool naming convention (Gate 10)
+        run: |
+          echo "🏷️ Checking tool IDs for OpenAI naming compliance..."
+          python3 ci/check_tool_naming.py
+
+      - name: Check substrate API usage (Gate 13)
+        run: |
+          echo "🔌 Checking for incorrect substrate API usage (.write vs .write_packet)..."
+          python3 ci/check_substrate_api.py
+
+      - name: Check packet type naming (Gate 15)
+        run: |
+          echo "📋 Checking 'kind' vs 'packet_type' naming in PacketEnvelope..."
+          python3 ci/check_packet_type_naming.py
+
+      - name: Check protected files (Gate 16)
+        run: |
+          echo "🔒 Checking for unauthorized modifications to protected files..."
+          python3 ci/check_protected_files.py
+        continue-on-error: true  # Reports violations — enforcement via branch protection review
+
+      - name: Check definition of done (Gate 17 / ADR-0091)
+        run: |
+          echo "✅ Checking Definition of Done criteria..."
+          python3 ci/check_definition_of_done.py
+
+      - name: Check dependency patterns (lazy singletons)
+        run: |
+          echo "🔗 Checking dependency access patterns (lazy singletons vs Depends)..."
+          python3 ci/check_dependency_patterns.py
+
+      - name: Validate policy YAML schemas
+        run: |
+          echo "📜 Validating policy YAML schemas in config/policies/..."
+          python3 ci/validate_policy_schemas.py
 
   # ===========================================================================
   # JOB 1B: CRYPTO-GUARD — Ban Weak Cryptography (MD5, SHA1)
@@ -373,6 +460,7 @@ jobs:
   crypto-guard:
     name: Crypto Guard
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
@@ -494,6 +582,7 @@ jobs:
   dora-check:
     name: DORA Compliance
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
@@ -516,6 +605,7 @@ jobs:
   docker-check:
     name: Docker Validation
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
@@ -531,9 +621,13 @@ jobs:
   # JOB 3: TEST — Comprehensive Test Suite
   # ===========================================================================
   test:
-    name: Test Suite
+    name: Test Suite (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: [validate, docker-check]
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
 
     services:
       postgres:
@@ -564,10 +658,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ matrix.python-version }}
           cache: "pip"
 
       - name: Install dependencies
@@ -585,8 +679,7 @@ jobs:
           echo "🧪 Running pytest with coverage..."
           pytest tests/ -v --tb=short --ignore=tests/e2e \
             --cov=core --cov=memory --cov=runtime --cov=api \
-            --cov-report=xml --cov-report=term-missing \
-            || true
+            --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -607,6 +700,7 @@ jobs:
   path-safety-tests:
     name: Path Safety Tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -633,6 +727,7 @@ jobs:
   path-safety-guard:
     name: Path Safety Semgrep Guard
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -659,6 +754,7 @@ jobs:
   l9-patterns:
     name: L9 Pattern Enforcement
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -691,6 +787,7 @@ jobs:
   docker-smoke:
     name: Docker Smoke Test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [validate, docker-check]
 
     steps:
@@ -769,6 +866,7 @@ jobs:
   mutation-tests:
     name: Mutation Testing
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [test] # Only run after tests pass
     if: github.event_name == 'pull_request'
 
@@ -841,6 +939,7 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: validate
 
     steps:
@@ -851,6 +950,12 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install project dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
 
       - name: Install pip-audit
         run: pip install pip-audit
@@ -858,7 +963,7 @@ jobs:
       - name: Run pip-audit
         run: |
           echo "🔒 Scanning for vulnerabilities..."
-          pip-audit || true
+          pip-audit --strict --desc
 
   # ===========================================================================
   # JOB 5B: AI GUARDRAILS — Model Quality Gates
@@ -866,6 +971,7 @@ jobs:
   ai-guardrails:
     name: AI Guardrails
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: validate
     # Only run if OPENAI_API_KEY is set (skip on forks)
     if: ${{ vars.AI_GUARDRAILS_ENABLED == 'true' }}
@@ -900,23 +1006,77 @@ jobs:
           fi
 
   # ===========================================================================
+  # JOB 5C: SECRETS-SCAN — GitGuardian
+  # ===========================================================================
+  secrets-scan:
+    name: Secrets Scan (GitGuardian)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: GitGuardian scan
+        uses: GitGuardian/ggshield-action@v1
+        env:
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+
+  # ===========================================================================
+  # JOB 5D: COMMITLINT — Conventional Commit Enforcement (PRs only)
+  # ===========================================================================
+  commitlint:
+    name: Conventional Commits
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Validate PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          requireScope: false
+
+  # ===========================================================================
   # JOB 6: CI COMPLETE — Summary Gate
   # ===========================================================================
   ci-complete:
     name: CI Complete
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs:
       [
         validate,
+        lint-typecheck-test,
         adr-compliance,
         l9-patterns,
         crypto-guard,
         dora-check,
         docker-check,
         test,
+        path-safety-tests,
+        path-safety-guard,
         mutation-tests,
         docker-smoke,
         security,
+        secrets-scan,
+        commitlint,
         ai-guardrails,
       ]
     if: always()
@@ -929,22 +1089,32 @@ jobs:
           echo "╚══════════════════════════════════════════════════════════════╝"
           echo ""
           echo "Jobs:"
-          echo "  ├─ Validate:       ${{ needs.validate.result }}"
-          echo "  ├─ ADR Compliance: ${{ needs.adr-compliance.result }}"
-          echo "  ├─ L9 Patterns:    ${{ needs.l9-patterns.result }}"
-          echo "  ├─ Crypto Guard:   ${{ needs.crypto-guard.result }}"
-          echo "  ├─ DORA Check:     ${{ needs.dora-check.result }}"
-          echo "  ├─ Docker Check:   ${{ needs.docker-check.result }}"
-          echo "  ├─ Test:           ${{ needs.test.result }}"
-          echo "  ├─ Mutation Tests: ${{ needs.mutation-tests.result || 'skipped (push)' }}"
-          echo "  ├─ Docker Smoke:   ${{ needs.docker-smoke.result }}"
-          echo "  ├─ Security:       ${{ needs.security.result }}"
-          echo "  └─ AI Guardrails:  ${{ needs.ai-guardrails.result || 'skipped' }}"
+          echo "  ├─ Validate:        ${{ needs.validate.result }}"
+          echo "  ├─ Lint/Type/Test:  ${{ needs.lint-typecheck-test.result }}"
+          echo "  ├─ ADR Compliance:  ${{ needs.adr-compliance.result }}"
+          echo "  ├─ L9 Patterns:     ${{ needs.l9-patterns.result }}"
+          echo "  ├─ Crypto Guard:    ${{ needs.crypto-guard.result }}"
+          echo "  ├─ DORA Check:      ${{ needs.dora-check.result }}"
+          echo "  ├─ Docker Check:    ${{ needs.docker-check.result }}"
+          echo "  ├─ Test:            ${{ needs.test.result }}"
+          echo "  ├─ Path Safety:     ${{ needs.path-safety-tests.result }}"
+          echo "  ├─ Semgrep Guard:   ${{ needs.path-safety-guard.result }}"
+          echo "  ├─ Mutation Tests:  ${{ needs.mutation-tests.result || 'skipped (push)' }}"
+          echo "  ├─ Docker Smoke:    ${{ needs.docker-smoke.result }}"
+          echo "  ├─ Security:        ${{ needs.security.result }}"
+          echo "  ├─ Secrets Scan:    ${{ needs.secrets-scan.result }}"
+          echo "  ├─ Commitlint:      ${{ needs.commitlint.result || 'skipped (push)' }}"
+          echo "  └─ AI Guardrails:   ${{ needs.ai-guardrails.result || 'skipped' }}"
           echo ""
 
           # Fail if critical jobs failed
           if [[ "${{ needs.validate.result }}" == "failure" ]]; then
             echo "❌ CI Gates failed"
+            exit 1
+          fi
+
+          if [[ "${{ needs.lint-typecheck-test.result }}" == "failure" ]]; then
+            echo "❌ Lint/Typecheck/Test failed"
             exit 1
           fi
 
@@ -965,6 +1135,21 @@ jobs:
 
           if [[ "${{ needs.docker-check.result }}" == "failure" ]]; then
             echo "❌ Docker validation failed"
+            exit 1
+          fi
+
+          if [[ "${{ needs.test.result }}" == "failure" ]]; then
+            echo "❌ Test suite failed"
+            exit 1
+          fi
+
+          if [[ "${{ needs.security.result }}" == "failure" ]]; then
+            echo "❌ Security scan failed (known vulnerabilities)"
+            exit 1
+          fi
+
+          if [[ "${{ needs.secrets-scan.result }}" == "failure" ]]; then
+            echo "❌ Secrets scan failed (leaked credentials)"
             exit 1
           fi
 

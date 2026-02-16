@@ -39,7 +39,10 @@ from pathlib import Path
 import structlog
 
 from core.auto_registry import AutoRegistry
-from core.governance.schemas import Policy
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from core.governance.schemas import Policy
 
 logger = structlog.get_logger(__name__)
 

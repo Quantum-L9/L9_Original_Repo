@@ -30,19 +30,23 @@ __dora_meta__ = {
 # This MUST happen before any bootstrap modules are imported
 import importlib.util
 
+import structlog
+
 from core.decorators import must_stay_async
+
+logger = structlog.get_logger(__name__)
 
 # Force-load memory.graph_client into sys.modules
 # (fixes pytest import resolution for lazy imports inside bootstrap phases)
 try:
     spec = importlib.util.find_spec("memory.graph_client")
     if spec:
-        import memory.graph_client
+        pass
 except Exception:
-    pass  # Ignore if unavailable - tests will fail gracefully
+    logger.debug("test_bootstrap_conftest.graph_client_preload_failed")
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from unittest.mock import MagicMock, patch
 

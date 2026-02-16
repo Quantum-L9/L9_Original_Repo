@@ -35,14 +35,16 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 import structlog
 
-from simulation.simulation_engine import SimulationRun
+
+if TYPE_CHECKING:
+    from simulation.simulation_engine import SimulationRun
 
 logger = structlog.get_logger(__name__)
 
@@ -60,8 +62,8 @@ class CriterionType(str, Enum):
 class EvaluationVerdict(str, Enum):
     """Evaluation verdicts."""
 
-    PASS = "pass"
-    CONDITIONAL_PASS = "conditional_pass"
+    PASS = "pass"  # noqa: S105 — enum value, not a credential
+    CONDITIONAL_PASS = "conditional_pass"  # noqa: S105 — enum value, not a credential
     FAIL = "fail"
 
 

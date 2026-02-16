@@ -37,7 +37,7 @@ __dora_meta__ = {
 
 import hashlib
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -128,9 +128,9 @@ def save_to_s3(
 
     # Determine date for path structure
     if created_timestamp:
-        file_date = datetime.fromtimestamp(created_timestamp)
+        file_date = datetime.fromtimestamp(created_timestamp, tz=UTC)
     else:
-        file_date = datetime.now()
+        file_date = datetime.now(tz=UTC)
 
     # Build date-based prefix: slack/YYYY/MM/DD
     year = file_date.strftime("%Y")
@@ -298,9 +298,9 @@ def save_to_disk(
     """
     # Determine date for subfolder structure
     if created_timestamp:
-        file_date = datetime.fromtimestamp(created_timestamp)
+        file_date = datetime.fromtimestamp(created_timestamp, tz=UTC)
     else:
-        file_date = datetime.now()
+        file_date = datetime.now(tz=UTC)
 
     # Build date-based subfolder: YYYY/MM/DD
     year = file_date.strftime("%Y")

@@ -465,7 +465,7 @@ async def _mcp_cache_call(
             }
         ).encode("utf-8")
 
-        req = urllib.request.Request(
+        req = urllib.request.Request(  # noqa: S310 — URL from trusted config
             url,
             data=payload,
             headers={
@@ -480,7 +480,7 @@ async def _mcp_cache_call(
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
 
-        with urllib.request.urlopen(req, timeout=10, context=ctx) as resp:
+        with urllib.request.urlopen(req, timeout=10, context=ctx) as resp:  # noqa: S310 — URL from trusted config
             response = json.loads(resp.read().decode("utf-8"))
             # MCP wraps result: {"status": "success", "result": {...}, "caller": "C"}
             # Extract the inner result

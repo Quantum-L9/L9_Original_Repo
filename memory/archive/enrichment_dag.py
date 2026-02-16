@@ -530,33 +530,15 @@ class EnrichmentDAG:
                         timeout=self._config.entity_extraction_timeout_seconds,
                     )
 
-                    # Extract scope from envelope metadata
-                    envelope_scope = None
-                    if envelope.metadata:
-                        if isinstance(envelope.metadata, dict):
-                            envelope_scope = envelope.metadata.get("scope")
-                        else:
-                            envelope_scope = getattr(envelope.metadata, "scope", None)
-
                     for entity in entities:
-                        # Write knowledge fact with scope from envelope
-                        if envelope_scope:
-                            await self._repository.insert_knowledge_fact(
-                                subject=entity.get("name", "unknown"),
-                                predicate=entity.get("type", "entity"),
-                                object_value=entity.get("value"),
-                                confidence=entity.get("confidence", 0.8),
-                                source_packet=envelope.packet_id,
-                                scope=envelope_scope,
-                            )
-                        else:
-                            await self._repository.insert_knowledge_fact(
-                                subject=entity.get("name", "unknown"),
-                                predicate=entity.get("type", "entity"),
-                                object_value=entity.get("value"),
-                                confidence=entity.get("confidence", 0.8),
-                                source_packet=envelope.packet_id,
-                            )
+                        # Write knowledge fact
+                        await self._repository.insert_knowledge_fact(
+                            subject=entity.get("name", "unknown"),
+                            predicate=entity.get("type", "entity"),
+                            object_value=entity.get("value"),
+                            confidence=entity.get("confidence", 0.8),
+                            source_packet=envelope.packet_id,
+                        )
                         facts_extracted += 1
 
                     logger.debug(
