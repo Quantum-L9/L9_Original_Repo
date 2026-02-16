@@ -10,6 +10,8 @@ Version: 6.0.0
 
 from __future__ import annotations
 
+import json
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Cache Manager",
@@ -37,7 +39,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 

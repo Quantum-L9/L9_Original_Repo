@@ -41,7 +41,7 @@ __dora_meta__ = {
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 

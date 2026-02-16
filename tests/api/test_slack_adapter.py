@@ -390,7 +390,7 @@ class TestSlackAdapterIntegration:
         from api.slack_adapter import SlackRequestValidator
 
         # Validator requires signing secret
-        validator = SlackRequestValidator(signing_secret="test_secret")
+        validator = SlackRequestValidator(signing_secret="test_secret")  # noqa: S106 — test fixture
         assert validator is not None
 
     def test_thread_uuid_generation(self, sample_slack_event):

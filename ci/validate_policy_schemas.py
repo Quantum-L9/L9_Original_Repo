@@ -73,15 +73,21 @@ def validate_policies_list(data: dict, filepath: Path) -> list[str]:
         pid = policy.get("id", f"index-{i}")
         missing = required_policy_fields - set(policy.keys())
         if missing:
-            errors.append(f"{filepath.name}: policy '{pid}' missing fields: {', '.join(sorted(missing))}")
+            errors.append(
+                f"{filepath.name}: policy '{pid}' missing fields: {', '.join(sorted(missing))}"
+            )
 
         effect = policy.get("effect")
         if effect and effect not in valid_effects:
-            errors.append(f"{filepath.name}: policy '{pid}' has invalid effect '{effect}' (must be allow/deny)")
+            errors.append(
+                f"{filepath.name}: policy '{pid}' has invalid effect '{effect}' (must be allow/deny)"
+            )
 
         priority = policy.get("priority")
         if priority is not None and not isinstance(priority, (int, float)):
-            errors.append(f"{filepath.name}: policy '{pid}' priority must be numeric, got {type(priority).__name__}")
+            errors.append(
+                f"{filepath.name}: policy '{pid}' priority must be numeric, got {type(priority).__name__}"
+            )
 
     return errors
 
@@ -125,7 +131,9 @@ def validate_rate_limits(data: dict, filepath: Path) -> list[str]:
         return errors
 
     if len(rl) == 0:
-        errors.append(f"{filepath.name}: 'rate_limits' is empty — must have at least one category")
+        errors.append(
+            f"{filepath.name}: 'rate_limits' is empty — must have at least one category"
+        )
 
     return errors
 
@@ -145,7 +153,9 @@ def validate_protected_files(data: dict, filepath: Path) -> list[str]:
     sections = {"lcto_controlled", "subsystems", "protected_patterns"}
     found = sections & set(pf.keys())
     if not found:
-        errors.append(f"{filepath.name}: 'protected_files' must have at least one of: {', '.join(sorted(sections))}")
+        errors.append(
+            f"{filepath.name}: 'protected_files' must have at least one of: {', '.join(sorted(sections))}"
+        )
 
     return errors
 
@@ -163,10 +173,14 @@ def validate_scope_access(data: dict, filepath: Path) -> list[str]:
 
     for caller, config in sam.items():
         if not isinstance(config, dict):
-            errors.append(f"{filepath.name}: scope_access_matrix['{caller}'] must be a dict")
+            errors.append(
+                f"{filepath.name}: scope_access_matrix['{caller}'] must be a dict"
+            )
             continue
         if "allowed_scopes" not in config:
-            errors.append(f"{filepath.name}: scope_access_matrix['{caller}'] missing 'allowed_scopes'")
+            errors.append(
+                f"{filepath.name}: scope_access_matrix['{caller}'] missing 'allowed_scopes'"
+            )
 
     return errors
 
@@ -195,7 +209,9 @@ def main() -> int:
             continue
 
         if not isinstance(data, dict):
-            all_errors.append(f"{filepath.name}: root must be a YAML mapping, got {type(data).__name__}")
+            all_errors.append(
+                f"{filepath.name}: root must be a YAML mapping, got {type(data).__name__}"
+            )
             continue
 
         # Base field validation

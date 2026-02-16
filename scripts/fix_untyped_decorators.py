@@ -459,9 +459,11 @@ def apply_fixes(fixes: list[DecoratorFix], dry_run: bool = True) -> int:
                 # Add to existing typing import or create new one
                 if "from typing import" in content:
                     # Find the typing import line and extend it
+                    _missing_imports = sorted(missing)
                     content = re.sub(
                         r"(from typing import )(.*?)(\n)",
-                        lambda m: f"{m.group(1)}{m.group(2)}, {', '.join(sorted(missing))}{m.group(3)}",
+                        lambda m,
+                        _mi=_missing_imports: f"{m.group(1)}{m.group(2)}, {', '.join(_mi)}{m.group(3)}",
                         content,
                         count=1,
                     )
@@ -582,7 +584,7 @@ def main():
 
         logger.info("\n⚠️  found {len(issues)} potential untyped decorator(s):\n")
 
-        for issue in issues:
+        for _issue in issues:
             logger.info("  {issue.file_path}:{issue.line_number}")
             logger.info("    function: {issue.decorator_name}")
             logger.info("    issue: {issue.issue_type}")

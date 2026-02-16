@@ -105,7 +105,7 @@ class GMPState:
         """Convert to serializable dict."""
         result = asdict(self)
         # Convert StepStatus enum to string
-        for step_id, step_data in result["steps"].items():
+        for _step_id, step_data in result["steps"].items():
             if isinstance(step_data["status"], StepStatus):
                 step_data["status"] = step_data["status"].value
         return result

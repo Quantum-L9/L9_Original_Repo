@@ -240,7 +240,9 @@ def main():
                     if "# NOTE: Must stay async" in content:
                         files_with_comments.append(filepath)
                 except Exception:
-                    logger.debug("fix_async_decorators.file_read_failed", filepath=filepath)
+                    logger.debug(
+                        "fix_async_decorators.file_read_failed", filepath=filepath
+                    )
 
     logger.info("found {len(files_with_comments)} files with async comments\n")
 
@@ -275,6 +277,9 @@ def main():
 
     if dry_run:
         logger.info("\n=== dry run - run without --dry-run to apply changes ===")
+
+    if dry_run and total_comments > 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -140,28 +140,28 @@ def _get_production_files(repo_root: Path) -> list[Path]:
 
 class TestADR0019StructlogEnforcement:
     """Property tests ensuring ADR-0019 compliance."""
-    
+
     @pytest.fixture(autouse=True)
     def setup(self):
         """Setup test fixtures."""
         self.repo_root = Path(__file__).parent.parent.parent
         self.production_files = _get_production_files(self.repo_root)
-    
+
     def test_no_print_statements_in_production(self):
         """Property: No print() calls in production code (respects allowlist + noqa)."""
         violations = []
-        
+
         for py_file in self.production_files:
             rel_path = str(py_file.relative_to(self.repo_root))
-            
+
             # Skip files in print-allowed directories
             if _is_print_allowed(rel_path):
                 continue
-            
+
             try:
                 content = py_file.read_text()
                 tree = ast.parse(content, filename=str(py_file))
-                
+
                 for node in ast.walk(tree):
                     if isinstance(node, ast.Call):
                         if isinstance(node.func, ast.Name) and node.func.id == "print":
@@ -177,29 +177,29 @@ class TestADR0019StructlogEnforcement:
                 continue
             except Exception as e:
                 logger.warning("parse_failed", file=str(py_file), error=str(e))
-        
+
         if violations:
             msg = "\\n".join(
                 f"  {v['file']}:{v['line']} - {v['violation']}"
                 for v in violations
             )
             pytest.fail(f"ADR-0019 Violation: print() statements found:\\n{msg}")
-    
+
     def test_no_stdlib_logging_imports(self):
         """Property: No imports from stdlib logging module (respects noqa + allowlist)."""
         violations = []
-        
+
         for py_file in self.production_files:
             rel_path = str(py_file.relative_to(self.repo_root))
-            
+
             # Skip files in allowlisted directories (CLI tools may use stdlib logging)
             if _is_print_allowed(rel_path):
                 continue
-            
+
             try:
                 content = py_file.read_text()
                 tree = ast.parse(content, filename=str(py_file))
-                
+
                 for node in ast.walk(tree):
                     # Check for: import logging
                     if isinstance(node, ast.Import):
@@ -212,7 +212,7 @@ class TestADR0019StructlogEnforcement:
                                     "line": node.lineno,
                                     "violation": f"import {alias.name}"
                                 })
-                    
+
                     # Check for: from logging import X
                     if isinstance(node, ast.ImportFrom):
                         if node.module == "logging":
@@ -227,38 +227,38 @@ class TestADR0019StructlogEnforcement:
                 continue
             except Exception as e:
                 logger.warning("parse_failed", file=str(py_file), error=str(e))
-        
+
         if violations:
             msg = "\\n".join(
                 f"  {v['file']}:{v['line']} - {v['violation']}"
                 for v in violations
             )
             pytest.fail(f"ADR-0019 Violation: stdlib logging imports found:\\n{msg}")
-    
+
     def test_structlog_logger_pattern(self):
         """Property: Verify structlog.get_logger() is used correctly."""
         compliant_files = []
-        
+
         for py_file in self.production_files:
             try:
                 content = py_file.read_text()
-                
+
                 # Check for structlog usage
                 if "structlog" not in content:
                     continue
-                
+
                 # Check for correct pattern: logger = structlog.get_logger()
                 if re.search(r'logger\\s*=\\s*structlog\\.get_logger\\(\\)', content):
                     compliant_files.append(str(py_file.relative_to(self.repo_root)))
-                    
+
             except Exception as e:
                 logger.warning("pattern_check_failed", file=str(py_file), error=str(e))
-        
+
         logger.info("structlog_pattern_check", compliant_files=len(compliant_files))
-        
+
         # This is informational - not a hard failure
         assert len(compliant_files) >= 0, "Sanity check"
-    
+
     @given(st.text(min_size=10, max_size=500))
     @settings(
         max_examples=200,
@@ -271,7 +271,7 @@ class TestADR0019StructlogEnforcement:
             tree = ast.parse(code_sample)
         except SyntaxError:
             return  # Invalid syntax is fine for fuzzing
-        
+
         # Check for print calls
         for node in ast.walk(tree):
             if isinstance(node, ast.Call):
@@ -279,7 +279,7 @@ class TestADR0019StructlogEnforcement:
                     pytest.fail(
                         f"Fuzz test found print() in generated code:\\n{code_sample[:100]}"
                     )
-    
+
     @given(st.text(min_size=20, max_size=200, alphabet=st.characters(whitelist_categories=("Lu", "Ll"))))
     @settings(max_examples=100)
     def test_log_context_binding(self, context_key: str):
@@ -287,10 +287,10 @@ class TestADR0019StructlogEnforcement:
         try:
             log = structlog.get_logger()
             bound = log.bind(**{context_key: "test_value"})
-            
+
             # Verify binding worked
             assert bound is not None
-            
+
         except Exception as e:
             # Some keys might be invalid, that's fine
             if "invalid" not in str(e).lower():
@@ -299,15 +299,15 @@ class TestADR0019StructlogEnforcement:
 
 class TestADR0019Regressions:
     """Regression tests for known ADR-0019 violations."""
-    
+
     def test_no_printlogger_usage(self):
         """Regression: PrintLogger was removed per ADR-0019.
-        
+
         Note: structlog.PrintLogger is a VALID structlog class and is NOT a violation.
         Only flags non-structlog PrintLogger references.
         """
         repo_root = Path(__file__).parent.parent.parent
-        
+
         violations = []
         for py_file in _get_production_files(repo_root):
             try:
@@ -319,25 +319,25 @@ class TestADR0019Regressions:
                     violations.append(str(py_file.relative_to(repo_root)))
             except Exception:
                 continue
-        
+
         assert not violations, f"PrintLogger found in: {violations}"
-    
+
     def test_ci_check_adr_compliance_uses_structlog(self):
         """Regression: CI compliance checker must use structlog.
-        
+
         Note: CI tools are CLI tools — print() for final output is acceptable.
         This test only checks that structlog is imported (not print count).
         """
         ci_check = Path(__file__).parent.parent.parent / "ci" / "check_adr_compliance.py"
-        
+
         if not ci_check.exists():
             pytest.skip("CI compliance checker not found")
-        
+
         content = ci_check.read_text()
-        
+
         # Must import structlog
         assert "import structlog" in content, "CI checker missing structlog import"
-        
+
         # CI tools are in adr_0019_print_allowed_dirs — print() is acceptable
         # Just verify structlog is the primary logging mechanism
         assert "structlog.get_logger" in content or "structlog.stdlib" in content, \\
@@ -379,47 +379,47 @@ logger = structlog.get_logger()
 
 class TestADR0006PacketEnvelopeUsage:
     """Property tests for PacketEnvelope audit trail compliance."""
-    
+
     @pytest.fixture(autouse=True)
     def setup(self):
         """Setup test fixtures."""
         self.repo_root = Path(__file__).parent.parent.parent
-    
+
     def test_all_kernels_use_packet_envelope(self):
         """Property: All kernel files must use PacketEnvelope for processing."""
         kernel_files = list((self.repo_root / "core").glob("*_kernel.py"))
         kernel_files.extend((self.repo_root / "kernels").rglob("*.py"))
-        
+
         violations = []
-        
+
         for kernel_file in kernel_files:
             if "__pycache__" in str(kernel_file):
                 continue
-            
+
             try:
                 content = kernel_file.read_text()
-                
+
                 # Must import PacketEnvelope
                 if "PacketEnvelope" not in content and "from core.packet_envelope" not in content:
                     violations.append({
                         "file": str(kernel_file.relative_to(self.repo_root)),
                         "violation": "Missing PacketEnvelope import"
                     })
-                    
+
             except Exception as e:
                 logger.warning("kernel_check_failed", file=str(kernel_file), error=str(e))
-        
+
         if violations:
             msg = "\\n".join(f"  {v['file']}: {v['violation']}" for v in violations)
             pytest.fail(f"ADR-0006 Violation:\\n{msg}")
-    
+
     @given(st.text(min_size=5, max_size=50))
     @settings(max_examples=50)
     def test_packet_envelope_metadata_keys(self, key: str):
         """Property test: PacketEnvelope should handle arbitrary metadata keys."""
         # This is a placeholder - would need actual PacketEnvelope import
         # to test properly. Shows the pattern.
-        
+
         # Validate key is safe
         assert isinstance(key, str)
 

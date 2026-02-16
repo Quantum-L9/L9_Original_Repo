@@ -58,8 +58,8 @@ from core.singleton_auto_registry import register_singleton, register_singleton_
 from memory.audit_utils import prepare_packet_for_ingest
 
 if TYPE_CHECKING:
-    from memory.substrate_repository import SubstrateRepository
     from memory.agent_persistence import AgentPersistenceService
+    from memory.substrate_repository import SubstrateRepository
 from memory.consolidation import ConsolidationPipeline
 from memory.governance_gate import (
     enforce_packet_governance,

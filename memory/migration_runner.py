@@ -30,6 +30,7 @@ __dora_meta__ = {
 import json
 import os
 from pathlib import Path
+from typing import Any
 
 import asyncpg
 import structlog
@@ -90,9 +91,15 @@ class MigrationRunner:
             self._pool = None
             logger.info("Migration runner disconnected")
 
+    def _require_pool(self) -> asyncpg.Pool:
+        """Return the connection pool; raise if not connected."""
+        if self._pool is None:
+            raise RuntimeError("Migration runner not connected; call connect() first")
+        return self._pool
+
     async def ensure_migrations_table(self) -> None:
         """Create schema_migrations table if it doesn't exist."""
-        async with self._pool.acquire() as conn:
+        async with self._require_pool().acquire() as conn:
             await conn.execute("""
                 CREATE TABLE IF NOT EXISTS schema_migrations (
                     migration_name TEXT PRIMARY KEY,
@@ -103,13 +110,13 @@ class MigrationRunner:
 
     async def get_applied_migrations(self) -> set[str]:
         """Get set of already-applied migration names."""
-        async with self._pool.acquire() as conn:
+        async with self._require_pool().acquire() as conn:
             rows = await conn.fetch("SELECT migration_name FROM schema_migrations")
             return {row["migration_name"] for row in rows}
 
     async def mark_migration_applied(self, migration_name: str) -> None:
         """Mark a migration as applied."""
-        async with self._pool.acquire() as conn:
+        async with self._require_pool().acquire() as conn:
             await conn.execute(
                 "INSERT INTO schema_migrations (migration_name) VALUES ($1) ON CONFLICT DO NOTHING",
                 migration_name,
@@ -150,14 +157,14 @@ class MigrationRunner:
         sql_content = file_path.read_text()
 
         # Execute in transaction
-        async with self._pool.acquire() as conn, conn.transaction():
+        async with self._require_pool().acquire() as conn, conn.transaction():
             await conn.execute(sql_content)
             await self.mark_migration_applied(migration_name)
 
         logger.info(f"Migration applied: {migration_name}")
         return True
 
-    async def run_all(self) -> dict[str, any]:
+    async def run_all(self) -> dict[str, Any]:
         """
         Run all pending migrations.
 
@@ -203,7 +210,7 @@ _runner: MigrationRunner | None = None
 
 
 @must_stay_async("callers use await")
-async def run_migrations(database_url: str | None = None) -> dict[str, any]:
+async def run_migrations(database_url: str | None = None) -> dict[str, Any]:
     """
     Run all pending migrations.
 

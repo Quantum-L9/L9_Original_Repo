@@ -78,7 +78,7 @@ async def check_embeddings_via_search(limit: int = 20):
     logger.info("checking embeddings via semantic search")
     logger.info("=" * 60)
 
-    async with httpx.AsyncClient(verify=False, timeout=30.0) as client:
+    async with httpx.AsyncClient(verify=False, timeout=30.0) as client:  # noqa: S501 — internal VPS service, cert validation not required
         for query in test_queries:
             logger.info("\n🔍 query: 'query'", query=query)
             logger.info("-" * 60)

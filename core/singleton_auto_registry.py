@@ -35,12 +35,13 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from typing import Any, ParamSpec, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
 
 import structlog
 
 from core.auto_registry import AutoRegistry
 from core.singleton_registry import SingletonLifecycle
+from functools import wraps
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -225,6 +226,7 @@ def register_singleton(
             pass
     """
 
+    @wraps(name)
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
         """
         Performs automatic registration of singleton services by decorating functions within the singleton auto-registration system.
@@ -286,6 +288,7 @@ def register_singleton_closer(
             pass
     """
 
+    @wraps(singleton_name)
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
         """
         Registers a singleton service cleanup function in the auto-registration system.

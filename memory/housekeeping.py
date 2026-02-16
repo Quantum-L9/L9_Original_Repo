@@ -83,6 +83,12 @@ class HousekeepingEngine:
         """Set or update the repository reference."""
         self._repository = repository
 
+    def _require_repository(self) -> SubstrateRepository:
+        """Return repository or raise if not initialized."""
+        if self._repository is None:
+            raise RuntimeError("Repository not initialized — call set_repository() first")
+        return self._repository
+
     @property
     def stats(self) -> dict[str, int]:
         """Return current housekeeping statistics."""
@@ -187,7 +193,8 @@ class HousekeepingEngine:
         """
         logger.debug("Running TTL eviction")
 
-        async with self._repository.acquire() as conn:
+        repo = self._require_repository()
+        async with repo.acquire() as conn:
             # Delete expired packets
             result = await conn.execute("""
                 DELETE FROM packet_store
@@ -214,7 +221,8 @@ class HousekeepingEngine:
         """
         logger.debug("Running orphan packet cleanup")
 
-        async with self._repository.acquire() as conn:
+        repo = self._require_repository()
+        async with repo.acquire() as conn:
             # Find packets with parent_ids referencing non-existent packets
             # Clear orphan references rather than deleting packets
             result = await conn.execute("""
@@ -266,7 +274,8 @@ class HousekeepingEngine:
 
         exclude_types = exclude_types or ["root", "session_start", "thread_start"]
 
-        async with self._repository.acquire() as conn:
+        repo = self._require_repository()
+        async with repo.acquire() as conn:
             cutoff = datetime.now(UTC) - timedelta(hours=max_age_hours)
 
             result = await conn.execute(
@@ -303,7 +312,8 @@ class HousekeepingEngine:
 
         total_cleaned = 0
 
-        async with self._repository.acquire() as conn:
+        repo = self._require_repository()
+        async with repo.acquire() as conn:
             # Clean orphan semantic embeddings
             result = await conn.execute("""
                 DELETE FROM semantic_memory sm
@@ -353,7 +363,8 @@ class HousekeepingEngine:
         """
         logger.debug(f"Running tag GC (min_usage={min_usage})")
 
-        async with self._repository.acquire() as conn:
+        repo = self._require_repository()
+        async with repo.acquire() as conn:
             # Get tag usage counts
             rows = await conn.fetch(
                 """

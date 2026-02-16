@@ -144,7 +144,7 @@ async def api_request(method: str, endpoint: str, **kwargs) -> dict[str, Any]:
 
     url = f"{VPS_URL}{endpoint}"
 
-    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
+    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:  # noqa: S501 — internal VPS service, cert validation not required
         try:
             if method.upper() == "GET":
                 response = await client.get(url, headers=headers, **kwargs)

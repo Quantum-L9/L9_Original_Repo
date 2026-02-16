@@ -286,6 +286,12 @@ class ConversationGraphMemory:
         """Check if Neo4j is available."""
         return self._neo4j is not None and self._neo4j.is_available()
 
+    def _require_neo4j(self) -> Any:
+        """Return neo4j client or raise if not available."""
+        if self._neo4j is None:
+            raise RuntimeError("Neo4j client not initialized")
+        return self._neo4j
+
     @must_stay_async("callers use await")
     async def store_message(
         self,
@@ -349,6 +355,7 @@ class ConversationGraphMemory:
         previous_message_id: UUID | None,
     ) -> None:
         """Store message in Neo4j."""
+        neo4j = self._require_neo4j()
         # Ensure session exists
         if message.session_id:
             await self._ensure_session_exists(message.session_id, message.user_id)
@@ -366,7 +373,7 @@ class ConversationGraphMemory:
         RETURN m.id as id
         """
 
-        await self._neo4j.run_query(
+        await neo4j.run_query(
             query,
             {
                 "message_id": str(message.message_id),
@@ -380,7 +387,7 @@ class ConversationGraphMemory:
 
         # Create FOLLOWS relationship
         if previous_message_id:
-            await self._neo4j.run_query(
+            await neo4j.run_query(
                 """
                 MATCH (prev:Message {id: $prev_id})
                 MATCH (curr:Message {id: $curr_id})
@@ -394,7 +401,7 @@ class ConversationGraphMemory:
 
         # Create Session CONTAINS Message relationship
         if message.session_id:
-            await self._neo4j.run_query(
+            await neo4j.run_query(
                 """
                 MATCH (s:Session {id: $session_id})
                 MATCH (m:Message {id: $message_id})
@@ -408,7 +415,7 @@ class ConversationGraphMemory:
 
         # Create Topic nodes and MENTIONS relationships
         for topic in message.topics:
-            await self._neo4j.run_query(
+            await neo4j.run_query(
                 """
                 MERGE (t:Topic {name: $topic})
                 WITH t
@@ -427,8 +434,9 @@ class ConversationGraphMemory:
         user_id: str | None,
     ) -> None:
         """Ensure session and user nodes exist."""
+        neo4j = self._require_neo4j()
         # Create session
-        await self._neo4j.run_query(
+        await neo4j.run_query(
             """
             MERGE (s:Session {id: $session_id})
             ON CREATE SET s.started_at = datetime()
@@ -438,7 +446,7 @@ class ConversationGraphMemory:
 
         # Create user and relationship
         if user_id:
-            await self._neo4j.run_query(
+            await neo4j.run_query(
                 """
                 MERGE (u:User {id: $user_id})
                 WITH u
@@ -547,6 +555,7 @@ class ConversationGraphMemory:
         limit: int,
     ) -> ConversationContext:
         """Query history from Neo4j."""
+        neo4j = self._require_neo4j()
         context = ConversationContext(user_id=user_id, query=topic)
 
         if topic:
@@ -584,7 +593,7 @@ class ConversationGraphMemory:
             }
 
         try:
-            results = await self._neo4j.run_query(query, params)
+            results = await neo4j.run_query(query, params)
 
             for r in results:
                 context.messages.append(
@@ -605,7 +614,7 @@ class ConversationGraphMemory:
                 RETURN DISTINCT t.name as topic
                 LIMIT 10
                 """
-                topic_results = await self._neo4j.run_query(
+                topic_results = await neo4j.run_query(
                     topic_query, {"user_id": user_id}
                 )
                 context.topics = [r["topic"] for r in topic_results if r.get("topic")]
@@ -672,6 +681,7 @@ class ConversationGraphMemory:
         context = ConversationContext()
 
         if self._is_available():
+            neo4j = self._require_neo4j()
             query = """
             MATCH (s:Session {id: $session_id})-[:CONTAINS]->(m:Message)
             OPTIONAL MATCH (m)-[:MENTIONS]->(t:Topic)
@@ -682,7 +692,7 @@ class ConversationGraphMemory:
             """
 
             try:
-                results = await self._neo4j.run_query(
+                results = await neo4j.run_query(
                     query,
                     {
                         "session_id": str(session_id),
@@ -740,6 +750,7 @@ class ConversationGraphMemory:
         if not self._is_available():
             return []
 
+        neo4j = self._require_neo4j()
         query = """
         MATCH (t1:Topic {name: $topic})<-[:MENTIONS]-(m:Message)-[:MENTIONS]->(t2:Topic)
         WHERE t1 <> t2
@@ -749,7 +760,7 @@ class ConversationGraphMemory:
         """
 
         try:
-            results = await self._neo4j.run_query(
+            results = await neo4j.run_query(
                 query,
                 {
                     "topic": topic.lower(),
@@ -784,8 +795,9 @@ class ConversationGraphMemory:
         if not self._is_available():
             return False
 
+        neo4j = self._require_neo4j()
         try:
-            await self._neo4j.run_query(
+            await neo4j.run_query(
                 f"""
                 MATCH (s1:Session {{id: $id1}})
                 MATCH (s2:Session {{id: $id2}})

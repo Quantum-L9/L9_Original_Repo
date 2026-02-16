@@ -59,6 +59,7 @@ import structlog
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
+
     from fastapi import FastAPI
 
 logger = structlog.get_logger(__name__)

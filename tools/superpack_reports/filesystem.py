@@ -21,7 +21,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import TextIO, TYPE_CHECKING
+from typing import TYPE_CHECKING, TextIO
 
 if TYPE_CHECKING:
     from pathlib import Path

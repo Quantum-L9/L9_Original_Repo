@@ -51,6 +51,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
     from world_model.registry import WorldModelRegistry
     from world_model.state import Entity, WorldModelState
 

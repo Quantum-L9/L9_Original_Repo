@@ -35,11 +35,11 @@ __dora_meta__ = {
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import structlog
 
 from core.auto_registry import AutoRegistry
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from core.governance.schemas import Policy

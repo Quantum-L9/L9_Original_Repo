@@ -320,7 +320,9 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                 if channel:
                                     self._post_result(channel, task, failure_result)
                             except Exception:
-                                logger.debug("agent_execution.slack_failure_post_failed")
+                                logger.debug(
+                                    "agent_execution.slack_failure_post_failed"
+                                )
 
                         # Save failure JSON
                         try:

@@ -300,7 +300,7 @@ class ParallelConsolidationPipeline:
                         )
                     else:
                         results[phase.name] = result
-                        if result.success:
+                        if isinstance(result, PhaseResult) and result.success:
                             self._completed_phases.add(phase.name)
 
         total_duration_ms = int(

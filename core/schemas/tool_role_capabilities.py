@@ -28,10 +28,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging  # noqa: ADR-0019
 from dataclasses import dataclass
 
-logger = logging.getLogger(__name__)  # noqa: ADR-0019
+import structlog
+
+logger = structlog.get_logger(__name__)
 
 
 @dataclass

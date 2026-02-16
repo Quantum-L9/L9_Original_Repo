@@ -300,7 +300,7 @@ def cmd_validate(args: argparse.Namespace) -> int:
         return 0
 
     errors = 0
-    for adr_file, issues in results.items():
+    for _adr_file, issues in results.items():
         if issues:
             logger.info("❌ {adr_file.name}: {len(issues)} issue(s)")
             for issue in issues:

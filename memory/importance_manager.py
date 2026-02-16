@@ -49,6 +49,7 @@ import structlog
 
 if TYPE_CHECKING:
     from uuid import UUID
+
     from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)

@@ -132,7 +132,7 @@ class SubjectiveLogicAdapter:
         }
 
         # Validate constraint
-        assert abs(sum(opinion.values()) - 1.0) < 1e-6, (
+        assert abs(sum(opinion.values()) - 1.0) < 1e-6, (  # noqa: S101 — mathematical invariant
             "Subjective logic constraint violated"
         )
 
@@ -170,7 +170,7 @@ class SubjectiveLogicAdapter:
         opinion = {"belief": belief, "disbelief": disbelief, "uncertainty": uncertainty}
 
         # Validate
-        assert abs(sum(opinion.values()) - 1.0) < 1e-6
+        assert abs(sum(opinion.values()) - 1.0) < 1e-6  # noqa: S101 — mathematical invariant
 
         return opinion
 
@@ -197,7 +197,7 @@ class SubjectiveLogicAdapter:
         """
         # Validate input
         total = belief + disbelief + uncertainty
-        assert abs(total - 1.0) < 1e-6, f"Opinion must sum to 1.0, got {total}"
+        assert abs(total - 1.0) < 1e-6, f"Opinion must sum to 1.0, got {total}"  # noqa: S101 — mathematical invariant
 
         # Probability = belief + (uncertainty × base_rate)
         probability = belief + (uncertainty * base_rate)
@@ -308,10 +308,10 @@ if __name__ == "__main__":
     logger.info("Confidence", value=f"{confidence:.3f}")
 
     # Validate constraints
-    assert abs(sum(opinion1.values()) - 1.0) < 1e-6
-    assert abs(sum(opinion2.values()) - 1.0) < 1e-6
-    assert abs(sum(combined.values()) - 1.0) < 1e-6
-    assert 0.0 <= confidence <= 1.0
+    assert abs(sum(opinion1.values()) - 1.0) < 1e-6  # noqa: S101 — mathematical invariant
+    assert abs(sum(opinion2.values()) - 1.0) < 1e-6  # noqa: S101 — mathematical invariant
+    assert abs(sum(combined.values()) - 1.0) < 1e-6  # noqa: S101 — mathematical invariant
+    assert 0.0 <= confidence <= 1.0  # noqa: S101 — mathematical invariant
 
     logger.info("Subjective Logic adapter validated", status="success")
 

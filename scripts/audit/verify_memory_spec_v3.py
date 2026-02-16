@@ -431,7 +431,7 @@ def run_verification(
         logger.info("=" * 60)
         logger.info("memory spec v3.0 verification")
         logger.info("=" * 60)
-        logger.info("spec file", path=str(spec_file.relative_to(repo_root)))
+        logger.info("spec file", path=str(SPEC_FILE.relative_to(REPO_ROOT)))
     spec = load_spec()
     all_passed = True
 

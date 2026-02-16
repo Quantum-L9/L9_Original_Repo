@@ -21,9 +21,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import TYPE_CHECKING
+
 from .ast_scanner import scan_directories
 from .filesystem import open_report, write_markdown_footer, write_markdown_header
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .config import SuperpackLayout

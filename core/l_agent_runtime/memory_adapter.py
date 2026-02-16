@@ -201,7 +201,7 @@ class MemoryAdapter:
         import hashlib
 
         context_str = str(context)
-        hash_val = int(hashlib.md5(context_str.encode()).hexdigest(), 16)
+        hash_val = int(hashlib.md5(context_str.encode()).hexdigest(), 16)  # noqa: S324 — used for dummy embedding, not security
 
         # Convert to normalized vector (dummy implementation)
         # nosemgrep: l9-float-requires-try-except (bit shift result always 0 or 1)

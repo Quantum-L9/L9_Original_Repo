@@ -452,7 +452,7 @@ async def main():
         if args.dry_run:
             # Show what would be seeded
             logger.info("\n=== dry run: golden strategies to seed ===\n")
-            for strategy in GOLDEN_STRATEGIES:
+            for _strategy in GOLDEN_STRATEGIES:
                 logger.info("  - {strategy['name']}")
                 logger.info("    kind: {strategy['task_kind']}")
                 logger.info("    tags: {', '.join(strategy['tags'])}")

@@ -642,7 +642,7 @@ class CursorProbabilisticEngine:
         ece = 0.0
         total_decisions = len(decisions)
 
-        for bin_idx, bin_decisions in enumerate(bins):
+        for _bin_idx, bin_decisions in enumerate(bins):
             if not bin_decisions:
                 continue
 

@@ -207,7 +207,7 @@ class ResearchToCodeResponse(BaseModel):
 async def research_agent_status(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_research_agent),
+    agent=Depends(get_research_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """Get ResearchAgent status and capabilities."""
     return {
@@ -230,7 +230,7 @@ async def synthesize(
     request: SynthesizeRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_research_agent),
+    agent=Depends(get_research_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Fast multi-perspective synthesis (~10 min).
@@ -281,7 +281,7 @@ async def discover(
     request: DiscoverRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_research_agent),
+    agent=Depends(get_research_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Deep 5-stage academic research pipeline (15-25 hours).
@@ -338,7 +338,7 @@ async def generate_spec(
     request: GenerateSpecRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_research_agent),
+    agent=Depends(get_research_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Generate Module-Spec-v2.4 YAML (~1 min).
@@ -388,7 +388,7 @@ async def research_to_code(
     request: ResearchToCodeRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    agent=Depends(get_research_agent),
+    agent=Depends(get_research_agent),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     End-to-end research-to-code pipeline.

@@ -285,6 +285,8 @@ class RetentionEngine:
             )
 
             try:
+                if self._refcount_service is None or self._persistence is None:
+                    break
                 is_safe = await self._refcount_service.is_safe_to_delete(checkpoint_id)
 
                 if is_safe:

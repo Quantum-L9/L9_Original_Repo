@@ -516,7 +516,9 @@ class TestSchemaValidation:
             },
         }
 
-        with pytest.raises(Exception):  # Pydantic ValidationError
+        with pytest.raises(  # noqa: B017 — intentionally testing broad exception handling
+            Exception
+        ):  # noqa: B017 — intentionally testing broad exception handling
             KernelManifest.model_validate(data)
 
     def test_kernel_type_inference(self) -> None:

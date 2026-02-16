@@ -29,12 +29,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from memory.substrate_repository import SubstrateRepository
     from memory.substrate_models import AgentMemoryEventRow
+    from memory.substrate_repository import SubstrateRepository
 
 
 class TimelineService:

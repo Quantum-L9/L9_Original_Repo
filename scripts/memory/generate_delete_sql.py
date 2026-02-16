@@ -102,7 +102,7 @@ async def find_trash_ids() -> list:
         "No response generated",
     ]
 
-    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
+    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:  # noqa: S501 — internal VPS service, cert validation not required
         for query in search_queries:
             try:
                 response = await client.post(

@@ -18,8 +18,8 @@ Handles:
 
 Usage:
     segmenter = InputSegmenter()
-    segments = segmenter.segment("Deploy RIL, test ToT, sync Supabase")
-    # ["deploy ril", "test tot", "sync supabase"]
+    segments = segmenter.segment("Deploy RIL, test ToT, sync embeddings")
+    # ["deploy ril", "test tot", "sync embeddings"]
 
 Version: 1.0.0
 Harvested: 2026-01-19 from tokenizer/core/tokenizer/tokenizer.py
@@ -140,7 +140,7 @@ class InputSegmenter:
     Harvested from tokenizer pipeline - this is the nervous system preprocessing
     that allows L9 to handle compound instructions like:
 
-        "Deploy RIL, test ToT, sync Supabase, then generate plan v3"
+        "Deploy RIL, test ToT, sync embeddings, then generate plan v3"
 
     Which becomes 4 separate tasks that can be routed and executed independently.
     """

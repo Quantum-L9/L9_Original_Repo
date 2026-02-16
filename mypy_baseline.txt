@@ -1,0 +1,20 @@
+Here's the landscape — 671 mypy errors across 153 files. Let me break down the triage:
+Error categories (top to bottom):
+Category	Count	Nature
+attr-defined	172	Accessing attributes that don't exist on a type
+union-attr	130	Accessing .method() on X | None without null check
+arg-type	121	Wrong argument types passed to functions
+assignment	57	Assigning incompatible types
+str	53	String expression statement (no effect)
+var-annotated	51	Missing type annotation on variable
+annotation-unchecked	42	Annotation not fully checked
+import-untyped	33	Import from untyped module
+index	27	Invalid index/key type
+return-value	20	Return type mismatch
+Other	37	Various smaller categories
+Hotspot files — the top 5 files account for ~170 errors alone:
+core/codegen/wire_executor.py (51)
+memory/slack_ingest.py (43)
+memory/smoke_test.py (31)
+core/agents/bootstrap/orchestrator.py (27)
+runtime/redis_client.py (25)

@@ -22,9 +22,9 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from .filesystem import open_report
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .config import SuperpackLayout

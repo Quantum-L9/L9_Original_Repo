@@ -17,6 +17,7 @@ Exit codes:
     0 - No new ADRs or stubs added successfully
     1 - Error reading files
 """
+
 from __future__ import annotations
 
 import re
@@ -84,8 +85,7 @@ def build_rule_stub(adr_id: str, title: str) -> str:
 def build_exempt_stub(adr_id: str, title: str) -> str:
     """Build a YAML exempt stub."""
     return (
-        f'\n  - adr: "{adr_id}"\n'
-        f'    reason: "{title} — TODO: Add exemption reason"\n'
+        f'\n  - adr: "{adr_id}"\n    reason: "{title} — TODO: Add exemption reason"\n'
     )
 
 

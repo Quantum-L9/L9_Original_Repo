@@ -341,7 +341,7 @@ async def poll_and_execute():
                         metadata = task.get("metadata", {})
                         channel = metadata.get("channel", metadata.get("user"))
                         if channel:
-                            post_result(channel, task, failure_result)
+                            await post_result_async(channel, task, failure_result)
                     except Exception:
                         logger.debug("mac_runner.slack_failure_post_failed")
 

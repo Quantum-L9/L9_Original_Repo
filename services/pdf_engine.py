@@ -82,9 +82,10 @@ def extract_pdf(path: str, summarize: bool = True) -> dict[str, Any]:
         full_text = ""
         pages = []
         fields = {}
+        use_pdfplumber = PDFPLUMBER_AVAILABLE
 
         # Try pdfplumber first (better for forms)
-        if PDFPLUMBER_AVAILABLE:
+        if use_pdfplumber:
             try:
                 with pdfplumber.open(path) as pdf:
                     for _i, page in enumerate(pdf.pages):
@@ -121,10 +122,10 @@ def extract_pdf(path: str, summarize: bool = True) -> dict[str, Any]:
                             logger.debug("pdf_engine.table_extraction_failed")
             except Exception as e:
                 logger.warning(f"pdfplumber extraction failed: {e}, trying pypdf")
-                PDFPLUMBER_AVAILABLE = False  # Force fallback
+                use_pdfplumber = False  # Force fallback
 
         # Fallback to pypdf
-        if not PDFPLUMBER_AVAILABLE and PYPDF_AVAILABLE:
+        if not use_pdfplumber and PYPDF_AVAILABLE:
             reader = PdfReader(path)
             for _i, page in enumerate(reader.pages):
                 page_text = page.extract_text() or ""

@@ -34,7 +34,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 

@@ -26,7 +26,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging  # noqa: ADR-0019
 import re
 from datetime import UTC, datetime
 from pathlib import Path
@@ -195,7 +194,7 @@ class CursorActionExtractor(BaseExtractor):
             try:
                 return yaml.safe_load(yaml_text)
             except Exception:
-                logging.exception("L9 runtime exception", exc_info=True)
+                self.logger.exception("L9 runtime exception", exc_info=True)
 
         # Fallback: construct from references
         return {

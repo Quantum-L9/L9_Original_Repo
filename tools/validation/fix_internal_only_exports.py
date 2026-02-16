@@ -252,7 +252,7 @@ def main() -> int:
 
     if changes:
         print("\nPackages modified:")
-        for pkg, syms, count in changes:
+        for pkg, _syms, count in changes:
             print(f"  {pkg}/__init__.py: {count} removed")
 
     return 0

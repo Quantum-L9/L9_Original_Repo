@@ -40,6 +40,7 @@ from typing import Any, ParamSpec, TypeVar
 import structlog
 
 from core.auto_registry import AutoRegistry
+from functools import wraps
 
 logger = structlog.get_logger(__name__)
 
@@ -96,6 +97,7 @@ def register_tool(
             return {"status": "ok"}
     """
 
+    @wraps(name)
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
         """
         Performs registration of a tool executor function in the auto-registration system.

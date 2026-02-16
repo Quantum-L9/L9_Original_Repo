@@ -55,8 +55,8 @@ import hashlib
 import json
 from collections.abc import Callable
 from copy import deepcopy
-from datetime import datetime
-from functools import lru_cache
+from datetime import datetime, timezone
+from functools import wraps, lru_cache
 from uuid import UUID
 
 import structlog
@@ -198,6 +198,7 @@ class _SchemaRegistry:
         """
         key = f"{from_version}->{to_version}"
 
+        @wraps(self)
         def decorator(func: Callable[[dict], dict]) -> Callable[[dict], dict]:
             """
             Performs registration of an upcaster function for a specific schema version key in the schema registry.
@@ -265,7 +266,7 @@ class _SchemaRegistry:
         # Default to oldest version
         return "1.0.0"
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=128)  # noqa: B019 — intentional caching of migration paths
     def _compute_migration_path(
         self, from_version: str, to_version: str
     ) -> tuple[str, ...]:

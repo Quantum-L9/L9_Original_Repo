@@ -21,8 +21,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from .filesystem import open_report
 from typing import TYPE_CHECKING
+
+from .filesystem import open_report
 
 if TYPE_CHECKING:
     from .config import RepoLayout

@@ -894,7 +894,7 @@ class ExecutorToolRegistry:
         kernel_active = False
         if isinstance(kernel_state, str):
             kernel_active = kernel_state == "ACTIVE"
-        elif hasattr(kernel_state, "initialized"):
+        elif hasattr(kernel_state, "initialized") and kernel_state is not None:
             kernel_active = bool(kernel_state.initialized)
 
         if not kernel_active:

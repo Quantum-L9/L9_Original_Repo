@@ -22,12 +22,14 @@ __dora_meta__ = {
 # ============================================================================
 
 
-from .filesystem import open_report
 from typing import TYPE_CHECKING
 
+from .filesystem import open_report
+
 if TYPE_CHECKING:
-    from .config import RepoLayout
     from pathlib import Path
+
+    from .config import RepoLayout
 
 
 def generate_architecture(layout: RepoLayout) -> None:

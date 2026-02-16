@@ -33,7 +33,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
@@ -43,9 +43,9 @@ from agents.cursor.integrations.cursor_langgraph import CursorAgentState
 
 if TYPE_CHECKING:
     from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
-    from memory.substrate_service import MemorySubstrateService
-    from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
     from core.governance.approval_manager import ApprovalManager
+    from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 

@@ -74,15 +74,18 @@
 
 ## Test Status
 
-**Last Run**: 2026-02-12 (Test Suite Hardening + Gap Analysis)
+**Last Run**: 2026-02-16 (Ruff + Mypy Hardening)
 
-- `tests/memory/` + `tests/tools/` + `tests/e2e/`: **930 passed**, 69 skipped, 0 warnings
+- **Ruff**: All checks passed (0 errors) — fixed 2,584 lint errors across codebase
+- **Mypy**: 130 → 9 union-attr errors fixed (121 resolved), 671 total errors → ~550 remaining
+- `tests/memory/` + `tests/tools/` + `tests/e2e/`: **930 passed**, 69 skipped, 0 warnings (prior run)
 - **Skips breakdown**: 47 PostgreSQL, 13 Neo4j, 10 Strategy Memory (all legitimate integration tests)
 
 ---
 
 ## Recent Changes (digest)
 
+- [2026-02-16] **Ruff + Mypy Hardening (CI Pipeline)** — Fixed 2,584 ruff lint errors to reach 0 errors (All checks passed). Categories: 163 syntax fixes (extra quotes), 29 empty keyword args, 43 artifact logger.info("output") removals, 98 S110 try-except-pass→structlog, 45 S112 try-except-continue→structlog, 100 DTZ timezone-aware datetime, 149 TC TYPE_CHECKING imports, 144 S-series security fixes, 116 B-series bugbear fixes, 86 F/E/UP-series fixes. Configured principled per-file-ignores (S101 in tests, F401 in __init__.py). Excluded all archive directories. Installed mypy under Python 3.12 (was broken under 3.9). Fixed 121 of 130 union-attr mypy errors across 23 files using _require_X() guard pattern (RuntimeError on None). Major files: wire_executor.py (49), graph_memory.py (11), executor_composer.py (11), substrate_semantic.py (6), hypergraph_client.py (6), housekeeping.py (5), redis_tools.py (4), l_tools.py (4). 9 union-attr remain (substrate_semantic partial, webhook_mac_agent, hierarchical_summarizer).
 - [2026-02-14] **README tooling fixes** — Fixed `scripts/generate_subsystem_readmes.py` SyntaxError (line 1188 typographic quote). Fixed `scripts/generate_readme_superprompt.py` log levels (progress/success: error→info). Clarified superprompt vs subsystem README generation; 64 READMEs = all configured subsystems with existing paths (3 paths missing: core/facade, codegenagent, dev).
 - [2026-02-14] **Foresight observe cycle + intake importance_score** — Integrated periodic Observe into `core/l_agent_runtime/foresight_engine.py`: `observe()`, `run_observe_cycle()`, `FORESIGHT_OK`, `HIGHEST_LEVERAGE_QUESTION`, `observe_checklist_path`. Renamed heartbeat→observe_cycle (L9-aligned). Intake rating: use existing `importance_score` at task-intake; `migrations/0034_intake_leverage_rating.sql` documents it (comment only). Repository reads `metadata.importance` or `metadata.importance_score`.
 - [2026-02-14] **GMP-141: Integration test — create temp file**. Report: `GMP-Report-141-Integration-Test-Create-Temp-File.md`
@@ -188,13 +191,14 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-02-16 (end-session)_
+_Last updated: 2026-02-16 22:00 EST (end-session)_
 
 **Unified memory pipeline (end-session write):**  
 `cursor_memory_client.py write` → `mcp_call_tool("save_memory", {...})` → MCP server on C1 → HTTP to L9 API → `api/memory/router.py` (or MCP-backed ingest) → `memory/ingestion.ingest_packet()` → `MemorySubstrateService.write_packet()` → **SubstrateDAG** (intake → reasoning → memory_write → graph_sync → semantic_embed → insights → world_model → checkpoint). **Ports:** C1 external **80** (Nginx `/memory/`), internal l9-api **30080**, Postgres **30432**, Neo4j **30474**. **Schema:** PacketEnvelope v2 (PacketEnvelopeIn). **Single entry:** `ingest_packet()` → `write_packet()` → DAG only.
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-16: Ruff + Mypy CI Hardening: Fixed 2,584 ruff errors to 0. Installed mypy under Python 3.12. Fixed 121/130 union-attr errors across 23 files. 9 remaining.
 - ✅ 2026-02-16: **Test Suite & Pre-commit Hook Restoration** — Resolved 30+ test failures and import errors across symbolic computation, DI bootstrap, and dynamic tool discovery. Refactored `code_generator.py` to use SymPy's high-level `codegen`. Fixed `test_integration_phase0.py` by implementing a robust `MockRepository` for refcount integration. Resolved a critical shell syntax error in the pre-commit hook (`local` used outside function) and committed all 13+ modified files. Status: **128 passed, 3 skipped**.
 - 2026-02-16: Enforced ADR-0002 (TYPE_CHECKING pattern) in pre-commit pipeline (redundant enforcement in .pre-commit-config.yaml and scripts/hooks/pre-commit). Fixed timeout issues on macOS and improved grep robustness.
 - 2026-02-14: **Transcript Distiller Pipeline** — Built offline text-to-memory pipeline (`transcript_distiller.py`): reads transcripts/ADRs/READMEs/GMP reports → ChunkView → LLM distill (gpt-4o-mini) → classify (lesson|insight|pattern|error|note) → ingest_packet() (facts→knowledge_facts, insights→packet_store). Added --since/--until date filters, JSON+TXT completion reports. Fixed `export_chats.sh` for new agent-transcript format. Fixed `learning_to_mcp_bridge.py` (MCP URL→C1, paths via $HOME). Made LLM models configurable via env vars (L9_DISTILLER_MODEL, L9_EPISODIC_MODEL, etc.). Fixed MEMORY_PIPELINE_MAP.md (removed :9002 direct port refs). Set up launchd cron at 5am daily. Tested: 23 Feb-13 transcripts, 101 ADRs, 10 GMP reports discoverable. LLM dry-run verified (10 facts + 5 insights from single ADR).
@@ -244,19 +248,15 @@ _Last updated: 2026-02-16 (end-session)_
 
 ## Next Steps (Next Session)
 
-- [x] Wire `WorkingMemoryAdapter` → `PipelineRouter` (E1, feature-flagged) ✅
-- [x] Wire `ImportanceManager` → `ImportanceRecipe` (E3, feature-flagged) ✅
-- [x] Wire `MultiFactorRanker` → Extended Ranking Fields (E4) ✅
-- [x] Wire `ActiveMemoryEncoder` → `ImportanceRecipe` (E5, feature-flagged) ✅
-- [x] B5: LLM-refined importance calibration config placeholder ✅
+- [ ] Fix remaining 9 mypy union-attr errors (substrate_semantic.py line 640, webhook_mac_agent.py lines 205-208, hierarchical_summarizer.py line 441)
+- [ ] Tackle next mypy category: attr-defined (172 errors) — real attribute mismatches, biggest win after union-attr
+- [ ] Tackle mypy arg-type (121 errors) — wrong argument types passed to functions
 - [ ] Review distiller 5am cron results (check `$HOME/Dropbox/Cursor Governance/GlobalCommands/ops/logs/distiller_reports/`)
-- [ ] Run distiller on ADRs + GMP reports (`--source adrs`, `--source reports`) to seed knowledge graph
-- [ ] Wire `L9MemoryAdapter` for Cursor → L9 memory integration (see `current_work/02-14-2026/L9_memory_adapter.md`)
-- [ ] Run `python3 agents/cursor/ingest_lessons.py --live` to write 53 lessons to MCP memory (dry-run verified)
 - [ ] Execute migration 0032 + 0034 on C1 during next Docker rebuild and capture health proof
 
 **Recent Sessions (7-day window):**
 
+- 2026-02-16: **Ruff + Mypy CI Hardening** — Fixed 2,584 ruff errors to 0 (All checks passed). Installed mypy under Python 3.12. Fixed 121/130 union-attr errors across 23 files using _require_X() guard pattern. Configured principled pyproject.toml (per-file-ignores, archive exclusions). Key files: wire_executor.py (49 fixes), graph_memory.py (11), executor_composer.py (11), substrate_semantic.py (6), hypergraph_client.py (6), housekeeping.py (5), redis_tools.py (4), l_tools.py (4), plus 11 smaller files.
 - 2026-02-14: **ADR-0102 SDK-First Interface Wiring** — 17 interfaces wired into L9SDK:
   - P0: MemoryInterface (+graph +cache), WorldModelInterface expanded (8 new methods)
   - P1: ResearchInterface, CommandsInterface, EmailInterface
@@ -335,4 +335,4 @@ _Last updated: 2026-02-16 (end-session)_
 
 ---
 
-_Last updated: 2026-02-16 (end-session)_
+_Last updated: 2026-02-16 22:07 EST (end-session)_

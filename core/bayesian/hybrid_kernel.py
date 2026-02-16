@@ -436,6 +436,8 @@ class HybridInferenceKernel:
             3. Replace P(...) > threshold with True/False
             4. Evaluate remaining FOL
         """
+        start_time = datetime.now(UTC)
+
         # Pattern: P(ModelName) > threshold('name') or literal
         pattern = r"P\((\w+)\)\s*([><=]+)\s*(?:threshold\('(\w+)'\)|(\d+\.?\d*))"
 

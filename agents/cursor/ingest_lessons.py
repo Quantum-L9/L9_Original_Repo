@@ -352,10 +352,10 @@ def main() -> None:
             print()  # noqa: ADR-0019
 
         # Summary
-        curated = len([l for l in lessons if l["quality"] == "curated"])
-        auto = len([l for l in lessons if l["quality"] == "auto-generated"])
-        ultra = len([l for l in lessons if l["severity"] == "ULTRA_CRITICAL"])
-        critical = len([l for l in lessons if l["severity"] == "CRITICAL"])
+        curated = len([item for item in lessons if item["quality"] == "curated"])
+        auto = len([item for item in lessons if item["quality"] == "auto-generated"])
+        ultra = len([item for item in lessons if item["severity"] == "ULTRA_CRITICAL"])
+        critical = len([item for item in lessons if item["severity"] == "CRITICAL"])
 
         print(f"  {'─' * 50}")  # noqa: ADR-0019
         print(f"  Summary: {len(lessons)} lessons")  # noqa: ADR-0019

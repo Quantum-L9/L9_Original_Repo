@@ -158,7 +158,7 @@ def get_research_runtime() -> ResearchGraphRuntime:
 )
 async def research(
     request: ResearchRequest,
-    runtime: ResearchGraphRuntime = Depends(get_research_runtime),
+    runtime: ResearchGraphRuntime = Depends(get_research_runtime),  # noqa: B008 — FastAPI dependency injection
 ) -> ResearchResponse:
     """
     Execute a research query.
@@ -216,7 +216,7 @@ async def research(
 )
 async def get_research_status(
     thread_id: str,
-    runtime: ResearchGraphRuntime = Depends(get_research_runtime),
+    runtime: ResearchGraphRuntime = Depends(get_research_runtime),  # noqa: B008 — FastAPI dependency injection
 ) -> ResearchStatusResponse:
     """
     Get status of a research thread.
@@ -241,7 +241,7 @@ async def get_research_status(
 )
 async def resume_research(
     thread_id: str,
-    runtime: ResearchGraphRuntime = Depends(get_research_runtime),
+    runtime: ResearchGraphRuntime = Depends(get_research_runtime),  # noqa: B008 — FastAPI dependency injection
 ) -> ResearchResponse:
     """
     Resume research from a checkpoint.

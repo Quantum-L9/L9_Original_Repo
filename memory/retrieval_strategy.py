@@ -52,6 +52,7 @@ import structlog
 
 if TYPE_CHECKING:
     from uuid import UUID
+
     from memory.identity_tier import IdentityTierService
     from memory.substrate_repository import SubstrateRepository
 

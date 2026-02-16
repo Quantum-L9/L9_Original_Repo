@@ -1110,7 +1110,7 @@ async def handle_slack_events(
 
                 # === Multi-Part Directive Support (harvested from tokenizer) ===
                 # Segment input to handle compound directives like:
-                # "Deploy RIL, test ToT, sync Supabase"
+                # "Deploy RIL, test ToT, sync embeddings"
                 segmenter = get_segmenter()
                 segment_result = segmenter.segment(text)
 
@@ -2186,7 +2186,7 @@ def _build_system_prompt(
     This gives the AIOS model context about the conversation thread and
     any related prior knowledge from the memory substrate.
     """
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     # GMP-LCTO-FIXES: Inject current datetime so L can tell time
     current_time = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")

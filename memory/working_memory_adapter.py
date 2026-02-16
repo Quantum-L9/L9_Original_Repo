@@ -35,7 +35,7 @@ __dora_meta__ = {
 import os
 from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 

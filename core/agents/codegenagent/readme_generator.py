@@ -746,7 +746,8 @@ class ReadmeGenerator:
                     "| Field | Type | Description |\n|-------|------|-------------|\n"
                 )
                 for field in fields:
-                    section += f"| `{field.get('name', '')}` | `{field.get('type', '')}` | {field.get('description', '')} |\n"
+                    if isinstance(field, dict):
+                        section += f"| `{field.get('name', '')}` | `{field.get('type', '')}` | {field.get('description', '')} |\n"
 
             sections.append(section)
 

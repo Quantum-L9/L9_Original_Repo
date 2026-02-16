@@ -38,7 +38,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -753,14 +753,14 @@ class IRToPythonCompiler:
 
         # Initialize Jinja2 environment
         if self.template_dir and self.template_dir.exists():
-            self.jinja_env = jinja2.Environment(
+            self.jinja_env = jinja2.Environment(  # noqa: S701 — generating Python code, not HTML; autoescape not applicable
                 loader=jinja2.FileSystemLoader(str(self.template_dir)),
                 trim_blocks=True,
                 lstrip_blocks=True,
             )
         else:
             # Use inline templates
-            self.jinja_env = jinja2.Environment(
+            self.jinja_env = jinja2.Environment(  # noqa: S701 — generating Python code, not HTML; autoescape not applicable
                 loader=jinja2.DictLoader(TEMPLATES),
                 trim_blocks=True,
                 lstrip_blocks=True,

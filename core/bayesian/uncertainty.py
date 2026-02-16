@@ -511,11 +511,11 @@ if __name__ == "__main__":
     )
 
     # Validate requirements
-    assert "epistemic_std" in result
-    assert "aleatoric_std" in result
-    assert "confidence" in result
-    assert result["epistemic_std"] >= 0
-    assert 0 <= result["confidence"] <= 1
+    assert "epistemic_std" in result  # noqa: S101 — mathematical invariant
+    assert "aleatoric_std" in result  # noqa: S101 — mathematical invariant
+    assert "confidence" in result  # noqa: S101 — mathematical invariant
+    assert result["epistemic_std"] >= 0  # noqa: S101 — mathematical invariant
+    assert 0 <= result["confidence"] <= 1  # noqa: S101 — mathematical invariant
 
     logger.info("Bayesian uncertainty engine validated", status="success")
 

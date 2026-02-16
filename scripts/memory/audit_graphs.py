@@ -505,7 +505,7 @@ def print_audit_report(results: dict[str, Any]):
         logger.info("\n🕸️  neo4j knowledge graph:")
         if "overall_stats" in neo:
             logger.info("   node types:")
-            for item in neo["overall_stats"][:10]:
+            for _item in neo["overall_stats"][:10]:
                 logger.info(
                     "      {item.get('label', 'unknown')}: {item.get('count', 0):,}"
                 )
@@ -519,7 +519,7 @@ def print_audit_report(results: dict[str, Any]):
 
         if "agent_state" in neo:
             logger.info("\n🤖 agent state graph:")
-            for agent in neo["agent_state"]:
+            for _agent in neo["agent_state"]:
                 logger.info("   {agent.get('agent_id', 'unknown')}:")
                 logger.info(
                     "      responsibilities: {agent.get('responsibilities', 0)}"
@@ -531,7 +531,7 @@ def print_audit_report(results: dict[str, Any]):
 
         if "repo_structure" in neo and neo["repo_structure"]["nodes"]:
             logger.info("\n📁 repo structure graph:")
-            for item in neo["repo_structure"]["nodes"]:
+            for _item in neo["repo_structure"]["nodes"]:
                 logger.info(
                     "   {item.get('type', 'unknown')}: {item.get('count', 0):,}"
                 )

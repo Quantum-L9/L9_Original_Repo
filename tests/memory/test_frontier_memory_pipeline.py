@@ -386,12 +386,16 @@ class TestActiveEncoder:
 
         assert len(learnings) >= 2
         # Check that preference pattern is detected
-        pref_learning = next((l for l in learnings if "async" in l.fact_text), None)
+        pref_learning = next(
+            (item for item in learnings if "async" in item.fact_text), None
+        )
         assert pref_learning is not None
         assert pref_learning.learning_type == "preference"
 
         # Check that correction pattern is detected
-        corr_learning = next((l for l in learnings if "next time" in l.fact_text), None)
+        corr_learning = next(
+            (item for item in learnings if "next time" in item.fact_text), None
+        )
         assert corr_learning is not None
         assert corr_learning.learning_type == "correction"
 

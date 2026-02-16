@@ -29,8 +29,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService

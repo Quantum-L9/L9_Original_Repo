@@ -626,7 +626,7 @@ def find_unwired_services(repo_root: Path) -> list[DeadCodeFinding]:
             inheritance_map[first_parent].append(class_name)
 
     # Search for instantiations
-    for class_name, (def_file, def_line, parent_class) in service_classes.items():
+    for class_name, (def_file, def_line, _parent_class) in service_classes.items():
         instantiation_found = False
 
         # Patterns: ClassName(), ClassName.create(), get_instance(ClassName), app.state.X = ClassName()

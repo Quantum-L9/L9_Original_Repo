@@ -5,6 +5,7 @@ Exit codes:
     0 - All ADRs covered (empty enforcement[] is a warning, not a failure)
     1 - ADRs missing from manifest entirely (blocks CI)
 """
+
 from __future__ import annotations
 
 import re
@@ -33,9 +34,7 @@ def main() -> int:
 
     missing = sorted(adr_ids - covered)
     unenforced = [
-        str(r["adr"]).zfill(4)
-        for r in manifest["rules"]
-        if not r.get("enforcement")
+        str(r["adr"]).zfill(4) for r in manifest["rules"] if not r.get("enforcement")
     ]
 
     # Missing from manifest entirely = ERROR (blocks CI)
@@ -49,7 +48,9 @@ def main() -> int:
 
     # Empty enforcement = WARNING (visible but doesn't block CI)
     if unenforced:
-        print(f"⚠️  {len(unenforced)} ADR(s) with empty enforcement[]: {', '.join(unenforced)}")  # noqa: ADR-0019
+        print(
+            f"⚠️  {len(unenforced)} ADR(s) with empty enforcement[]: {', '.join(unenforced)}"
+        )  # noqa: ADR-0019
         print("   These need enforcement mechanisms added before full coverage.")  # noqa: ADR-0019
 
     print(f"✅ All {len(adr_ids)} ADRs covered in manifest")  # noqa: ADR-0019

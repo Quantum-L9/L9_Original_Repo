@@ -380,7 +380,9 @@ class GMPReportValidator:
                     if date_match:
                         result.date = date_match.group(1)
                         try:
-                            datetime.strptime(result.date, "%Y-%m-%d").replace(tzinfo=UTC)
+                            datetime.strptime(result.date, "%Y-%m-%d").replace(
+                                tzinfo=UTC
+                            )
                         except ValueError:
                             result.errors.append(
                                 ValidationIssue(
@@ -763,7 +765,7 @@ def print_result(result: ValidationResult, verbose: bool = False):
 
     if verbose and result.info:
         logger.info("\n   ℹ️ info ({len(result.info)}):")
-        for i in result.info:
+        for _i in result.info:
             logger.info("      [{i.section}]: {i.message}")
 
 

@@ -44,9 +44,14 @@ __dora_meta__ = {
 # ============================================================================
 
 from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING
 
 import structlog
 from fastapi import FastAPI
+
+if TYPE_CHECKING:
+    from core.di.container import DIContainer
+    from orchestrators.agent_execution.orchestrator import ExecutorComposer
 
 logger = structlog.get_logger(__name__)
 
@@ -263,7 +268,7 @@ async def list_di_services():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")  # noqa: S104 — intentional for container binding
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

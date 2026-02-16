@@ -69,7 +69,7 @@ async def _with_retries(coro_func, *, operation: str):
             if attempt == MAX_RETRIES:
                 break
             delay = BASE_BACKOFF * (2 ** (attempt - 1))
-            jitter = random.random() * 0.1
+            jitter = random.random() * 0.1  # noqa: S311 — used for jitter, not security
             logger.warning(
                 "Embedding request failed, retrying",
                 operation=operation,

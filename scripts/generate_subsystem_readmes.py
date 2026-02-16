@@ -1206,7 +1206,7 @@ def list_subsystems(config: dict[str, Any]) -> None:
         if tier not in by_tier:
             continue
         logger.info("\n[{tier.upper()}]")
-        for key, sub_config in sorted(by_tier[tier]):
+        for _key, sub_config in sorted(by_tier[tier]):
             last_updated = sub_config.get("last_updated", "never")
             if last_updated is None:
                 last_updated = "never"

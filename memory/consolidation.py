@@ -46,7 +46,7 @@ __dora_meta__ = {
 import asyncio
 import re
 from datetime import UTC, datetime, timedelta
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog

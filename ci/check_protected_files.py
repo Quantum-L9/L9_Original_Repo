@@ -153,20 +153,28 @@ def main() -> int:
                 break
 
     if not violations:
-        print(f"✅ {len(changed_files)} changed files checked — no protected file violations")
+        print(
+            f"✅ {len(changed_files)} changed files checked — no protected file violations"
+        )
         return 0
 
     # Check for HIL_APPROVED marker in commit message
     commit_msg = get_commit_message()
     if "HIL_APPROVED:" in commit_msg:
-        print(f"⚠️  {len(violations)} protected file(s) modified — HIL_APPROVED marker found")
+        print(
+            f"⚠️  {len(violations)} protected file(s) modified — HIL_APPROVED marker found"
+        )
         for path, reason in violations:
             print(f"   {path} ({reason})")
-        print(f"   Approval: {commit_msg.split('HIL_APPROVED:')[1].strip().splitlines()[0]}")
+        print(
+            f"   Approval: {commit_msg.split('HIL_APPROVED:')[1].strip().splitlines()[0]}"
+        )
         return 0
 
     # Violations without approval
-    print(f"❌ {len(violations)} protected file(s) modified without HIL_APPROVED marker:")
+    print(
+        f"❌ {len(violations)} protected file(s) modified without HIL_APPROVED marker:"
+    )
     print()
     for path, reason in violations:
         print(f"   {path} ({reason})")

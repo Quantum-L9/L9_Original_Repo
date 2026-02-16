@@ -47,7 +47,9 @@ def _reset_mcp_metadata():
         try:
             tool_executor_registry.unregister(tid)
         except Exception:
-            logger.debug("test_tool_registry_mcp.cleanup_unregister_failed", tool_id=tid)
+            logger.debug(
+                "test_tool_registry_mcp.cleanup_unregister_failed", tool_id=tid
+            )
 
 
 @pytest.fixture

@@ -60,7 +60,7 @@ class AsyncSpanExporter(ABC):
         """Asynchronously export spans."""
         pass
 
-    @must_stay_async("callers use await")
+    @must_stay_async("callers use await")  # noqa: B027 — optional hook, not all exporters need flush
     async def flush(self) -> None:
         """Flush any pending spans."""
         pass

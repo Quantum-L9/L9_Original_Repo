@@ -239,13 +239,13 @@ async def main(limit: int = 50, agent_id: str | None = None, sample: bool = Fals
     logger.info("\ntotal embeddings: {result['total_embeddings']:,}")
 
     logger.info("\nembeddings by agent:")
-    for agent, count in sorted(
+    for _agent, _count in sorted(
         result["agent_counts"].items(), key=lambda x: x[1], reverse=True
     ):
         logger.info("  {agent or '(null)':20} {count:>8,}")
 
     logger.info("\npayload types (sample of {result['sample_size']}):")
-    for ptype, count in sorted(
+    for ptype, _count in sorted(
         result["payload_types"].items(), key=lambda x: x[1], reverse=True
     ):
         logger.info("  ptype {count:>5}", ptype=ptype)

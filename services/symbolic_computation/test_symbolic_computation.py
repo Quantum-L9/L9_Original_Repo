@@ -248,7 +248,9 @@ class TestModels:
 
     def test_computation_request_validation(self):
         """Test ComputationRequest validation."""
-        with pytest.raises(Exception):  # ValueError from pydantic
+        with pytest.raises(  # noqa: B017 — intentionally testing broad exception handling
+            Exception
+        ):  # noqa: B017 — intentionally testing broad exception handling
             ComputationRequest(
                 expression="",  # Empty expression
                 variables=["x"],

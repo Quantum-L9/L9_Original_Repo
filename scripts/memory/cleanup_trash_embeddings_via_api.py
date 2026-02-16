@@ -111,7 +111,7 @@ async def find_trash_embeddings_via_search(
     trash_embedding_ids = []
     checked_count = 0
 
-    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
+    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:  # noqa: S501 — internal VPS service, cert validation not required
         for query in search_queries:
             try:
                 response = await client.post(

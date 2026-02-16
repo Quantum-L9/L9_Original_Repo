@@ -402,7 +402,7 @@ async def get_agent_timeline(
     limit: int = Query(100, ge=1, le=1000),
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    timeline_service: Any | None = Depends(get_timeline_service),
+    timeline_service: Any | None = Depends(get_timeline_service),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Get recent memory events for an agent (PostgreSQL agent_memory_events).
@@ -667,7 +667,7 @@ async def batch_write(
     request: BatchRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    orchestrator: MemoryOrchestrator = Depends(get_memory_orchestrator),
+    orchestrator: MemoryOrchestrator = Depends(get_memory_orchestrator),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Batch write multiple packets via MemoryOrchestrator.
@@ -732,7 +732,7 @@ async def batch_write(
 async def compact_storage(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    orchestrator: MemoryOrchestrator = Depends(get_memory_orchestrator),
+    orchestrator: MemoryOrchestrator = Depends(get_memory_orchestrator),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Compact/optimize memory storage via MemoryOrchestrator.

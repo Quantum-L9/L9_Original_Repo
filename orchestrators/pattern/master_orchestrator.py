@@ -46,7 +46,7 @@ import asyncio
 from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog

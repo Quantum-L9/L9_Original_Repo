@@ -30,6 +30,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import re
+import sys
 from pathlib import Path
 
 import structlog
@@ -207,6 +208,9 @@ def main():
         print(
             f"\n🔍 {len(fixed)} files would be updated. Run without --dry-run to apply."
         )
+
+    if args.dry_run and fixed:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

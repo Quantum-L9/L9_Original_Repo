@@ -462,7 +462,7 @@ def generate_env_refs():
     )
     environ_pattern = re.compile(r'os\.environ\[["\']([A-Za-z_][A-Za-z0-9_]*)["\']')
     dotenv_pattern = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=", re.MULTILINE)
-    for fpath, rel_path in walk_all_files():
+    for fpath, _rel_path in walk_all_files():
         fname = os.path.basename(fpath)
         if fname.endswith(".py"):
             try:
@@ -488,7 +488,7 @@ def generate_imports():
     """Extract top-level Python imports from source code."""
     imports = defaultdict(set)
     import_pattern = re.compile(r"^(?:import|from)\s+([\w\.]+)", re.MULTILINE)
-    for fpath, rel_path in walk_python_files():
+    for fpath, _rel_path in walk_python_files():
         try:
             with open(fpath, encoding="utf-8", errors="ignore") as f:
                 content = f.read()

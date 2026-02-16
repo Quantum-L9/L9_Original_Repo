@@ -30,7 +30,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from dataclasses import dataclass
 from typing import Any
 
 from world_model.interfaces import (
@@ -42,24 +41,6 @@ from world_model.interfaces import (
 )
 from world_model.registry import WorldModelRegistry
 from world_model.state import WorldModelState
-
-
-@dataclass
-class UpdateOperation:
-    """Single update operation extracted from packet."""
-
-    op_type: str  # "create_entity", "update_entity", "delete_entity", etc.
-    data: dict[str, Any]
-
-
-@dataclass
-class UpdateResult:
-    """Result of applying updates."""
-
-    success: bool
-    operations_applied: int = 0
-    error: str | None = None
-    error_op: UpdateOperation | None = None
 
 
 class WorldModelUpdater(IWorldModelUpdater):
@@ -220,7 +201,7 @@ class WorldModelUpdater(IWorldModelUpdater):
 
     # ========== OPERATION APPLICATION ==========
 
-    def apply_update(self, operation: UpdateOperation) -> None:
+    def _apply_single_operation(self, operation: UpdateOperation) -> None:
         """Apply single operation to state.
 
         Args:
@@ -254,7 +235,7 @@ class WorldModelUpdater(IWorldModelUpdater):
         Args:
             operation: UpdateOperation to apply
         """
-        self.apply_update(operation)
+        self._apply_single_operation(operation)
 
     # ========== BATCH OPERATIONS ==========
 

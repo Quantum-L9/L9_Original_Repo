@@ -56,7 +56,7 @@ export TIMEOUT_ADR="${L9_HOOK_TIMEOUT_ADR:-15}"
 
 # Metrics
 readonly HOOK_START=$(date +%s)
-TOTAL_CHECKS=10
+TOTAL_CHECKS=11
 CHECKS_PASSED=0
 STASH_CREATED=0
 
@@ -583,6 +583,58 @@ else
     fi
     
     gate_success "ADR enforcement passed (no critical violations)"
+fi
+
+# =============================================================================
+# PHASE 7B: DORA BLOCK ENFORCEMENT (ADR-0014)
+# =============================================================================
+
+gate_header "7B" "DORA BLOCK ENFORCEMENT (ADR-0014)"
+
+if [ -z "$STAGED_PY_FILES" ]; then
+    gate_success "No Python files to check for DORA blocks"
+else
+    DORA_INJECT_SCRIPT="$REPO_ROOT/scripts/audit/inject_dora_complete.py"
+    DORA_MISSING=0
+    DORA_FIXED=0
+
+    if [ -f "$DORA_INJECT_SCRIPT" ]; then
+        for file in $STAGED_PY_FILES; do
+            if [ -f "$file" ]; then
+                # Skip __init__.py, conftest.py, test files, scripts, ci
+                case "$file" in
+                    */__init__.py|*/conftest.py|test_*|tests/*|ci/*|scripts/*|tools/*|migrations/*) continue ;;
+                esac
+
+                # Check for __dora_meta__
+                if ! grep -q "__dora_meta__" "$file" 2>/dev/null; then
+                    DORA_MISSING=$((DORA_MISSING + 1))
+                    printf "  %b⚠ Missing __dora_meta__ in %s — auto-injecting...%b\n" "$YELLOW" "$file" "$NC"
+
+                    if timeout_cmd "$TIMEOUT_ADR" python3 "$DORA_INJECT_SCRIPT" \
+                        --repo "$REPO_ROOT" --file "$file" --execute --force 2>/dev/null; then
+                        git add "$file" 2>/dev/null || true
+                        DORA_FIXED=$((DORA_FIXED + 1))
+                    else
+                        printf "  %b❌ Failed to inject DORA block in %s%b\n" "$RED" "$file" "$NC" >&2
+                    fi
+                fi
+            fi
+        done
+
+        if [ "$DORA_MISSING" -gt 0 ]; then
+            if [ "$DORA_FIXED" -eq "$DORA_MISSING" ]; then
+                gate_success "Auto-injected DORA blocks into $DORA_FIXED files (ADR-0014)"
+            else
+                DORA_UNFIXED=$((DORA_MISSING - DORA_FIXED))
+                gate_warn "Injected $DORA_FIXED/$DORA_MISSING DORA blocks ($DORA_UNFIXED failed)"
+            fi
+        else
+            gate_success "All staged files have DORA blocks (ADR-0014)"
+        fi
+    else
+        gate_warn "DORA inject script not found at $DORA_INJECT_SCRIPT"
+    fi
 fi
 
 # =============================================================================

@@ -57,13 +57,13 @@ from uuid import uuid4
 import structlog
 
 if TYPE_CHECKING:
-    from memory.substrate_service import MemorySubstrateService
     import asyncpg
 
     from memory.agent_persistence import AgentPersistenceService
     from memory.substrate_dag import SubstrateDAG
     from memory.substrate_repository import SubstrateRepository
     from memory.substrate_semantic import SemanticService
+    from memory.substrate_service import MemorySubstrateService
 
 from core.decorators import must_stay_async
 from core.governance.rate_limit_policy import rate_limit

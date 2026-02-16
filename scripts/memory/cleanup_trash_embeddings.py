@@ -268,7 +268,7 @@ async def main(dry_run: bool = False, verbose: bool = False):
 
     if result.get("reason_counts"):
         logger.info("\n  breakdown by reason:")
-        for reason, count in sorted(
+        for reason, _count in sorted(
             result["reason_counts"].items(), key=lambda x: x[1], reverse=True
         ):
             logger.info("    reason {count:>6}", reason=reason)

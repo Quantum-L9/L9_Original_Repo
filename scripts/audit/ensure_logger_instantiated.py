@@ -51,6 +51,10 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+import structlog
+
+logger = structlog.get_logger(__name__)
+
 # Patterns to detect module-level logger usage (not self.logger)
 LOGGER_USAGE_PATTERN = re.compile(
     r"(?<![.\w])logger\.(info|debug|warning|error|exception|critical|log)\s*\("
@@ -84,6 +88,7 @@ SKIP_DIRS = {
     ".git",
     ".venv",
     "venv",
+    ".cursor",  # Local Cursor IDE files, not tracked by git
     "node_modules",
     ".pytest_cache",
     ".mypy_cache",

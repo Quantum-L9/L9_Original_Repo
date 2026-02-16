@@ -438,7 +438,9 @@ class HierarchicalSummarizer:
             source_ids=[s for s in source_ids if s],
             metadata={
                 "window_start": (
-                    items[0].get("created_at").isoformat() if items else None
+                    items[0].get("created_at").isoformat()
+                    if items and items[0].get("created_at") is not None
+                    else None
                 ),
                 "total_source_chars": total_chars,
             },

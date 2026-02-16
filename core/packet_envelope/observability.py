@@ -228,6 +228,7 @@ class PacketEnvelopeObservability:
                 ...
         """
 
+        @wraps(self)
         def decorator(func: Callable):
             """
             Performs tracing instrumentation for asynchronous functions within the PacketEnvelope observability framework.
@@ -254,6 +255,9 @@ class PacketEnvelopeObservability:
                 )
 
                 start_time = time.time()
+
+                if self.tracer is None:
+                    return await func(*args, **kwargs)
 
                 with self.tracer.start_as_current_span(operation_name) as span:
                     # Set attributes (with length limit)
@@ -301,6 +305,9 @@ class PacketEnvelopeObservability:
                 )
 
                 start_time = time.time()
+
+                if self.tracer is None:
+                    return func(*args, **kwargs)
 
                 with self.tracer.start_as_current_span(operation_name) as span:
                     for key, value in span_attrs.items():

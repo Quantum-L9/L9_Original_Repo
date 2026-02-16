@@ -192,7 +192,7 @@ class GMPExecutor:
 
     def _run_shell(self, cmd: str, capture: bool = True) -> tuple[int, str, str]:
         """Run shell command."""
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S602 — shell required for GMP command execution
             cmd,
             shell=True,
             cwd=REPO_ROOT,

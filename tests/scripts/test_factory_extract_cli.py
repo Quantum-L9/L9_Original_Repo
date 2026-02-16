@@ -4,11 +4,11 @@ import asyncio
 import importlib
 import sys
 from types import ModuleType
+from typing import TYPE_CHECKING
 
 import pytest
 
 from core.decorators import must_stay_async
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path

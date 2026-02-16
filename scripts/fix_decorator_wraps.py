@@ -273,6 +273,9 @@ def main():
     if dry_run:
         logger.info("\nrun without --dry-run to apply changes.")
 
+    if dry_run and total_fixes > 0:
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

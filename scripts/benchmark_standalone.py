@@ -54,7 +54,7 @@ logger.info("=" * 70)
 
 logger.info("\n1. uncached queries (10 identical queries)...")
 times_uncached = []
-for i in range(10):
+for _ in range(10):
     start = time.time()
     time.sleep(0.01)  # Simulate 10ms query
     elapsed = (time.time() - start) * 1000
@@ -98,7 +98,7 @@ logger.info("=" * 70)
 
 logger.info("\n1. unoptimized vector search (10 queries)...")
 times_unoptimized = []
-for i in range(10):
+for _ in range(10):
     start = time.time()
     time.sleep(0.2)  # Simulate 200ms unoptimized search
     elapsed = (time.time() - start) * 1000
@@ -110,7 +110,7 @@ logger.info("   total time: {sum(times_unoptimized):.2f}ms")
 
 logger.info("\n2. optimized vector search (10 queries)...")
 times_optimized = []
-for i in range(10):
+for _ in range(10):
     start = time.time()
     time.sleep(0.04)  # Simulate 40ms optimized search
     elapsed = (time.time() - start) * 1000

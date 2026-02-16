@@ -63,6 +63,7 @@ def trace_span(
             ...
     """
 
+    @wraps(name)
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         """Inner decorator that wraps the target function.
 
@@ -152,6 +153,7 @@ def trace_llm_call(
             ...
     """
 
+    @wraps(model)
     def decorator(func: Callable) -> Callable:
         """Inner decorator that wraps the target function.
 
@@ -241,6 +243,7 @@ def trace_tool_call(
             ...
     """
 
+    @wraps(tool_name)
     def decorator(func: Callable) -> Callable:
         """Inner decorator that wraps the target function.
 
@@ -336,6 +339,7 @@ def trace_governance_check(
             ...
     """
 
+    @wraps(policy_name)
     def decorator(func: Callable) -> Callable:
         """Inner decorator that wraps the target function.
 

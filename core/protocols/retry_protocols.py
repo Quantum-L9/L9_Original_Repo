@@ -394,6 +394,7 @@ def with_retry(
         ```
     """
 
+    @wraps(policy)
     def decorator(
         func: Callable[..., Awaitable[T]],
     ) -> Callable[..., Awaitable[T]]:

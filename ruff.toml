@@ -26,55 +26,76 @@ select = [
     "DTZ",  # flake8-datetimez: enforce timezone-aware datetime (no utcnow)
 ]
 ignore = [
+    # ── TRUE FALSE POSITIVES ─────────────────────────────────────────────
+    # Checker cannot understand context; these are genuinely safe patterns.
+    # Whitelisted 2026-02-16, no periodic review needed.
+    "S603",    # subprocess with list args IS the safe pattern Bandit recommends
+    "S607",    # partial executable path in controlled CI/script environments
+    "S105", "S106", "S107",  # config defaults overridden by env vars, not real secrets
+    "B008",    # FastAPI Depends() in function defaults — framework-intended pattern
+
+    # ── JUSTIFIED SUPPRESSIONS (review periodically) ─────────────────────
+    # True findings that are acceptable given L9 architecture.
+    # Next review: 2026-08-16 (6 months)
+    "S608",    # SQL string construction — internal query builders, not user input (ADR-0087 enforces parameterization at boundaries)
+    "S101",    # assert for math/domain invariants in non-test code — stripped by python -O
+
+    # ── STYLE / FORMATTER ────────────────────────────────────────────────
     "E501",    # Line too long (formatter handles)
     "E402",    # Module level import not at top (DORA metadata pattern - ADR-0014)
-    "B008",    # Function call in defaults (FastAPI Depends)
-    "N802",    # Function name lowercase (LangGraph)
-    "S101",    # Assert in tests
-    "S104",    # Bind 0.0.0.0 (containers)
-    "S105", "S106", "S107",  # Hardcoded password false positives
-    "ARG001", "ARG002",  # Unused args (FastAPI/abstract)
-    "S110",    # try-except-pass (common pattern for optional features)
-    "S112",    # try-except-continue (common resilient loop pattern)
-    "S603",    # subprocess without shell=True (safe invocations)
-    "S607",    # partial executable path (controlled environments)
-    "S608",    # SQL injection (parameterized queries)
-    "S310",    # suspicious URL open (research/API calls)
-    "S311",    # non-cryptographic random (non-security uses)
-    "S108",    # hardcoded temp file (containerized)
-    "S501",    # no cert validation (internal services)
-    "F841",    # Unused variable (future-proofing)
-    "RUF012",  # Mutable class defaults (Pydantic models)
     "SIM102",  # Collapsible if (style preference)
     "SIM117",  # Multiple with statements (style preference)
     "SIM105",  # Suppressible exception (use contextlib.suppress)
+    "SIM108",  # Ternary operator (readability preference)
+    "SIM115",  # Open without context manager
+    "SIM222",  # Expr or True
+    "RET504",  # Unnecessary assign before return (explicit is better)
+
+    # ── NAMING CONVENTIONS ───────────────────────────────────────────────
+    "N802",    # Function name lowercase (LangGraph callbacks)
     "N806",    # Non-lowercase variable (constants in functions)
-    "RUF006",  # Asyncio dangling task (needs careful review)
-    "RUF001", "RUF002", "RUF003",  # Ambiguous unicode (intentional)
-    "PT011",   # pytest-raises-too-broad (acceptable in tests)
-    "B017",    # assert-raises-exception (acceptable in tests)
-    "E741",    # Ambiguous variable name (l, O, I)
-    "ASYNC109", "ASYNC221",  # Async patterns (acceptable)
-    "ARG005",  # Unused lambda argument
-    "B007",    # Unused loop control variable
-    "S324",    # Hashlib insecure (MD5/SHA1 for non-security)
     "N801",    # Invalid class name (test mocks)
     "N815",    # Mixed case variable in class (MCP protocol)
     "N818",    # Exception suffix (existing exceptions)
     "N999",    # Invalid module name (hyphenated scripts)
-    "PT012",   # Pytest raises multiple statements
-    "SIM115",  # Open without context manager
-    "SIM222",  # Expr or True
-    "ASYNC110", "ASYNC230",  # Async patterns
-    "B018", "B019", "B023", "B026", "B027",  # Various bugbear
-    "RUF015",  # Unnecessary iterable allocation
+    "E741",    # Ambiguous variable name (l, O, I)
+
+    # ── UNUSED / STRUCTURAL ──────────────────────────────────────────────
+    "ARG001", "ARG002",  # Unused args (FastAPI/abstract)
+    "ARG005",  # Unused lambda argument
+    "F841",    # Unused variable (future-proofing)
+    "B007",    # Unused loop control variable
     "F404",    # Late future import (DORA metadata pattern)
-    "UP007",   # Non-PEP604 annotation (compatibility)
-    "S307",    # Eval usage (validated input)
     "F823",    # Undefined local (conditional assignment)
-    "UP038",   # isinstance union (compatibility)
-    "SIM108",  # Ternary operator (readability preference)
-    "RET504",  # Unnecessary assign before return (explicit is better)
+
+    # ── SECURITY (context-specific safe) ─────────────────────────────────
+    "S104",    # Bind 0.0.0.0 (containers)
+    "S110",    # try-except-pass (common pattern for optional features)
+    "S112",    # try-except-continue (common resilient loop pattern)
+    "S310",    # suspicious URL open (research/API calls)
+    "S311",    # non-cryptographic random (non-security uses)
+    "S108",    # hardcoded temp file (containerized)
+    "S501",    # no cert validation (internal services)
+    "S324",    # Hashlib insecure (MD5/SHA1 for non-security)
+    "S307",    # Eval usage (validated input)
+
+    # ── ASYNC PATTERNS ───────────────────────────────────────────────────
+    "ASYNC109", "ASYNC110", "ASYNC221", "ASYNC230",  # Acceptable async patterns
+    "RUF006",  # Asyncio dangling task (needs careful review)
+
+    # ── PYTEST ───────────────────────────────────────────────────────────
+    "PT011",   # pytest-raises-too-broad (acceptable in tests)
+    "B017",    # assert-raises-exception (intentional broad exception tests)
+    "PT012",   # Pytest raises multiple statements
+
+    # ── BUGBEAR ──────────────────────────────────────────────────────────
+    "B018", "B019", "B023", "B026", "B027",  # Various bugbear (existing patterns)
+
+    # ── RUF / UPGRADE ────────────────────────────────────────────────────
+    "RUF012",  # Mutable class defaults (Pydantic models)
+    "RUF001", "RUF002", "RUF003",  # Ambiguous unicode (intentional)
+    "RUF015",  # Unnecessary iterable allocation
+    "UP007",   # Non-PEP604 annotation (compatibility)
 ]
 fixable = ["ALL"]
 

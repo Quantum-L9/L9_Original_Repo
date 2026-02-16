@@ -53,7 +53,7 @@ __dora_meta__ = {
 import json
 import os
 from datetime import UTC, datetime
-from typing import Any, Protocol, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import UUID, uuid4
 
 import structlog

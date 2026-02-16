@@ -35,7 +35,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass
 from datetime import UTC
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -238,7 +238,7 @@ def handle_governance_result(
             state.decisions[-1]["approval_id"] = escalation_result.request_id
 
         # Add reasoning block
-        from datetime import datetime
+        from datetime import datetime, timezone
         from uuid import uuid4
 
         from core.schemas import StructuredReasoningBlock
@@ -266,7 +266,7 @@ def handle_governance_result(
             state.decisions[-1]["rejection_reason"] = escalation_result.rationale
 
         # Add guidance message
-        from datetime import datetime
+        from datetime import datetime, timezone
         from uuid import uuid4
 
         from core.schemas import StructuredReasoningBlock

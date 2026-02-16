@@ -233,7 +233,7 @@ class ApprovalManager:
                         "operation_summary": operation_summary,
                         "status": "pending",
                         "created_at": request.created_at.isoformat(),
-                        "expires_at": request.expires_at.isoformat(),
+                        "expires_at": request.expires_at.isoformat() if request.expires_at else None,
                     },
                     metadata={"agent": agent_id},
                 )
@@ -501,7 +501,7 @@ class ApprovalManager:
             f"• Agent: `{request.agent_id}`\n"
             f"• Operation: {request.operation_summary}\n"
             f"• Request ID: `{request.request_id}`\n"
-            f"• Expires: {request.expires_at.isoformat()}\n\n"
+            f"• Expires: {request.expires_at.isoformat() if request.expires_at else 'N/A'}\n\n"
             f"Reply with `/approve {request.request_id}` or `/reject {request.request_id}`"
         )
 

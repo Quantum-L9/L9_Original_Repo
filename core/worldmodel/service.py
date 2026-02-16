@@ -38,7 +38,7 @@ __dora_meta__ = {
 import os
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -394,7 +394,7 @@ class WorldModelService:
         l_agent = self._agents[l_agent_id]
 
         # L HAS_TOOL for each tool
-        for tool_id, tool in self._tools.items():
+        for tool_id, _tool in self._tools.items():
             rel = L9Relationship(
                 relationship_type=L9RelationshipType.HAS_TOOL,
                 source_id=l_agent.id,

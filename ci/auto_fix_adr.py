@@ -245,7 +245,7 @@ def fix_missing_timezone_import(file_path: Path, dry_run: bool = False) -> bool:
     new_lines = []
     modified = False
 
-    for i, line in enumerate(lines):
+    for _i, line in enumerate(lines):
         # Look for: from datetime import X, Y, Z
         match = re.match(r"^(from datetime import )(.+)$", line)
         if match and "timezone" not in match.group(2):

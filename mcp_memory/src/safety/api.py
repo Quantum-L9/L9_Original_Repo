@@ -37,7 +37,7 @@ from abc import (  # noqa: ADR-0026 - ABC provides shared implementation
     abstractmethod,
 )
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 

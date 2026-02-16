@@ -119,7 +119,7 @@ def compute_file_hash(filepath: Path) -> str:
     if not filepath.exists():
         return ""
     content = filepath.read_bytes()
-    return hashlib.md5(content).hexdigest()
+    return hashlib.md5(content).hexdigest()  # noqa: S324 — used for change detection checksum, not security
 
 
 def has_file_changed(filepath: Path, hash_cache: dict) -> bool:

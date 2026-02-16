@@ -305,7 +305,7 @@ def print_summary(result: VerificationResult, verbose: bool = False) -> None:
         logger.info("-" * 70)
         logger.info("broken path references ({len(result.broken_docs)}):")
         logger.info("-" * 70)
-        for item in result.broken_docs[:20]:
+        for _item in result.broken_docs[:20]:
             logger.info("  ❌ {item['path']}")
             logger.info("     source: {item['source']}:{item['line']}")
         if len(result.broken_docs) > 20:
@@ -315,7 +315,7 @@ def print_summary(result: VerificationResult, verbose: bool = False) -> None:
         logger.info("-" * 70)
         logger.info("deprecated path references ({len(result.deprecated_refs)}):")
         logger.info("-" * 70)
-        for item in result.deprecated_refs[:20]:
+        for _item in result.deprecated_refs[:20]:
             logger.info("  ⚠️  {item['path']} → {item['replacement']}")
             logger.info("     source: {item['source']}:{item['line']}")
         if len(result.deprecated_refs) > 20:

@@ -52,9 +52,9 @@ from dataclasses import dataclass
 from datetime import UTC
 from enum import Enum
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import structlog
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -183,7 +183,7 @@ class ForesightEngine:
         Returns:
             Enriched context dict for generate_candidates / decide_and_act
         """
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         ctx = dict(context_source or {})
         ctx.setdefault("observe_timestamp", datetime.now(UTC).isoformat())
@@ -483,7 +483,7 @@ class ForesightEngine:
 
     def _get_timestamp(self) -> str:
         """Get current timestamp."""
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         return datetime.now(UTC).isoformat()
 

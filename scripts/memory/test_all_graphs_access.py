@@ -56,7 +56,7 @@ async def test_all_graphs():
 
     results = {}
 
-    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
+    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:  # noqa: S501 — internal VPS service, cert validation not required
         # =====================================================================
         # 1. PostgreSQL Packet Store
         # =====================================================================
@@ -172,7 +172,7 @@ async def test_all_graphs():
                         "total_node_types": len(nodes),
                     }
                     logger.info("✅ node types: {len(nodes)}")
-                    for node in nodes[:5]:
+                    for _node in nodes[:5]:
                         logger.info("   - {node.get('label')}: {node.get('count'):,}")
                 else:
                     results["neo4j_knowledge"] = {
@@ -316,7 +316,7 @@ async def test_all_graphs():
                     print(
                         f"✅ Total repo nodes: {results['repo_structure']['total_nodes']}"
                     )
-                    for node in repo_nodes[:5]:
+                    for _node in repo_nodes[:5]:
                         logger.info("   - {node.get('type')}: {node.get('count'):,}")
                 else:
                     results["repo_structure"] = {

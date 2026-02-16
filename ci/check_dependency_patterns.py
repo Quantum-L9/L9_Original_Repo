@@ -141,7 +141,7 @@ def main() -> int:
     logger.info("❌ found violations in {len(all_violations)} files:")
     for filepath, violations in sorted(all_violations.items()):
         logger.info("  filepath:", filepath=filepath)
-        for line_num, line_content, message in violations:
+        for line_num, _line_content, message in violations:
             logger.info(
                 "    line line num: message", line_num=line_num, message=message
             )

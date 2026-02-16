@@ -47,6 +47,8 @@ from core.decorators import must_stay_async
 REPO_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
+import logging  # noqa: ADR-0019 — needed for basicConfig
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = structlog.get_logger(__name__)
 

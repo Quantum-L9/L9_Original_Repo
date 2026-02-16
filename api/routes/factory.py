@@ -331,11 +331,11 @@ async def extract_agent(body: ExtractRequest) -> ExtractResponse:
 @router.post("/extract-file", response_model=ExtractResponse)
 @must_stay_async("callers use await")
 async def extract_agent_file(
-    schema_file: UploadFile = File(..., description="YAML schema file"),
+    schema_file: UploadFile = File(..., description="YAML schema file"),  # noqa: B008 — FastAPI dependency injection
     output_dir: str = Form(
         ..., description="Output directory (relative to sandbox root)"
     ),
-    glue_file: UploadFile | None = File(None, description="Optional glue config file"),
+    glue_file: UploadFile | None = File(None, description="Optional glue config file"),  # noqa: B008 — FastAPI dependency injection
     overwrite: bool = Form(False, description="Overwrite existing files"),
     dry_run: bool = Form(False, description="Validate only, don't write"),
     strict: bool = Form(False, description="Strict validation"),

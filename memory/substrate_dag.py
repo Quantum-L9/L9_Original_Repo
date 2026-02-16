@@ -50,7 +50,7 @@ __dora_meta__ = {
 import asyncio
 import os
 from datetime import UTC, datetime
-from typing import Any, TypedDict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypedDict
 from uuid import UUID, uuid4
 
 import structlog
@@ -354,9 +354,11 @@ async def reasoning_node(
 
     # Add reasoning trace write op if significant reasoning occurred
     if packet_type in ("reasoning_trace", "inference", "decision"):
-        reasoning_block["memory_write_ops"].append(
-            {"table": "reasoning_traces", "operation": "insert"}
-        )
+        write_ops = reasoning_block["memory_write_ops"]
+        if isinstance(write_ops, list):
+            write_ops.append(
+                {"table": "reasoning_traces", "operation": "insert"}
+            )
 
     logger.debug(f"reasoning_node: Generated block {reasoning_block['block_id']}")
 

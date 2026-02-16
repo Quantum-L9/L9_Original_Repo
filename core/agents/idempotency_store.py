@@ -49,10 +49,10 @@ from typing import TYPE_CHECKING, Any, Protocol
 
 import structlog
 
-
 if TYPE_CHECKING:
-    from core.schemas.packet_envelope import PacketEnvelope
     from redis.asyncio import Redis
+
+    from core.schemas.packet_envelope import PacketEnvelope
 
 
 class SubstrateServiceProtocol(Protocol):

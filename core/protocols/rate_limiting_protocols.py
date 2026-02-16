@@ -509,6 +509,7 @@ def rate_limited(
     """
     limiter = StandardRateLimiter(policy)
 
+    @wraps(key_func)
     def decorator(
         func: Callable[..., Coroutine[Any, Any, Any]],
     ) -> Callable[..., Coroutine[Any, Any, Any]]:

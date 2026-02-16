@@ -7,8 +7,7 @@ Agents get authorization BEFORE invoking the DAG.
 
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from workflows.dags.gmp.state import GMPState

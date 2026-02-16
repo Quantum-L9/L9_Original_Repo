@@ -12,6 +12,7 @@ Exit codes:
     0 - No violations
     1 - Duplicate validation paths found
 """
+
 from __future__ import annotations
 
 import re
@@ -74,7 +75,9 @@ def main() -> int:
         rel = str(pyfile.relative_to(L9_ROOT))
 
         # Skip allowed directories
-        if any(rel.startswith(d + "/") or rel.startswith(d + "\\") for d in ALLOWED_DIRS):
+        if any(
+            rel.startswith(d + "/") or rel.startswith(d + "\\") for d in ALLOWED_DIRS
+        ):
             continue
 
         # Skip allowed files
@@ -109,9 +112,7 @@ def main() -> int:
 
             for pattern in VALIDATION_PATTERNS:
                 if pattern.search(line):
-                    violations.append(
-                        f"  {rel}:{line_num}: {stripped}"
-                    )
+                    violations.append(f"  {rel}:{line_num}: {stripped}")
 
     if violations:
         print("❌ ADR-0012: Duplicate validation paths detected!")  # noqa: ADR-0019 - CI script

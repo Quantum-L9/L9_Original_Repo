@@ -19,7 +19,6 @@ GMP: GMP-122 AWS Secrets Manager Integration
 from __future__ import annotations
 
 import os
-from typing import Optional, Union
 
 import structlog
 
@@ -58,7 +57,7 @@ __dora_meta__ = {
 # Type Alias
 # =============================================================================
 
-SecretsClientType = Union[EnvSecretsClient, AwsSecretsClient]
+SecretsClientType = EnvSecretsClient | AwsSecretsClient
 
 
 # =============================================================================

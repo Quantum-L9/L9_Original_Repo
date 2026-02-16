@@ -63,6 +63,7 @@ from .models import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
     from core.agents.schemas import AgentConfig
     from memory.substrate_service import MemorySubstrateService
 

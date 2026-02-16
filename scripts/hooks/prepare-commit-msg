@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# =============================================================================
+# L9 PREPARE-COMMIT-MSG HOOK v2.0 — AUTO-TEMPLATE
+# =============================================================================
+# Author: L9 Engineering (via AI Agent)
+# Date:   2026-02-16
+# Drop into .git/hooks/prepare-commit-msg and chmod +x
+# Compliance: ShellCheck SC0-level
+# Risk Tier: T1 (read-only template injection)
+#
+# Auto-populates commit message with:
+# - Branch context and ticket number
+# - Co-authored-by (from git config l9.coauthor)
+# - DORA trace ID placeholder
+# Only runs on NEW commits (not amend, merge, squash)
+# =============================================================================
+
+HOOK_VERSION="2.0.0"
+set -euo pipefail
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="${2:-}"
+# SHA="${3:-}"  # Only set for amend commits
+
+# Only auto-template for new commits (no source = manual commit)
+# Skip for merge, squash, amend, and message (-m) commits
+if [ -n "$COMMIT_SOURCE" ]; then
+    exit 0
+fi
+
+# Don't overwrite if user already typed something
+CURRENT_CONTENT=$(cat "$COMMIT_MSG_FILE" 2>/dev/null || true)
+# Filter out git's default comments (lines starting with #)
+USER_CONTENT=$(echo "$CURRENT_CONTENT" | grep -v "^#" | tr -d '[:space:]' || true)
+if [ -n "$USER_CONTENT" ]; then
+    exit 0
+fi
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+
+# Extract ticket number from branch (e.g., feat/L9-123-description → L9-123)
+TICKET=$(echo "$BRANCH" | grep -oE "L9-[0-9]+" || true)
+
+# Determine type hint from branch prefix
+TYPE_HINT=""
+case "$BRANCH" in
+    feat/*|feature/*)  TYPE_HINT="feat" ;;
+    fix/*|bugfix/*)    TYPE_HINT="fix" ;;
+    chore/*)           TYPE_HINT="chore" ;;
+    docs/*)            TYPE_HINT="docs" ;;
+    refactor/*)        TYPE_HINT="refactor" ;;
+    test/*)            TYPE_HINT="test" ;;
+    ci/*)              TYPE_HINT="ci" ;;
+    perf/*)            TYPE_HINT="perf" ;;
+    release/*)         TYPE_HINT="chore" ;;
+    hotfix/*)          TYPE_HINT="fix" ;;
+    *)                 TYPE_HINT="chore" ;;
+esac
+
+# Build template
+{
+    if [ -n "$TICKET" ]; then
+        printf "%s: \n\n# Refs: %s\n" "$TYPE_HINT" "$TICKET"
+    else
+        printf "%s: \n"  "$TYPE_HINT"
+    fi
+
+    printf "# ---\n"
+    printf "# Conventional Commits format: <type>(<scope>): <subject>\n"
+    printf "# Types: feat|fix|chore|docs|style|refactor|perf|test|ci|build|revert\n"
+    printf "# Branch: %s\n" "$BRANCH"
+
+    # Co-author injection
+    COAUTHOR=$(git config l9.coauthor 2>/dev/null || true)
+    if [ -n "$COAUTHOR" ]; then
+        printf "\nCo-authored-by: %s\n" "$COAUTHOR"
+    fi
+
+    # DORA trace ID (if L9 DORA tracking is enabled)
+    DORA_ENABLED=$(git config l9.dora-tracking 2>/dev/null || echo "false")
+    if [ "$DORA_ENABLED" = "true" ]; then
+        TRACE_ID=$(python3 -c "import uuid; print(f'DORA-{uuid.uuid4().hex[:12]}')" 2>/dev/null || echo "DORA-unknown")
+        printf "# DORA-Trace-ID: %s\n" "$TRACE_ID"
+    fi
+} > "$COMMIT_MSG_FILE"
+
+exit 0

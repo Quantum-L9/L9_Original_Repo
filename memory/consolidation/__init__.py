@@ -41,12 +41,16 @@ if os.path.exists(_consolidation_py):
     _spec = importlib.util.spec_from_file_location(
         "_consolidation_module", _consolidation_py
     )
-    _module = importlib.util.module_from_spec(_spec)
-    _spec.loader.exec_module(_module)
+    if _spec is not None and _spec.loader is not None:
+        _module = importlib.util.module_from_spec(_spec)
+        _spec.loader.exec_module(_module)
 
-    # Re-export key classes
-    ConsolidationPipeline = _module.ConsolidationPipeline
-    ConsolidationReport = _module.ConsolidationReport
+        # Re-export key classes
+        ConsolidationPipeline = _module.ConsolidationPipeline
+        ConsolidationReport = _module.ConsolidationReport
+    else:
+        ConsolidationPipeline = None
+        ConsolidationReport = None
 else:
     # Fallback: define stubs
     ConsolidationPipeline = None

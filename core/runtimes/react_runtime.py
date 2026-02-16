@@ -33,7 +33,7 @@ __dora_meta__ = {
 }
 
 from datetime import UTC, datetime
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -168,6 +168,8 @@ class ReActRuntime:
             # ACT: Execute tool call
             if aios_result.result_type.value == "tool_call":
                 tool_request = aios_result.tool_call
+                if tool_request is None:
+                    continue
 
                 step = ReActStep(
                     thought=f"Using tool: {tool_request.tool_id}",

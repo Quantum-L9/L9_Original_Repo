@@ -163,6 +163,8 @@ class EOSLedgerWriter:
             }
 
             # Write to substrate
+            if self._substrate is None:
+                return None
             packet_id = await self._substrate.ingest_packet(packet)
 
             # Update chain link
@@ -335,6 +337,8 @@ class EOSLedgerWriter:
             return []
 
         try:
+            if self._substrate is None:
+                return []
             # Query PacketStore for ledger entries
             results = await self._substrate.search_packets_by_type(
                 packet_type="eos.ledger.entry",

@@ -76,6 +76,7 @@ from world_model.state import Entity, Relation, WorldModelState
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
     from memory.substrate_service import MemorySubstrateService
     from simulation.simulation_engine import SimulationEngine
     from world_model.causal_mapper import CausalMapper

@@ -360,6 +360,12 @@ jobs:
 
           echo "✅ TYPE_CHECKING pattern correct"
 
+         - name: Check logging -> structlog (ADR-0019 auto-fixable)
+        run: |
+          echo "🔍 Checking for logging -> structlog violations..."
+          python3 scripts/fix_logging_to_structlog.py
+          echo "Fix: Run 'python3 scripts/fix_logging_to_structlog.py --fix' locally"
+
       - name: ADR drift detection (auto_fix_adr dry-run)
         run: |
           echo "🔄 Checking for unfixed ADR violations (drift detection)..."
@@ -399,7 +405,6 @@ jobs:
         run: |
           echo "🚫 Checking for forbidden imports (logging, aiohttp, print)..."
           python3 ci/lint_forbidden_imports.py
-        continue-on-error: true  # TODO: 1648 pre-existing violations — clean up then remove this
 
       - name: Check tool wiring consistency (Gate 6)
         run: |
@@ -411,7 +416,6 @@ jobs:
         run: |
           echo "🗑️ Checking for deprecated service references (Supabase, n8n)..."
           python3 ci/check_no_deprecated_services.py
-        continue-on-error: true  # TODO: pre-existing deprecated refs — clean up then remove this
 
       - name: Check schema deprecation (Gate 9)
         run: |
@@ -453,6 +457,76 @@ jobs:
         run: |
           echo "📜 Validating policy YAML schemas in config/policies/..."
           python3 ci/validate_policy_schemas.py
+
+      # =======================================================================
+      # AUTO-FIXABLE SCRIPT CHECKS (dry-run mode — fail if violations exist)
+      # =======================================================================
+
+      - name: Check async decorator migration
+        run: |
+          echo "🔄 Checking for un-migrated async comments..."
+          python3 scripts/fix_async_decorators.py --dry-run
+
+      - name: Check decorator @wraps compliance
+        run: |
+          echo "🎀 Checking decorators for missing @wraps..."
+          python3 scripts/fix_decorator_wraps.py --dry-run
+
+      - name: Check timezone imports (ADR-0083)
+        run: |
+          echo "🕐 Checking for missing timezone imports..."
+          python3 scripts/fix_timezone_imports.py --dry-run
+
+      - name: Check untyped decorators (mypy)
+        run: |
+          echo "🔍 Scanning for untyped decorators..."
+          python3 scripts/fix_untyped_decorators.py scan
+        continue-on-error: true  # Informational — mypy coverage improvement
+
+      - name: Check logger instantiation (ADR-0019)
+        run: |
+          echo "📝 Checking for missing logger instantiation..."
+          python3 scripts/audit/ensure_logger_instantiated.py
+
+      - name: Validate DORA blocks (ADR-0014)
+        run: |
+          echo "📋 Validating DORA header/footer/trace blocks..."
+          python3 scripts/audit/validate_dora_complete.py --repo .
+        continue-on-error: true  # Large pre-existing gap — track progress
+
+      - name: Check N+1 query patterns
+        run: |
+          echo "🔍 Checking for N+1 query patterns..."
+          python3 scripts/check_n_plus_1.py --all
+        continue-on-error: true  # Heuristic — may have false positives
+
+      # =======================================================================
+      # TOOLS VALIDATION CHECKS
+      # =======================================================================
+
+      - name: Check ADR compliance (enhanced scanner)
+        run: |
+          echo "📋 Running enhanced ADR compliance scanner..."
+          python3 tools/adr/adr_scanner.py --strict
+        continue-on-error: true  # Comprehensive — may overlap with check_adr_compliance
+
+      - name: Check package __all__ exports
+        run: |
+          echo "📦 Checking __all__ export consistency..."
+          python3 tools/validation/audit_package_exports.py
+        continue-on-error: true  # Pre-existing export gaps
+
+      - name: Check config mismatches
+        run: |
+          echo "⚙️ Checking for configuration inconsistencies..."
+          python3 tools/bug_detection/find_config_mismatches.py
+        continue-on-error: true  # Heuristic detection
+
+      - name: Check spec-code drift
+        run: |
+          echo "📐 Checking Module-Spec vs implementation drift..."
+          python3 tools/spec_validator/diff_spec_code.py
+        continue-on-error: true  # Spec alignment is aspirational
 
   # ===========================================================================
   # JOB 1B: CRYPTO-GUARD — Ban Weak Cryptography (MD5, SHA1)

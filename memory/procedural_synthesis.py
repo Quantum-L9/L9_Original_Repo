@@ -10,10 +10,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
-
 
 if TYPE_CHECKING:
     from memory.llm_memory_ops import LLMMemoryOps

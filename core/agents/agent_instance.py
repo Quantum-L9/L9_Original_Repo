@@ -512,7 +512,7 @@ class AgentInstance:
                     openai_name in self._tool_name_map
                     and self._tool_name_map[openai_name] != tool_id
                 ):
-                    suffix = hashlib.sha1(tool_id.encode("utf-8")).hexdigest()[:8]
+                    suffix = hashlib.sha1(tool_id.encode("utf-8")).hexdigest()[:8]  # noqa: S324 — used for name dedup, not security
                     openai_name = f"{openai_name}_{suffix}"
                 logger.warning(
                     "tool_name_sanitized",

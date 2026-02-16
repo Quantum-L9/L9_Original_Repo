@@ -55,7 +55,7 @@ import socket
 import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
@@ -63,8 +63,9 @@ import structlog
 from core.decorators import must_stay_async
 
 if TYPE_CHECKING:
-    from websockets.client import WebSocketClientProtocol
     from collections.abc import Callable
+
+    from websockets.client import WebSocketClientProtocol
 
 logger = structlog.get_logger(__name__)
 
@@ -1049,14 +1050,16 @@ class MacAgentClient:
 async def main():
     """Run the Mac Agent client."""
     # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
+    import logging as _logging
+
+    _logging.basicConfig(
+        level=_logging.INFO,
         format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     # Reduce noise from websockets library
-    structlog.get_logger("websockets").setLevel(logging.WARNING)
+    structlog.get_logger("websockets").setLevel(_logging.WARNING)
 
     # Load config and run
     config = AgentConfig.from_env()

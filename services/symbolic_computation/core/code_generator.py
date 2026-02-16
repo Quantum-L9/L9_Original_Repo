@@ -39,7 +39,7 @@ __dora_meta__ = {
 
 import subprocess
 import time
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 import sympy
@@ -343,7 +343,7 @@ def {function_name}({args}):
                         "zip": zip,
                     }
                 }
-                exec(source_code, namespace)
+                exec(source_code, namespace)  # noqa: S102 — intentional dynamic execution of generated symbolic code
                 # Find the first function defined
                 for name, obj in namespace.items():
                     if callable(obj) and not name.startswith("_"):

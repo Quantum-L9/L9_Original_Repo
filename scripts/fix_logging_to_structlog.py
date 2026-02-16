@@ -2,24 +2,28 @@
 """
 Fix logging module usage to structlog per ADR-0019.
 
-Replaces:
+Dynamically scans all Python files in the repo and replaces:
 - import logging -> import structlog
 - logging.getLogger(__name__) -> structlog.get_logger(__name__)
-- logging.info/debug/warning/error -> logger.info/debug/warning/error (if logger exists)
+- logging.getLogger("name") -> structlog.get_logger("name")
+- logging.getLogger(f"...") -> structlog.get_logger(f"...")
+- Removes stale '# noqa: ADR-0019' comments on the replaced lines
+
+Usage:
+    python3 scripts/fix_logging_to_structlog.py              # Dry-run (default)
+    python3 scripts/fix_logging_to_structlog.py --fix        # Apply fixes
+    python3 scripts/fix_logging_to_structlog.py --verbose    # Show skipped files
 """
 
 from __future__ import annotations
 
 # ============================================================================
-
-logger = structlog.get_logger(__name__)
-
 __dora_meta__ = {
     "component_name": "Fix Logging To Structlog",
-    "module_version": "1.0.0",
+    "module_version": "2.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-31T20:27:26Z",
-    "updated_at": "2026-01-31T22:21:56Z",
+    "updated_at": "2026-02-16T14:30:00Z",
     "layer": "operations",
     "domain": "scripts",
     "module_name": "fix_logging_to_structlog",
@@ -27,160 +31,285 @@ __dora_meta__ = {
     "status": "active",
     "integrates_with": {
         "api_endpoints": [],
-        "datasources": ["Neo4j", "Redis"],
+        "datasources": [],
         "memory_layers": [],
         "imported_by": [],
     },
 }
 # ============================================================================
 
+import argparse
 import re
+import sys
 from pathlib import Path
 
-L9_ROOT = Path(__file__).parent.parent
+L9_ROOT = Path(__file__).resolve().parent.parent
 
-# Files to fix (from ADR compliance check)
-FILES_TO_FIX = [
-    "config/di_async_config.py",
-    "core/agents/idempotency_store.py",
-    "core/calibration/service.py",
-    "core/eos/accountability_engine.py",
-    "core/governance/security_policy.py",
-    "core/governance_integration.py",
-    "core/l_agent_runtime/action_registry.py",
-    "core/l_agent_runtime/agent_state.py",
-    "core/l_agent_runtime/foresight_engine.py",
-    "core/l_agent_runtime/memory_adapter.py",
-    "core/l_agent_runtime/reflection_engine.py",
-    "core/packet_envelope/governance.py",
-    "core/packet_envelope/integration.py",
-    "core/packet_envelope/scalability.py",
-    "core/packet_envelope/standardization.py",
-    "core/reasoning/l9_toth_adapter.py",
-    "core/reasoning/toth_engine.py",
-    "core/tools/discovery_tracing.py",
-    "mac_agent/websocket_client.py",
-    "tools/adr/adr_enforcer.py",
-    "tools/adr/docstring_injector.py",
-    "workflows/session/registry.py",
-    "world_model/_pack_staging/neo4j_substrate.py",
-    "world_model/_pack_staging/orchestrator.py",
-    "world_model/_pack_staging/postgres_substrate.py",
-    "world_model/_pack_staging/redis_substrate.py",
-]
+# ---------------------------------------------------------------------------
+# Directories and files to SKIP (legitimate logging usage or non-production)
+# Aligned with ci/lint_forbidden_imports.py SKIP_PATTERNS
+# ---------------------------------------------------------------------------
+SKIP_DIRS = {
+    ".git",
+    "__pycache__",
+    "node_modules",
+    "venv",
+    ".venv",
+    ".pytest_cache",
+    "build",
+    "dist",
+    ".cursor",
+    ".dora",
+    "current_work",
+    "igor",
+    "data",
+    "_archived",
+    ".backup",
+    # Documentation — contains example code snippets, not production
+    "docs",
+    "readme",
+    "seed",
+    # Codegen templates — separate fix needed for template generation
+    "codegen",
+    # Test files — may intentionally use logging as anti-pattern examples
+    "tests",
+    # CI scripts — CLI tools, print/logging acceptable
+    "ci",
+    # Scripts — CLI tools
+    "scripts",
+    # Tools — CLI tools
+    "tools",
+    # Workflows — CLI tools
+    "workflows",
+    # Bootstrap — CLI entry point
+    "bootstrap",
+    # MCP memory ingestion inbox — chat history archives
+    "inbox",
+}
 
-# Skip these (they have legitimate reasons to use logging)
 SKIP_FILES = {
-    "ci/validate_dora_blocks.py",  # CI tool
-    "ci/lint_forbidden_imports.py",  # CI tool
-    "core/observability/security_alerts.py",  # Observability setup
-    "core/observability/security_metrics.py",  # Observability setup
-    "core/packet_envelope/observability.py",  # Observability setup
-    "services/symbolic_computation/logger.py",  # Logger configuration
+    # Logging wrapper module — MUST use stdlib logging by design
+    "services/symbolic_computation/logger.py",
+    # structlog stdlib interop — logging.basicConfig is required
+    "mac_agent/runner.py",
+    "mac_agent/websocket_client.py",  # logging.basicConfig in __main__ + noise suppression
+    "mcp_memory/src/main.py",
+    "mcp_memory/src/observability/logging.py",  # IS the logging config module
+    "world_model/seed_loader.py",
+    "core/reasoning/toth_engine.py",  # logging.basicConfig + structlog interop
+    # Type hint only usage (logging.Logger as parameter type)
+    "memory/extractor/base_extractor.py",
 }
 
 
-def fix_file(filepath: Path, dry_run: bool = False) -> tuple[bool, str]:
-    """Fix logging to structlog in a single file."""
+def should_skip(filepath: Path) -> str | None:
+    """Return skip reason if file should be skipped, None otherwise."""
+    rel = filepath.relative_to(L9_ROOT)
+    rel_str = str(rel)
+
+    # Check explicit file skip list
+    if rel_str in SKIP_FILES:
+        return f"whitelisted: {rel_str}"
+
+    # Check directory skip list
+    for part in rel.parts:
+        if part in SKIP_DIRS:
+            return f"in skip dir: {part}/"
+
+    # Skip non-Python files
+    if filepath.suffix != ".py":
+        return "not a .py file"
+
+    return None
+
+
+def scan_file(filepath: Path) -> list[tuple[int, str]]:
+    """Scan a file for logging violations. Returns list of (line_num, line_text)."""
+    violations = []
     try:
-        content = filepath.read_text()
-    except Exception as e:
-        return False, f"Error reading: {e}"
+        content = filepath.read_text(encoding="utf-8", errors="ignore")
+    except Exception:
+        return violations
+
+    for i, line in enumerate(content.splitlines(), 1):
+        stripped = line.lstrip()
+        # Skip comments
+        if stripped.startswith("#"):
+            continue
+        # Skip string literals (rough heuristic: inside triple quotes or docstrings)
+        if stripped.startswith(('"""', "'''")):
+            continue
+
+        # Detect: import logging (standalone, not 'import structlog')
+        if re.match(r"^import logging\b", stripped):
+            violations.append((i, line))
+        # Detect: from logging import ...
+        elif re.match(r"^from logging\b", stripped):
+            violations.append((i, line))
+        # Detect: logging.getLogger(...)
+        elif "logging.getLogger" in line and not stripped.startswith("#"):
+            violations.append((i, line))
+
+    return violations
+
+
+def fix_file(filepath: Path) -> tuple[bool, int]:
+    """Fix logging -> structlog in a file. Returns (was_modified, fix_count)."""
+    try:
+        content = filepath.read_text(encoding="utf-8", errors="ignore")
+    except Exception:
+        return False, 0
 
     original = content
+    fix_count = 0
+
+    # Track if file already has 'import structlog'
+    has_structlog_import = bool(
+        re.search(r"^import structlog\b", content, re.MULTILINE)
+    )
 
     # Pattern 1: Replace 'import logging' with 'import structlog'
-    content = re.sub(
-        r"^import logging$", "import structlog", content, flags=re.MULTILINE
+    # Also strip any trailing noqa comment
+    new_content, n = re.subn(
+        r"^import logging\b.*$",
+        "import structlog" if not has_structlog_import else "",
+        content,
+        flags=re.MULTILINE,
     )
+    if n > 0:
+        content = new_content
+        fix_count += n
+        has_structlog_import = True
 
-    # Pattern 2: Replace 'from logging import X' - usually need to remove
-    # This is more complex, skip for now
-
-    # Pattern 3: Replace 'logging.getLogger(__name__)' with 'structlog.get_logger(__name__)'
-    content = re.sub(
-        r"logging\.getLogger\(__name__\)", "structlog.get_logger(__name__)", content
+    # Pattern 2: Replace logging.getLogger(__name__) -> structlog.get_logger(__name__)
+    new_content, n = re.subn(
+        r"logging\.getLogger\(__name__\)",
+        "structlog.get_logger(__name__)",
+        content,
     )
+    if n > 0:
+        content = new_content
+        fix_count += n
 
-    # Pattern 4: Replace 'logging.getLogger("name")' with 'structlog.get_logger("name")'
-    content = re.sub(
-        r'logging\.getLogger\("([^"]+)"\)', r'structlog.get_logger("\1")', content
+    # Pattern 3: Replace logging.getLogger("name") -> structlog.get_logger("name")
+    new_content, n = re.subn(
+        r'logging\.getLogger\("([^"]+)"\)',
+        r'structlog.get_logger("\1")',
+        content,
     )
+    if n > 0:
+        content = new_content
+        fix_count += n
+
+    # Pattern 4: Replace logging.getLogger(f"...") -> structlog.get_logger(f"...")
+    new_content, n = re.subn(
+        r"logging\.getLogger\(f\"([^\"]+)\"\)",
+        r'structlog.get_logger(f"\1")',
+        content,
+    )
+    if n > 0:
+        content = new_content
+        fix_count += n
+
+    # Clean up: remove stale '# noqa: ADR-0019' on lines we just fixed
+    new_content, n = re.subn(
+        r"\s*# noqa: ADR-0019\b[^\n]*",
+        "",
+        content,
+    )
+    if n > 0:
+        content = new_content
+
+    # Clean up: remove blank lines left by removing 'import logging' when structlog existed
+    content = re.sub(r"\n{3,}", "\n\n", content)
+
+    # Ensure 'import structlog' exists if we replaced logging usage
+    if fix_count > 0 and not re.search(r"^import structlog\b", content, re.MULTILINE):
+        # Insert after the last import line
+        lines = content.split("\n")
+        last_import_idx = 0
+        for idx, line in enumerate(lines):
+            if line.startswith("import ") or line.startswith("from "):
+                last_import_idx = idx
+        lines.insert(last_import_idx + 1, "import structlog")
+        content = "\n".join(lines)
 
     if content == original:
-        return False, "No changes needed"
+        return False, 0
 
-    if dry_run:
-        return True, "Would fix (dry run)"
-
-    try:
-        filepath.write_text(content)
-        return True, "Fixed"
-    except Exception as e:
-        return False, f"Error writing: {e}"
+    filepath.write_text(content, encoding="utf-8")
+    return True, fix_count
 
 
-def main():
-    import argparse
+def collect_python_files() -> list[Path]:
+    """Collect all Python files in the repo, respecting skip rules."""
+    files = []
+    for filepath in sorted(L9_ROOT.rglob("*.py")):
+        if should_skip(filepath) is None:
+            files.append(filepath)
+    return files
 
+
+def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Fix logging to structlog per ADR-0019"
+        description="Fix logging -> structlog per ADR-0019 (scanner mode)"
     )
     parser.add_argument(
-        "--dry-run", action="store_true", help="Show what would be changed"
+        "--fix", action="store_true", help="Apply fixes (default is dry-run)"
     )
-    parser.add_argument("--verbose", "-v", action="store_true", help="Show all files")
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Show skipped files"
+    )
     args = parser.parse_args()
 
-    print(
-        f"{'[DRY RUN] ' if args.dry_run else ''}Fixing logging -> structlog per ADR-0019\n"
-    )
+    mode = "FIX" if args.fix else "DRY-RUN"
+    print(f"[{mode}] Scanning for logging -> structlog violations (ADR-0019)\n")
 
-    fixed = []
-    skipped = []
-    errors = []
+    files = collect_python_files()
+    print(f"Scanning {len(files)} production Python files...\n")
 
-    for rel_path in FILES_TO_FIX:
-        if rel_path in SKIP_FILES:
-            if args.verbose:
-                logger.info("⏭️  rel path: skipped (exception)", rel_path=rel_path)
-            continue
+    violations_by_file: dict[str, list[tuple[int, str]]] = {}
+    total_violations = 0
+    fixed_files = 0
+    fixed_count = 0
 
-        filepath = L9_ROOT / rel_path
-        if not filepath.exists():
-            if args.verbose:
-                logger.info("⏭️  rel path: file not found", rel_path=rel_path)
-            continue
+    for filepath in files:
+        violations = scan_file(filepath)
+        if violations:
+            rel = str(filepath.relative_to(L9_ROOT))
+            violations_by_file[rel] = violations
+            total_violations += len(violations)
 
-        was_modified, reason = fix_file(filepath, dry_run=args.dry_run)
+            if args.fix:
+                was_modified, n = fix_file(filepath)
+                if was_modified:
+                    fixed_files += 1
+                    fixed_count += n
+                    print(f"  ✅ {rel} ({n} fixes)")
+            else:
+                print(f"  ❌ {rel}")
+                for line_num, line_text in violations:
+                    print(f"     L{line_num}: {line_text.strip()}")
 
-        if was_modified:
-            fixed.append((rel_path, reason))
-            logger.info("✅ rel path", rel_path=rel_path)
-        elif "Error" in reason:
-            errors.append((rel_path, reason))
-            logger.info("❌ rel path: reason", rel_path=rel_path, reason=reason)
-        elif args.verbose:
-            skipped.append((rel_path, reason))
-            logger.info("⏭️  rel path: reason", rel_path=rel_path, reason=reason)
+    print(f"\n{'=' * 60}")
+    if total_violations == 0:
+        print("✅ No logging violations found — all production code uses structlog")
+        return 0
 
-    logger.info("\n{'=' * 60}")
-    logger.info("summary {'(dry run)' if args.dry_run else ''}")
-    logger.info("{'=' * 60}")
-    logger.info("fixed:   {len(fixed)} files")
-    logger.info("skipped: {len(skipped)} files")
-    logger.error("errors:  {len(errors)} files")
-
-    if fixed and not args.dry_run:
-        logger.info("\n✅ {len(fixed)} files updated to use structlog.")
-    elif fixed and args.dry_run:
-        print(
-            f"\n🔍 {len(fixed)} files would be updated. Run without --dry-run to apply."
-        )
+    if args.fix:
+        print(f"✅ Fixed {fixed_count} violations in {fixed_files} files")
+        remaining = total_violations - fixed_count
+        if remaining > 0:
+            print(f"⚠️  {remaining} violations could not be auto-fixed (manual review needed)")
+        return 0
+    else:
+        print(f"❌ Found {total_violations} violations in {len(violations_by_file)} files")
+        print("\nRun with --fix to apply: python3 scripts/fix_logging_to_structlog.py --fix")
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -190,37 +319,11 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": [
-        "cli",
-        "debugging",
-        "filesystem",
-        "linting",
-        "logging",
-        "metrics",
-        "operations",
-        "realtime",
-        "scripts",
-    ],
-    "keywords": ["fix", "logging", "structlog"],
-    "business_value": "Utility module for fix logging to structlog",
-    "last_modified": "2026-01-31T22:21:56Z",
+    "tags": ["cli", "linting", "logging", "operations", "scripts"],
+    "keywords": ["fix", "logging", "structlog", "scanner", "adr-0019"],
+    "business_value": "Auto-fixes logging -> structlog violations across the codebase",
+    "last_modified": "2026-02-16T14:30:00Z",
     "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
+    "change_summary": "v2.0: Rewritten from hardcoded list to dynamic scanner",
 }
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
 # ============================================================================

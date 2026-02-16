@@ -27,7 +27,7 @@ __dora_meta__ = {
 
 from typing import Any
 
-import requests
+import httpx
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -38,18 +38,12 @@ class CursorClient:
 
     def __init__(self, host: str = "127.0.0.1", port: int = 3000, timeout: int = 30):
         """
-        Performs an HTTP request to the Cursor remote API endpoint with specified method and data.
+        Initialize Cursor remote API client.
 
         Args:
-            endpoint: API endpoint path for the request.
-            method: HTTP method to use, default is "POST".
-            data: Payload data sent with the request.
-
-        Returns:
-            Response object from the HTTP request.
-
-        Raises:
-            requests.RequestException: If the request fails due to network issues or invalid responses.
+            host: Cursor API host address.
+            port: Cursor API port number.
+            timeout: Request timeout in seconds.
         """
         self.host = host
         self.port = port
@@ -64,9 +58,9 @@ class CursorClient:
 
         try:
             if method == "POST":
-                response = requests.post(url, json=data, timeout=self.timeout)
+                response = httpx.post(url, json=data, timeout=self.timeout)
             elif method == "GET":
-                response = requests.get(url, timeout=self.timeout)
+                response = httpx.get(url, timeout=self.timeout)
             else:
                 return {"success": False, "error": f"Unsupported method: {method}"}
 
@@ -78,13 +72,13 @@ class CursorClient:
                 "status_code": response.status_code,
             }
 
-        except requests.exceptions.Timeout:
+        except httpx.TimeoutException:
             logger.error("Cursor API timeout", url=url)
             return {"success": False, "error": "Request timeout"}
-        except requests.exceptions.ConnectionError:
+        except httpx.ConnectError:
             logger.error("Cursor API connection error", url=url)
             return {"success": False, "error": "Connection failed"}
-        except requests.exceptions.RequestException as e:
+        except httpx.HTTPStatusError as e:
             logger.error("Cursor API error", url=url, exc_info=True)
             return {"success": False, "error": str(e)}
         except Exception as e:

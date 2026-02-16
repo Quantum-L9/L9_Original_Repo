@@ -1249,7 +1249,7 @@ async def handle_tool_call(
             try:
                 import json as json_lib
                 import uuid
-                from datetime import datetime
+                from datetime import datetime, timezone
 
                 from api.memory.cache import get_redis
 
@@ -1294,7 +1294,7 @@ async def handle_tool_call(
             try:
                 import json as json_lib
                 import uuid
-                from datetime import datetime
+                from datetime import datetime, timezone
 
                 from api.memory.cache import get_redis
 

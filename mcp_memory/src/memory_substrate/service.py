@@ -36,7 +36,7 @@ from abc import (  # noqa: ADR-0026 - ABC provides shared implementation
     abstractmethod,
 )
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from core.decorators import must_stay_async

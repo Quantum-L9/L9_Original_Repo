@@ -29,7 +29,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever

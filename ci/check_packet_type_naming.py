@@ -256,7 +256,7 @@ def main() -> int:
         logger.info("packetenvelope uses 'packet_type', not 'kind'.")
         logger.info("=" * 60)
 
-        for v in all_violations:
+        for _v in all_violations:
             logger.info("\n{v.file}:{v.line_num}")
             logger.info("  line: {v.line[:80]}{'...' if len(v.line) > 80 else ''}")
             logger.info("  issue: {v.message}")

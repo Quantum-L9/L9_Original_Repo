@@ -183,7 +183,7 @@ def extract_dora_meta(file_path: Path) -> dict | None:
     match = re.search(r"__dora_meta__\s*=\s*(\{.*?\})", content, re.DOTALL)
     if match:
         try:
-            return eval(match.group(1))
+            return eval(match.group(1))  # noqa: S307 — parsing trusted __dora_meta__ from repo files
         except Exception:
             return None
     return None

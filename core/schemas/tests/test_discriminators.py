@@ -25,12 +25,12 @@ class TestPacketTypeValidation:
 
     def test_packet_type_required(self):
         """Verify packet_type is required."""
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             PacketEnvelope(payload={"data": "test"})
 
     def test_packet_type_min_length(self):
         """Verify packet_type has minimum length."""
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             PacketEnvelope(packet_type="", payload={"data": "test"})
 
     def test_valid_packet_types(self):
@@ -118,7 +118,7 @@ class TestSemanticSearchValidation:
 
     def test_query_min_length(self):
         """Verify query has minimum length."""
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             SemanticSearchRequest(query="", top_k=5)
 
     def test_top_k_bounds(self):
@@ -132,11 +132,11 @@ class TestSemanticSearchValidation:
         assert req.top_k == 100
 
         # Invalid below min
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             SemanticSearchRequest(query="test", top_k=0)
 
         # Invalid above max
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             SemanticSearchRequest(query="test", top_k=101)
 
 
@@ -145,12 +145,12 @@ class TestPacketEnvelopeInValidation:
 
     def test_packet_type_required(self):
         """Verify packet_type is required on input."""
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             PacketEnvelopeIn(payload={"data": "test"})
 
     def test_payload_required(self):
         """Verify payload is required on input."""
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             PacketEnvelopeIn(packet_type="event")
 
     def test_optional_fields_truly_optional(self):

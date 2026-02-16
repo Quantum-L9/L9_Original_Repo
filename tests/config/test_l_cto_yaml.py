@@ -35,7 +35,7 @@ def test_research_overlay_valid():
 @pytest.mark.skip(reason="KernelLoader is not a class anymore")
 async def test_kernel_absorption():
     """Verify kernels absorb correctly"""
-    kernel_loader = KernelLoader(
+    kernel_loader = KernelLoader(  # noqa: F821 — skipped test, KernelLoader no longer a class
         kernel_dir="private/kernels/00_system",
         boot_overlay_path="config/boot_overlay.yaml",
     )
