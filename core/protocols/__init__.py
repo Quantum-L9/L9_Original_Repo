@@ -144,25 +144,21 @@ from core.protocols.validation_protocols import (
 )
 
 __all__ = [
-    # Agent protocols
     "ActivatableAgent",
     "AgentContext",
     "AgentOrchestrator",
     "AgentRegistry",
     "AgentState",
     "BackoffStrategy",
-    # Memory protocols
     "CacheClient",
+    "CacheService",
     "ConnectionPoolProtocol",
-    # Connection protocols (GMP-125)
     "ConnectionProtocol",
     "ConnectionState",
     "DAGProtocol",
     "EmbeddingProviderProtocol",
     "ErrorCategory",
     "ErrorContext",
-    # Error handling protocols (GMP-125)
-    "CacheService",
     "ErrorHandlingProtocol",
     "ErrorSeverity",
     "GovernanceService",
@@ -174,28 +170,22 @@ __all__ = [
     "KernelAwareAgent",
     "KernelDiscovery",
     "KernelStateManager",
-    # Kernel protocols
     "KernelValidator",
     "LLMService",
     "LogExporter",
     "MemoryRepository",
-    # High-level service protocols (PR #49 / GMP-114)
     "MemoryService",
     "MetricsCollector",
-    "ToolRegistry",
     "ObservabilityService",
     "PooledConnection",
     "RateLimitExceededError",
     "RateLimitPolicy",
     "RateLimitStrategy",
-    # Rate limiting protocols (GMP-125)
     "RateLimitingProtocol",
     "RetrievalStrategy",
     "RetryPolicy",
-    # Retry protocols (GMP-125)
     "RetryProtocol",
     "SemanticServiceProtocol",
-    # Observability protocols
     "SpanEmitter",
     "SpanKind",
     "SpanStatus",
@@ -205,21 +195,20 @@ __all__ = [
     "StandardRetryHandler",
     "StandardValidator",
     "StateManager",
-    # Substrate protocols (PR #52 / GMP-116)
     "SubstrateRepositoryProtocol",
     "ToolExecutor",
+    "ToolRegistry",
     "TraceContext",
     "ValidationError",
-    # Validation protocols (GMP-125)
     "ValidationProtocol",
     "ValidationResult",
     "ValidationSeverity",
     "VectorStore",
+    "WorldModelService",
     "rate_limited",
     "validate_input",
     "with_error_handling",
     "with_retry",
-    "WorldModelService",
 ]
 
 __version__ = "1.0.0"
