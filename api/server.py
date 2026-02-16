@@ -504,8 +504,8 @@ async def lifespan(app: FastAPI):
     # ========================================================================
     # STARTUP: Validate required environment variables (fail-fast)
     # ========================================================================
-    required_env_vars = ["OPENAI_API_KEY"]  # MEMORY_DSN is optional, SLACK is optional
-    recommended_env_vars = ["MEMORY_DSN", "SLACK_BOT_TOKEN"]
+    required_env_vars = ["OPENAI_API_KEY", "MEMORY_DSN"]  # P0: MEMORY_DSN is mandatory
+    recommended_env_vars = ["SLACK_BOT_TOKEN"]
 
     missing_required = [v for v in required_env_vars if not os.getenv(v)]
     if missing_required:
@@ -639,50 +639,48 @@ async def lifespan(app: FastAPI):
     # Tool Executor Auto-Registration (GMP-95 Auto-Wiring)
     # Register all tools: extension modules + @register_tool decorators
     # ------------------------------------------------------------------------
-    try:
-        from runtime.tool_registry import (
-            discover_tools,
-            get_tool_snapshot,
-            register_extension_tool_executors,
-        )
+    # P0: Tool registration is mandatory — fail-closed
+    from runtime.tool_registry import (
+        discover_tools,
+        get_tool_snapshot,
+        register_extension_tool_executors,
+    )
 
-        # 1. All tools now use @register_tool decorator - legacy bridge removed
-        # 2. Register extension tools (research, reflection)
-        extension_count = register_extension_tool_executors()
+    # 1. All tools now use @register_tool decorator - legacy bridge removed
+    # 2. Register extension tools (research, reflection)
+    extension_count = register_extension_tool_executors()
 
-        # 3. Discover any new @register_tool decorated functions
-        for package in ["runtime", "core.tools"]:
-            try:
-                discover_tools(package)
-            except Exception as pkg_err:
-                logger.debug(f"Tool discovery skipped for {package}: {pkg_err}")
-
-        snapshot = get_tool_snapshot()
-        logger.info(
-            "Tool executor auto-registration complete",
-            extension_tools=extension_count,
-            total_tools=snapshot["component_count"],
-        )
-
-        # 4. ADR-0094: Bridge runtime auto-registered tools into primary
-        #    base registry so all dispatch goes through ExecutorToolRegistry.
-        #    Also sets tool_graph_healthy flag (previously set by register_l_tools).
+    # 3. Discover any new @register_tool decorated functions
+    for package in ["runtime", "core.tools"]:
         try:
-            from core.tools.registry_adapter import sync_runtime_tools_to_primary
+            discover_tools(package)
+        except Exception as pkg_err:
+            logger.debug(f"Tool discovery skipped for {package}: {pkg_err}")
 
-            bridge_count = sync_runtime_tools_to_primary()
-            logger.info(
-                "ADR-0094 bridge: runtime tools synced to primary pipeline",
-                synced=bridge_count,
-            )
-            app.state.tool_graph_healthy = bridge_count > 0
-        except Exception as bridge_err:
-            logger.warning("ADR-0094 bridge failed (non-fatal)", error=str(bridge_err))
-            app.state.tool_graph_healthy = False
+    snapshot = get_tool_snapshot()
+    tool_count = snapshot["component_count"]
+    if tool_count == 0:
+        raise RuntimeError(
+            "Tool executor auto-registration found 0 tools. "
+            "L9 cannot start without at least one registered tool."
+        )
+    logger.info(
+        "Tool executor auto-registration complete",
+        extension_tools=extension_count,
+        total_tools=tool_count,
+    )
 
-    except Exception as e:
-        # Non-fatal: tools may still be accessible via base registry if bridge ran
-        logger.warning(f"Tool executor auto-registration failed: {e}")
+    # 4. ADR-0094: Bridge runtime auto-registered tools into primary
+    #    base registry so all dispatch goes through ExecutorToolRegistry.
+    #    Also sets tool_graph_healthy flag (previously set by register_l_tools).
+    from core.tools.registry_adapter import sync_runtime_tools_to_primary
+
+    bridge_count = sync_runtime_tools_to_primary()
+    logger.info(
+        "ADR-0094 bridge: runtime tools synced to primary pipeline",
+        synced=bridge_count,
+    )
+    app.state.tool_graph_healthy = bridge_count > 0
 
     # ------------------------------------------------------------------------
     # MCP Server Auto-Registration (GMP-95 Auto-Wiring)
@@ -816,26 +814,22 @@ async def lifespan(app: FastAPI):
     # Governance Integration (CA + L Agent Runtime)
     # Unified loader for DevLayer governance and ArchitectMentor runtime
     # ------------------------------------------------------------------------
-    try:
-        from pathlib import Path
+    # P0: Governance is mandatory — fail-closed
+    from pathlib import Path
 
-        from core.governance_integration import GovernanceIntegration
+    from core.governance_integration import GovernanceIntegration
 
-        governance = GovernanceIntegration(
-            repo_root=Path.cwd(),
-            agent_id=os.getenv("DEFAULT_AGENT_ID", "l"),
-            memory_manager=None,  # Will be wired later if memory service available
-        )
-        app.state.governance = governance
-        logger.info(
-            "Governance Integration initialized",
-            agent_id=governance.agent_id,
-            confidence_threshold=governance.ca_governance.confidence_threshold,
-        )
-    except Exception as e:
-        # Non-fatal: governance features degraded but core API still works
-        app.state.governance = None
-        logger.warning(f"Governance Integration init failed: {e}")
+    governance = GovernanceIntegration(
+        repo_root=Path.cwd(),
+        agent_id=os.getenv("DEFAULT_AGENT_ID", "l"),
+        memory_manager=None,  # Will be wired later if memory service available
+    )
+    app.state.governance = governance
+    logger.info(
+        "Governance Integration initialized",
+        agent_id=governance.agent_id,
+        confidence_threshold=governance.ca_governance.confidence_threshold,
+    )
 
     # ------------------------------------------------------------------------
     # Router Auto-Registration (Phase 2 Auto-Wiring)
@@ -864,125 +858,115 @@ async def lifespan(app: FastAPI):
         # Non-fatal: fall back to legacy manual router registration
         logger.warning(f"Router auto-discovery failed (using legacy): {e}")
 
-    # Get database URL
+    # Get database URL — P0: mandatory, fail-closed
     database_url = os.getenv("MEMORY_DSN") or os.getenv("DATABASE_URL")
     if not database_url:
-        logger.warning(
-            "MEMORY_DSN/DATABASE_URL not set. Memory system will not be available. "
-            "Set MEMORY_DSN environment variable to enable memory."
+        raise RuntimeError(
+            "MEMORY_DSN or DATABASE_URL is required. "
+            "L9 cannot start without memory substrate."
         )
-    else:
+    try:
+        # Initialize DB schema (deferred from module-level for Docker DNS readiness)
+        if not LOCAL_DEV:
+            await db.init_db()
+
+        # Run migrations
+        logger.info("Running database migrations...")
+        migration_result = await run_migrations(database_url)
+        logger.info(
+            f"Migrations complete: {migration_result['applied']} applied, "
+            f"{migration_result['skipped']} skipped, {migration_result['errors']} errors"
+        )
+        if migration_result["errors"]:
+            logger.error(f"Migration errors: {migration_result['error_details']}")
+
+        # Initialize memory service
+        logger.info("Initializing memory service...")
+        substrate_service = await init_service(
+            database_url=database_url,
+            embedding_provider_type=os.getenv("EMBEDDING_PROVIDER", "openai"),
+            embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-large"),
+            openai_api_key=os.getenv("OPENAI_API_KEY"),
+        )
+        logger.info("Memory service initialized")
+
+        # GMP-78: Also initialize the repository singleton for tool_embeddings
+        # The tool embeddings service uses get_repository() directly
+        from memory.substrate_repository import init_repository
+
+        await init_repository(database_url)
+        logger.info("Repository singleton initialized for tool embeddings")
+
+        # Store in app state for route dependencies
+        app.state.substrate_service = substrate_service
+
+        # Initialize Agent Persistence Service for checkpoint management
         try:
-            # Initialize DB schema (deferred from module-level for Docker DNS readiness)
-            if not LOCAL_DEV:
-                await db.init_db()
-
-            # Run migrations
-            logger.info("Running database migrations...")
-            migration_result = await run_migrations(database_url)
-            logger.info(
-                f"Migrations complete: {migration_result['applied']} applied, "
-                f"{migration_result['skipped']} skipped, {migration_result['errors']} errors"
+            agent_persistence = AgentPersistenceService(
+                service=substrate_service,
+                repository=substrate_service._repository,
             )
-            if migration_result["errors"]:
-                logger.error(f"Migration errors: {migration_result['error_details']}")
+            app.state.agent_persistence = agent_persistence
+            logger.info("Agent persistence service initialized")
 
-            # Initialize memory service
-            logger.info("Initializing memory service...")
-            substrate_service = await init_service(
-                database_url=database_url,
-                embedding_provider_type=os.getenv("EMBEDDING_PROVIDER", "openai"),
-                embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-large"),
-                openai_api_key=os.getenv("OPENAI_API_KEY"),
-            )
-            logger.info("Memory service initialized")
-
-            # GMP-78: Also initialize the repository singleton for tool_embeddings
-            # The tool embeddings service uses get_repository() directly
-            from memory.substrate_repository import init_repository
-
-            await init_repository(database_url)
-            logger.info("Repository singleton initialized for tool embeddings")
-
-            # Store in app state for route dependencies
-            app.state.substrate_service = substrate_service
-
-            # Initialize Agent Persistence Service for checkpoint management
+            # Restore agent checkpoints on startup (best-effort)
             try:
-                agent_persistence = AgentPersistenceService(
-                    service=substrate_service,
-                    repository=substrate_service._repository,
+                default_agent_id = os.getenv("DEFAULT_AGENT_ID", "l9-standard-v1")
+                restored_state = await agent_persistence.restore_checkpoint(
+                    default_agent_id
                 )
-                app.state.agent_persistence = agent_persistence
-                logger.info("Agent persistence service initialized")
-
-                # Restore agent checkpoints on startup (best-effort)
-                try:
-                    default_agent_id = os.getenv("DEFAULT_AGENT_ID", "l9-standard-v1")
-                    restored_state = await agent_persistence.restore_checkpoint(
-                        default_agent_id
+                if restored_state:
+                    logger.info(
+                        "Agent checkpoint restored on startup",
+                        agent_id=default_agent_id,
+                        state_keys=list(restored_state.keys()),
                     )
-                    if restored_state:
-                        logger.info(
-                            "Agent checkpoint restored on startup",
-                            agent_id=default_agent_id,
-                            state_keys=list(restored_state.keys()),
-                        )
-                        app.state.restored_agent_state = restored_state
-                    else:
-                        logger.debug(
-                            "No checkpoint found for agent", agent_id=default_agent_id
-                        )
-                        app.state.restored_agent_state = None
-                except Exception as restore_err:
-                    logger.warning(f"Failed to restore agent checkpoint: {restore_err}")
+                    app.state.restored_agent_state = restored_state
+                else:
+                    logger.debug(
+                        "No checkpoint found for agent", agent_id=default_agent_id
+                    )
                     app.state.restored_agent_state = None
-
-            except Exception as persistence_err:
-                logger.warning(
-                    f"Failed to initialize agent persistence: {persistence_err}"
-                )
-                app.state.agent_persistence = None
+            except Exception as restore_err:
+                logger.warning(f"Failed to restore agent checkpoint: {restore_err}")
                 app.state.restored_agent_state = None
 
-            # Initialize TimelineService for memory timeline reconstruction
-            try:
-                timeline_service = TimelineService(
-                    repository=substrate_service._repository
-                )
-                app.state.timeline_service = timeline_service
-                logger.info("TimelineService initialized")
-            except Exception as timeline_err:
-                logger.warning(f"Failed to initialize TimelineService: {timeline_err}")
-                app.state.timeline_service = None
-
-            # Initialize MemoryStateManager for L-CTO agent state management
-            try:
-                memory_state_manager = MemoryStateManager(
-                    service=substrate_service,
-                    agent_id="L",  # L-CTO agent
-                )
-                app.state.memory_state_manager = memory_state_manager
-                logger.info("MemoryStateManager initialized for agent 'L'")
-            except Exception as state_err:
-                logger.warning(f"Failed to initialize MemoryStateManager: {state_err}")
-                app.state.memory_state_manager = None
-
-        except Exception as e:
-            logger.error(
-                "memory_system.init_FAILED",
-                error=str(e),
-                error_type=type(e).__name__,
-                database_url_set=bool(database_url),
-                openai_api_key_set=bool(os.getenv("OPENAI_API_KEY")),
-                embedding_provider=os.getenv("EMBEDDING_PROVIDER", "openai"),
-                exc_info=True,
+        except Exception as persistence_err:
+            logger.warning(
+                f"Failed to initialize agent persistence: {persistence_err}"
             )
-            app.state.substrate_service = None
             app.state.agent_persistence = None
             app.state.restored_agent_state = None
+
+        # Initialize TimelineService for memory timeline reconstruction
+        try:
+            timeline_service = TimelineService(
+                repository=substrate_service._repository
+            )
+            app.state.timeline_service = timeline_service
+            logger.info("TimelineService initialized")
+        except Exception as timeline_err:
+            logger.warning(f"Failed to initialize TimelineService: {timeline_err}")
             app.state.timeline_service = None
+
+        # Initialize MemoryStateManager for L-CTO agent state management
+        try:
+            memory_state_manager = MemoryStateManager(
+                service=substrate_service,
+                agent_id="L",  # L-CTO agent
+            )
+            app.state.memory_state_manager = memory_state_manager
+            logger.info("MemoryStateManager initialized for agent 'L'")
+        except Exception as state_err:
+            logger.warning(f"Failed to initialize MemoryStateManager: {state_err}")
             app.state.memory_state_manager = None
+
+    except Exception as e:
+        # P0: Memory substrate is mandatory — fail-closed
+        raise RuntimeError(
+            f"Memory substrate init failed: {e}. "
+            f"L9 cannot start without memory."
+        ) from e
 
     # Initialize MCP Memory DB pool (for /mcp/call routes)
     # This is REQUIRED for MCP tools to work when routed through l9-api
@@ -1066,34 +1050,26 @@ async def lifespan(app: FastAPI):
         )
         app.state.world_model_runtime = None
 
-    # Initialize Governance Engine (if enabled)
-    if _has_governance:
-        try:
-            policy_dir = os.getenv("POLICY_MANIFEST_DIR", "config/policies")
-            logger.info("Initializing Governance Engine from %s...", policy_dir)
+    # P0: Governance Engine is mandatory — fail-closed
+    if not _has_governance:
+        raise RuntimeError(
+            "Governance module import failed. "
+            "L9 cannot start without governance enforcement."
+        )
+    policy_dir = os.getenv("POLICY_MANIFEST_DIR", "config/policies")
+    logger.info("Initializing Governance Engine from %s...", policy_dir)
 
-            substrate = getattr(app.state, "substrate_service", None)
-            governance_engine = create_governance_engine(
-                policy_dir=policy_dir,
-                substrate_service=substrate,
-            )
+    substrate = getattr(app.state, "substrate_service", None)
+    governance_engine = create_governance_engine(
+        policy_dir=policy_dir,
+        substrate_service=substrate,
+    )
 
-            app.state.governance_engine = governance_engine
-            logger.info(
-                "Governance Engine initialized: %d policies loaded",
-                governance_engine.policy_count,
-            )
-        except (PolicyLoadError, InvalidPolicyError) as e:
-            # Governance failure is critical - log but allow startup for dev
-            logger.critical("Governance Engine failed to initialize: %s", str(e))
-            app.state.governance_engine = None
-        except Exception as e:
-            logger.error(
-                "Failed to initialize Governance Engine: %s", str(e), exc_info=True
-            )
-            app.state.governance_engine = None
-    else:
-        app.state.governance_engine = None
+    app.state.governance_engine = governance_engine
+    logger.info(
+        "Governance Engine initialized: %d policies loaded",
+        governance_engine.policy_count,
+    )
 
     # Initialize Housekeeping Engine (if enabled and substrate available)
     if (
@@ -1115,425 +1091,409 @@ async def lifespan(app: FastAPI):
         app.state.housekeeping_engine = None
 
     # Initialize Agent Executor (if enabled and substrate available)
-    if (
-        _has_agent_executor
-        and hasattr(app.state, "substrate_service")
-        and app.state.substrate_service
-    ):
+    # P0: AgentExecutor is mandatory — fail-closed
+    if not _has_agent_executor:
+        raise RuntimeError(
+            "AgentExecutorService import failed. "
+            "L9 cannot start without agent execution capability."
+        )
+    try:
+        logger.info("Initializing Agent Executor...")
+
+        # Use real AIOS runtime - FAIL LOUDLY if unavailable
+        if not _has_aios_runtime:
+            raise RuntimeError(
+                "FATAL: AIOSRuntime import failed. "
+                "Server cannot start without core agent runtime. "
+                "Check core/agents/runtime.py exists and imports cleanly."
+            )
+        aios_runtime = create_aios_runtime()
+        logger.info("AIOSRuntime initialized successfully")
+
+        # Use real tool registry - FAIL LOUDLY if unavailable
+        if not _has_tool_registry:
+            raise RuntimeError(
+                "FATAL: ToolRegistry import failed. "
+                "Server cannot start without tool dispatch capability. "
+                "Check core/tools/registry_adapter.py exists and imports cleanly."
+            )
+        # Connect governance engine if available
+        gov_engine = getattr(app.state, "governance_engine", None)
+        tool_registry = create_executor_tool_registry(
+            governance_enabled=True,
+            governance_engine=gov_engine,
+        )
+        logger.info(
+            "ExecutorToolRegistry initialized (governance=%s)",
+            "attached" if gov_engine else "legacy",
+        )
+
+        # ========================================================================
+        # GMP-78: Sync tool embeddings for semantic tool retrieval
+        # Phase 2: Track sync status for dynamic tool discovery health
+        # ========================================================================
+        app.state.tool_embeddings_synced = False
+        app.state.tool_embedding_count = 0
         try:
-            logger.info("Initializing Agent Executor...")
+            from core.tools.tool_embeddings import sync_all_tool_embeddings
 
-            # Use real AIOS runtime - FAIL LOUDLY if unavailable
-            if not _has_aios_runtime:
-                raise RuntimeError(
-                    "FATAL: AIOSRuntime import failed. "
-                    "Server cannot start without core agent runtime. "
-                    "Check core/agents/runtime.py exists and imports cleanly."
-                )
-            aios_runtime = create_aios_runtime()
-            logger.info("AIOSRuntime initialized successfully")
+            tool_embedding_count = await sync_all_tool_embeddings()
+            app.state.tool_embeddings_synced = True
+            app.state.tool_embedding_count = tool_embedding_count
+            logger.info(
+                f"✓ Tool embeddings synced: {tool_embedding_count} tools (dynamic discovery enabled)"
+            )
+        except ImportError:
+            logger.warning(
+                "Tool embeddings service not available - dynamic tool discovery DISABLED"
+            )
+        except Exception as e:
+            # Non-fatal: semantic tool retrieval is an optimization, but log clearly
+            logger.warning(
+                f"Tool embedding sync failed - dynamic tool discovery may be impaired: {e}"
+            )
 
-            # Use real tool registry - FAIL LOUDLY if unavailable
-            if not _has_tool_registry:
-                raise RuntimeError(
-                    "FATAL: ToolRegistry import failed. "
-                    "Server cannot start without tool dispatch capability. "
-                    "Check core/tools/registry_adapter.py exists and imports cleanly."
+        # ========================================================================
+        # SESSION STARTUP: Preflight checks + kernel readiness gate (v3.4+)
+        # ========================================================================
+        app.state.session_startup_result = None
+        app.state.startup_ready = False
+
+        # Skip startup checks in container environments (broken symlinks, missing governance files)
+        # Detection: L9_SKIP_STARTUP_CHECKS=true OR L9_CONTAINER_ENV=true OR /.dockerenv exists
+        skip_startup = settings.l9_skip_startup_checks
+        in_container = (
+            os.getenv("L9_CONTAINER_ENV", "").lower() == "true"
+            or os.path.exists("/.dockerenv")
+            or str(Path.cwd()) == "/app"
+        )
+
+        if skip_startup or in_container:
+            logger.info("╔════════════════════════════════════════╗")
+            logger.info("║  Skipping Session Startup (container)  ║")
+            logger.info("╚════════════════════════════════════════╝")
+            app.state.startup_ready = True
+            app.state.session_startup_result = None
+        elif _has_session_startup:
+            try:
+                logger.info("╔════════════════════════════════════════╗")
+                logger.info("║  Running Session Startup Checks...     ║")
+                logger.info("╚════════════════════════════════════════╝")
+
+                workspace_root = Path(os.getenv("L9_WORKSPACE_ROOT", Path.cwd()))
+                session_startup = SessionStartup(workspace_root=workspace_root)
+                startup_result: StartupResult = await session_startup.execute()
+
+                app.state.session_startup_result = startup_result
+                app.state.startup_ready = startup_result.status == "READY"
+
+                if startup_result.status == "READY":
+                    logger.info(
+                        "✓ Session Startup PASSED: preflight=%s, files_loaded=%d, kernels_ready=%s",
+                        startup_result.preflight_passed,
+                        len(startup_result.files_loaded),
+                        startup_result.kernels_ready,
+                    )
+                    if startup_result.kernel_hash_snapshot:
+                        logger.info(
+                            "  Kernel hash snapshot: %d kernels verified",
+                            len(startup_result.kernel_hash_snapshot),
+                        )
+                else:
+                    logger.critical(
+                        "❌ Session Startup FAILED: status=%s, errors=%s",
+                        startup_result.status,
+                        (
+                            startup_result.errors[:3]
+                            if startup_result.errors
+                            else "none"
+                        ),
+                    )
+                    # In production, this should be fatal
+                    # For dev, we continue with degraded mode
+                    if startup_result.warnings:
+                        for warning in startup_result.warnings[:5]:
+                            logger.warning("  Startup warning: %s", warning)
+
+            except Exception as e:
+                logger.critical(
+                    "Session Startup crashed: %s", str(e), exc_info=True
                 )
-            # Connect governance engine if available
+                app.state.startup_ready = False
+                # Non-fatal in dev mode
+        else:
+            logger.warning(
+                "SessionStartup not available - skipping preflight checks"
+            )
+            app.state.startup_ready = True  # Assume ready if no checks available
+
+        # Initialize agent registry with kernel loading - FAIL LOUDLY if unavailable
+        if not _has_kernel_registry:
+            raise RuntimeError(
+                "FATAL: KernelAwareAgentRegistry import failed. "
+                "Server cannot start without agent configuration capability. "
+                "Check core/agents/registry.py exists and imports cleanly."
+            )
+
+        logger.debug("Attempting to create kernel-aware agent registry...")
+        logger.info("Initializing Kernel-Aware Agent Registry...")
+        try:
+            agent_registry = create_kernel_aware_registry()
+            app.state.agent_registry = agent_registry
+            logger.info(
+                "Kernel-Aware Agent Registry initialized: kernel_state=%s",
+                agent_registry.get_kernel_state(),
+            )
+        except RuntimeError as e:
+            # Kernel loading failed - this is critical
+            logger.critical(
+                "FATAL: Kernel loading failed: %s", str(e), exc_info=True
+            )
+            raise
+        except Exception as e:
+            # Unexpected error during kernel registry creation
+            logger.critical(
+                "FATAL: Unexpected error creating kernel registry: %s",
+                str(e),
+                exc_info=True,
+            )
+            raise
+
+        # Create executor
+        logger.debug(
+            "Creating AgentExecutorService with aios_runtime=%s, tool_registry=%s, agent_registry=%s",
+            aios_runtime is not None,
+            tool_registry is not None,
+            type(agent_registry).__name__ if agent_registry else "None",
+        )
+        executor = AgentExecutorService(
+            aios_runtime=aios_runtime,
+            tool_registry=tool_registry,
+            substrate_service=app.state.substrate_service,
+            agent_registry=agent_registry,
+        )
+        if agent_registry is None or not hasattr(agent_registry, "get_l_cto_agent"):
+            raise RuntimeError(
+                "FATAL: Kernel-aware agent registry required for executor startup"
+            )
+        l_cto_agent = agent_registry.get_l_cto_agent()
+        if l_cto_agent is None:
+            raise RuntimeError(
+                "FATAL: Kernel-aware agent not available for executor startup"
+            )
+        executor.set_kernel_aware_agent(l_cto_agent)
+        if executor._get_kernel_aware_agent() is None:
+            raise RuntimeError(
+                "FATAL: Kernel-aware agent not active; refusing to start executor"
+            )
+
+        app.state.agent_executor = executor
+        app.state.aios_runtime = aios_runtime
+        app.state.tool_registry = tool_registry
+        app.state.agent_registry = agent_registry
+        logger.info("Agent Executor initialized")
+
+        # Initialize ActionToolOrchestrator (for /tools/execute endpoint)
+        try:
+            from orchestrators.action_tool.orchestrator import (
+                ActionToolOrchestrator,
+            )
+
             gov_engine = getattr(app.state, "governance_engine", None)
-            tool_registry = create_executor_tool_registry(
-                governance_enabled=True,
+            action_tool_orchestrator = ActionToolOrchestrator(
+                tool_registry=tool_registry,
                 governance_engine=gov_engine,
             )
-            logger.info(
-                "ExecutorToolRegistry initialized (governance=%s)",
-                "attached" if gov_engine else "legacy",
-            )
+            app.state.action_tool_orchestrator = action_tool_orchestrator
+            logger.info("ActionToolOrchestrator initialized")
+        except ImportError:
+            logger.debug("ActionToolOrchestrator not available")
+            app.state.action_tool_orchestrator = None
+        except Exception as orch_err:
+            logger.warning(f"ActionToolOrchestrator init failed: {orch_err}")
+            app.state.action_tool_orchestrator = None
 
-            # ========================================================================
-            # GMP-78: Sync tool embeddings for semantic tool retrieval
-            # Phase 2: Track sync status for dynamic tool discovery health
-            # ========================================================================
-            app.state.tool_embeddings_synced = False
-            app.state.tool_embedding_count = 0
+        # Initialize MemoryOrchestrator (for /memory/batch, /memory/compact endpoints)
+        try:
+            from orchestrators.memory.orchestrator import MemoryOrchestrator
+
+            memory_orchestrator = MemoryOrchestrator()
+            app.state.memory_orchestrator = memory_orchestrator
+            logger.info("MemoryOrchestrator initialized")
+        except ImportError:
+            logger.debug("MemoryOrchestrator not available")
+            app.state.memory_orchestrator = None
+        except Exception as mem_orch_err:
+            logger.warning(f"MemoryOrchestrator init failed: {mem_orch_err}")
+            app.state.memory_orchestrator = None
+
+        # Initialize ReasoningOrchestrator (for /reasoning/execute endpoint)
+        if _has_reasoning:
             try:
-                from core.tools.tool_embeddings import sync_all_tool_embeddings
-
-                tool_embedding_count = await sync_all_tool_embeddings()
-                app.state.tool_embeddings_synced = True
-                app.state.tool_embedding_count = tool_embedding_count
-                logger.info(
-                    f"✓ Tool embeddings synced: {tool_embedding_count} tools (dynamic discovery enabled)"
-                )
-            except ImportError:
-                logger.warning(
-                    "Tool embeddings service not available - dynamic tool discovery DISABLED"
-                )
-            except Exception as e:
-                # Non-fatal: semantic tool retrieval is an optimization, but log clearly
-                logger.warning(
-                    f"Tool embedding sync failed - dynamic tool discovery may be impaired: {e}"
-                )
-
-            # ========================================================================
-            # SESSION STARTUP: Preflight checks + kernel readiness gate (v3.4+)
-            # ========================================================================
-            app.state.session_startup_result = None
-            app.state.startup_ready = False
-
-            # Skip startup checks in container environments (broken symlinks, missing governance files)
-            # Detection: L9_SKIP_STARTUP_CHECKS=true OR L9_CONTAINER_ENV=true OR /.dockerenv exists
-            skip_startup = settings.l9_skip_startup_checks
-            in_container = (
-                os.getenv("L9_CONTAINER_ENV", "").lower() == "true"
-                or os.path.exists("/.dockerenv")
-                or str(Path.cwd()) == "/app"
-            )
-
-            if skip_startup or in_container:
-                logger.info("╔════════════════════════════════════════╗")
-                logger.info("║  Skipping Session Startup (container)  ║")
-                logger.info("╚════════════════════════════════════════╝")
-                app.state.startup_ready = True
-                app.state.session_startup_result = None
-            elif _has_session_startup:
-                try:
-                    logger.info("╔════════════════════════════════════════╗")
-                    logger.info("║  Running Session Startup Checks...     ║")
-                    logger.info("╚════════════════════════════════════════╝")
-
-                    workspace_root = Path(os.getenv("L9_WORKSPACE_ROOT", Path.cwd()))
-                    session_startup = SessionStartup(workspace_root=workspace_root)
-                    startup_result: StartupResult = await session_startup.execute()
-
-                    app.state.session_startup_result = startup_result
-                    app.state.startup_ready = startup_result.status == "READY"
-
-                    if startup_result.status == "READY":
-                        logger.info(
-                            "✓ Session Startup PASSED: preflight=%s, files_loaded=%d, kernels_ready=%s",
-                            startup_result.preflight_passed,
-                            len(startup_result.files_loaded),
-                            startup_result.kernels_ready,
-                        )
-                        if startup_result.kernel_hash_snapshot:
-                            logger.info(
-                                "  Kernel hash snapshot: %d kernels verified",
-                                len(startup_result.kernel_hash_snapshot),
-                            )
-                    else:
-                        logger.critical(
-                            "❌ Session Startup FAILED: status=%s, errors=%s",
-                            startup_result.status,
-                            (
-                                startup_result.errors[:3]
-                                if startup_result.errors
-                                else "none"
-                            ),
-                        )
-                        # In production, this should be fatal
-                        # For dev, we continue with degraded mode
-                        if startup_result.warnings:
-                            for warning in startup_result.warnings[:5]:
-                                logger.warning("  Startup warning: %s", warning)
-
-                except Exception as e:
-                    logger.critical(
-                        "Session Startup crashed: %s", str(e), exc_info=True
-                    )
-                    app.state.startup_ready = False
-                    # Non-fatal in dev mode
-            else:
-                logger.warning(
-                    "SessionStartup not available - skipping preflight checks"
-                )
-                app.state.startup_ready = True  # Assume ready if no checks available
-
-            # Initialize agent registry with kernel loading - FAIL LOUDLY if unavailable
-            if not _has_kernel_registry:
-                raise RuntimeError(
-                    "FATAL: KernelAwareAgentRegistry import failed. "
-                    "Server cannot start without agent configuration capability. "
-                    "Check core/agents/registry.py exists and imports cleanly."
-                )
-
-            logger.debug("Attempting to create kernel-aware agent registry...")
-            logger.info("Initializing Kernel-Aware Agent Registry...")
-            try:
-                agent_registry = create_kernel_aware_registry()
-                app.state.agent_registry = agent_registry
-                logger.info(
-                    "Kernel-Aware Agent Registry initialized: kernel_state=%s",
-                    agent_registry.get_kernel_state(),
-                )
-            except RuntimeError as e:
-                # Kernel loading failed - this is critical
-                logger.critical(
-                    "FATAL: Kernel loading failed: %s", str(e), exc_info=True
-                )
-                raise
-            except Exception as e:
-                # Unexpected error during kernel registry creation
-                logger.critical(
-                    "FATAL: Unexpected error creating kernel registry: %s",
-                    str(e),
-                    exc_info=True,
-                )
-                raise
-
-            # Create executor
-            logger.debug(
-                "Creating AgentExecutorService with aios_runtime=%s, tool_registry=%s, agent_registry=%s",
-                aios_runtime is not None,
-                tool_registry is not None,
-                type(agent_registry).__name__ if agent_registry else "None",
-            )
-            executor = AgentExecutorService(
-                aios_runtime=aios_runtime,
-                tool_registry=tool_registry,
-                substrate_service=app.state.substrate_service,
-                agent_registry=agent_registry,
-            )
-            if agent_registry is None or not hasattr(agent_registry, "get_l_cto_agent"):
-                raise RuntimeError(
-                    "FATAL: Kernel-aware agent registry required for executor startup"
-                )
-            l_cto_agent = agent_registry.get_l_cto_agent()
-            if l_cto_agent is None:
-                raise RuntimeError(
-                    "FATAL: Kernel-aware agent not available for executor startup"
-                )
-            executor.set_kernel_aware_agent(l_cto_agent)
-            if executor._get_kernel_aware_agent() is None:
-                raise RuntimeError(
-                    "FATAL: Kernel-aware agent not active; refusing to start executor"
-                )
-
-            app.state.agent_executor = executor
-            app.state.aios_runtime = aios_runtime
-            app.state.tool_registry = tool_registry
-            app.state.agent_registry = agent_registry
-            logger.info("Agent Executor initialized")
-
-            # Initialize ActionToolOrchestrator (for /tools/execute endpoint)
-            try:
-                from orchestrators.action_tool.orchestrator import (
-                    ActionToolOrchestrator,
-                )
-
-                gov_engine = getattr(app.state, "governance_engine", None)
-                action_tool_orchestrator = ActionToolOrchestrator(
-                    tool_registry=tool_registry,
-                    governance_engine=gov_engine,
-                )
-                app.state.action_tool_orchestrator = action_tool_orchestrator
-                logger.info("ActionToolOrchestrator initialized")
-            except ImportError:
-                logger.debug("ActionToolOrchestrator not available")
-                app.state.action_tool_orchestrator = None
-            except Exception as orch_err:
-                logger.warning(f"ActionToolOrchestrator init failed: {orch_err}")
-                app.state.action_tool_orchestrator = None
-
-            # Initialize MemoryOrchestrator (for /memory/batch, /memory/compact endpoints)
-            try:
-                from orchestrators.memory.orchestrator import MemoryOrchestrator
-
-                memory_orchestrator = MemoryOrchestrator()
-                app.state.memory_orchestrator = memory_orchestrator
-                logger.info("MemoryOrchestrator initialized")
-            except ImportError:
-                logger.debug("MemoryOrchestrator not available")
-                app.state.memory_orchestrator = None
-            except Exception as mem_orch_err:
-                logger.warning(f"MemoryOrchestrator init failed: {mem_orch_err}")
-                app.state.memory_orchestrator = None
-
-            # Initialize ReasoningOrchestrator (for /reasoning/execute endpoint)
-            if _has_reasoning:
-                try:
-                    reasoning_orchestrator = ReasoningOrchestrator()
-                    app.state.reasoning_orchestrator = reasoning_orchestrator
-                    logger.info("ReasoningOrchestrator initialized")
-                except Exception as reason_err:
-                    logger.warning(f"ReasoningOrchestrator init failed: {reason_err}")
-                    app.state.reasoning_orchestrator = None
-            else:
+                reasoning_orchestrator = ReasoningOrchestrator()
+                app.state.reasoning_orchestrator = reasoning_orchestrator
+                logger.info("ReasoningOrchestrator initialized")
+            except Exception as reason_err:
+                logger.warning(f"ReasoningOrchestrator init failed: {reason_err}")
                 app.state.reasoning_orchestrator = None
+        else:
+            app.state.reasoning_orchestrator = None
 
-            # Initialize ResearchSwarmOrchestrator (for /research/swarm/execute endpoint)
-            if _has_research_swarm:
-                try:
-                    research_swarm_orchestrator = ResearchSwarmOrchestrator()
-                    app.state.research_swarm_orchestrator = research_swarm_orchestrator
-                    logger.info("ResearchSwarmOrchestrator initialized")
-                except Exception as swarm_err:
-                    logger.warning(
-                        f"ResearchSwarmOrchestrator init failed: {swarm_err}"
-                    )
-                    app.state.research_swarm_orchestrator = None
-            else:
-                app.state.research_swarm_orchestrator = None
-
-            # Initialize ResearchAgent (Perplexity-based research-to-code agent)
-            if _has_research_agent:
-                try:
-                    research_agent = create_research_agent()
-                    app.state.research_agent = research_agent
-                    logger.info(
-                        "ResearchAgent initialized (agent_id=%s, variations=%d)",
-                        research_agent.agent_id,
-                        len(research_agent.prompt_variations),
-                    )
-                except ValueError as api_err:
-                    # Missing PERPLEXITY_API_KEY - expected in some environments
-                    logger.warning(
-                        f"ResearchAgent init failed (missing API key): {api_err}"
-                    )
-                    app.state.research_agent = None
-                except Exception as agent_err:
-                    logger.warning(f"ResearchAgent init failed: {agent_err}")
-                    app.state.research_agent = None
-            else:
-                app.state.research_agent = None
-
-            # Initialize ReflectionAgent (Meta-reasoning and self-improvement)
-            if _has_reflection_agent:
-                try:
-                    reflection_agent = create_reflection_agent()
-                    app.state.reflection_agent = reflection_agent
-                    logger.info(
-                        "ReflectionAgent initialized (agent_id=%s)",
-                        reflection_agent.agent_id,
-                    )
-                except Exception as agent_err:
-                    logger.warning(f"ReflectionAgent init failed: {agent_err}")
-                    app.state.reflection_agent = None
-            else:
-                app.state.reflection_agent = None
-
-            # Initialize WorldModelService (explicit, not lazy)
+        # Initialize ResearchSwarmOrchestrator (for /research/swarm/execute endpoint)
+        if _has_research_swarm:
             try:
-                from world_model.service import get_world_model_service
+                research_swarm_orchestrator = ResearchSwarmOrchestrator()
+                app.state.research_swarm_orchestrator = research_swarm_orchestrator
+                logger.info("ResearchSwarmOrchestrator initialized")
+            except Exception as swarm_err:
+                logger.warning(
+                    f"ResearchSwarmOrchestrator init failed: {swarm_err}"
+                )
+                app.state.research_swarm_orchestrator = None
+        else:
+            app.state.research_swarm_orchestrator = None
 
-                world_model_service = get_world_model_service()
-                app.state.world_model_service = world_model_service
-                logger.info("WorldModelService initialized")
+        # Initialize ResearchAgent (Perplexity-based research-to-code agent)
+        if _has_research_agent:
+            try:
+                research_agent = create_research_agent()
+                app.state.research_agent = research_agent
+                logger.info(
+                    "ResearchAgent initialized (agent_id=%s, variations=%d)",
+                    research_agent.agent_id,
+                    len(research_agent.prompt_variations),
+                )
+            except ValueError as api_err:
+                # Missing PERPLEXITY_API_KEY - expected in some environments
+                logger.warning(
+                    f"ResearchAgent init failed (missing API key): {api_err}"
+                )
+                app.state.research_agent = None
+            except Exception as agent_err:
+                logger.warning(f"ResearchAgent init failed: {agent_err}")
+                app.state.research_agent = None
+        else:
+            app.state.research_agent = None
 
-                # Wire WorldModelService to WorldModelRuntime for DB sync (GMP-WIRE)
-                # This connects the in-memory World Model to PostgreSQL persistence
-                if (
-                    hasattr(app.state, "world_model_runtime")
-                    and app.state.world_model_runtime
-                ):
-                    app.state.world_model_runtime.set_world_model_service(
-                        world_model_service
-                    )
-                    logger.info(
-                        "WorldModelService wired to WorldModelRuntime for DB sync"
-                    )
-            except ImportError:
-                logger.debug("WorldModelService not available")
-                app.state.world_model_service = None
-            except Exception as wm_err:
-                logger.warning(f"WorldModelService init failed: {wm_err}")
-                app.state.world_model_service = None
+        # Initialize ReflectionAgent (Meta-reasoning and self-improvement)
+        if _has_reflection_agent:
+            try:
+                reflection_agent = create_reflection_agent()
+                app.state.reflection_agent = reflection_agent
+                logger.info(
+                    "ReflectionAgent initialized (agent_id=%s)",
+                    reflection_agent.agent_id,
+                )
+            except Exception as agent_err:
+                logger.warning(f"ReflectionAgent init failed: {agent_err}")
+                app.state.reflection_agent = None
+        else:
+            app.state.reflection_agent = None
 
-            # Initialize CursorExecutor (GMP-87: Wire to app.state for /cursor routes)
-            if _has_cursor_executor:
-                try:
-                    # Get repository from substrate_service
-                    repository = app.state.substrate_service._repository
+        # Initialize WorldModelService (explicit, not lazy)
+        try:
+            from world_model.service import get_world_model_service
 
-                    # Build dependency chain
-                    cursor_config = get_cursor_langgraph_config()
+            world_model_service = get_world_model_service()
+            app.state.world_model_service = world_model_service
+            logger.info("WorldModelService initialized")
 
-                    # 1. Memory Gateway (uses MemorySubstrateService directly)
-                    memory_gateway = CursorMemoryGateway(
-                        substrate_service=app.state.substrate_service
-                    )
+            # Wire WorldModelService to WorldModelRuntime for DB sync (GMP-WIRE)
+            # This connects the in-memory World Model to PostgreSQL persistence
+            if (
+                hasattr(app.state, "world_model_runtime")
+                and app.state.world_model_runtime
+            ):
+                app.state.world_model_runtime.set_world_model_service(
+                    world_model_service
+                )
+                logger.info(
+                    "WorldModelService wired to WorldModelRuntime for DB sync"
+                )
+        except ImportError:
+            logger.debug("WorldModelService not available")
+            app.state.world_model_service = None
+        except Exception as wm_err:
+            logger.warning(f"WorldModelService init failed: {wm_err}")
+            app.state.world_model_service = None
 
-                    # 3. PostgresSaver + Checkpoint Manager
-                    postgres_saver = L9PostgresSaver(repository=repository)
-                    checkpoint_manager = CursorCheckpointManager(
-                        postgres_saver=postgres_saver,
-                        memory_gateway=memory_gateway,
-                    )
+        # Initialize CursorExecutor (GMP-87: Wire to app.state for /cursor routes)
+        if _has_cursor_executor:
+            try:
+                # Get repository from substrate_service
+                repository = app.state.substrate_service._repository
 
-                    # 4. Approval Manager
-                    approval_manager = ApprovalManager(
-                        substrate_service=app.state.substrate_service
-                    )
+                # Build dependency chain
+                cursor_config = get_cursor_langgraph_config()
 
-                    # 5. Build LangGraph app (using a deps object)
-                    class CursorGraphDeps:
-                        """
-                        Represents dependencies for Cursor Graph operations within the L9 API server.
+                # 1. Memory Gateway (uses MemorySubstrateService directly)
+                memory_gateway = CursorMemoryGateway(
+                    substrate_service=app.state.substrate_service
+                )
 
-                        Args:
-                            memory_gateway: Interface for memory management and data access.
-                            approval_manager: Component handling approval workflows.
-                            checkpoint_manager: Manages checkpoint creation and restoration.
+                # 3. PostgresSaver + Checkpoint Manager
+                postgres_saver = L9PostgresSaver(repository=repository)
+                checkpoint_manager = CursorCheckpointManager(
+                    postgres_saver=postgres_saver,
+                    memory_gateway=memory_gateway,
+                )
 
-                        Returns:
-                            An instance of CursorGraphDeps with assigned dependency attributes.
-                        """
+                # 4. Approval Manager
+                approval_manager = ApprovalManager(
+                    substrate_service=app.state.substrate_service
+                )
 
-                        memory_gateway: object = None  # type: ignore[assignment]
-                        approval_gate: object = None  # type: ignore[assignment]
-                        checkpoint_manager: object = None  # type: ignore[assignment]
+                # 5. Build LangGraph app (using a deps object)
+                class CursorGraphDeps:
+                    """
+                    Represents dependencies for Cursor Graph operations within the L9 API server.
 
-                    deps = CursorGraphDeps()
-                    deps.memory_gateway = memory_gateway
-                    deps.approval_gate = approval_manager
-                    deps.checkpoint_manager = checkpoint_manager
+                    Args:
+                        memory_gateway: Interface for memory management and data access.
+                        approval_manager: Component handling approval workflows.
+                        checkpoint_manager: Manages checkpoint creation and restoration.
 
-                    langgraph_app = build_cursor_langgraph(
-                        config=cursor_config,
-                        deps=deps,
-                    )
+                    Returns:
+                        An instance of CursorGraphDeps with assigned dependency attributes.
+                    """
 
-                    # 6. Create CursorExecutor
-                    cursor_executor = CursorExecutor(
-                        langgraph_app=langgraph_app,
-                        memory_gateway=memory_gateway,
-                        substrate_service=app.state.substrate_service,
-                        checkpoint_manager=checkpoint_manager,
-                        approval_manager=approval_manager,
-                    )
+                    memory_gateway: object = None  # type: ignore[assignment]
+                    approval_gate: object = None  # type: ignore[assignment]
+                    checkpoint_manager: object = None  # type: ignore[assignment]
 
-                    app.state.cursor_executor = cursor_executor
-                    logger.info("CursorExecutor initialized (GMP-87)")
-                except Exception as cursor_err:
-                    logger.warning(f"CursorExecutor init failed: {cursor_err}")
-                    app.state.cursor_executor = None
-            else:
+                deps = CursorGraphDeps()
+                deps.memory_gateway = memory_gateway
+                deps.approval_gate = approval_manager
+                deps.checkpoint_manager = checkpoint_manager
+
+                langgraph_app = build_cursor_langgraph(
+                    config=cursor_config,
+                    deps=deps,
+                )
+
+                # 6. Create CursorExecutor
+                cursor_executor = CursorExecutor(
+                    langgraph_app=langgraph_app,
+                    memory_gateway=memory_gateway,
+                    substrate_service=app.state.substrate_service,
+                    checkpoint_manager=checkpoint_manager,
+                    approval_manager=approval_manager,
+                )
+
+                app.state.cursor_executor = cursor_executor
+                logger.info("CursorExecutor initialized (GMP-87)")
+            except Exception as cursor_err:
+                logger.warning(f"CursorExecutor init failed: {cursor_err}")
                 app.state.cursor_executor = None
+        else:
+            app.state.cursor_executor = None
 
-        except Exception as e:
-            logger.error(f"Failed to initialize Agent Executor: {e}", exc_info=True)
-            app.state.agent_executor = None
-            app.state.aios_runtime = None
-            app.state.tool_registry = None
-            app.state.agent_registry = None
-    elif _has_agent_executor:
-        # Log detailed reason WHY substrate_service is missing
-        substrate_error = getattr(
-            app.state, "_substrate_init_error", "unknown - no error stored"
-        )
-        logger.error(
-            "agent_executor.SKIPPED",
-            reason="substrate_service_not_available",
-            substrate_init_error=substrate_error,
-            substrate_service_exists=hasattr(app.state, "substrate_service"),
-            substrate_service_is_none=getattr(app.state, "substrate_service", None)
-            is None,
-        )
-        app.state.agent_executor = None
-        app.state.aios_runtime = None
-        app.state.tool_registry = None
-        app.state.agent_registry = None
+    except Exception as e:
+        # P0: AgentExecutor is mandatory — fail-closed
+        raise RuntimeError(
+            f"Agent Executor init failed: {e}. "
+            f"L9 cannot start without agent execution."
+        ) from e
 
     # =========================================================================
     # CRITICAL HEALTH CHECK: Verify agent_executor if new Slack routing enabled
@@ -1542,40 +1502,16 @@ async def lifespan(app: FastAPI):
 
     integration_settings = get_integration_settings()
 
-    # Modern Slack routing uses AgentExecutorService (legacy router removed)
+    # P0: Agent Executor health check (L9_MINIMAL_MODE no longer bypasses)
     agent_executor = getattr(app.state, "agent_executor", None)
-
-    # Allow minimal deployment without agent executor (L9_MINIMAL_MODE=true)
-    minimal_mode = os.environ.get("L9_MINIMAL_MODE", "false").lower() == "true"
-
     if agent_executor is None:
-        if minimal_mode:
-            logger.warning(
-                "Agent Executor not initialized (L9_MINIMAL_MODE=true). "
-                "Slack routing and agent features will be disabled."
-            )
-        else:
-            logger.critical(
-                "╔═══════════════════════════════════════════════════════════════╗\n"
-                "║  CRITICAL: Agent Executor Initialization Failed              ║\n"
-                "║                                                               ║\n"
-                "║  Slack routing requires AgentExecutorService to be initialized. ║\n"
-                "║                                                               ║\n"
-                "║  Options:                                                     ║\n"
-                "║  1. Fix agent_executor initialization (check logs above)     ║\n"
-                "║  2. Install missing dependencies: pip install -r requirements.txt ║\n"
-                "║  3. Set L9_MINIMAL_MODE=true to skip this check              ║\n"
-                "╚═══════════════════════════════════════════════════════════════╝"
-            )
-            raise RuntimeError(
-                "Agent Executor required for Slack routing but failed to initialize. "
-                "Fix initialization or check dependencies. "
-                "Set L9_MINIMAL_MODE=true to start in minimal mode."
-            )
-    else:
-        logger.info(
-            "✓ Health Check PASSED: Agent Executor is available for Slack routing"
+        raise RuntimeError(
+            "Agent Executor not available after init. "
+            "L9 cannot start without agent execution capability."
         )
+    logger.info(
+        "\u2713 Health Check PASSED: Agent Executor is available for Slack routing"
+    )
 
     # Initialize Slack adapter (if enabled)
     if _has_slack:
@@ -1644,9 +1580,8 @@ async def lifespan(app: FastAPI):
             )
             raise ValueError(f"Invalid NEO4J_URI format: {neo4j_uri}")
 
-    # Initialize Neo4j client (SINGLE SOURCE OF TRUTH)
+    # P0: Neo4j is MANDATORY — fail-closed
     # Retry with exponential backoff to wait for Neo4j container to be ready
-    # Neo4j is OPTIONAL - app continues in degraded mode if unavailable
     import asyncio
 
     # Neo4j connection retry configuration (configurable via env vars)
@@ -1654,143 +1589,136 @@ async def lifespan(app: FastAPI):
     neo4j_max_retries = int(os.getenv("NEO4J_MAX_RETRIES", "10"))
     neo4j_retry_delay = float(os.getenv("NEO4J_RETRY_DELAY", "5.0"))
 
-    try:
-        from memory.graph_client import (
-            close_neo4j_client,
-            init_neo4j_client,
+    # P0: Neo4j URI is required
+    if not neo4j_uri:
+        raise RuntimeError(
+            "NEO4J_URI environment variable is required. "
+            "L9 cannot start without Neo4j."
         )
 
-        neo4j = None
-        for attempt in range(neo4j_max_retries):
-            try:
-                # Reset singleton on retry to force fresh connection attempt
-                if attempt > 0:
-                    try:
-                        await close_neo4j_client()
-                    except Exception:
-                        logger.debug("neo4j.close_retry_cleanup_failed")
+    from memory.graph_client import (
+        close_neo4j_client,
+        init_neo4j_client,
+    )
 
-                # Use init_neo4j_client() on first attempt to CREATE the singleton
-                # GMP-132: get_neo4j_client() only retrieves existing client, does not create
-                neo4j = await init_neo4j_client()
-                if neo4j and neo4j.is_available():
-                    app.state.neo4j_client = neo4j
-                    logger.info(
-                        f"Neo4j graph client initialized (attempt {attempt + 1})"
-                    )
-                    break
-                else:
-                    if attempt < neo4j_max_retries - 1:
-                        logger.warning(
-                            f"Neo4j not available (attempt {attempt + 1}/{neo4j_max_retries}) - retrying in {neo4j_retry_delay:.1f}s..."
-                        )
-                        await asyncio.sleep(neo4j_retry_delay)
-                        neo4j_retry_delay = min(
-                            neo4j_retry_delay * 1.5, 10
-                        )  # Exponential backoff, max 10s
-                    else:
-                        # Final attempt failed - continue without Neo4j
-                        app.state.neo4j_client = None
-                        logger.warning(
-                            "Neo4j failed to connect after retries - graph features will be disabled",
-                            neo4j_uri=os.getenv("NEO4J_URI")
-                            or os.getenv("NEO4J_URL", "not set"),
-                            neo4j_user=os.getenv("NEO4J_USER", "not set"),
-                            has_password=bool(os.getenv("NEO4J_PASSWORD")),
-                        )
-                        break
-            except Exception as e:
+    neo4j = None
+    for attempt in range(neo4j_max_retries):
+        try:
+            # Reset singleton on retry to force fresh connection attempt
+            if attempt > 0:
+                try:
+                    await close_neo4j_client()
+                except Exception:
+                    logger.debug("neo4j.close_retry_cleanup_failed")
+
+            # Use init_neo4j_client() on first attempt to CREATE the singleton
+            # GMP-132: get_neo4j_client() only retrieves existing client, does not create
+            neo4j = await init_neo4j_client()
+            if neo4j and neo4j.is_available():
+                app.state.neo4j_client = neo4j
+                logger.info(
+                    f"Neo4j graph client initialized (attempt {attempt + 1})"
+                )
+                break
+            else:
                 if attempt < neo4j_max_retries - 1:
                     logger.warning(
-                        f"Neo4j connection error (attempt {attempt + 1}/{neo4j_max_retries}): {e} - retrying in {neo4j_retry_delay:.1f}s..."
+                        f"Neo4j not available (attempt {attempt + 1}/{neo4j_max_retries}) - retrying in {neo4j_retry_delay:.1f}s..."
                     )
                     await asyncio.sleep(neo4j_retry_delay)
-                    neo4j_retry_delay = min(neo4j_retry_delay * 1.5, 10)
+                    neo4j_retry_delay = min(
+                        neo4j_retry_delay * 1.5, 10
+                    )  # Exponential backoff, max 10s
                 else:
-                    logger.warning(
-                        f"Neo4j connection failed after retries (non-critical): {e}",
-                        neo4j_uri=os.getenv("NEO4J_URI")
-                        or os.getenv("NEO4J_URL", "not set"),
+                    # P0: Final attempt failed — fail-closed
+                    raise RuntimeError(
+                        f"Neo4j failed to connect after {neo4j_max_retries} retries. "
+                        f"L9 cannot start without Neo4j."
                     )
-                    app.state.neo4j_client = None
-                    break
-
-        # Only proceed with Neo4j initialization if we have a client
-        if neo4j and neo4j.is_available():
-            # Bootstrap governance schema (creates Responsibility, Directive, SOP labels)
-            try:
-                from scripts.bootstrap_neo4j_schema import (
-                    bootstrap_l_governance,  # type: ignore[import-not-found]
+        except RuntimeError:
+            raise  # Re-raise our own RuntimeError
+        except Exception as e:
+            if attempt < neo4j_max_retries - 1:
+                logger.warning(
+                    f"Neo4j connection error (attempt {attempt + 1}/{neo4j_max_retries}): {e} - retrying in {neo4j_retry_delay:.1f}s..."
                 )
+                await asyncio.sleep(neo4j_retry_delay)
+                neo4j_retry_delay = min(neo4j_retry_delay * 1.5, 10)
+            else:
+                raise RuntimeError(
+                    f"Neo4j connection failed after {neo4j_max_retries} retries: {e}. "
+                    f"L9 cannot start without Neo4j."
+                ) from e
 
-                bootstrap_result = await bootstrap_l_governance(neo4j.driver)
-                if bootstrap_result.get("success"):
-                    logger.info(
-                        "Neo4j governance schema bootstrapped",
-                        responsibilities=bootstrap_result.get("responsibilities", 0),
-                        directives=bootstrap_result.get("directives", 0),
-                        sops=bootstrap_result.get("sops", 0),
-                    )
-                else:
-                    logger.warning(
-                        f"Governance schema bootstrap failed: {bootstrap_result.get('error')}"
-                    )
-            except Exception as e:
-                logger.warning(f"Failed to bootstrap governance schema: {e}")
+    # Only proceed with Neo4j initialization if we have a client
+    if neo4j and neo4j.is_available():
+        # Bootstrap governance schema (creates Responsibility, Directive, SOP labels)
+        try:
+            from scripts.bootstrap_neo4j_schema import (
+                bootstrap_l_governance,  # type: ignore[import-not-found]
+            )
 
-            # Register L9 tools in graph (for dependency tracking)
-            try:
-                # Use runtime import to avoid circular dependency
-                import importlib
-
-                module = importlib.import_module("core.tools.tool_graph")
-                register_l9_tools = module.register_l9_tools
-                register_l_tools = module.register_l_tools
-
-                tool_count = await register_l9_tools()
-                logger.info(f"Registered {tool_count} tools in Neo4j graph")
-
-                # Register L agent internal tools
-                l_tool_count = await register_l_tools()
-                logger.info(f"Registered {l_tool_count} L agent tools in Neo4j graph")
-            except Exception as e:
-                logger.warning(f"Failed to register tools in Neo4j: {e}")
-
-            # Start GMP worker (for processing approved GMP tasks)
-            try:
-                from runtime.gmp_worker import start_gmp_worker
-
-                await start_gmp_worker(poll_interval=2.0)
-                logger.info("GMP worker started")
-            except Exception as e:
-                logger.warning(f"Failed to start GMP worker: {e}")
-
-            # Initialize Strategy Memory Service (GMP-102: Phase 0-1)
-            try:
-                from memory.neo4j_strategy_memory import Neo4jStrategyMemoryService
-
-                strategy_memory = Neo4jStrategyMemoryService(
-                    neo4j_client=neo4j,
-                    semantic_service=None,  # Phase 0: no embedding-based retrieval yet
+            bootstrap_result = await bootstrap_l_governance(neo4j.driver)
+            if bootstrap_result.get("success"):
+                logger.info(
+                    "Neo4j governance schema bootstrapped",
+                    responsibilities=bootstrap_result.get("responsibilities", 0),
+                    directives=bootstrap_result.get("directives", 0),
+                    sops=bootstrap_result.get("sops", 0),
                 )
-                app.state.strategy_memory = strategy_memory
-                logger.info("Strategy Memory service initialized (Neo4j-backed)")
-            except Exception as e:
-                app.state.strategy_memory = None
-                logger.warning(f"Failed to initialize Strategy Memory: {e}")
-        else:
-            # Neo4j not available or not healthy
-            app.state.neo4j_client = None
+            else:
+                logger.warning(
+                    f"Governance schema bootstrap failed: {bootstrap_result.get('error')}"
+                )
+        except Exception as e:
+            logger.warning(f"Failed to bootstrap governance schema: {e}")
+
+        # Register L9 tools in graph (for dependency tracking)
+        try:
+            # Use runtime import to avoid circular dependency
+            import importlib
+
+            module = importlib.import_module("core.tools.tool_graph")
+            register_l9_tools = module.register_l9_tools
+            register_l_tools = module.register_l_tools
+
+            tool_count = await register_l9_tools()
+            logger.info(f"Registered {tool_count} tools in Neo4j graph")
+
+            # Register L agent internal tools
+            l_tool_count = await register_l_tools()
+            logger.info(f"Registered {l_tool_count} L agent tools in Neo4j graph")
+        except Exception as e:
+            logger.warning(f"Failed to register tools in Neo4j: {e}")
+
+        # Start GMP worker (for processing approved GMP tasks)
+        try:
+            from runtime.gmp_worker import start_gmp_worker
+
+            await start_gmp_worker(poll_interval=2.0)
+            logger.info("GMP worker started")
+        except Exception as e:
+            logger.warning(f"Failed to start GMP worker: {e}")
+
+        # Initialize Strategy Memory Service (GMP-102: Phase 0-1)
+        try:
+            from memory.neo4j_strategy_memory import Neo4jStrategyMemoryService
+
+            strategy_memory = Neo4jStrategyMemoryService(
+                neo4j_client=neo4j,
+                semantic_service=None,  # Phase 0: no embedding-based retrieval yet
+            )
+            app.state.strategy_memory = strategy_memory
+            logger.info("Strategy Memory service initialized (Neo4j-backed)")
+        except Exception as e:
             app.state.strategy_memory = None
-            logger.info("Neo4j not available - graph features disabled")
-    except ImportError:
-        app.state.neo4j_client = None
-        app.state.strategy_memory = None
-        logger.debug("Neo4j client not available")
-    except Exception as e:
-        app.state.neo4j_client = None
-        app.state.strategy_memory = None
-        logger.warning(f"Failed to initialize Neo4j: {e}")
+            logger.warning(f"Failed to initialize Strategy Memory: {e}")
+    else:
+        # P0: Neo4j is mandatory — should not reach here after retry loop
+        raise RuntimeError(
+            "Neo4j client not healthy after initialization. "
+            "L9 cannot start without Neo4j."
+        )
 
     # Initialize Redis client (optional, graceful if unavailable)
     try:
@@ -2650,6 +2578,44 @@ async def lifespan(app: FastAPI):
             app.state.bayesian_kernel = None
     else:
         app.state.bayesian_kernel = None
+
+    # ========================================================================
+    # P0: DETERMINISTIC READINESS GATE
+    # Server MUST NOT reach yield unless ALL core subsystems are non-null.
+    # ========================================================================
+    _readiness_checks = {
+        "substrate_service": getattr(app.state, "substrate_service", None),
+        "neo4j_client": getattr(app.state, "neo4j_client", None),
+        "governance": getattr(app.state, "governance", None),
+        "governance_engine": getattr(app.state, "governance_engine", None),
+        "agent_executor": getattr(app.state, "agent_executor", None),
+    }
+    _failed = [k for k, v in _readiness_checks.items() if v is None]
+    if _failed:
+        raise RuntimeError(
+            f"P0 Readiness Gate FAILED: the following core subsystems are None: "
+            f"{', '.join(_failed)}. L9 cannot start in degraded mode."
+        )
+
+    # Verify tool registry has >0 executors
+    from runtime.tool_registry import get_tool_snapshot as _gts
+
+    _snap = _gts()
+    if _snap["component_count"] == 0:
+        raise RuntimeError(
+            "P0 Readiness Gate FAILED: tool registry has 0 executors. "
+            "L9 cannot start without tools."
+        )
+
+    logger.info(
+        "\u2713 P0 Readiness Gate PASSED: all core subsystems initialized",
+        substrate_service=type(app.state.substrate_service).__name__,
+        neo4j_client=type(app.state.neo4j_client).__name__,
+        governance=type(app.state.governance).__name__,
+        governance_engine=type(app.state.governance_engine).__name__,
+        agent_executor=type(app.state.agent_executor).__name__,
+        tool_count=_snap["component_count"],
+    )
 
     yield
 
