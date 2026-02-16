@@ -299,8 +299,8 @@ class QueryEngine:
             entity = self._state.get_entity(start_entity_id)
             return [entity] if entity else []
 
-        current_entities = [self._state.get_entity(start_entity_id)]
-        current_entities = [e for e in current_entities if e is not None]
+        start_entity = self._state.get_entity(start_entity_id)
+        current_entities: list[Entity] = [start_entity] if start_entity else []
 
         for i, relation_type in enumerate(path):
             if i >= max_depth:

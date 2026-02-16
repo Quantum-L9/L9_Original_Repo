@@ -137,14 +137,14 @@ class WorldModelUpdater:
     # Validation
     # =========================================================================
 
-    def validate_update(self, update: dict[str, Any]) -> bool:
+    def validate_update(self, update: Any) -> bool:
         """
         Validate an update against schema.
 
         Specification: reasoning kernel 04 → update_validation
 
         Args:
-            update: Update payload from packet
+            update: Update payload from packet (Any to allow runtime validation)
 
         Returns:
             True if valid

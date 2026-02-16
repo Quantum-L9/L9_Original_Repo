@@ -77,12 +77,16 @@ class BayesianKernel:
     Status: EXPERIMENTAL - controlled activation only
     """
 
-    def __init__(self):
+    enabled: bool
+    belief_states: dict[str, BeliefState]
+    system_prompt_section: str
+
+    def __init__(self) -> None:
         """Initialize kernel."""
         self.enabled = (
             os.environ.get("L9_ENABLE_BAYESIAN_REASONING", "false").lower() == "true"
         )
-        self.belief_states: dict[str, BeliefState] = {}
+        self.belief_states = {}
         self.system_prompt_section = self._build_system_prompt()
 
     def _build_system_prompt(self) -> str:

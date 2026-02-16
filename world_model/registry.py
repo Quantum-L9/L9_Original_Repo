@@ -411,18 +411,18 @@ class WorldModelRegistry:
 
         # Restore entity types
         for _type_name, schema_data in data.get("entity_types", {}).items():
-            schema = EntityTypeSchema(
+            entity_schema = EntityTypeSchema(
                 type_name=schema_data["type_name"],
                 description=schema_data.get("description", ""),
                 attributes=schema_data.get("attributes", {}),
                 parent_type=schema_data.get("parent_type"),
                 constraints=schema_data.get("constraints", []),
             )
-            registry.register_entity_type(schema)
+            registry.register_entity_type(entity_schema)
 
         # Restore relation types
         for _type_name, schema_data in data.get("relation_types", {}).items():
-            schema = RelationTypeSchema(
+            relation_schema = RelationTypeSchema(
                 type_name=schema_data["type_name"],
                 description=schema_data.get("description", ""),
                 source_types=schema_data.get("source_types", []),
@@ -430,7 +430,7 @@ class WorldModelRegistry:
                 attributes=schema_data.get("attributes", {}),
                 cardinality=schema_data.get("cardinality", "many_to_many"),
             )
-            registry.register_relation_type(schema)
+            registry.register_relation_type(relation_schema)
 
         # Restore type hierarchy (already populated via register_entity_type)
         # but override if explicitly provided
