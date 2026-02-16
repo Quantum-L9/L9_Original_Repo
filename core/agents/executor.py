@@ -98,7 +98,7 @@ except ImportError:
 # Optional: Calibration Services (Bayesian Upgrade - GMP-32)
 # Uses simplified interface that adapts to L9 executor patterns
 try:
-    from core.calibration import (  # noqa: F401 — availability check
+    from core.calibration import (
         CalibrationService,
         GatingPolicyService,
     )
@@ -200,7 +200,7 @@ if TYPE_CHECKING:
 # Stage 5: Predictive Memory Warming (optional - graceful degradation)
 try:
     from memory.warming_service import (
-        MemoryWarmingService,  # noqa: F401 — availability check
+        MemoryWarmingService,
     )
 
     _has_memory_warming = True
@@ -502,7 +502,7 @@ class AgentExecutorService:
         self._idempotency_store: IdempotencyStore | None = None
         if _has_idempotency_store and IdempotencyStore is not None:
             try:
-                self._idempotency_store = IdempotencyStore(substrate_service)  # type: ignore[arg-type]
+                self._idempotency_store = IdempotencyStore(substrate_service)  # type: ignore[arg-type]  # protocol structural match
                 logger.info(
                     "agent.executor.idempotency_store: substrate-backed enabled"
                 )
@@ -1960,7 +1960,7 @@ class AgentExecutorService:
                     )
                     aios_result.uncertainty = calibration_result.uncertainty
                     # Store for gating check
-                    instance.last_confidence = aios_result.calibrated_confidence  # type: ignore[attr-defined]
+                    instance.last_confidence = aios_result.calibrated_confidence  # type: ignore[attr-defined]  # dynamic AgentInstance attr
                     logger.debug(
                         "agent.executor.confidence_calibrated",
                         task_id=str(instance.task.id),

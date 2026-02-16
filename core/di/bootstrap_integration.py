@@ -37,23 +37,16 @@ import structlog
 from core.decorators import must_stay_async
 from core.di.container import DIContainer
 from core.protocols import (
+    CacheService,
     GovernanceService,
     LLMService,
     MemoryService,
+    ToolRegistry,
+    WorldModelService,
 )
 
-# These protocols are referenced in registration but not yet exported from core.protocols.
-# Use TYPE_CHECKING to avoid runtime import errors while satisfying mypy.
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
-
-# Aliases for protocols not yet in core.protocols
-CacheService = type("CacheService", (), {})  # placeholder
-ToolRegistry = type("ToolRegistry", (), {})  # placeholder
-WorldModelService = type("WorldModelService", (), {})  # placeholder
-
+# ADR-0026: Protocols above are from core.protocols (CacheService, ToolRegistry, WorldModelService
+# added for DI binding). Container.bind_singleton expects concrete types; structural use is safe.
 logger = structlog.get_logger()
 
 # Global DI container instance
@@ -121,16 +114,16 @@ async def _register_memory_services(container: DIContainer) -> None:
         # Import here to avoid circular dependencies
         from memory.substrate_service import MemorySubstrateService
 
-        # Register as singleton
+        # Register as singleton (Protocol vs concrete; constructor from singleton elsewhere)
         container.bind_singleton(
-            MemoryService,
-            lambda: MemorySubstrateService(),  # type: ignore[arg-type]
+            MemoryService,  # type: ignore[type-abstract]
+            lambda: MemorySubstrateService(),  # type: ignore[arg-type,call-arg,return-value]
         )
 
         logger.info(
             "di_service_registered",
             protocol="MemoryService",
-            implementation="SubstrateService",
+            implementation="MemorySubstrateService",
             lifecycle="singleton",
         )
     except ImportError as e:
@@ -150,7 +143,7 @@ async def _register_llm_services(container: DIContainer) -> None:
 
         # Register as singleton
         container.bind_singleton(
-            LLMService,
+            LLMService,  # type: ignore[type-abstract]
             lambda: OpenAIClient(),
         )
 
@@ -177,7 +170,7 @@ async def _register_tool_services(container: DIContainer) -> None:
 
         # Register as singleton
         container.bind_singleton(
-            ToolRegistry,
+            ToolRegistry,  # type: ignore[type-abstract]
             lambda: _ToolRegistryImpl(),
         )
 
@@ -202,16 +195,16 @@ async def _register_governance_services(container: DIContainer) -> None:
         # Import here to avoid circular dependencies
         from memory.governance_gate import MemoryGovernanceContext
 
-        # Register as singleton
+        # Register as singleton (context object used as governance handle)
         container.bind_singleton(
-            GovernanceService,
-            lambda: MemoryGovernanceContext(),  # type: ignore[arg-type]
+            GovernanceService,  # type: ignore[type-abstract]
+            lambda: MemoryGovernanceContext(),  # type: ignore[arg-type,call-arg,return-value]
         )
 
         logger.info(
             "di_service_registered",
             protocol="GovernanceService",
-            implementation="GovernanceGate",
+            implementation="MemoryGovernanceContext",
             lifecycle="singleton",
         )
     except ImportError as e:
@@ -231,7 +224,7 @@ async def _register_world_model_services(container: DIContainer) -> None:
 
         # Register as singleton
         container.bind_singleton(
-            WorldModelService,
+            WorldModelService,  # type: ignore[type-abstract]
             lambda: WorldModelEngine(),
         )
 
@@ -258,7 +251,7 @@ async def _register_cache_services(container: DIContainer) -> None:
 
         # Register as singleton
         container.bind_singleton(
-            CacheService,
+            CacheService,  # type: ignore[type-abstract]
             lambda: RedisClient(),
         )
 

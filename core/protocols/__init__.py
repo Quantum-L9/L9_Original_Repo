@@ -119,9 +119,12 @@ from core.protocols.retry_protocols import (
 
 # High-level service protocols (PR #49 / GMP-114)
 from core.protocols.service_protocols import (
+    CacheService,
     GovernanceService,
     LLMService,
     MemoryService,
+    ToolRegistry,
+    WorldModelService,
 )
 
 # Substrate protocols (PR #52 / GMP-116) - lower-level memory substrate abstractions
@@ -159,6 +162,7 @@ __all__ = [
     "ErrorCategory",
     "ErrorContext",
     # Error handling protocols (GMP-125)
+    "CacheService",
     "ErrorHandlingProtocol",
     "ErrorSeverity",
     "GovernanceService",
@@ -178,6 +182,7 @@ __all__ = [
     # High-level service protocols (PR #49 / GMP-114)
     "MemoryService",
     "MetricsCollector",
+    "ToolRegistry",
     "ObservabilityService",
     "PooledConnection",
     "RateLimitExceededError",
@@ -214,6 +219,7 @@ __all__ = [
     "validate_input",
     "with_error_handling",
     "with_retry",
+    "WorldModelService",
 ]
 
 __version__ = "1.0.0"
