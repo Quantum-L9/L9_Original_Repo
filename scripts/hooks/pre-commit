@@ -48,11 +48,11 @@ readonly AI_SEC_LOG="${AI_SEC_LOG:-$L9_LOG_DIR/ai_security.jsonl}"
 readonly TEST_LOG="${TEST_LOG:-$L9_LOG_DIR/test_execution.jsonl}"
 
 # Timeout budgets (seconds, configurable via env vars)
-readonly TIMEOUT_FORMAT="${L9_HOOK_TIMEOUT_FORMAT:-30}"
-readonly TIMEOUT_LINT="${L9_HOOK_TIMEOUT_LINT:-45}"
-readonly TIMEOUT_TYPE="${L9_HOOK_TIMEOUT_TYPE:-60}"
-readonly TIMEOUT_TEST="${L9_HOOK_TIMEOUT_TEST:-120}"
-readonly TIMEOUT_ADR="${L9_HOOK_TIMEOUT_ADR:-15}"
+export TIMEOUT_FORMAT="${L9_HOOK_TIMEOUT_FORMAT:-30}"
+export TIMEOUT_LINT="${L9_HOOK_TIMEOUT_LINT:-45}"
+export TIMEOUT_TYPE="${L9_HOOK_TIMEOUT_TYPE:-60}"
+export TIMEOUT_TEST="${L9_HOOK_TIMEOUT_TEST:-120}"
+export TIMEOUT_ADR="${L9_HOOK_TIMEOUT_ADR:-15}"
 
 # Metrics
 readonly HOOK_START=$(date +%s)
@@ -138,6 +138,21 @@ gate_warn() {
     printf "%b⚠ %s%b\n" "$YELLOW" "$message" "$NC"
 }
 
+# Timeout wrapper for macOS/Linux portability
+timeout_cmd() {
+    local seconds="$1"
+    shift
+    if command -v timeout &>/dev/null; then
+        timeout "$seconds" "$@"
+    elif command -v gtimeout &>/dev/null; then
+        gtimeout "$seconds" "$@"
+    else
+        # Fallback: just run the command without timeout if no timeout tool is available
+        "$@"
+    fi
+}
+export -f timeout_cmd
+
 # =============================================================================
 # HEADER
 # =============================================================================
@@ -190,7 +205,7 @@ else
             GITLEAKS_CONFIG="--config=$REPO_ROOT/.gitleaks.toml"
         fi
         
-        if timeout 30 gitleaks protect --staged --no-banner $GITLEAKS_CONFIG 2>/dev/null; then
+        if timeout_cmd 30 gitleaks protect --staged --no-banner $GITLEAKS_CONFIG 2>/dev/null; then
             gate_success "No secrets detected ($(echo "$STAGED_FILES" | wc -w | tr -d ' ') files scanned)"
         else
             gitleaks_exit=$?
@@ -281,7 +296,7 @@ else
     # Gate 2: Format (background job)
     (
         if command -v ruff &> /dev/null; then
-            if timeout "$TIMEOUT_FORMAT" ruff format --quiet $STAGED_PY_FILES 2>/dev/null; then
+            if timeout_cmd "$TIMEOUT_FORMAT" ruff format --quiet $STAGED_PY_FILES 2>/dev/null; then
                 # Re-add formatted files
                 for f in $STAGED_PY_FILES; do
                     if ! git check-ignore -q "$f" 2>/dev/null; then
@@ -304,7 +319,7 @@ else
     # Gate 3: Lint (background job)
     (
         if command -v ruff &> /dev/null; then
-            if echo "$STAGED_PY_FILES" | xargs timeout "$TIMEOUT_LINT" ruff check --fix --exit-zero 2>/dev/null; then
+            if echo "$STAGED_PY_FILES" | xargs bash -c 'timeout_cmd "$TIMEOUT_LINT" ruff check --fix --exit-zero "$@"' _ 2>/dev/null; then
                 echo "$STAGED_PY_FILES" | xargs git add 2>/dev/null || true
                 printf "%bGate 3: Lint OK%b\n" "$GREEN" "$NC"
                 exit 0
@@ -320,7 +335,7 @@ else
     # Gate 4: Type check (background job, non-blocking)
     (
         if command -v mypy &> /dev/null; then
-            if echo "$STAGED_PY_FILES" | xargs timeout "$TIMEOUT_TYPE" mypy --ignore-missing-imports --no-error-summary 2>&1 | head -10; then
+            if echo "$STAGED_PY_FILES" | xargs bash -c 'timeout_cmd "$TIMEOUT_TYPE" mypy --ignore-missing-imports --no-error-summary "$@" | head -10' _; then
                 printf "%bGate 4: Type check OK%b\n" "$GREEN" "$NC"
                 exit 0
             else
@@ -429,7 +444,7 @@ else
         
         if [ -n "$TEST_FILES" ]; then
             printf "  Running tests: %s\n" "$TEST_FILES"
-            if timeout "$TIMEOUT_TEST" pytest $TEST_FILES -q --tb=line --maxfail=3 2>&1 | tail -15; then
+            if timeout_cmd "$TIMEOUT_TEST" pytest $TEST_FILES -q --tb=line --maxfail=3 2>&1 | tail -15; then
                 gate_success "Tests passed"
             else
                 local test_exit=$?
@@ -537,10 +552,19 @@ else
     printf "  Checking ADR-0002: TYPE_CHECKING pattern...\n"
     for file in $STAGED_PY_FILES; do
         if [ -f "$file" ]; then
-            if grep -q "if TYPE_CHECKING:" "$file" 2>/dev/null; then
+            if grep -q "^\s*if TYPE_CHECKING:" "$file" 2>/dev/null; then
                 if ! grep -q "from __future__ import annotations" "$file"; then
                     printf "  %b❌ ADR-0002: TYPE_CHECKING without __future__ in %s%b\n" "$RED" "$file" "$NC" >&2
                     printf "     Fix: Add 'from __future__ import annotations' at top\n" >&2
+                    ADR_VIOLATIONS=$((ADR_VIOLATIONS + 1))
+                fi
+            fi
+            # Check if TYPE_CHECKING is imported but not used in a guard
+            if grep -qE "^\s*from typing import.*TYPE_CHECKING" "$file" 2>/dev/null; then
+                # Ensure it's not actually used in 'if TYPE_CHECKING:'
+                if ! grep -q "^\s*if TYPE_CHECKING:" "$file"; then
+                    printf "  %b❌ ADR-0002: TYPE_CHECKING imported but not used in a guard in %s%b\n" "$RED" "$file" "$NC" >&2
+                    printf "     Fix: Wrap type-only imports in 'if TYPE_CHECKING:' block\n" >&2
                     ADR_VIOLATIONS=$((ADR_VIOLATIONS + 1))
                 fi
             fi
