@@ -211,7 +211,7 @@ async def execute_task(
 
     Multi-part directive support (harvested from tokenizer):
     - If segment_multi_part=True (default), compound directives like
-      "Deploy RIL, test ToT, sync Supabase" are automatically segmented
+      "Deploy RIL, test ToT, sync Substrate" are automatically segmented
       and processed as separate tasks.
 
     For long-running tasks, consider using /task for async submission.
@@ -222,7 +222,7 @@ async def execute_task(
         POST /agent/execute
         Authorization: Bearer {L9_EXECUTOR_API_KEY}
         {
-            "message": "Deploy RIL, test ToT, sync Supabase",
+            "message": "Deploy RIL, test ToT, sync Substrate",
             "agent_id": "l9-standard-v1",
             "segment_multi_part": true
         }
@@ -439,10 +439,10 @@ async def segment_preview(
 
     Example:
         POST /agent/segment
-        {"message": "Deploy RIL, test ToT, sync Supabase"}
+        {"message": "Deploy RIL, test ToT, sync Substrate"}
 
     Returns:
-        {"segments": ["deploy ril", "test tot", "sync supabase"], "segment_count": 3, ...}
+        {"segments": ["deploy ril", "test tot", "sync substrate"], "segment_count": 3, ...}
     """
     segmenter = get_segmenter()
     result = segmenter.segment(body.message)

@@ -550,7 +550,7 @@ class UnifiedController:
         This method uses the InputSegmenter (harvested from tokenizer) to break
         compound directives into atomic tasks. For example:
 
-            "Deploy RIL, test ToT, sync Supabase then generate plan v3"
+            "Deploy RIL, test ToT, sync Substrate then generate plan v3"
 
         Becomes 4 separate requests processed sequentially.
 

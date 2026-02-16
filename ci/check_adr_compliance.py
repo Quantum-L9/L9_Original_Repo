@@ -9,7 +9,7 @@ SECURITY (always error):
 - ADR-0095: No eval/exec usage (security)
 - ADR-0083: datetime.utcnow() deprecated (use datetime.now(UTC))  # noqa: ADR-0083
 - ADR-0087: SQL parameterization (no f-string SQL)
-- ADR-0088: No pickle serialization (security)  # noqa: ADR-0088
+- ADR-0088: No pickle serialization (security)
 - ADR-0090: No hardcoded credentials (passwords, API keys, secrets)
 
 CODE QUALITY (warning by default, error in --strict):

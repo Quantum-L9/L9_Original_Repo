@@ -1110,7 +1110,7 @@ async def handle_slack_events(
 
                 # === Multi-Part Directive Support (harvested from tokenizer) ===
                 # Segment input to handle compound directives like:
-                # "Deploy RIL, test ToT, sync Supabase"
+                # "Deploy RIL, test ToT, sync Substrate"
                 segmenter = get_segmenter()
                 segment_result = segmenter.segment(text)
 

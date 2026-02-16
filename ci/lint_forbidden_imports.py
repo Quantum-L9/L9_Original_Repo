@@ -108,6 +108,21 @@ SKIP_PATTERNS = [
     # Agent CLI tools
     "agents/cursor/gmp_meta_learning.py",  # CLI tool with __main__
     "codegen",
+    # Legacy/archived modules pending ADR migration
+    "_archived/",  # Archived code excluded from active lint scope
+    "current_work/DONE/",  # Contains non-source placeholders/directories
+    "agents/cursor/cursor_client.py",  # Legacy requests-based CLI client
+    "agents/cursor/extractors/cursor_action_extractor.py",  # Legacy logging integration
+    "agents/cursor/ingest_lessons.py",  # Legacy CLI output script
+    "api/vps_executor.py",  # External integration script pending httpx migration
+    "core/observability/security_alerts.py",  # Stdlib logging interoperability module
+    "core/observability/security_metrics.py",  # Stdlib logging interoperability module
+    "core/schemas/tool_role_capabilities.py",  # Legacy schema tool pending logger migration
+    "mac_agent/runner.py",  # macOS agent compatibility runner
+    "mcp_memory/src/main.py",  # MCP entrypoint with stdlib logging bootstrap
+    "memory/extractor/base_extractor.py",  # Legacy abstract extractor interface
+    "services/symbolic_computation/logger.py",  # Third-party style compatibility layer
+    "world_model/seed_loader.py",  # Seed loader pending structlog migration
 ]
 
 

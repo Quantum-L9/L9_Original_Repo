@@ -201,10 +201,10 @@ def fix_print_statements(
         if modified:
             new_content = "\n".join(new_lines)
             if dry_run:
-                print(f"  Would add noqa: {file_path}")  # noqa: ADR-0019
+                print(f"  Would add noqa: {file_path}")
                 return True
             file_path.write_text(new_content)
-            print(f"  Added noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Added noqa: {file_path}")
             return True
     else:
         # Non-CLI file: Do NOT add noqa.
@@ -277,10 +277,10 @@ def fix_missing_timezone_import(file_path: Path, dry_run: bool = False) -> bool:
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would fix timezone: {file_path}")  # noqa: ADR-0019
+            print(f"  Would fix timezone: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Fixed timezone: {file_path}")  # noqa: ADR-0019
+        print(f"  Fixed timezone: {file_path}")
         return True
 
     return False
@@ -292,17 +292,10 @@ def fix_missing_timezone_import(file_path: Path, dry_run: bool = False) -> bool:
 
 
 def fix_fstring_sql(file_path: Path, dry_run: bool = False) -> bool:
-    """
-    Add noqa comments to safe f-string SQL patterns.
+    """Report f-string SQL patterns for manual remediation.
 
-    Safe patterns (table/column name interpolation):
-        f"SELECT * FROM {table}"  → # noqa: ADR-0087 - table name
-        f"ORDER BY {column}"      → # noqa: ADR-0087 - column name
-
-    Unsafe patterns (value interpolation) are flagged but not auto-fixed:
-        f"WHERE id = {id}"        → Manual fix needed
-
-    Returns True if file was modified.
+    ADR-0087 requires query parameterization and avoiding string-formatted SQL.
+    This fixer intentionally does not add `# noqa` suppressions.
     """
     if is_protected(file_path):
         return False
@@ -312,9 +305,8 @@ def fix_fstring_sql(file_path: Path, dry_run: bool = False) -> bool:
     except (UnicodeDecodeError, OSError):
         return False
 
-    # Pattern for f-string SQL
     fstring_sql_pattern = re.compile(
-        r'f["\']'
+        r"f[\"']"
         r"(SELECT|INSERT|UPDATE|DELETE|WITH|CREATE|ALTER|DROP)"
         r".*\{",
         re.IGNORECASE,
@@ -323,53 +315,14 @@ def fix_fstring_sql(file_path: Path, dry_run: bool = False) -> bool:
     if not fstring_sql_pattern.search(content):
         return False
 
-    lines = content.split("\n")
-    new_lines = []
-    modified = False
-
-    for i, line in enumerate(lines):
-        # Check if line has f-string SQL without noqa
+    found = False
+    for i, line in enumerate(content.split("\n")):
         if fstring_sql_pattern.search(line) and "# noqa" not in line:
-            # Check if it's a safe pattern (table/column name interpolation)
-            safe_patterns = [
-                r"FROM\s+\{",
-                r"INTO\s+\{",
-                r"UPDATE\s+\{",
-                r"JOIN\s+\{",
-                r"TABLE\s+\{",
-                r"ORDER\s+BY\s+\{",
-                r"GROUP\s+BY\s+\{",
-                r"INDEX\s+\{",
-            ]
+            print(f"  ⚠️  Manual fix needed: {file_path}:{i + 1}")
+            print(f"      {line.strip()[:80]}...")
+            found = True
 
-            is_safe = any(re.search(p, line, re.IGNORECASE) for p in safe_patterns)
-
-            if is_safe:
-                # Add noqa with explanation
-                if "ORDER BY" in line.upper() or "GROUP BY" in line.upper():
-                    new_line = f"{line}  # noqa: ADR-0087 - column name interpolation"
-                else:
-                    new_line = f"{line}  # noqa: ADR-0087 - table name interpolation"
-                new_lines.append(new_line)
-                modified = True
-            else:
-                # Value interpolation - flag but don't auto-fix
-                print(f"  ⚠️  Manual fix needed: {file_path}:{i + 1}")  # noqa: ADR-0019
-                print(f"      {line.strip()[:80]}...")  # noqa: ADR-0019
-                new_lines.append(line)
-        else:
-            new_lines.append(line)
-
-    if modified:
-        new_content = "\n".join(new_lines)
-        if dry_run:
-            print(f"  Would add SQL noqa: {file_path}")  # noqa: ADR-0019
-            return True
-        file_path.write_text(new_content)
-        print(f"  Added SQL noqa: {file_path}")  # noqa: ADR-0019
-        return True
-
-    return False
+    return found
 
 
 # =============================================================================
@@ -435,11 +388,11 @@ def fix_type_checking_imports(file_path: Path, dry_run: bool = False) -> bool:
         new_content = "\n".join(new_lines)
 
     if dry_run:
-        print(f"  Would add future annotations: {file_path}")  # noqa: ADR-0019
+        print(f"  Would add future annotations: {file_path}")
         return True
 
     file_path.write_text(new_content)
-    print(f"  Added future annotations: {file_path}")  # noqa: ADR-0019
+    print(f"  Added future annotations: {file_path}")
     return True
 
 
@@ -454,8 +407,8 @@ def fix_bare_except(
     """
     Handle bare 'except:' statements.
 
-    In safe_mode: Add # noqa: ADR-0055 comment
-    Otherwise: Convert to 'except Exception:'
+    In safe_mode: report location only.
+    Otherwise: Convert to `except Exception:` without suppression.
 
     Returns True if file was modified.
     """
@@ -480,12 +433,10 @@ def fix_bare_except(
         if re.match(r"^\s*except\s*:\s*$", line) and "# noqa" not in line:
             indent = len(line) - len(line.lstrip())
             if safe_mode:
-                new_line = f"{line}  # noqa: ADR-0055"
-            else:
-                new_line = (
-                    " " * indent
-                    + "except Exception:  # noqa: ADR-0055 - converted from bare except"
-                )
+                new_lines.append(line)
+                print(f"  ⚠️  Manual fix needed: {file_path}")
+                continue
+            new_line = " " * indent + "except Exception:"
             new_lines.append(new_line)
             modified = True
         else:
@@ -494,10 +445,10 @@ def fix_bare_except(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would fix bare except: {file_path}")  # noqa: ADR-0019
+            print(f"  Would fix bare except: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Fixed bare except: {file_path}")  # noqa: ADR-0019
+        print(f"  Fixed bare except: {file_path}")
         return True
 
     return False
@@ -572,10 +523,10 @@ def fix_utcnow(file_path: Path, dry_run: bool = False) -> bool:
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would fix utcnow: {file_path}")  # noqa: ADR-0019
+            print(f"  Would fix utcnow: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Fixed utcnow: {file_path}")  # noqa: ADR-0019
+        print(f"  Fixed utcnow: {file_path}")
         return True
 
     return False
@@ -629,10 +580,10 @@ def fix_httpx_async_client(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add httpx noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add httpx noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added httpx noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added httpx noqa: {file_path}")
         return True
 
     return False
@@ -683,10 +634,10 @@ def fix_singleton_pattern(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add singleton noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add singleton noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added singleton noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added singleton noqa: {file_path}")
         return True
 
     return False
@@ -743,10 +694,10 @@ def fix_unsafe_type_conversion(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add type conversion noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add type conversion noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added type conversion noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added type conversion noqa: {file_path}")
         return True
 
     return False
@@ -850,10 +801,10 @@ def fix_must_stay_async(
 
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add @must_stay_async: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add @must_stay_async: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added @must_stay_async: {file_path}")  # noqa: ADR-0019
+        print(f"  Added @must_stay_async: {file_path}")
         return True
 
     return False
@@ -1007,11 +958,11 @@ def fix_missing_dora(file_path: Path, dry_run: bool = False) -> bool:
     new_content = "\n".join(new_lines)
 
     if dry_run:
-        print(f"  Would add DORA: {file_path}")  # noqa: ADR-0019
+        print(f"  Would add DORA: {file_path}")
         return True
 
     file_path.write_text(new_content)
-    print(f"  Added DORA: {file_path}")  # noqa: ADR-0019
+    print(f"  Added DORA: {file_path}")
     return True
 
 
@@ -1068,10 +1019,10 @@ def fix_circuit_breaker(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add circuit breaker noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add circuit breaker noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added circuit breaker noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added circuit breaker noqa: {file_path}")
         return True
 
     return False
@@ -1130,10 +1081,10 @@ def fix_hardcoded_credentials(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add credentials noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add credentials noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added credentials noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added credentials noqa: {file_path}")
         return True
 
     return False
@@ -1185,10 +1136,10 @@ def fix_lru_cache_maxsize(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would fix lru_cache maxsize: {file_path}")  # noqa: ADR-0019
+            print(f"  Would fix lru_cache maxsize: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Fixed lru_cache maxsize: {file_path}")  # noqa: ADR-0019
+        print(f"  Fixed lru_cache maxsize: {file_path}")
         return True
 
     return False
@@ -1254,10 +1205,10 @@ def fix_path_safety(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add path safety noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add path safety noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added path safety noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added path safety noqa: {file_path}")
         return True
 
     return False
@@ -1272,9 +1223,9 @@ def fix_pickle_usage(
     file_path: Path, dry_run: bool = False, safe_mode: bool = True
 ) -> bool:
     """
-    Add noqa comment to pickle usage that may be intentional.
+    Report pickle usage for manual ADR-0088 remediation.
 
-    In safe_mode: Only add noqa for test files or known safe patterns.
+    Insecure deserialization requires code changes, not noqa suppression.
     """
     if is_protected(file_path):
         return False
@@ -1293,27 +1244,11 @@ def fix_pickle_usage(
     if "pickle" not in content:
         return False
 
-    lines = content.split("\n")
-    new_lines = []
-    modified = False
+    if "pickle." not in content:
+        return False
 
-    for line in lines:
-        if "pickle." in line and "# noqa" not in line:
-            new_lines.append(f"{line}  # noqa: ADR-0088 - test fixture")
-            modified = True
-        else:
-            new_lines.append(line)
-
-    if modified:
-        new_content = "\n".join(new_lines)
-        if dry_run:
-            print(f"  Would add pickle noqa: {file_path}")  # noqa: ADR-0019
-            return True
-        file_path.write_text(new_content)
-        print(f"  Added pickle noqa: {file_path}")  # noqa: ADR-0019
-        return True
-
-    return False
+    print(f"  ⚠️  Manual pickle review needed: {file_path}")
+    return True
 
 
 # =============================================================================
@@ -1373,10 +1308,10 @@ def fix_packet_envelope(
             lines.insert(insert_idx + 1, noqa_comment)
             new_content = "\n".join(lines)
             if dry_run:
-                print(f"  Would add packet envelope noqa: {file_path}")  # noqa: ADR-0019
+                print(f"  Would add packet envelope noqa: {file_path}")
                 return True
             file_path.write_text(new_content)
-            print(f"  Added packet envelope noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Added packet envelope noqa: {file_path}")
             return True
 
     return False
@@ -1420,10 +1355,10 @@ def fix_registry_pattern(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add registry noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add registry noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added registry noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added registry noqa: {file_path}")
         return True
 
     return False
@@ -1465,10 +1400,10 @@ def fix_resilience_mixin(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add resilience noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add resilience noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added resilience noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added resilience noqa: {file_path}")
         return True
 
     return False
@@ -1519,10 +1454,10 @@ def fix_fastapi_depends(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add FastAPI DI noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add FastAPI DI noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added FastAPI DI noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added FastAPI DI noqa: {file_path}")
         return True
 
     return False
@@ -1572,10 +1507,10 @@ def fix_websocket_pattern(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add WebSocket noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add WebSocket noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added WebSocket noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added WebSocket noqa: {file_path}")
         return True
 
     return False
@@ -1632,10 +1567,10 @@ def fix_neo4j_cypher(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add Neo4j noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add Neo4j noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added Neo4j noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added Neo4j noqa: {file_path}")
         return True
 
     return False
@@ -1686,10 +1621,10 @@ def fix_typeddict_pydantic(
     if modified:
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add TypedDict/Pydantic noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add TypedDict/Pydantic noqa: {file_path}")
             return True
         file_path.write_text(new_content)
-        print(f"  Added TypedDict/Pydantic noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added TypedDict/Pydantic noqa: {file_path}")
         return True
 
     return False
@@ -2053,7 +1988,7 @@ NOQA ADDITIONS (16 fixers — use --all, NOT recommended):
     if args.transform_only:
         print(
             "🔧 TRANSFORM-ONLY mode: Only running real code fixes (no noqa additions)\n"
-        )  # noqa: ADR-0019
+        )
         args.fix_utcnow = True
         args.fix_timezone = True
         args.fix_type_checking = True
@@ -2067,13 +2002,13 @@ NOQA ADDITIONS (16 fixers — use --all, NOT recommended):
     root = Path(args.path)
     files = find_python_files(root)
 
-    print(f"Scanning {len(files)} Python files...")  # noqa: ADR-0019
+    print(f"Scanning {len(files)} Python files...")
     if args.dry_run:
-        print("(dry run - no files will be modified)\n")  # noqa: ADR-0019
+        print("(dry run - no files will be modified)\n")
     if args.safe:
-        print("(safe mode - only adding noqa comments)\n")  # noqa: ADR-0019
+        print("(safe mode - only adding noqa comments)\n")
     if args.all and not args.transform_only:
-        print(  # noqa: ADR-0019
+        print(
             "⚠️  WARNING: --all includes noqa additions which HIDE violations.\n"
             "   Consider using --transform-only instead for real fixes.\n"
         )
@@ -2092,172 +2027,172 @@ NOQA ADDITIONS (16 fixers — use --all, NOT recommended):
         return count
 
     if args.fix_print or args.all:
-        print("\n=== Fixing print() statements (ADR-0019) ===")  # noqa: ADR-0019
+        print("\n=== Fixing print() statements (ADR-0019) ===")
         count = run_fix(fix_print_statements, "print", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_timezone or args.all:
-        print("\n=== Fixing missing timezone imports (ADR-0083) ===")  # noqa: ADR-0019
+        print("\n=== Fixing missing timezone imports (ADR-0083) ===")
         count = run_fix(fix_missing_timezone_import, "timezone", args.dry_run)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_utcnow or args.all:
-        print("\n=== Fixing datetime.utcnow() (ADR-0083) ===")  # noqa: ADR-0019
+        print("\n=== Fixing datetime.utcnow() (ADR-0083) ===")
         count = run_fix(fix_utcnow, "utcnow", args.dry_run)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_sql or args.all:
-        print("\n=== Fixing f-string SQL (ADR-0087) ===")  # noqa: ADR-0019
+        print("\n=== Fixing f-string SQL (ADR-0087) ===")
         count = run_fix(fix_fstring_sql, "sql", args.dry_run)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_type_checking or args.all:
-        print("\n=== Fixing TYPE_CHECKING imports (ADR-0002) ===")  # noqa: ADR-0019
+        print("\n=== Fixing TYPE_CHECKING imports (ADR-0002) ===")
         count = run_fix(fix_type_checking_imports, "type_checking", args.dry_run)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_bare_except or args.all:
-        print("\n=== Fixing bare except (ADR-0055) ===")  # noqa: ADR-0019
+        print("\n=== Fixing bare except (ADR-0055) ===")
         count = run_fix(fix_bare_except, "bare_except", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_httpx or args.all:
-        print("\n=== Fixing httpx.AsyncClient (ADR-0084) ===")  # noqa: ADR-0019
+        print("\n=== Fixing httpx.AsyncClient (ADR-0084) ===")
         count = run_fix(fix_httpx_async_client, "httpx", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_singleton or args.all:
-        print("\n=== Fixing singleton pattern (ADR-0085) ===")  # noqa: ADR-0019
+        print("\n=== Fixing singleton pattern (ADR-0085) ===")
         count = run_fix(fix_singleton_pattern, "singleton", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_type_conversion or args.all:
-        print("\n=== Fixing type conversion (ADR-0086) ===")  # noqa: ADR-0019
+        print("\n=== Fixing type conversion (ADR-0086) ===")
         count = run_fix(
             fix_unsafe_type_conversion, "type_conversion", args.dry_run, args.safe
         )
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_must_stay_async or args.all:
-        print("\n=== Fixing @must_stay_async (ADR-0010) ===")  # noqa: ADR-0019
+        print("\n=== Fixing @must_stay_async (ADR-0010) ===")
         count = run_fix(fix_must_stay_async, "must_stay_async", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_dora or args.all:
-        print("\n=== Fixing DORA metadata (ADR-0014) ===")  # noqa: ADR-0019
+        print("\n=== Fixing DORA metadata (ADR-0014) ===")
         count = run_fix(fix_missing_dora, "dora", args.dry_run)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_circuit_breaker or args.all:
-        print("\n=== Fixing circuit breaker (ADR-0009) ===")  # noqa: ADR-0019
+        print("\n=== Fixing circuit breaker (ADR-0009) ===")
         count = run_fix(fix_circuit_breaker, "circuit_breaker", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_credentials or args.all:
-        print("\n=== Fixing hardcoded credentials (ADR-0090) ===")  # noqa: ADR-0019
+        print("\n=== Fixing hardcoded credentials (ADR-0090) ===")
         count = run_fix(
             fix_hardcoded_credentials, "credentials", args.dry_run, args.safe
         )
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_lru_cache or args.all:
-        print("\n=== Fixing @lru_cache maxsize (ADR-0027) ===")  # noqa: ADR-0019
+        print("\n=== Fixing @lru_cache maxsize (ADR-0027) ===")
         count = run_fix(fix_lru_cache_maxsize, "lru_cache", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_path_safety or args.all:
-        print("\n=== Fixing path safety (ADR-0001) ===")  # noqa: ADR-0019
+        print("\n=== Fixing path safety (ADR-0001) ===")
         count = run_fix(fix_path_safety, "path_safety", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_pickle or args.all:
-        print("\n=== Fixing pickle usage (ADR-0088) ===")  # noqa: ADR-0019
+        print("\n=== Fixing pickle usage (ADR-0088) ===")
         count = run_fix(fix_pickle_usage, "pickle", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_packet_envelope or args.all:
-        print("\n=== Fixing PacketEnvelope (ADR-0006) ===")  # noqa: ADR-0019
+        print("\n=== Fixing PacketEnvelope (ADR-0006) ===")
         count = run_fix(fix_packet_envelope, "packet_envelope", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_registry or args.all:
-        print("\n=== Fixing registry pattern (ADR-0022) ===")  # noqa: ADR-0019
+        print("\n=== Fixing registry pattern (ADR-0022) ===")
         count = run_fix(fix_registry_pattern, "registry", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_resilience or args.all:
-        print("\n=== Fixing resilience mixin (ADR-0024) ===")  # noqa: ADR-0019
+        print("\n=== Fixing resilience mixin (ADR-0024) ===")
         count = run_fix(fix_resilience_mixin, "resilience", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_fastapi_depends or args.all:
-        print("\n=== Fixing FastAPI Depends (ADR-0025) ===")  # noqa: ADR-0019
+        print("\n=== Fixing FastAPI Depends (ADR-0025) ===")
         count = run_fix(fix_fastapi_depends, "fastapi_depends", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_websocket or args.all:
-        print("\n=== Fixing WebSocket pattern (ADR-0031) ===")  # noqa: ADR-0019
+        print("\n=== Fixing WebSocket pattern (ADR-0031) ===")
         count = run_fix(fix_websocket_pattern, "websocket", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_neo4j or args.all:
-        print("\n=== Fixing Neo4j Cypher (ADR-0032) ===")  # noqa: ADR-0019
+        print("\n=== Fixing Neo4j Cypher (ADR-0032) ===")
         count = run_fix(fix_neo4j_cypher, "neo4j", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
     if args.fix_typeddict or args.all:
-        print("\n=== Fixing TypedDict/Pydantic (ADR-0016) ===")  # noqa: ADR-0019
+        print("\n=== Fixing TypedDict/Pydantic (ADR-0016) ===")
         count = run_fix(fix_typeddict_pydantic, "typeddict", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")  # noqa: ADR-0019
+        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 
-    print(f"\n{'Would fix' if args.dry_run else 'Fixed'} {total_fixed} files total.")  # noqa: ADR-0019
+    print(f"\n{'Would fix' if args.dry_run else 'Fixed'} {total_fixed} files total.")
 
     # ==========================================================================
     # POST-FIX VALIDATION GATE
     # ==========================================================================
     if modified_files and not args.dry_run:
-        print("\n=== Running post-fix validation ===")  # noqa: ADR-0019
-        print(f"  Validating {len(modified_files)} modified files...")  # noqa: ADR-0019
+        print("\n=== Running post-fix validation ===")
+        print(f"  Validating {len(modified_files)} modified files...")
 
         all_valid, errors = validate_modified_files(list(modified_files))
 
         if not all_valid:
-            print("\n❌ VALIDATION FAILED - Auto-fix introduced errors:")  # noqa: ADR-0019
+            print("\n❌ VALIDATION FAILED - Auto-fix introduced errors:")
             for error in errors:
-                print(f"  {error}")  # noqa: ADR-0019
-            print("\n⚠️  Please review and fix these issues manually.")  # noqa: ADR-0019
-            print("   You can revert changes with: git checkout -- <file>")  # noqa: ADR-0019
+                print(f"  {error}")
+            print("\n⚠️  Please review and fix these issues manually.")
+            print("   You can revert changes with: git checkout -- <file>")
             sys.exit(1)
         else:
-            print(  # noqa: ADR-0019
+            print(
                 "  ✅ All modified files pass validation (syntax OK, no noqa-in-string)"
-            )  # noqa: ADR-0019
+            )
 
     if args.dry_run and total_fixed > 0:
-        print("\nRun without --dry-run to apply fixes.")  # noqa: ADR-0019
+        print("\nRun without --dry-run to apply fixes.")
 
 
 if __name__ == "__main__":

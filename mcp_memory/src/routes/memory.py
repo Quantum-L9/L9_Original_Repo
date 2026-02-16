@@ -138,7 +138,6 @@ async def save_memory_handler(
             expires_at = None
 
         if duration in ["short", "medium"]:
-            # SAFE: {table} is from internal logic, user values parameterized  # noqa: ADR-0087
             query = f"""
             INSERT INTO {table} (user_id, kind, content, embedding, importance, metadata, expires_at)
             VALUES ($1, $2, $3, $4::vector, $5, $6, $7)
@@ -294,7 +293,6 @@ async def search_memory_handler(
             )
             params.extend([query_embedding, threshold, top_k])
 
-            # SAFE: cols, table, where, scope_clause, kind_clause are internal SQL  # noqa: ADR-0087
             query_sql = f"""
             SELECT {cols}, 1 - (embedding <-> ${param_idx}::vector) as similarity
             FROM {table}
@@ -944,7 +942,6 @@ async def query_temporal(
 
         if operation == "changes":
             # Get all memories created or updated in the period
-            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
             query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at, updated_at
             FROM memory.long_term
@@ -960,7 +957,6 @@ async def query_temporal(
             updated_count = len(memories) - created_count
 
         elif operation == "timeline":
-            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
             query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at
             FROM memory.long_term
@@ -972,7 +968,6 @@ async def query_temporal(
             updated_count = 0
 
         else:  # diff
-            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
             query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at, updated_at
             FROM memory.long_term
