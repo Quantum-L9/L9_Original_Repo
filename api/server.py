@@ -457,7 +457,7 @@ from memory.agent_persistence import AgentPersistenceService
 # Memory system imports
 from memory.migration_runner import run_migrations
 from memory.state_manager import MemoryStateManager
-from memory.substrate_service import close_service, init_service
+from memory.substrate_service import MemorySubstrateService, close_service, init_service
 from memory.timeline_service import TimelineService
 
 # Governance context for RLS-enabled memory operations (GMP-70)
@@ -830,7 +830,7 @@ async def lifespan(app: FastAPI):
         logger.info(
             "Governance Integration initialized",
             agent_id=governance.agent_id,
-            confidence_threshold=governance.l_agent.confidence_threshold,
+            confidence_threshold=governance.ca_governance.confidence_threshold,
         )
     except Exception as e:
         # Non-fatal: governance features degraded but core API still works
@@ -1480,7 +1480,9 @@ async def lifespan(app: FastAPI):
                             An instance of CursorGraphDeps with assigned dependency attributes.
                         """
 
-                        pass
+                        memory_gateway: object = None  # type: ignore[assignment]
+                        approval_gate: object = None  # type: ignore[assignment]
+                        checkpoint_manager: object = None  # type: ignore[assignment]
 
                     deps = CursorGraphDeps()
                     deps.memory_gateway = memory_gateway
@@ -1969,11 +1971,11 @@ async def lifespan(app: FastAPI):
     try:
         from core.tools.memory_tools import register_memory_tools
 
-        tool_registry = getattr(app.state, "tool_registry", None)
-        substrate_service = getattr(app.state, "substrate_service", None)
-        if tool_registry:
+        tool_registry_opt = getattr(app.state, "tool_registry", None)
+        substrate_service: MemorySubstrateService | None = getattr(app.state, "substrate_service", None)
+        if tool_registry_opt:
             memory_tool_count = await register_memory_tools(
-                tool_registry,
+                tool_registry_opt,
                 substrate_service=substrate_service,
             )
             logger.info(f"✓ Memory tools registered: {memory_tool_count} tools")
@@ -2479,16 +2481,16 @@ async def lifespan(app: FastAPI):
             app.state.observability_service = observability
 
             # Instrument L9 services (non-blocking, wraps existing methods)
-            executor = getattr(app.state, "agent_executor", None)
-            tool_registry = getattr(app.state, "tool_registry", None)
-            governance = getattr(app.state, "governance_engine", None)
+            executor_opt = getattr(app.state, "agent_executor", None)
+            tool_registry_opt2 = getattr(app.state, "tool_registry", None)
+            governance_opt = getattr(app.state, "governance_engine", None)
 
-            if executor:
-                await instrument_agent_executor(executor)
-            if tool_registry:
-                await instrument_tool_registry(tool_registry)
-            if governance:
-                await instrument_governance_engine(governance)
+            if executor_opt:
+                await instrument_agent_executor(executor_opt)
+            if tool_registry_opt2:
+                await instrument_tool_registry(tool_registry_opt2)
+            if governance_opt:
+                await instrument_governance_engine(governance_opt)
             if substrate:
                 await instrument_memory_substrate(substrate)
 
@@ -3145,7 +3147,7 @@ async def list_kernels_endpoint(
 
     # Fallback: try to get from kernel loader
     try:
-        from runtime.kernel_loader import get_loaded_kernels
+        from runtime.kernel_loader import load_kernels as get_loaded_kernels
 
         kernels = get_loaded_kernels()
         return {

@@ -115,9 +115,11 @@ class EOSHypergraphClient:
             Dict with 'violations' list and 'satisfied' list
         """
         context = context or {}
-        result = {
-            "violations": [],
-            "satisfied": [],
+        violations: list[dict[str, object]] = []
+        satisfied: list[dict[str, object]] = []
+        result: dict[str, object] = {
+            "violations": violations,
+            "satisfied": satisfied,
             "checked": True,
         }
 
@@ -139,7 +141,7 @@ class EOSHypergraphClient:
             )
 
             for prohibition in prohibitions:
-                result["violations"].append(
+                violations.append(
                     {
                         "type": "prohibition",
                         "name": prohibition.get("prohibition"),
@@ -162,7 +164,7 @@ class EOSHypergraphClient:
             )
 
             if not capabilities:
-                result["violations"].append(
+                violations.append(
                     {
                         "type": "missing_capability",
                         "name": f"No capability for {action_type}",
@@ -172,7 +174,7 @@ class EOSHypergraphClient:
                 )
             else:
                 for cap in capabilities:
-                    result["satisfied"].append(
+                    satisfied.append(
                         {
                             "type": "capability",
                             "name": cap.get("capability"),
@@ -196,7 +198,7 @@ class EOSHypergraphClient:
             for obligation in obligations:
                 evidence_type = obligation.get("evidence_type")
                 if not any(evidence_type in str(ref) for ref in evidence_refs):
-                    result["violations"].append(
+                    violations.append(
                         {
                             "type": "missing_evidence",
                             "name": obligation.get("obligation"),
@@ -209,8 +211,8 @@ class EOSHypergraphClient:
                 "eos.hypergraph_client.check_violations",
                 action_type=action_type,
                 agent_id=agent_id,
-                violation_count=len(result["violations"]),
-                satisfied_count=len(result["satisfied"]),
+                violation_count=len(violations),
+                satisfied_count=len(satisfied),
             )
 
         except Exception as e:

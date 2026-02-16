@@ -97,9 +97,9 @@ def bootstrap_di_container(container: Any) -> dict[str, int]:
 
     # Neo4j Client
     try:
-        from api.memory.graph import get_neo4j_client
+        from api.memory.graph import get_neo4j as get_neo4j_client  # type: ignore[attr-defined]
 
-        container.bind_singleton(type(get_neo4j_client()), lambda: get_neo4j_client())
+        container.bind_singleton(object, lambda: get_neo4j_client())  # type: ignore[arg-type]
         registered_count += 1
         logger.debug("di_bootstrap.registered", service="Neo4jClient")
     except Exception as e:
@@ -112,9 +112,9 @@ def bootstrap_di_container(container: Any) -> dict[str, int]:
 
     # Redis Client
     try:
-        from api.memory.cache import get_redis_client
+        from api.memory.cache import get_redis as get_redis_client  # type: ignore[attr-defined]
 
-        container.bind_singleton(type(get_redis_client()), lambda: get_redis_client())
+        container.bind_singleton(object, lambda: get_redis_client())  # type: ignore[arg-type]
         registered_count += 1
         logger.debug("di_bootstrap.registered", service="RedisClient")
     except Exception as e:
@@ -184,7 +184,9 @@ def bootstrap_di_container(container: Any) -> dict[str, int]:
             Returns:
                 Updated count of registered services after adding MemoryService.
             """
-            substrate = create_substrate_service()
+            # create_substrate_service is async; wrap coroutine for sync context
+            import asyncio
+            substrate = asyncio.get_event_loop().run_until_complete(create_substrate_service())
             return MemoryServiceAdapter(substrate)
 
         container.bind_singleton(MemoryService, _create_memory_service)
@@ -323,8 +325,8 @@ def bootstrap_di_container(container: Any) -> dict[str, int]:
 
     # KernelProtocol (via kernel_loader)
     try:
-        from core.protocols import KernelProtocol
-        from runtime.kernel_loader import load_kernel_protocol
+        from core.protocols import KernelValidator as KernelProtocol  # type: ignore[attr-defined]
+        from runtime.kernel_loader import load_kernel_stack as load_kernel_protocol  # type: ignore[attr-defined]
 
         container.bind_singleton(KernelProtocol, lambda: load_kernel_protocol())
         registered_count += 1

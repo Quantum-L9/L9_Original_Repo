@@ -319,9 +319,10 @@ class PostgresIntrospector:
         """
         tables = await self.get_tables(schema_name)
 
-        summary = {
+        tables_list: list[dict[str, object]] = []
+        summary: dict[str, object] = {
             "schema": schema_name,
-            "tables": [],
+            "tables": tables_list,
         }
 
         for table in tables:
@@ -338,7 +339,7 @@ class PostgresIntrospector:
                 ],
                 "row_count": table.row_count_estimate,
             }
-            summary["tables"].append(table_summary)
+            tables_list.append(table_summary)
 
         return summary
 
@@ -637,7 +638,7 @@ class SchemaIntrospector:
         Returns:
             Dict with postgres and neo4j summaries
         """
-        summary = {
+        summary: dict[str, object] = {
             "captured_at": datetime.now(UTC).isoformat(),
             "postgres": None,
             "neo4j": None,

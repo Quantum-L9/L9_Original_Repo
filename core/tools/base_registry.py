@@ -754,7 +754,7 @@ async def saga_fetch_and_enrich(
             "results": [],
         }
 
-    results = {
+    results: dict[str, object] = {
         "success": True,
         "query": query,
         "postgres_results": [],
@@ -774,9 +774,10 @@ async def saga_fetch_and_enrich(
                     limit=limit,
                     entity_types=entity_types,
                 )
-                results["postgres_results"] = search_results or []
+                postgres_results: list[object] = search_results or []
+                results["postgres_results"] = postgres_results
                 logger.info(
-                    f"saga_fetch_and_enrich: Postgres found {len(results['postgres_results'])} results"
+                    f"saga_fetch_and_enrich: Postgres found {len(postgres_results)} results"
                 )
         except Exception as e:
             logger.warning(f"Postgres search failed in saga: {e}")
@@ -784,7 +785,8 @@ async def saga_fetch_and_enrich(
 
         # Step 2: Extract entity IDs
         entity_ids = []
-        for item in results["postgres_results"]:
+        pg_results = results.get("postgres_results", [])
+        for item in pg_results if isinstance(pg_results, list) else []:
             if isinstance(item, dict):
                 eid = item.get("entity_id") or item.get("id") or item.get("source_id")
                 if eid:
@@ -799,13 +801,14 @@ async def saga_fetch_and_enrich(
 
                 dag = SubstrateDAG()
                 enrichment = []
+                _get_related = getattr(dag, "get_related_entities", None)
                 for eid in entity_ids[:5]:  # Limit graph queries
                     try:
-                        related = await dag.get_related_entities(
+                        related = await _get_related(
                             entity_id=eid,
                             relationship_types=None,
                             depth=1,
-                        )
+                        ) if _get_related else None
                         if related:
                             enrichment.append(
                                 {
@@ -825,11 +828,13 @@ async def saga_fetch_and_enrich(
                 results["neo4j_enrichment"] = []
 
         # Step 4: Combine results
+        neo4j_enrich = results.get("neo4j_enrichment", [])
         enrichment_map = {
-            e["entity_id"]: e["relationships"] for e in results["neo4j_enrichment"]
+            e["entity_id"]: e["relationships"] for e in (neo4j_enrich if isinstance(neo4j_enrich, list) else [])
         }
         combined = []
-        for item in results["postgres_results"]:
+        pg_results2 = results.get("postgres_results", [])
+        for item in pg_results2 if isinstance(pg_results2, list) else []:
             eid = item.get("entity_id") or item.get("id") or item.get("source_id")
             combined_item = {
                 "data": item,
@@ -902,15 +907,16 @@ async def saga_enrich_entities(
 
         dag = SubstrateDAG()
         entities = []
+        _get_related = getattr(dag, "get_related_entities", None)
 
         for eid in entity_ids[:20]:  # Limit to 20 entities
             try:
                 # Get entity relationships
-                related = await dag.get_related_entities(
+                related = await _get_related(
                     entity_id=str(eid),
                     relationship_types=relationship_types,
                     depth=depth,
-                )
+                ) if _get_related else None
 
                 entities.append(
                     {
@@ -997,7 +1003,7 @@ async def saga_timeline_correlation(
     # Cap time range at 168 hours (1 week)
     time_range_hours = min(max(1, time_range_hours), 168)
 
-    results = {
+    results: dict[str, object] = {
         "success": True,
         "entity_id": start_entity_id,
         "time_range_hours": time_range_hours,
@@ -1050,17 +1056,18 @@ async def saga_timeline_correlation(
 
                 dag = SubstrateDAG()
                 causal_chains = []
+                _get_related = getattr(dag, "get_related_entities", None)
 
                 event_ids = [e.get("event_id") for e in events if e.get("event_id")]
 
                 # Find causal relationships between events
                 for event_id in event_ids[:10]:  # Limit graph queries
                     try:
-                        related = await dag.get_related_entities(
+                        related = await _get_related(
                             entity_id=str(event_id),
                             relationship_types=["CAUSED_BY", "TRIGGERED", "FOLLOWS"],
                             depth=2,
-                        )
+                        ) if _get_related else None
                         if related:
                             causal_chains.append(
                                 {
@@ -1079,7 +1086,8 @@ async def saga_timeline_correlation(
                 logger.warning(f"Causal chain trace failed: {e}")
 
         results["event_count"] = len(events)
-        results["causal_chain_count"] = len(results["causal_chains"])
+        causal_list = results.get("causal_chains", [])
+        results["causal_chain_count"] = len(causal_list) if isinstance(causal_list, list) else 0
 
         logger.info(
             f"saga_timeline_correlation: found {results['event_count']} events, "

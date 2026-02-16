@@ -80,7 +80,7 @@ class AgentConfigExtractor(BaseExtractor):
 
     def extract_config(self, content: str, mode: str) -> dict:
         """Extract configuration based on mode."""
-        config = {
+        config: dict[str, object] = {
             "schema_meta": {
                 "version": "3.2.0",
                 "extracted_at": datetime.now(tz=UTC).isoformat(),

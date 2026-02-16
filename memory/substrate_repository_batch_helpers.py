@@ -99,7 +99,7 @@ class BatchQueryHelpers:
                 WHERE packet_id = ANY($1)
             """
 
-            params = [packet_ids]
+            params: list[object] = [packet_ids]
             if tenant_id:
                 packet_query += " AND tenant_id = $2"
                 params.append(tenant_id)
@@ -172,7 +172,7 @@ class BatchQueryHelpers:
                 WHERE packet_id = ANY($1)
             """
 
-            params = [parent_ids]
+            params: list[object] = [parent_ids]
             if tenant_id:
                 parent_query += " AND tenant_id = $2"
                 params.append(tenant_id)
@@ -189,7 +189,7 @@ class BatchQueryHelpers:
                 WHERE parent_ids && $1
             """
 
-            child_params = [parent_ids]
+            child_params: list[object] = [parent_ids]
             if tenant_id:
                 children_query += " AND tenant_id = $2"
                 child_params.append(tenant_id)
@@ -379,7 +379,7 @@ class BatchQueryHelpers:
                 WHERE thread_id = ANY($1)
             """
 
-            params = [thread_ids]
+            params: list[object] = [thread_ids]
             if tenant_id:
                 query += " AND tenant_id = $2"
                 params.append(tenant_id)
@@ -432,7 +432,7 @@ class BatchQueryHelpers:
                 AND NOT ('archived' = ANY(tags))
             """
 
-            params = [packet_ids]
+            params: list[object] = [packet_ids]
             if tenant_id:
                 query += " AND tenant_id = $2"
                 params.append(tenant_id)

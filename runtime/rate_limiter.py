@@ -11,6 +11,11 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from runtime.redis_client import RedisClient as _RedisClientType
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Rate Limiter",
@@ -99,6 +104,11 @@ class RateLimiter:
 
         return self._redis_available
 
+    def _get_redis(self) -> _RedisClientType:
+        """Return the Redis client, raising if unavailable."""
+        assert self._redis_client is not None, "Redis client not available"
+        return self._redis_client
+
     async def check_and_increment(self, key: str, limit: int) -> bool:
         """
         Check if under rate limit and increment if so.
@@ -114,7 +124,7 @@ class RateLimiter:
         if await self._ensure_redis():
             try:
                 redis_key = f"rate_limit:{key}"
-                current = await self._redis_client.get_rate_limit(redis_key)
+                current = await self._get_redis().get_rate_limit(redis_key)
 
                 if current >= limit:
                     logger.debug(f"Rate limit exceeded for {key}: {current}/{limit}")
@@ -127,7 +137,7 @@ class RateLimiter:
                     return False
 
                 # Increment
-                new_count = await self._redis_client.increment_rate_limit(
+                new_count = await self._get_redis().increment_rate_limit(
                     redis_key,
                     ttl=self._window_seconds,
                 )
@@ -178,7 +188,7 @@ class RateLimiter:
         if await self._ensure_redis():
             try:
                 redis_key = f"rate_limit:{key}"
-                current = await self._redis_client.get_rate_limit(redis_key)
+                current = await self._get_redis().get_rate_limit(redis_key)
                 return max(0, limit - current)
             except Exception as e:
                 logger.debug(
@@ -207,7 +217,7 @@ class RateLimiter:
         if await self._ensure_redis():
             try:
                 redis_key = f"rate_limit:{key}"
-                return await self._redis_client.get_rate_limit(redis_key)
+                return await self._get_redis().get_rate_limit(redis_key)
             except Exception as e:
                 logger.debug(
                     "rate_limiter.get_usage.redis_fallback",
@@ -232,12 +242,12 @@ class RateLimiter:
             try:
                 if key:
                     redis_key = f"rate_limit:{key}"
-                    await self._redis_client.delete(redis_key)
+                    await self._get_redis().delete(redis_key)
                 else:
                     # Delete all rate limit keys
-                    keys = await self._redis_client.keys("rate_limit:*")
+                    keys = await self._get_redis().keys("rate_limit:*")
                     for k in keys:
-                        await self._redis_client.delete(k)
+                        await self._get_redis().delete(k)
                 return
             except Exception as e:
                 logger.debug(
