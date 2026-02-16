@@ -8,7 +8,7 @@
 #
 # Enforcement types: semgrep, grep, python, test
 # CI jobs: adr-compliance, l9-patterns, path-safety-guard, dora-check, crypto-guard
-# New gates (2026-02-16): lint_forbidden_imports, check_tool_wiring, check_no_deprecated_services,
+# New gates (2026-02-16): check_forbidden_imports, check_tool_wiring, check_no_deprecated_services,
 #   check_schema_deprecation, check_tool_naming, check_substrate_api, check_packet_type_naming,
 #   check_protected_files, check_definition_of_done, check_dependency_patterns, validate_policy_schemas
 
@@ -158,7 +158,7 @@ rules:
     title: "DORA Metadata Block"
     enforcement:
       - type: python
-        script: "ci/dora_compliance_check.py"
+        script: "ci/check_dora_compliance.py"
         ci_job: "dora-check"
       - type: python
         script: "ci/check_adr_compliance.py"
@@ -191,7 +191,7 @@ rules:
         script: "ci/check_adr_compliance.py"
         ci_job: "adr-compliance"
       - type: python
-        script: "ci/lint_forbidden_imports.py"
+        script: "ci/check_forbidden_imports.py"
         ci_job: "adr-compliance"
 
   - adr: "0021"

@@ -47,7 +47,7 @@ L9_ROOT = Path(__file__).resolve().parent.parent
 
 # ---------------------------------------------------------------------------
 # Directories and files to SKIP (legitimate logging usage or non-production)
-# Aligned with ci/lint_forbidden_imports.py SKIP_PATTERNS
+# Aligned with ci/check_forbidden_imports.py SKIP_PATTERNS
 # ---------------------------------------------------------------------------
 SKIP_DIRS = {
     ".git",
@@ -141,13 +141,7 @@ def scan_file(filepath: Path) -> list[tuple[int, str]]:
             continue
 
         # Detect: import logging (standalone, not 'import structlog')
-        if re.match(r"^import logging\b", stripped):
-            violations.append((i, line))
-        # Detect: from logging import ...
-        elif re.match(r"^from logging\b", stripped):
-            violations.append((i, line))
-        # Detect: logging.getLogger(...)
-        elif "logging.getLogger" in line and not stripped.startswith("#"):
+        if re.match(r"^import logging\b", stripped) or re.match(r"^from logging\b", stripped) or ("logging.getLogger" in line and not stripped.startswith("#")):
             violations.append((i, line))
 
     return violations
@@ -302,10 +296,9 @@ def main() -> int:
         if remaining > 0:
             print(f"⚠️  {remaining} violations could not be auto-fixed (manual review needed)")
         return 0
-    else:
-        print(f"❌ Found {total_violations} violations in {len(violations_by_file)} files")
-        print("\nRun with --fix to apply: python3 scripts/fix_logging_to_structlog.py --fix")
-        return 1
+    print(f"❌ Found {total_violations} violations in {len(violations_by_file)} files")
+    print("\nRun with --fix to apply: python3 scripts/fix_logging_to_structlog.py --fix")
+    return 1
 
 
 if __name__ == "__main__":

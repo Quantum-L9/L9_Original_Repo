@@ -16,11 +16,13 @@ Example of the bug:
 
 Usage:
     python3 ci/check_noqa_placement.py              # Check all files
+    python3 ci/check_noqa_placement.py --fix        # Auto-fix violations
+    python3 ci/check_noqa_placement.py --dry-run    # Show what would be fixed
     python3 ci/check_noqa_placement.py path/to/file.py  # Check specific file
     python3 ci/check_noqa_placement.py --verbose    # Show all checked files
 
 Exit codes:
-    0 = All files pass
+    0 = All files pass (or all fixed with --fix)
     1 = Violations found
 """
 
@@ -29,10 +31,10 @@ from __future__ import annotations
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Check noqa Placement",
-    "module_version": "1.0.0",
+    "module_version": "1.1.0",
     "created_by": "L9 Agent",
     "created_at": "2026-02-13T00:00:00Z",
-    "updated_at": "2026-02-13T00:00:00Z",
+    "updated_at": "2026-02-16T00:00:00Z",
     "layer": "operations",
     "domain": "ci",
     "module_name": "check_noqa_placement",
@@ -64,6 +66,9 @@ SKIP_DIRS = {
     "current_work",
     ".cursor",
 }
+
+# SQL keywords that indicate this is a database query
+SQL_KEYWORDS = ["SELECT", "INSERT", "UPDATE", "DELETE", "CREATE", "DROP", "ALTER"]
 
 
 def should_skip(path: Path) -> bool:
@@ -137,9 +142,6 @@ def check_noqa_in_string(file_path: Path) -> list[tuple[int, str, str]]:
     if "/scripts/ci/" in path_str:
         return []
 
-    # SQL keywords that indicate this is a database query
-    sql_keywords = ["SELECT", "INSERT", "UPDATE", "DELETE", "CREATE", "DROP", "ALTER"]
-
     for i, line in enumerate(lines, 1):
         # Skip lines without noqa
         if "# noqa" not in line:
@@ -162,7 +164,7 @@ def check_noqa_in_string(file_path: Path) -> list[tuple[int, str, str]]:
         # f-string SQL query with {interpolation} AND noqa inside the string
         # Pattern: f"SELECT...{var}...# noqa..." or f"INSERT...{var}...# noqa..."
 
-        for sql_keyword in sql_keywords:
+        for sql_keyword in SQL_KEYWORDS:
             # Check for f-string SQL with interpolation that has noqa inside
             # This pattern matches: f"SELECT...{table}...# noqa..."
             # Using raw string with explicit quote class to avoid escaping issues
@@ -185,7 +187,7 @@ def check_noqa_in_string(file_path: Path) -> list[tuple[int, str, str]]:
                         break  # Don't report same line multiple times
 
         # Also check triple-quoted f-string SQL
-        for sql_keyword in sql_keywords:
+        for sql_keyword in SQL_KEYWORDS:
             pattern = rf'f"""[^"]*{sql_keyword}[^"]*\{{[^}}]+\}}[^"]*#\s*noqa[^"]*"""'
             triple_sql_bug = re.compile(pattern, re.IGNORECASE)
             if triple_sql_bug.search(line):
@@ -201,6 +203,77 @@ def check_noqa_in_string(file_path: Path) -> list[tuple[int, str, str]]:
     return issues
 
 
+def fix_noqa_placement(file_path: Path, dry_run: bool = False) -> list[tuple[int, str, str]]:
+    """
+    Fix noqa comments that are inside f-string SQL queries.
+
+    Moves the noqa comment from inside the string to outside.
+
+    Returns list of (line_number, old_line, new_line) for fixed lines.
+    """
+    try:
+        content = file_path.read_text()
+    except (UnicodeDecodeError, OSError):
+        return []
+
+    lines = content.split("\n")
+    fixed = []
+
+    # Skip certain file types
+    path_str = str(file_path)
+    file_name = file_path.name
+
+    if (
+        "/tests/" in path_str
+        or file_name.startswith("test_")
+        or file_name.endswith("_test.py")
+        or "/docs/" in path_str
+        or "/examples/" in path_str
+    ):
+        return []
+
+    skip_files = [
+        "ci/auto_fix_adr.py",
+        "ci/check_noqa_placement.py",
+        "ci/check_adr_compliance.py",
+    ]
+    if any(path_str.endswith(skip) for skip in skip_files):
+        return []
+
+    new_lines = []
+    for i, line in enumerate(lines, 1):
+        new_line = line
+
+        if "# noqa" in line:
+            for sql_keyword in SQL_KEYWORDS:
+                # Pattern to find f-string SQL with noqa inside
+                # Captures: (before_noqa)(noqa_comment)(closing_quote)(after)
+                pattern = rf'(f["\'][^"\']*{sql_keyword}[^"\']*\{{[^}}]+\}}[^"\']*)(#\s*noqa[^"\']*)(["\']\s*)(.*?)$'
+                match = re.search(pattern, line, re.IGNORECASE)
+
+                if match:
+                    before_noqa = match.group(1)
+                    noqa_comment = match.group(2).strip()
+                    closing_quote = match.group(3).strip()
+                    after = match.group(4)
+
+                    # Reconstruct: string + closing quote + noqa comment
+                    new_line = f"{before_noqa}{closing_quote}  {noqa_comment}"
+                    if after.strip():
+                        new_line += f"  {after}"
+
+                    if new_line != line:
+                        fixed.append((i, line.strip(), new_line.strip()))
+                    break
+
+        new_lines.append(new_line)
+
+    if fixed and not dry_run:
+        file_path.write_text("\n".join(new_lines))
+
+    return fixed
+
+
 def main() -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(
@@ -209,6 +282,8 @@ def main() -> int:
         epilog="""
 Examples:
     python3 ci/check_noqa_placement.py              # Check all files
+    python3 ci/check_noqa_placement.py --fix        # Auto-fix violations
+    python3 ci/check_noqa_placement.py --dry-run    # Show what would be fixed
     python3 ci/check_noqa_placement.py core/        # Check specific directory
     python3 ci/check_noqa_placement.py file.py      # Check specific file
 
@@ -225,6 +300,16 @@ Example of the bug:
         nargs="*",
         default=["."],
         help="Files or directories to check (default: current directory)",
+    )
+    parser.add_argument(
+        "--fix",
+        action="store_true",
+        help="Auto-fix violations by moving noqa outside the string",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be fixed without making changes",
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Show all checked files"
@@ -248,6 +333,35 @@ Example of the bug:
     if args.verbose:
         print(f"Checking {len(files_to_check)} Python files...")  # noqa: ADR-0019
 
+    if args.fix or args.dry_run:
+        # Fix mode
+        total_fixed = 0
+        for file_path in files_to_check:
+            fixed = fix_noqa_placement(file_path, dry_run=args.dry_run)
+            if fixed:
+                total_fixed += len(fixed)
+                for line_num, old_line, new_line in fixed:
+                    if args.dry_run:
+                        print(f"Would fix {file_path}:{line_num}")  # noqa: ADR-0019
+                    else:
+                        print(f"Fixed {file_path}:{line_num}")  # noqa: ADR-0019
+                    if args.verbose:
+                        print(f"  - {old_line}")  # noqa: ADR-0019
+                        print(f"  + {new_line}")  # noqa: ADR-0019
+
+        if args.dry_run:
+            print(f"\n📋 Would fix {total_fixed} violation(s)")  # noqa: ADR-0019
+            # Still check for violations to return proper exit code
+            all_issues = []
+            for file_path in files_to_check:
+                issues = check_noqa_in_string(file_path)
+                if issues:
+                    all_issues.extend(issues)
+            return 1 if all_issues else 0
+        print(f"\n✅ Fixed {total_fixed} violation(s)")  # noqa: ADR-0019
+        return 0
+
+    # Check-only mode
     all_issues = []
 
     for file_path in files_to_check:
@@ -267,7 +381,7 @@ Example of the bug:
         print(f"    {line_content}")  # noqa: ADR-0019
         print()  # noqa: ADR-0019
 
-    print("Fix: Move # noqa comment to END of line, OUTSIDE the string literal")  # noqa: ADR-0019
+    print("Fix: Run with --fix to auto-fix, or manually move # noqa to END of line, OUTSIDE the string")  # noqa: ADR-0019
     print('  WRONG:  f"SELECT * FROM {table}  # noqa: ADR-0087"')  # noqa: ADR-0019
     print('  RIGHT:  f"SELECT * FROM {table}"  # noqa: ADR-0087')  # noqa: ADR-0019
 
