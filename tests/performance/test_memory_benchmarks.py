@@ -28,7 +28,7 @@ from memory.audit_utils import (
 # Skip benchmarks if pytest-benchmark is not installed
 pytest_benchmark_available = True
 try:
-    import pytest_benchmark
+    import pytest_benchmark  # noqa: F401 — availability check
 except ImportError:
     pytest_benchmark_available = False
 

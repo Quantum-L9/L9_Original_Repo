@@ -31,13 +31,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 import structlog
 from pydantic import BaseModel, Field
 
 from core.schemas import SemanticSearchRequest
-from memory.substrate_service import MemorySubstrateService
+
+if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 

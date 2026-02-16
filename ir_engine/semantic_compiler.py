@@ -44,8 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 import structlog
 from openai import AsyncOpenAI
@@ -62,6 +61,9 @@ from ir_engine.ir_schema import (
     IRStatus,
     NodePriority,
 )
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 logger = structlog.get_logger(__name__)
 

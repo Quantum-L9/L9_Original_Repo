@@ -58,7 +58,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # Need full history for proper git operations
           fetch-depth: 0
@@ -66,9 +66,29 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Auto-fix logging -> structlog (ADR-0019)
+        run: |
+          echo "🔧 Auto-fixing logging -> structlog violations..."
+          python3 scripts/fix_logging_to_structlog.py --fix 2>&1 | tee structlog-fix-output.txt
+
+      - name: Auto-fix async decorator migration
+        run: |
+          echo "🔧 Auto-fixing async comment -> @must_stay_async..."
+          python3 scripts/fix_async_decorators.py 2>&1 | tee async-fix-output.txt
+
+      - name: Auto-fix timezone imports (ADR-0083)
+        run: |
+          echo "🔧 Auto-fixing missing timezone imports..."
+          python3 scripts/fix_timezone_imports.py 2>&1 | tee timezone-fix-output.txt
+
+      - name: Auto-fix decorator @wraps
+        run: |
+          echo "🔧 Auto-fixing missing @wraps on decorators..."
+          python3 scripts/fix_decorator_wraps.py 2>&1 | tee wraps-fix-output.txt
 
       - name: Run ADR auto-fix (safe mode)
         id: autofix
@@ -76,7 +96,7 @@ jobs:
           echo "Running ADR auto-fix in safe mode..."
           python3 ci/auto_fix_adr.py --all --safe 2>&1 | tee autofix-output.txt
           
-          # Check if any files were modified
+          # Check if any files were modified (includes structlog fixes above)
           if git diff --quiet; then
             echo "changes=false" >> $GITHUB_OUTPUT
             echo "No changes needed"
@@ -139,10 +159,10 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 

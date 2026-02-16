@@ -5,7 +5,6 @@ L9 Bootstrap Tests – Orchestrator
 Tests for AgentBootstrapOrchestrator: 7-phase pipeline execution.
 """
 
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -276,7 +275,6 @@ def test_agent_bootstrap_context_canonical_json():
 
 def test_agent_bootstrap_context_compute_signature():
     """Test deterministic init_signature computation."""
-    from core.agents.bootstrap.orchestrator import IdentityView
 
     ctx1 = AgentBootstrapContext(
         agent_id="agent1",

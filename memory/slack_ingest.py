@@ -101,6 +101,20 @@ except ImportError:
         return None
 
 
+# Optional Slack thread cache (Redis) - use when PR #108 merged
+try:
+    from memory.slack_thread_cache import SlackThreadCacheService
+
+    _has_slack_thread_cache_module = True
+except ImportError:
+    _has_slack_thread_cache_module = False
+
+    class SlackThreadCacheService:  # type: ignore[no-redef]
+        """Stub class when slack_thread_cache module not available."""
+
+        pass
+
+
 # Optional telemetry - gracefully degrade if module not available
 try:
     from telemetry.slack_metrics import (
@@ -108,6 +122,9 @@ try:
         record_idempotent_hit,
         record_packet_write_error,
         record_slack_reply_error,
+        record_thread_cache_append,
+        record_thread_cache_hit,
+        record_thread_cache_miss,
     )
 except ImportError:
     # Stub functions when telemetry not available
@@ -127,8 +144,39 @@ except ImportError:
         """Stub for recording Slack reply error metrics when telemetry unavailable."""
         pass
 
+    def record_thread_cache_hit(*args, **kwargs):
+        """Stub when telemetry unavailable."""
+        pass
+
+    def record_thread_cache_miss(*args, **kwargs):
+        """Stub when telemetry unavailable."""
+        pass
+
+    def record_thread_cache_append(*args, **kwargs):
+        """Stub when telemetry unavailable."""
+        pass
+
 
 logger = structlog.get_logger(__name__)
+
+
+async def _get_slack_thread_cache() -> SlackThreadCacheService | None:
+    """
+    Return SlackThreadCacheService when available (Redis + memory.slack_thread_cache).
+
+    Used for read-through cache and write-ahead append. Returns None if module
+    or Redis unavailable (fallback to existing RedisClient path or Postgres).
+    """
+    if not _has_slack_thread_cache_module or not _has_redis:
+        return None
+    try:
+        redis_client = await get_redis_client()
+        if redis_client is None or not redis_client.is_available():
+            return None
+        return SlackThreadCacheService(redis_client=redis_client)
+    except Exception:
+        return None
+
 
 # =============================================================================
 # CANONICAL LOG EVENT NAMES (9 required per Module-Spec-v2.5)
@@ -1062,7 +1110,7 @@ async def handle_slack_events(
 
                 # === Multi-Part Directive Support (harvested from tokenizer) ===
                 # Segment input to handle compound directives like:
-                # "Deploy RIL, test ToT, sync Supabase"
+                # "Deploy RIL, test ToT, sync embeddings"
                 segmenter = get_segmenter()
                 segment_result = segmenter.segment(text)
 
@@ -1767,9 +1815,8 @@ async def _cache_thread_message(
     """
     Cache a single message into the Redis thread context.
 
-    GMP-SLACK-THREAD-CACHE: Called synchronously during Slack message processing
-    to ensure the next message in the thread has immediate context, eliminating
-    the race condition with async Postgres ingestion.
+    GMP-SLACK-THREAD-CACHE: Prefers SlackThreadCacheService (PR #108) when
+    available; else RedisClient. Ensures the next message has immediate context.
 
     Args:
         thread_uuid: Deterministic UUID for the Slack thread
@@ -1782,6 +1829,42 @@ async def _cache_thread_message(
     if not _has_redis:
         return
 
+    thread_uuid_str = str(thread_uuid)
+    packet_summary: dict[str, Any] = {
+        "text": text,
+        "user_id": user_id,
+        "ts": str(current_time()),
+        "role": role,
+    }
+    if event_id:
+        packet_summary["event_id"] = event_id
+    if tool_calls:
+        packet_summary["tool_calls"] = tool_calls
+
+    # Prefer SlackThreadCacheService (PR #108) when available
+    cache = await _get_slack_thread_cache()
+    if cache is not None:
+        try:
+            result = await cache.append_to_thread(thread_uuid_str, packet_summary)
+            if result:
+                record_thread_cache_append()
+                logger.debug(
+                    "slack_thread_message_cached",
+                    thread_uuid=thread_uuid_str,
+                    role=role,
+                    event_id=event_id,
+                )
+            return
+        except Exception as e:
+            logger.warning(
+                "slack_thread_cache_error",
+                error=str(e),
+                thread_uuid=thread_uuid_str,
+                role=role,
+            )
+            return
+
+    # Fallback: RedisClient (existing path)
     try:
         redis_client = await get_redis_client()
         if redis_client is None or not redis_client.is_available():
@@ -1794,29 +1877,26 @@ async def _cache_thread_message(
             "event_id": event_id,
             "ts": current_time(),
         }
-
-        # Include tool usage history for assistant messages
         if tool_calls:
             message["tool_calls"] = tool_calls
 
         result = await redis_client.append_thread_message(
-            thread_uuid=thread_uuid,
+            thread_uuid=thread_uuid_str,
             message=message,
         )
-
         if result:
+            record_thread_cache_append()
             logger.debug(
                 "slack_thread_message_cached",
-                thread_uuid=thread_uuid,
+                thread_uuid=thread_uuid_str,
                 role=role,
                 event_id=event_id,
             )
     except Exception as e:
-        # Non-critical: if Redis cache fails, Postgres fallback still works
         logger.warning(
             "slack_thread_cache_error",
             error=str(e),
-            thread_uuid=thread_uuid,
+            thread_uuid=thread_uuid_str,
             role=role,
         )
 
@@ -1830,10 +1910,9 @@ async def _retrieve_thread_context(
     """
     Retrieve recent packets in thread (thread context).
 
-    GMP-SLACK-THREAD-CACHE: Checks Redis cache first for immediate context,
-    falls back to PostgreSQL packet_store if cache miss. This eliminates the
-    race condition where async Postgres ingestion hasn't completed before the
-    next message arrives.
+    GMP-SLACK-THREAD-CACHE: Prefers SlackThreadCacheService (PR #108) when
+    available; else RedisClient; then PostgreSQL. Eliminates the race where
+    async Postgres ingestion hasn't completed before the next message arrives.
 
     Args:
         substrate_service: Memory substrate for Postgres fallback
@@ -1843,15 +1922,39 @@ async def _retrieve_thread_context(
     Returns:
         Dict with 'packets' list and optional 'source' indicator
     """
-    # === Redis cache check (fast path) ===
+    thread_uuid_str = str(thread_uuid)
+
+    # === SlackThreadCacheService (PR #108) - preferred when available ===
+    cache = await _get_slack_thread_cache()
+    if cache is not None:
+        try:
+            ctx = await cache.get_thread_context(thread_uuid_str)
+            if ctx and ctx.get("packets"):
+                record_thread_cache_hit()
+                packets = ctx["packets"][-limit:]
+                logger.debug(
+                    "slack_thread_context_redis_hit",
+                    thread_uuid=thread_uuid_str,
+                    cached_count=len(packets),
+                )
+                return {"packets": packets, "source": "redis"}
+        except Exception as e:
+            logger.warning(
+                "slack_thread_context_redis_error",
+                error=str(e),
+                thread_uuid=thread_uuid_str,
+            )
+
+    # === RedisClient fallback (existing path when SlackThreadCacheService not in repo) ===
     try:
         redis_client = await get_redis_client()
         if redis_client and redis_client.is_available():
-            cached_messages = await redis_client.get_thread_context(str(thread_uuid))
+            cached_messages = await redis_client.get_thread_context(thread_uuid_str)
             if cached_messages:
+                record_thread_cache_hit()
                 logger.debug(
                     "slack_thread_context_redis_hit",
-                    thread_uuid=str(thread_uuid),
+                    thread_uuid=thread_uuid_str,
                     cached_count=len(cached_messages),
                 )
                 return {
@@ -1862,9 +1965,10 @@ async def _retrieve_thread_context(
         logger.warning(
             "slack_thread_context_redis_error",
             error=str(e),
-            thread_uuid=str(thread_uuid),
+            thread_uuid=thread_uuid_str,
         )
-        # Fall through to Postgres
+
+    record_thread_cache_miss()
 
     # === PostgreSQL fallback (slow path) ===
     try:
@@ -1872,12 +1976,17 @@ async def _retrieve_thread_context(
             thread_id=thread_uuid,
             limit=limit,
         )
+        if cache is not None and packets:
+            await cache.set_thread_context(
+                thread_uuid_str,
+                {"packets": packets},
+            )
         logger.debug(
             "slack_thread_context_postgres_fallback",
-            thread_uuid=str(thread_uuid),
+            thread_uuid=thread_uuid_str,
             packet_count=len(packets) if packets else 0,
         )
-        return {"packets": packets, "source": "postgres"}
+        return {"packets": packets or [], "source": "postgres"}
     except Exception as e:
         logger.error(
             "thread_context_retrieval_error", error=str(e), thread_uuid=thread_uuid

@@ -55,7 +55,7 @@ from abc import (  # noqa: ADR-0026 - ABC provides shared implementation
     abstractmethod,
 )
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 

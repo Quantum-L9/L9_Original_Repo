@@ -4,8 +4,6 @@ ImportanceManager/NeuralDecayScheduler terminology.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
-
 import pytest
 
 from memory.intake_leverage import (

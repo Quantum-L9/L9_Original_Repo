@@ -23,7 +23,7 @@ import subprocess
 import sys
 from collections import defaultdict
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
 
@@ -56,8 +56,8 @@ def run_mypy_on_module(module_path: Path) -> tuple[int, list[str]]:
         Tuple of (error_count, error_details)
     """
     try:
-        result = subprocess.run(
-            ["mypy", "--config-file=pyproject.toml", str(module_path)],
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+            ["mypy", "--config-file=pyproject.toml", str(module_path)],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             timeout=30,
@@ -139,7 +139,8 @@ def analyze_imports(repo_root: Path) -> dict[str, int]:
                     if len(parts) >= 2:
                         module_ref = parts[1].replace(".", "/") + ".py"
                         import_counts[module_ref] += 1
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     return dict(import_counts)

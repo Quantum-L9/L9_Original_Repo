@@ -34,10 +34,11 @@ __dora_meta__ = {
 import asyncio
 import dataclasses
 import enum
+import sys
 import traceback
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Protocol, runtime_checkable
 
 import structlog
@@ -456,8 +457,8 @@ class StandardErrorHandler:
                 logger.warning("transient_error", **log_data)
 
         except Exception:
-            # Suppress logging errors to prevent recursion
-            pass
+            # Logger itself failed — write to stderr to avoid recursion
+            sys.stderr.write("error_handling.log_error_failed\n")
 
 
 @asynccontextmanager

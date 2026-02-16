@@ -90,7 +90,7 @@ class ObservabilitySettings(BaseSettings):
         description="Logging level: DEBUG, INFO, WARNING, ERROR",
     )
     file_export_path: str = Field(
-        default_factory=lambda: os.getenv("L9_SPANS_PATH", "/tmp/l9_spans.jsonl"),
+        default_factory=lambda: os.getenv("L9_SPANS_PATH", "/tmp/l9_spans.jsonl"),  # noqa: S108 — intentional temp path for span export
         description="Path for file exporter output",
     )
     substrate_enabled: bool = Field(

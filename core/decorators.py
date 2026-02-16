@@ -40,6 +40,7 @@ __dora_meta__ = {
 
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, TypeVar
+from functools import wraps
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -72,6 +73,7 @@ def must_stay_async(reason: str) -> Callable[[F], F]:
         Decorated function with _must_stay_async attribute set
     """
 
+    @wraps(reason)
     def decorator(func: F) -> F:
         """
         Marks a function as requiring to stay asynchronous within the L9 codebase.

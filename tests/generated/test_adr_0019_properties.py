@@ -294,7 +294,8 @@ class TestADR0019Regressions:
                     ):
                         continue
                     violations.append(str(py_file.relative_to(repo_root)))
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
         assert not violations, f"PrintLogger found in: {violations}"

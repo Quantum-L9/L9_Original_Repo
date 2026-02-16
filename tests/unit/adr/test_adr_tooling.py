@@ -5,7 +5,7 @@ Tests for ADR tooling (validator, indexer, generator)
 from __future__ import annotations
 
 import tempfile
-from datetime import date
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -212,7 +212,7 @@ def test_generate_adr(temp_adr_dir, template_content):
     assert "@test-user" in content
     assert "Architecture" in content
     assert "T2" in content
-    assert date.today().isoformat() in content
+    assert datetime.now(tz=UTC).date().isoformat() in content
     assert "Proposed" in content
 
 

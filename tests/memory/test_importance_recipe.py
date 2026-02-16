@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from memory.importance_recipe import (
     ImportanceInputs,
     ImportanceUpdate,

@@ -73,16 +73,18 @@ __dora_meta__ = {
 
 import asyncio
 from collections import defaultdict
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
 
 from core.singleton_auto_registry import register_singleton, register_singleton_closer
 from core.singleton_registry import SingletonLifecycle
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

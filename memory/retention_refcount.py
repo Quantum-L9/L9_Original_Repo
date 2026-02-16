@@ -35,7 +35,6 @@ __dora_meta__ = {
 
 import asyncio
 from dataclasses import dataclass
-from typing import Optional
 
 import structlog
 

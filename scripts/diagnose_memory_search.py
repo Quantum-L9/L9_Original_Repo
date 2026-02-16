@@ -34,6 +34,7 @@ import json
 import os
 import ssl
 import urllib.request
+
 import structlog
 
 # SSL context for self-signed cert
@@ -56,11 +57,11 @@ def mcp_call(tool_name: str, arguments: dict) -> dict:
         "Content-Type": "application/json",
     }
     payload = {"tool_name": tool_name, "arguments": arguments}
-    req = urllib.request.Request(
+    req = urllib.request.Request(  # noqa: S310 — URL from trusted config
         url, data=json.dumps(payload).encode(), headers=headers, method="POST"
     )
     try:
-        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:
+        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:  # noqa: S310 — URL from trusted config
             result = json.loads(response.read().decode())
             if result.get("status") == "success":
                 return result.get("result", {})
@@ -78,9 +79,9 @@ def main():
     Raises:
         Exception: If any errors occur during diagnostic steps.
     """
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("memory search diagnostic")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
     # Step 1: Check stats
     logger.info("\n1. memory stats:")
@@ -145,19 +146,27 @@ def main():
     logger.info("output", value=json.dumps(stats_after, indent=2))
 
     # Step 5: Summary
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("diagnosis summary")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
     stats_total_before = stats.get("total_count", 0) if isinstance(stats, dict) else 0
     stats_total_after = (
         stats_after.get("total_count", 0) if isinstance(stats_after, dict) else 0
     )
 
-    logger.info("stats total before write: stats total before", stats_total_before=stats_total_before)
-    logger.info("stats total after write: stats total after", stats_total_after=stats_total_after)
+    logger.info(
+        "stats total before write: stats total before",
+        stats_total_before=stats_total_before,
+    )
+    logger.info(
+        "stats total after write: stats total after",
+        stats_total_after=stats_total_after,
+    )
     logger.info("stats increased: {stats_total_after > stats_total_before}")
-    logger.info("semantic_memory in written_tables: {'semantic_memory' in written_tables}")
+    logger.info(
+        "semantic_memory in written_tables: {'semantic_memory' in written_tables}"
+    )
     print(
         f"Search found results: {len(search_result.get('results', [])) > 0 if isinstance(search_result, dict) else False}"
     )
@@ -167,7 +176,9 @@ def main():
         print(
             "   Possible cause: Stats query filters by packet_type LIKE 'memory_write_%'"
         )
-        logger.info("   but writes use packet_type 'memory.{kind}' (e.g., 'memory.note')")
+        logger.info(
+            "   but writes use packet_type 'memory.{kind}' (e.g., 'memory.note')"
+        )
         logger.info("   fix: update stats query or update write packet_type format")
 
 

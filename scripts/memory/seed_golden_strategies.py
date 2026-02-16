@@ -40,13 +40,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from core.decorators import must_stay_async
 import argparse
 import asyncio
 import sys
 from typing import Any
 
 import structlog
+
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -451,12 +452,11 @@ async def main():
         if args.dry_run:
             # Show what would be seeded
             logger.info("\n=== dry run: golden strategies to seed ===\n")
-            for strategy in GOLDEN_STRATEGIES:
+            for _strategy in GOLDEN_STRATEGIES:
                 logger.info("  - {strategy['name']}")
                 logger.info("    kind: {strategy['task_kind']}")
                 logger.info("    tags: {', '.join(strategy['tags'])}")
                 logger.info("    description: {strategy['description'][:60]}...")
-                logger.info("output", value=)
             logger.info("total: {len(golden_strategies)} strategies")
             return
 
@@ -482,7 +482,7 @@ async def main():
 
             await close_neo4j_client()
         except Exception:
-            pass
+            logger.debug("seed_golden_strategies.neo4j_close_failed")
 
 
 if __name__ == "__main__":

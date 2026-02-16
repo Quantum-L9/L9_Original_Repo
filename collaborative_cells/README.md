@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Multi-agent collaboration cells (architect, coder, reviewer)
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module         | Purpose             |
-| -------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/agents/` | Required dependency |
 
 ---
@@ -84,13 +84,13 @@ collaborative_cells/
 ├── reviewer_cell.py
 ```
 
-| File                 | Purpose                                     |
-| -------------------- | ------------------------------------------- |
-| `base_cell.py`       | Core module (PROTECTED)                     |
-| `__init__.py`        | Core module (PROTECTED)                     |
-| `reviewer_cell.py`   | Collaborative cell for code review and QA.  |
-| `architect_cell.py`  | Collaborative cell for architecture design. |
-| `reflection_cell.py` | Meta-reasoning cell for self-improvement.   |
+| File | Purpose |
+|------|---------|
+| `base_cell.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `reviewer_cell.py` | Collaborative cell for code review and QA. |
+| `architect_cell.py` | Collaborative cell for architecture design. |
+| `reflection_cell.py` | Meta-reasoning cell for self-improvement. |
 
 ### Naming Conventions
 
@@ -125,7 +125,7 @@ class ReviewerCell:
 
 **Public Methods:** `__init__`, `_ensure_client`, `_run_producer`, `_run_critic`, `_apply_revisions`
 
-**Lines:** 141-401 in `reviewer_cell.py`
+**Lines:** 141-404 in `reviewer_cell.py`
 
 ### `architect_cell.py` — ArchitectCell
 
@@ -149,7 +149,7 @@ class ArchitectCell:
 
 **Public Methods:** `__init__`, `_ensure_client`, `_run_producer`, `_run_critic`, `_apply_revisions`
 
-**Lines:** 140-378 in `architect_cell.py`
+**Lines:** 140-379 in `architect_cell.py`
 
 ### `reflection_cell.py` — ReflectionCell
 
@@ -173,7 +173,7 @@ class ReflectionCell:
 
 **Public Methods:** `__init__`, `_ensure_client`, `_run_producer`, `_run_critic`, `_apply_revisions`
 
-**Lines:** 133-444 in `reflection_cell.py`
+**Lines:** 133-447 in `reflection_cell.py`
 
 ### `base_cell.py` — ConsensusStrategy
 
@@ -185,7 +185,7 @@ class ConsensusStrategy:
 
 ```
 
-**Lines:** 59-65 in `base_cell.py`
+**Lines:** 62-68 in `base_cell.py`
 
 ### `base_cell.py` — CellConfig
 
@@ -197,11 +197,13 @@ class CellConfig:
 
 ```
 
-**Lines:** 69-79 in `base_cell.py`
+**Lines:** 72-82 in `base_cell.py`
+
 
 ---
 
 ## Data Models and Contracts
+
 
 ### Exported Symbols (`__all__`)
 
@@ -209,25 +211,25 @@ class CellConfig:
 
 ### Module Constants
 
-| Constant             | Value                                         | Line |
-| -------------------- | --------------------------------------------- | ---- |
-| `REVIEWER_A_PROMPT`  | `'You are Reviewer A, the primary QA anal...` | 50   |
-| `REVIEWER_B_PROMPT`  | `'You are Reviewer B, the secondary QA ch...` | 106  |
-| `ARCHITECT_A_PROMPT` | `'You are Architect A, the primary system...` | 50   |
-| `ARCHITECT_B_PROMPT` | `'You are Architect B, the challenger and...` | 102  |
-| `ANALYST_PROMPT`     | `'You are the Reflection Analyst. Examine...` | 50   |
-| `SYNTHESIZER_PROMPT` | `'You are the Reflection Synthesizer. Cre...` | 89   |
-| `T`                  | `TypeVar('T')`                                | 105  |
-| `CODER_A_PROMPT`     | `'You are Coder A, the primary implemente...` | 50   |
+| Constant | Value | Line |
+|----------|-------|------|
+| `REVIEWER_A_PROMPT` | `'You are Reviewer A, the primary QA anal...` | 50 |
+| `REVIEWER_B_PROMPT` | `'You are Reviewer B, the secondary QA ch...` | 106 |
+| `ARCHITECT_A_PROMPT` | `'You are Architect A, the primary system...` | 50 |
+| `ARCHITECT_B_PROMPT` | `'You are Architect B, the challenger and...` | 102 |
+| `ANALYST_PROMPT` | `'You are the Reflection Analyst. Examine...` | 50 |
+| `SYNTHESIZER_PROMPT` | `'You are the Reflection Synthesizer. Cre...` | 89 |
+| `T` | `TypeVar('T')` | 108 |
+| `CODER_A_PROMPT` | `'You are Coder A, the primary implemente...` | 50 |
 
-_...and 1 more constants_
+*...and 1 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CollaborativeCellsRequest(BaseModel):
     """Request model for collaborative_cells operations."""
@@ -285,9 +287,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Collaborative_Cells feature flags
-L9_ENABLE_COLLABORATIVE_CELLS_TRACING: true # Enable detailed tracing
-L9_ENABLE_COLLABORATIVE_CELLS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_COLLABORATIVE_CELLS_AUDIT: true # Enable audit logging
+L9_ENABLE_COLLABORATIVE_CELLS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_COLLABORATIVE_CELLS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_COLLABORATIVE_CELLS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -353,6 +355,7 @@ Get a snapshot of all registered cells for observability.
 - **Async:** No
 - **Returns:** `dict`
 
+
 ### Usage Example
 
 ```python
@@ -382,7 +385,7 @@ Collaborative Cells operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "collaborative_cells",
   "message": "Operation completed",
@@ -393,7 +396,6 @@ Collaborative Cells operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -401,12 +403,12 @@ Collaborative Cells operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                      | Type      | Description                    |
-| ------------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `collaborative_cells_operation_duration_ms` | Histogram | Operation latency distribution |
-| `collaborative_cells_operation_total`       | Counter   | Total operations processed     |
-| `collaborative_cells_error_total`           | Counter   | Total errors encountered       |
-| `collaborative_cells_active_connections`    | Gauge     | Current active connections     |
+| `collaborative_cells_operation_total` | Counter | Total operations processed |
+| `collaborative_cells_error_total` | Counter | Total errors encountered |
+| `collaborative_cells_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -424,7 +426,6 @@ Collaborative Cells emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/collaborative_cells/`:
-
 - `test_collaborative_cells.py` — Core unit tests
 - `test_collaborative_cells_integration.py` — Integration tests (if applicable)
 
@@ -472,7 +473,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

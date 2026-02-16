@@ -46,14 +46,15 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import TYPE_CHECKING, Any
-from uuid import UUID
 
 import structlog
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from memory.identity_tier import IdentityTierService
     from memory.substrate_repository import SubstrateRepository
 

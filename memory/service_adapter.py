@@ -50,7 +50,6 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from core.protocols import MemoryService
 from core.schemas import (
     PacketEnvelopeIn,
     PacketKind,
@@ -58,6 +57,7 @@ from core.schemas import (
 )
 
 if TYPE_CHECKING:
+    from core.protocols import MemoryService
     from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)

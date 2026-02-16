@@ -52,13 +52,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any
 
 import structlog
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
     from fastapi import FastAPI
 
 logger = structlog.get_logger(__name__)

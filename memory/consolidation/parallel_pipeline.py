@@ -38,8 +38,7 @@ __dora_meta__ = {
 import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import UTC, datetime, timezone
-from typing import Dict, List, Optional
+from datetime import UTC, datetime
 
 import structlog
 
@@ -301,7 +300,7 @@ class ParallelConsolidationPipeline:
                         )
                     else:
                         results[phase.name] = result
-                        if result.success:
+                        if isinstance(result, PhaseResult) and result.success:
                             self._completed_phases.add(phase.name)
 
         total_duration_ms = int(

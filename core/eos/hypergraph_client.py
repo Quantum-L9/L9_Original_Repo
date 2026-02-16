@@ -85,6 +85,12 @@ class EOSHypergraphClient:
         """Check if hypergraph client is available."""
         return self._available and self._neo4j is not None
 
+    def _require_client(self) -> Any:
+        """Return the Neo4j client or raise RuntimeError if not available."""
+        if self._neo4j is None:
+            raise RuntimeError("Neo4j client is not available")
+        return self._neo4j
+
     @must_stay_async("callers use await")
     async def check_violations(
         self,
@@ -127,7 +133,7 @@ class EOSHypergraphClient:
             RETURN p.name AS prohibition, p.description AS description, p.severity AS severity
             """
 
-            prohibitions = await self._neo4j.execute_read(
+            prohibitions = await self._require_client().execute_read(
                 prohibition_query,
                 action_type=action_type,
             )
@@ -149,7 +155,7 @@ class EOSHypergraphClient:
             RETURN cap.name AS capability, cap.scope AS scope, cap.risk_class AS risk_class
             """
 
-            capabilities = await self._neo4j.execute_read(
+            capabilities = await self._require_client().execute_read(
                 capability_query,
                 agent_id=agent_id,
                 action_type=action_type,
@@ -181,7 +187,7 @@ class EOSHypergraphClient:
             RETURN o.name AS obligation, o.evidence_type AS evidence_type
             """
 
-            obligations = await self._neo4j.execute_read(
+            obligations = await self._require_client().execute_read(
                 obligation_query,
                 action_type=action_type,
             )
@@ -243,7 +249,7 @@ class EOSHypergraphClient:
                    cap.scope AS scope, cap.risk_class AS risk_class
             """
 
-            return await self._neo4j.execute_read(query, agent_id=agent_id)
+            return await self._require_client().execute_read(query, agent_id=agent_id)
 
         except Exception as e:
             self.logger.error(
@@ -272,7 +278,7 @@ class EOSHypergraphClient:
             ORDER BY p.severity DESC
             """
 
-            return await self._neo4j.execute_read(query)
+            return await self._require_client().execute_read(query)
 
         except Exception as e:
             self.logger.error(
@@ -312,7 +318,7 @@ class EOSHypergraphClient:
             return False
 
         try:
-            from datetime import datetime
+            from datetime import datetime, timezone
 
             query = """
             MERGE (v:Verdict {id: $verdict_id})
@@ -324,7 +330,7 @@ class EOSHypergraphClient:
             RETURN v.id AS id
             """
 
-            result = await self._neo4j.execute_write(
+            result = await self._require_client().execute_write(
                 query,
                 verdict_id=verdict_id,
                 action_id=action_id,

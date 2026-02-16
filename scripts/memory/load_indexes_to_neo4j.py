@@ -119,7 +119,7 @@ def mcp_graph_query(cypher: str, parameters: dict | None = None) -> list[dict]:
     }
 
     body = json.dumps(payload).encode()
-    req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+    req = urllib.request.Request(url, data=body, headers=headers, method="POST")  # noqa: S310 — URL from trusted config
 
     # SSL context for HTTPS
     ssl_context = ssl.create_default_context()
@@ -127,7 +127,7 @@ def mcp_graph_query(cypher: str, parameters: dict | None = None) -> list[dict]:
     ssl_context.verify_mode = ssl.CERT_NONE
 
     try:
-        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:
+        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:  # noqa: S310 — URL from trusted config
             result = json.loads(response.read().decode())
             if result.get("status") == "success":
                 inner = result.get("result", {})
@@ -213,9 +213,9 @@ class RepoGraphLoader:
 
         try:
             # Type guard - we checked password above, uri/user have defaults
-            assert self.uri is not None
-            assert self.user is not None
-            assert self.password is not None
+            assert self.uri is not None  # noqa: S101 — type guard for config validation
+            assert self.user is not None  # noqa: S101 — type guard for config validation
+            assert self.password is not None  # noqa: S101 — type guard for config validation
             self.driver = GraphDatabase.driver(
                 self.uri,
                 auth=basic_auth(self.user, self.password),

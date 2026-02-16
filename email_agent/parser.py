@@ -34,7 +34,7 @@ from typing import Any
 import structlog
 
 try:
-    import html
+    import html  # noqa: F401 — used conditionally (html.unescape)
     from html.parser import HTMLParser
 
     HTML_AVAILABLE = True
@@ -252,8 +252,7 @@ def html_to_text(html: str) -> str:
 
             text = html_module.unescape(text)
         except Exception:
-            # Silently ignore HTML unescape errors
-            pass
+            logger.debug("email_parser.html_unescape_failed")
 
         # Clean up whitespace
         text = re.sub(r"\n\s*\n", "\n\n", text)

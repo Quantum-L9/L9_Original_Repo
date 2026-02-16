@@ -28,7 +28,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import structlog
@@ -87,7 +87,7 @@ async def get_daily_compliance_report(
         description="Date in YYYY-MM-DD format (defaults to today)",
     ),
     _api_key: str = Depends(verify_api_key),
-    substrate_service=Depends(get_substrate_service),
+    substrate_service=Depends(get_substrate_service),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Generate a daily compliance report.
@@ -109,7 +109,7 @@ async def get_daily_compliance_report(
     report_date: datetime | None = None
     if date:
         try:
-            report_date = datetime.strptime(date, "%Y-%m-%d")
+            report_date = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=UTC)
         except ValueError:
             raise HTTPException(
                 status_code=400,
@@ -152,7 +152,7 @@ async def get_compliance_report(
         description="End date in YYYY-MM-DD format",
     ),
     _api_key: str = Depends(verify_api_key),
-    substrate_service=Depends(get_substrate_service),
+    substrate_service=Depends(get_substrate_service),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Generate a compliance report for a date range.
@@ -167,8 +167,10 @@ async def get_compliance_report(
         ComplianceReportResponse with report data
     """
     try:
-        from_dt = datetime.strptime(from_date, "%Y-%m-%d")
-        to_dt = datetime.strptime(to_date, "%Y-%m-%d") + timedelta(days=1)
+        from_dt = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=UTC)
+        to_dt = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=UTC) + timedelta(
+            days=1
+        )
     except ValueError:
         raise HTTPException(
             status_code=400,
@@ -222,7 +224,7 @@ async def export_audit_log(
         description="Export format (json only for now)",
     ),
     _api_key: str = Depends(verify_api_key),
-    substrate_service=Depends(get_substrate_service),
+    substrate_service=Depends(get_substrate_service),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Export raw audit log entries for a date range.
@@ -239,8 +241,10 @@ async def export_audit_log(
         AuditLogExportResponse with entries
     """
     try:
-        from_dt = datetime.strptime(from_date, "%Y-%m-%d")
-        to_dt = datetime.strptime(to_date, "%Y-%m-%d") + timedelta(days=1)
+        from_dt = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=UTC)
+        to_dt = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=UTC) + timedelta(
+            days=1
+        )
     except ValueError:
         raise HTTPException(
             status_code=400,

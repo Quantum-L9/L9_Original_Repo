@@ -15,10 +15,7 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-import asyncio
-import json
-import time
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

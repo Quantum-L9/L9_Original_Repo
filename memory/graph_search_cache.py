@@ -37,14 +37,15 @@ __dora_meta__ = {
 import hashlib
 import json
 import random
-from datetime import datetime, timezone, UTC
-from typing import Any, Literal
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Literal
 
 import structlog
 from pydantic import BaseModel, Field
 
-from memory.graph_client import Neo4jClient
-from runtime.redis_client import RedisClient
+if TYPE_CHECKING:
+    from memory.graph_client import Neo4jClient
+    from runtime.redis_client import RedisClient
 
 logger = structlog.get_logger(__name__)
 
@@ -142,11 +143,11 @@ def _compute_ttl(ctx: GraphSearchContext, is_governance: bool = False) -> int:
     Returns:
         TTL in seconds with ±10% jitter
     """
-    base_ttl = random.randint(60, 120) if is_governance else random.randint(300, 600)
+    base_ttl = random.randint(60, 120) if is_governance else random.randint(300, 600)  # noqa: S311 — used for cache TTL jitter, not security
 
     # Add ±10% jitter
     jitter = int(base_ttl * 0.1)
-    ttl = base_ttl + random.randint(-jitter, jitter)
+    ttl = base_ttl + random.randint(-jitter, jitter)  # noqa: S311 — used for cache TTL jitter, not security
 
     return max(ttl, 10)  # Minimum 10 seconds
 

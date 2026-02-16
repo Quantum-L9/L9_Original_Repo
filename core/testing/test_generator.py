@@ -325,7 +325,7 @@ class TestGenerator:
                     )
                     context_parts.append(f"L9 PHILOSOPHY:\n{content[start:end][:500]}")
             except Exception:
-                pass
+                logger.debug("test_generator.l9_philosophy_load_failed")
 
         # Load L9-specific patterns
         l9_patterns = """

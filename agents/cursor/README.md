@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Cursor IDE integration agent with memory client
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                        | Purpose             |
-| ----------------------------- | ------------------- |
-| `mcp_memory/`                 | Required dependency |
+| Module | Purpose |
+|--------|---------|
+| `mcp_memory/` | Required dependency |
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -86,20 +86,20 @@ agents/cursor/
 ├── cursor_memory_client.py
 ├── cursor_memory_kernel.py
 ├── cursor_neo4j_query.py
+├── cursor_retrieval_kernel.py
+├── cursor_session_hooks.py
 ├── extractors/__init__.py
+├── extractors/base_extractor.py
 ├── extractors/cursor_action_extractor.py
-├── gmp_meta_learning.py
-├── integrations/__init__.py
-├── integrations/cursor_executor.py
-└── ... (4 more files)
+└── ... (8 more files)
 ```
 
-| File                   | Purpose                                 |
-| ---------------------- | --------------------------------------- |
-| `__init__.py`          | Core module (PROTECTED)                 |
-| `cursor_client.py`     | Client for Cursor remote API.           |
-| `gmp_meta_learning.py` | Graduated autonomy levels in GMP v2.0.  |
-| `gmp_meta_learning.py` | Results from a completed GMP execution. |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `cursor_client.py` | Client for Cursor remote API. |
+| `cursor_session_hooks.py` | Non-invasive session lifecycle management for Curs |
+| `cursor_retrieval_kernel.py` | Decision engine managing cursor context retrieval  |
 
 ### Naming Conventions
 
@@ -134,7 +134,67 @@ class CursorClient:
 
 **Public Methods:** `__init__`, `_request`, `send_code`, `send_command`, `health_check`
 
-**Lines:** 36-99 in `cursor_client.py`
+**Lines:** 36-113 in `cursor_client.py`
+
+### `cursor_session_hooks.py` — CursorSessionHooks
+
+```python
+class CursorSessionHooks:
+    """Non-invasive session lifecycle management for Cursor."""
+
+    # Key methods:
+
+    def __init__(self, ...): ...
+
+    def _noop_logger(self, ...): ...
+
+    async def on_session_start(self, ...) -> dict[str, Any] | None: ...
+
+    async def on_action(self, ...) -> None: ...
+
+    async def on_session_end(self, ...) -> None: ...
+
+```
+
+**Public Methods:** `__init__`, `_noop_logger`, `on_session_start`, `on_action`, `on_session_end`
+
+**Lines:** 40-239 in `cursor_session_hooks.py`
+
+### `cursor_retrieval_kernel.py` — RetrievalSource
+
+```python
+class RetrievalSource:
+    """Decision engine managing cursor context retrieval order, ensuring cache and memory checks precede repository scans for efficient knowledge access."""
+
+    # Key methods:
+
+```
+
+**Lines:** 41-60 in `cursor_retrieval_kernel.py`
+
+### `cursor_retrieval_kernel.py` — CursorRetrievalKernel
+
+```python
+class CursorRetrievalKernel:
+    """Decision engine for Cursor context retrieval."""
+
+    # Key methods:
+
+    def __init__(self, ...): ...
+
+    def _noop_logger(self, ...): ...
+
+    async def retrieve_context(self, ...) -> tuple[RetrievalSource, dict[str, Any]]: ...
+
+    async def _check_working_memory(self, ...) -> dict[str, Any] | None: ...
+
+    async def _check_long_term_memory(self, ...) -> dict[str, Any] | None: ...
+
+```
+
+**Public Methods:** `__init__`, `_noop_logger`, `retrieve_context`, `_check_working_memory`, `_check_long_term_memory`
+
+**Lines:** 63-202 in `cursor_retrieval_kernel.py`
 
 ### `gmp_meta_learning.py` — AutonomyLevel
 
@@ -146,79 +206,41 @@ class AutonomyLevel:
 
 ```
 
-**Lines:** 62-68 in `gmp_meta_learning.py`
+**Lines:** 64-70 in `gmp_meta_learning.py`
 
-### `gmp_meta_learning.py` — GMPExecutionResult
-
-```python
-class GMPExecutionResult:
-    """Results from a completed GMP execution."""
-
-    # Key methods:
-
-```
-
-**Lines:** 71-102 in `gmp_meta_learning.py`
-
-### `gmp_meta_learning.py` — LearnedHeuristic
-
-```python
-class LearnedHeuristic:
-    """A heuristic pattern learned from prior executions."""
-
-    # Key methods:
-
-    def __hash__(self, ...): ...
-
-```
-
-**Public Methods:** `__hash__`
-
-**Lines:** 105-128 in `gmp_meta_learning.py`
-
-### `gmp_meta_learning.py` — AutonomyGraduationMetrics
-
-```python
-class AutonomyGraduationMetrics:
-    """Tracks metrics for autonomy level graduation."""
-
-    # Key methods:
-
-```
-
-**Lines:** 131-152 in `gmp_meta_learning.py`
 
 ---
 
 ## Data Models and Contracts
 
+
 ### Exported Symbols (`__all__`)
 
-`AutonomyController`, `AutonomyGraduationMetrics`, `AutonomyLevel`, `CursorClient`, `CursorMemoryKernel`, `GMPExecutionResult`, `GMPMetaLearningEngine`, `LearnedHeuristic`, `Lesson`, `SessionState`
+`AutonomyController`, `AutonomyGraduationMetrics`, `AutonomyLevel`, `BaseExtractor`, `CursorActionExtractor`, `CursorClient`, `CursorMemoryKernel`, `GMPExecutionResult`, `GMPMetaLearningEngine`, `LearnedHeuristic`
 
-_...and 4 more_
+*...and 6 more*
 
 ### Module Constants
 
-| Constant                   | Value                                         | Line |
-| -------------------------- | --------------------------------------------- | ---- |
-| `SCHEMA_VERSION`           | `'2.0.0'`                                     | 97   |
-| `SUPPORTED_VERSIONS`       | `['1.0.0', '1.0.1', '1.1.0', '1.1.1', '2....` | 98   |
-| `CURSOR_SESSION_NAMESPACE` | `uuid.UUID('a1b2c3d4-e5f6-7890-abcd-ef123...` | 105  |
-| `L9_API_URL`               | `os.getenv('L9_API_URL', 'http://mcp.quan...` | 140  |
-| `MCP_URL`                  | `os.getenv('MCP_URL', 'http://mcp.quantum...` | 142  |
-| `L9_EXECUTOR_API_KEY`      | `os.getenv('MCP_API_KEY_C') or os.getenv(...` | 145  |
-| `VPS_NEO4J_URL`            | `'http://127.0.0.1:7474'`                     | 66   |
-| `LOCAL_NEO4J_URL`          | `'http://localhost:7474'`                     | 67   |
+| Constant | Value | Line |
+|----------|-------|------|
+| `DEFAULT_LESSONS_PATH` | `Path(__file__).resolve().parent.parent.p...` | 55 |
+| `TIER_MAP` | `{'ULTRA_CRITICAL': 'ultra-critical', 'CR...` | 63 |
+| `SCHEMA_VERSION` | `'2.0.0'` | 115 |
+| `SUPPORTED_VERSIONS` | `['1.0.0', '1.0.1', '1.1.0', '1.1.1', '2....` | 116 |
+| `CURSOR_SESSION_NAMESPACE` | `uuid.UUID('a1b2c3d4-e5f6-7890-abcd-ef123...` | 128 |
+| `MCP_URL` | `os.getenv('MCP_URL', 'http://46.62.243.8...` | 175 |
+| `L9_API_URL` | `os.getenv('L9_API_URL', 'http://46.62.24...` | 178 |
+| `L9_EXECUTOR_API_KEY` | `os.getenv('MCP_API_KEY_C') or os.getenv(...` | 182 |
 
-_...and 15 more constants_
+*...and 17 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class AgentsCursorRequest(BaseModel):
     """Request model for agents_cursor operations."""
@@ -276,9 +298,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Agents_Cursor feature flags
-L9_ENABLE_AGENTS_CURSOR_TRACING: true # Enable detailed tracing
-L9_ENABLE_AGENTS_CURSOR_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_AGENTS_CURSOR_AUDIT: true # Enable audit logging
+L9_ENABLE_AGENTS_CURSOR_TRACING: true  # Enable detailed tracing
+L9_ENABLE_AGENTS_CURSOR_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_AGENTS_CURSOR_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -309,40 +331,41 @@ AGENTS_CURSOR_ENABLED=true
 
 Example demonstrating GMP v2.0 learning engine (async).
 
-- **File:** `gmp_meta_learning.py:801`
+- **File:** `gmp_meta_learning.py:804`
 - **Async:** Yes
+
+#### `def parse_lessons(path) -> list[dict]`
+
+Parse repeated-mistakes.md into structured lesson dicts.
+
+- **File:** `ingest_lessons.py:77`
+- **Async:** No
+- **Returns:** `list[dict]`
+
+#### `def write_lesson_to_mcp(lesson) -> dict`
+
+Write a single lesson to MCP memory via save_memory tool.
+
+- **File:** `ingest_lessons.py:209`
+- **Async:** No
+- **Returns:** `dict`
+
+#### `def main() -> None`
+
+No description
+
+- **File:** `ingest_lessons.py:261`
+- **Async:** No
+- **Returns:** `None`
 
 #### `def get_daily_session_id() -> str`
 
 Generate deterministic session UUID based on current date.
 
-- **File:** `cursor_memory_client.py:108`
+- **File:** `cursor_memory_client.py:131`
 - **Async:** No
 - **Returns:** `str`
 
-#### `def compute_content_hash(payload) -> str`
-
-Compute SHA-256 content hash for PacketEnvelope v2.0 integrity.
-
-- **File:** `cursor_memory_client.py:120`
-- **Async:** No
-- **Returns:** `str`
-
-#### `def mcp_call_tool(tool_name, arguments) -> dict`
-
-Call MCP tool via /mcp/call endpoint.
-
-- **File:** `cursor_memory_client.py:157`
-- **Async:** No
-- **Returns:** `dict`
-
-#### `def api_request(method, path, data) -> dict`
-
-Direct HTTP API request (FALLBACK ONLY).
-
-- **File:** `cursor_memory_client.py:199`
-- **Async:** No
-- **Returns:** `dict`
 
 ### Usage Example
 
@@ -373,7 +396,7 @@ Agents Cursor operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "agents.cursor",
   "message": "Operation completed",
@@ -384,7 +407,6 @@ Agents Cursor operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -392,12 +414,12 @@ Agents Cursor operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                | Type      | Description                    |
-| ------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `agents_cursor_operation_duration_ms` | Histogram | Operation latency distribution |
-| `agents_cursor_operation_total`       | Counter   | Total operations processed     |
-| `agents_cursor_error_total`           | Counter   | Total errors encountered       |
-| `agents_cursor_active_connections`    | Gauge     | Current active connections     |
+| `agents_cursor_operation_total` | Counter | Total operations processed |
+| `agents_cursor_error_total` | Counter | Total errors encountered |
+| `agents_cursor_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -415,7 +437,6 @@ Agents Cursor emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/agents_cursor/`:
-
 - `test_agents_cursor.py` — Core unit tests
 - `test_agents_cursor_integration.py` — Integration tests (if applicable)
 
@@ -459,7 +480,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

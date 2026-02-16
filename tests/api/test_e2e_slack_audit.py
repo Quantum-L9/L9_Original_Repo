@@ -21,7 +21,7 @@ import hmac
 import os
 import sys
 import time
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -439,7 +439,7 @@ async def audit_slack_telemetry() -> AuditResult:
         )
 
         if PROMETHEUS_AVAILABLE:
-            from telemetry.slack_metrics import (
+            from telemetry.slack_metrics import (  # noqa: F401 — verify metrics importable
                 SLACK_AIOS_CALL_DURATION,
                 SLACK_IDEMPOTENT_HITS,
                 SLACK_PROCESSING_DURATION,

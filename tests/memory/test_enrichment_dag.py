@@ -17,7 +17,6 @@ Test coverage:
 """
 
 import asyncio
-from dataclasses import dataclass
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 

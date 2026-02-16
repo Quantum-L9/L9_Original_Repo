@@ -35,7 +35,7 @@ import asyncio
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -71,7 +71,7 @@ async def api_request(method: str, endpoint: str, **kwargs) -> dict[str, Any]:
 
     url = f"{VPS_URL}{endpoint}"
 
-    async with httpx.AsyncClient(verify=False, timeout=30.0) as client:
+    async with httpx.AsyncClient(verify=False, timeout=30.0) as client:  # noqa: S501 — internal VPS service, cert validation not required
         try:
             if method.upper() == "GET":
                 response = await client.get(url, headers=headers, **kwargs)
@@ -282,15 +282,13 @@ async def audit_neo4j_via_api() -> dict[str, Any]:
 
 async def run_audit() -> dict[str, Any]:
     """Run full audit."""
-    logger.info("=" * 80")
+    logger.info("=" * 80)
     logger.info("l9 graph audit - vps api")
-    logger.info("=" * 80")
+    logger.info("=" * 80)
     logger.info("vps url: vps url", VPS_URL=VPS_URL)
-    logger.info("timestamp: {datetime.now().isoformat()}")
-    logger.info("output", value=)
-
+    logger.info("timestamp: {datetime.now(tz=UTC).isoformat()}")
     results = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(tz=UTC).isoformat(),
         "vps_url": VPS_URL,
         "memory_stats": {},
         "packets": {},
@@ -319,9 +317,9 @@ async def run_audit() -> dict[str, Any]:
 
 def print_report(results: dict[str, Any]):
     """Print formatted report."""
-    logger.info("\n" + "=" * 80")
+    logger.info("\n" + "=" * 80)
     logger.info("audit report")
-    logger.info("=" * 80")
+    logger.info("=" * 80)
 
     # Memory Stats
     stats = results.get("memory_stats", {})
@@ -338,8 +336,11 @@ def print_report(results: dict[str, Any]):
             components = health.get("components", {})
             if components:
                 logger.info("   components:")
-                for comp_name, comp_data in components.items():
-                    logger.info("      comp name: {comp data.get('status', 'unknown')}", comp_name=comp_name)
+                for comp_name, _comp_data in components.items():
+                    logger.info(
+                        "      comp name: {comp data.get('status', 'unknown')}",
+                        comp_name=comp_name,
+                    )
 
     # Packets
     packets = results.get("packets", {})
@@ -404,7 +405,9 @@ def print_report(results: dict[str, Any]):
                 agent_id = agent.get("agent_id", "Unknown")
                 logger.info("   agent id:", agent_id=agent_id)
                 logger.info("      designation:     {agent.get('designation', 'n/a')}")
-                logger.info("      responsibilities: {agent.get('responsibilities', 0)}")
+                logger.info(
+                    "      responsibilities: {agent.get('responsibilities', 0)}"
+                )
                 logger.info("      directives:       {agent.get('directives', 0)}")
                 logger.info("      sops:             {agent.get('sops', 0)}")
                 logger.info("      tools:            {agent.get('tools', 0)}")
@@ -417,7 +420,9 @@ def print_report(results: dict[str, Any]):
                 logger.info("\n📅 event timeline:")
                 logger.info("   total events:      {stats.get('total_events', 0):,}")
                 logger.info("   event types:       {stats.get('event_types', 0)}")
-                logger.info("   earliest:          {stats.get('earliest_event', 'n/a')}")
+                logger.info(
+                    "   earliest:          {stats.get('earliest_event', 'n/a')}"
+                )
                 logger.info("   latest:             {stats.get('latest_event', 'n/a')}")
 
         repo = neo4j.get("repo_structure", [])
@@ -431,7 +436,7 @@ def print_report(results: dict[str, Any]):
         logger.info("\n🕸️  neo4j:")
         logger.error("   error: {neo4j.get('error', 'unknown error')}")
 
-    logger.info("\n" + "=" * 80")
+    logger.info("\n" + "=" * 80)
 
 
 async def main():
@@ -444,7 +449,7 @@ async def main():
         output_file = (
             Path(__file__).parent.parent
             / "reports"
-            / f"graph_audit_vps_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            / f"graph_audit_vps_{datetime.now(tz=UTC).strftime('%Y%m%d_%H%M%S')}.json"
         )
         output_file.parent.mkdir(parents=True, exist_ok=True)
         async with aiofiles.open(output_file, "w") as f:

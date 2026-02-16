@@ -43,12 +43,13 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import structlog
 
-from ir_engine.ir_schema import IRGraph
+if TYPE_CHECKING:
+    from ir_engine.ir_schema import IRGraph
 
 logger = structlog.get_logger(__name__)
 

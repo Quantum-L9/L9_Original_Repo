@@ -24,7 +24,6 @@ import subprocess
 from typing import Literal
 
 import httpx
-import requests
 import uvicorn
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
@@ -165,7 +164,7 @@ def run_shell(command: str, cwd: str = "/opt/l9") -> dict:
 
         # Use shlex.split for safer command parsing (prevents shell injection)
         cmd_args = shlex.split(command)
-        completed = subprocess.run(
+        completed = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd_args,
             shell=False,
             cwd=cwd,
@@ -202,7 +201,7 @@ def memory_health() -> dict:
         HTTPException: 502 if the memory health call fails.
     """
     try:
-        resp = requests.get(
+        resp = httpx.get(
             MEMORY_HEALTH_URL,
             headers={"Authorization": f"Bearer {EXECUTOR_KEY}"},
             timeout=10,

@@ -408,7 +408,9 @@ class TestRequestValidation:
 
     def test_get_request_requires_id(self):
         """GetRequest requires id field."""
-        with pytest.raises(Exception):  # Pydantic validation error
+        with pytest.raises(  # noqa: B017 — intentionally testing broad exception handling
+            Exception
+        ):  # noqa: B017 — intentionally testing broad exception handling
             GetRequest()
 
 

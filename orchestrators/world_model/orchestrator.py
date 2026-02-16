@@ -27,7 +27,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 

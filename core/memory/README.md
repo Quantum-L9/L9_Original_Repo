@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Memory abstractions and utilities
 
 ### Inbound Dependencies
 
-| Module    | Purpose          |
-| --------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `memory/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -80,12 +80,12 @@ core/memory/
 ├── virtual_context.py
 ```
 
-| File                 | Purpose                                            |
-| -------------------- | -------------------------------------------------- |
-| `__init__.py`        | Core module (PROTECTED)                            |
-| `runtime.py`         | Represents a kernel evolution event for logging.   |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `runtime.py` | Represents a kernel evolution event for logging. |
 | `virtual_context.py` | Memory organization tiers (like OS virtual memory) |
-| `virtual_context.py` | Single memory chunk                                |
+| `virtual_context.py` | Single memory chunk |
 
 ### Naming Conventions
 
@@ -114,7 +114,7 @@ class KernelEvolutionEvent:
 
 **Public Methods:** `__init__`, `to_packet_payload`
 
-**Lines:** 49-98 in `runtime.py`
+**Lines:** 51-115 in `runtime.py`
 
 ### `virtual_context.py` — MemoryTier
 
@@ -126,7 +126,7 @@ class MemoryTier:
 
 ```
 
-**Lines:** 44-49 in `virtual_context.py`
+**Lines:** 46-51 in `virtual_context.py`
 
 ### `virtual_context.py` — Memory
 
@@ -138,7 +138,7 @@ class Memory:
 
 ```
 
-**Lines:** 53-63 in `virtual_context.py`
+**Lines:** 55-65 in `virtual_context.py`
 
 ### `virtual_context.py` — Context
 
@@ -150,7 +150,7 @@ class Context:
 
 ```
 
-**Lines:** 67-74 in `virtual_context.py`
+**Lines:** 69-76 in `virtual_context.py`
 
 ### `virtual_context.py` — VirtualContextManager
 
@@ -174,11 +174,13 @@ class VirtualContextManager:
 
 **Public Methods:** `__init__`, `load_context`, `page_fault_handler`, `evict_to_archival`, `_evict_lru`
 
-**Lines:** 77-305 in `virtual_context.py`
+**Lines:** 79-332 in `virtual_context.py`
+
 
 ---
 
 ## Data Models and Contracts
+
 
 ### Exported Symbols (`__all__`)
 
@@ -189,7 +191,7 @@ class VirtualContextManager:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreMemoryRequest(BaseModel):
     """Request model for core_memory operations."""
@@ -248,9 +250,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Memory feature flags
-L9_ENABLE_CORE_MEMORY_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_MEMORY_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_MEMORY_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_MEMORY_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_MEMORY_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_MEMORY_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -281,7 +283,7 @@ CORE_MEMORY_ENABLED=true
 
 Log a kernel evolution event to the memory substrate.
 
-- **File:** `runtime.py:101`
+- **File:** `runtime.py:119`
 - **Async:** Yes
 - **Returns:** `str | None`
 
@@ -289,9 +291,10 @@ Log a kernel evolution event to the memory substrate.
 
 Retrieve kernel evolution history from the memory substrate.
 
-- **File:** `runtime.py:220`
+- **File:** `runtime.py:238`
 - **Async:** Yes
 - **Returns:** `list[dict[str, Any]]`
+
 
 ### Usage Example
 
@@ -322,7 +325,7 @@ Core Memory operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.memory",
   "message": "Operation completed",
@@ -333,7 +336,6 @@ Core Memory operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -341,12 +343,12 @@ Core Memory operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                              | Type      | Description                    |
-| ----------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_memory_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_memory_operation_total`       | Counter   | Total operations processed     |
-| `core_memory_error_total`           | Counter   | Total errors encountered       |
-| `core_memory_active_connections`    | Gauge     | Current active connections     |
+| `core_memory_operation_total` | Counter | Total operations processed |
+| `core_memory_error_total` | Counter | Total errors encountered |
+| `core_memory_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -364,7 +366,6 @@ Core Memory emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_memory/`:
-
 - `test_core_memory.py` — Core unit tests
 - `test_core_memory_integration.py` — Integration tests (if applicable)
 
@@ -407,7 +408,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

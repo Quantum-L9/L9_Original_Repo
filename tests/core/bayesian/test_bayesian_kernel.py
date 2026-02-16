@@ -14,15 +14,23 @@ Version: 1.0.0
 """
 
 import os
-from typing import Dict
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
-from core.config import FeatureFlags, reset_flags_for_testing
-from core.kernels.bayesian_kernel import (
+
+# Mock FeatureFlags and reset_flags_for_testing since core.config is gone
+class FeatureFlags:
+    def __init__(self):
+        self.L9_ENABLE_BAYESIAN_REASONING = False
+
+
+def reset_flags_for_testing():
+    pass
+
+
+from core.bayesian.bayesian_kernel import (
     BayesianKernel,
-    BeliefState,
     EvidenceStrength,
     get_bayesian_kernel,
     reset_bayesian_kernel,
@@ -31,9 +39,7 @@ from core.schemas.hypergraph import (
     BAYESIAN_NODE_TEMPLATE,
     BayesianNode,
     NodeStatus,
-    NodeTemplate,
     NodeType,
-    ReasoningNode,
 )
 
 # ============================================================================

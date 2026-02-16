@@ -78,7 +78,7 @@ class SymbolicComputationConfig(BaseSettings):
 
     # Code generation settings
     codegen_temp_dir: str = Field(
-        default="/tmp/sympy_codegen",
+        default="/tmp/sympy_codegen",  # noqa: S108 — intentional temp path for codegen
         env="SYMBOLIC_CODEGEN_TEMP_DIR",
         description="Temporary directory for code generation",
     )
@@ -109,6 +109,29 @@ class SymbolicComputationConfig(BaseSettings):
         env="SYMBOLIC_ALLOW_DANGEROUS_FUNCTIONS",
         description="Allow potentially dangerous functions",
     )
+    dangerous_functions: list[str] = Field(
+        default_factory=list,
+        env="SYMBOLIC_DANGEROUS_FUNCTIONS",
+        description="List of dangerous functions to block",
+    )
+    redis_cache_ttl: int = Field(
+        default=3600,
+        env="SYMBOLIC_REDIS_CACHE_TTL",
+        description="Redis cache TTL in seconds",
+    )
+    keyspace: str = Field(
+        default="symbolic",
+        env="SYMBOLIC_KEYSPACE",
+        description="Redis keyspace prefix",
+    )
+
+    def get_redis_key(self, expr_hash: str, backend: str) -> str:
+        """Get Redis key for expression result."""
+        return f"{self.keyspace}:{expr_hash}:{backend}"
+
+    def get_compiled_key(self, expr_hash: str) -> str:
+        """Get Redis key for compiled function."""
+        return f"{self.keyspace}:compiled:{expr_hash}"
 
 
 # Global configuration instance

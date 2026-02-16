@@ -146,7 +146,7 @@ async def delete_trash_embeddings(
                     f"""
                     DELETE FROM semantic_memory
                     WHERE embedding_id::text IN ({placeholders})
-                    """,
+                    """,  # noqa: S608 — placeholders are $N params, not user input
                     *batch,
                 )
                 deleted += int(result.split()[-1])
@@ -178,7 +178,9 @@ async def main(dry_run: bool = False, verbose: bool = False):
             dry_run=dry_run, verbose=verbose
         )
         logger.info("\nfound {result.get('trash_found', 0)} trash embeddings via api")
-        logger.info("note: direct db access needed for deletion. set database_url in .env")
+        logger.info(
+            "note: direct db access needed for deletion. set database_url in .env"
+        )
         return
 
     logger.info("Deleting trash embeddings", dry_run=dry_run)
@@ -190,9 +192,9 @@ async def main(dry_run: bool = False, verbose: bool = False):
         logger.error(f"Failed: {result['error']}")
         return
 
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("trash embeddings deletion")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("  total embeddings: {result['total']:,}")
     logger.info("  trash found: {result['trash_found']:,}")
 

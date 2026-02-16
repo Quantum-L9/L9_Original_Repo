@@ -2,19 +2,19 @@
 # Readme Manifest
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-14 01:27 UTC
-# Branch:    main (cd9f1632)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 README File Manifest
-# Generated: 2026-02-14 01:27
+# Generated: 2026-02-14 09:16
 #
 # AI Reference: Quick lookup for module documentation
 # Each entry shows: PATH | TITLE | DESCRIPTION
 # ============================================================================
 
-# Total: 86 README files across 35 directories
+# Total: 88 README files across 36 directories
 
 # ============================================================================
 # .SEMGREP (1 files)
@@ -345,6 +345,14 @@ TITLE: Mac Agent
 DESC: > **Tier:** AGENTS | **Path:** `mac_agent` | **Owner:** Igor
 
 # ============================================================================
+# MCP_MEMORY (1 files)
+# ============================================================================
+
+PATH: mcp_memory/README.md
+TITLE: MCP Memory Server
+DESC: > **Tier:** API | **Path:** `mcp_memory` | **Owner:** Igor
+
+# ============================================================================
 # MEMORY (1 files)
 # ============================================================================
 
@@ -485,12 +493,16 @@ TITLE: Background Workers
 DESC: > **Tier:** INFRASTRUCTURE | **Path:** `workers` | **Owner:** Igor
 
 # ============================================================================
-# WORKFLOWS (1 files)
+# WORKFLOWS (2 files)
 # ============================================================================
 
 PATH: workflows/README.md
 TITLE: Workflow Engine
 DESC: > **Tier:** INFRASTRUCTURE | **Path:** `workflows` | **Owner:** Igor
+
+PATH: workflows/dags/gmp/README.md
+TITLE: GMP LangGraph Executor
+DESC: Programmatic GMP (Governance Managed Process) execution via LangGraph StateGraph.
 
 # ============================================================================
 # WORLD_MODEL (1 files)

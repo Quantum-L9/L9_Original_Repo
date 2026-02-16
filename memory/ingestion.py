@@ -63,6 +63,7 @@ if TYPE_CHECKING:
     from memory.substrate_dag import SubstrateDAG
     from memory.substrate_repository import SubstrateRepository
     from memory.substrate_semantic import SemanticService
+    from memory.substrate_service import MemorySubstrateService
 
 from core.decorators import must_stay_async
 from core.governance.rate_limit_policy import rate_limit
@@ -70,7 +71,6 @@ from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
 from memory.audit_utils import prepare_packet_for_ingest
 from memory.governance_gate import enforce_packet_governance, require_governance_context
 from memory.graph_client import get_neo4j_client
-from memory.substrate_service import MemorySubstrateService
 from memory.validators.packet_validator import PacketValidationError, PacketValidator
 
 logger = structlog.get_logger(__name__)
@@ -281,7 +281,7 @@ class IngestionPipeline:
                         scope = (
                             (envelope.metadata or {}).get("db_scope")
                             or (envelope.metadata or {}).get("scope")
-                            or "shared"
+                            or "cursor"  # Default to valid DB scope
                         )
                         await self._repository.insert_semantic_embedding(
                             vector=vector,

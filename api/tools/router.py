@@ -128,7 +128,7 @@ async def execute_tool(
     http_request: Request,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
-    registry: ExecutorToolRegistry = Depends(get_tool_registry),
+    registry: ExecutorToolRegistry = Depends(get_tool_registry),  # noqa: B008 — FastAPI dependency injection
 ):
     """
     Execute a tool via ExecutorToolRegistry.

@@ -36,13 +36,21 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-from collections.abc import Generator
 from contextlib import contextmanager
+from typing import TYPE_CHECKING
 
 import structlog
 
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
 try:
-    from prometheus_client import REGISTRY, Counter, Gauge, Histogram
+    from prometheus_client import (  # noqa: F401 — REGISTRY used conditionally
+        REGISTRY,
+        Counter,
+        Gauge,
+        Histogram,
+    )
 
     PROMETHEUS_AVAILABLE = True
 except ImportError:

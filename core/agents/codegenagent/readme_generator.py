@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -65,7 +65,7 @@ class ReadmeMetadata:
     owner: str = "L9 CodeGenAgent"
     version: str = "1.0.0"
     last_updated: str = field(
-        default_factory=lambda: datetime.now().strftime("%Y-%m-%d")
+        default_factory=lambda: datetime.now(tz=UTC).strftime("%Y-%m-%d")
     )
     invariants: list[str] = field(default_factory=list)
     ai_allowed_scopes: list[str] = field(default_factory=list)
@@ -507,7 +507,7 @@ class ReadmeGenerator:
             forbidden_scopes=forbidden_text,
             owner=owner,
             version=version,
-            last_updated=datetime.now().strftime("%Y-%m-%d"),
+            last_updated=datetime.now(tz=UTC).strftime("%Y-%m-%d"),
             license_info=self.default_license,
         )
 
@@ -613,7 +613,7 @@ class ReadmeGenerator:
             pre_reading="\n".join(pre_reading),
             owner=owner,
             version=version,
-            last_updated=datetime.now().strftime("%Y-%m-%d"),
+            last_updated=datetime.now(tz=UTC).strftime("%Y-%m-%d"),
         )
 
         metadata = ReadmeMetadata(
@@ -746,7 +746,8 @@ class ReadmeGenerator:
                     "| Field | Type | Description |\n|-------|------|-------------|\n"
                 )
                 for field in fields:
-                    section += f"| `{field.get('name', '')}` | `{field.get('type', '')}` | {field.get('description', '')} |\n"
+                    if isinstance(field, dict):
+                        section += f"| `{field.get('name', '')}` | `{field.get('type', '')}` | {field.get('description', '')} |\n"
 
             sections.append(section)
 

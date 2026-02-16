@@ -49,12 +49,12 @@ import os
 import re
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-import yaml
 import structlog
+import yaml
 
 # ============================================================================
 # Configuration
@@ -174,7 +174,7 @@ def load_contract() -> dict[str, Any]:
             with open(CONTRACT_PATH) as f:
                 return yaml.safe_load(f)
         except Exception:
-            pass
+            logger.debug("validate_gmp_report.contract_load_failed")
     return {}
 
 
@@ -298,7 +298,7 @@ class GMPReportValidator:
 
                 # Validate date
                 try:
-                    datetime.strptime(result.date, "%Y-%m-%d")
+                    datetime.strptime(result.date, "%Y-%m-%d").replace(tzinfo=UTC)
                 except ValueError:
                     result.errors.append(
                         ValidationIssue(
@@ -380,7 +380,9 @@ class GMPReportValidator:
                     if date_match:
                         result.date = date_match.group(1)
                         try:
-                            datetime.strptime(result.date, "%Y-%m-%d")
+                            datetime.strptime(result.date, "%Y-%m-%d").replace(
+                                tzinfo=UTC
+                            )
                         except ValueError:
                             result.errors.append(
                                 ValidationIssue(
@@ -731,7 +733,11 @@ def print_result(result: ValidationResult, verbose: bool = False):
     if result.gmp_id:
         task_str = (result.task or "")[:50]
         task_ellipsis = "..." if len(result.task or "") > 50 else ""
-        logger.info("   id: {result.gmp id} | task: task strtask ellipsis", task_str=task_str, task_ellipsis=task_ellipsis)
+        logger.info(
+            "   id: {result.gmp id} | task: task strtask ellipsis",
+            task_str=task_str,
+            task_ellipsis=task_ellipsis,
+        )
         time_str = f" | Time: {result.time}" if result.time else ""
         print(
             f"   Tier: {result.tier} | Date: {result.date}{time_str} | Status: {result.status}"
@@ -745,20 +751,22 @@ def print_result(result: ValidationResult, verbose: bool = False):
         logger.error("\n   🔴 errors ({len(result.errors)}):")
         for e in result.errors:
             line_info = f" (L{e.line})" if e.line else ""
-            logger.info("      [{e.section}]line info: {e.message}", line_info=line_info)
+            logger.info(
+                "      [{e.section}]line info: {e.message}", line_info=line_info
+            )
 
     if result.warnings:
         logger.warning("\n   🟡 warnings ({len(result.warnings)}):")
         for w in result.warnings:
             line_info = f" (L{w.line})" if w.line else ""
-            logger.info("      [{w.section}]line info: {w.message}", line_info=line_info)
+            logger.info(
+                "      [{w.section}]line info: {w.message}", line_info=line_info
+            )
 
     if verbose and result.info:
         logger.info("\n   ℹ️ info ({len(result.info)}):")
-        for i in result.info:
+        for _i in result.info:
             logger.info("      [{i.section}]: {i.message}")
-
-    logger.info("output", value=)
 
 
 def main():
@@ -810,7 +818,7 @@ def main():
     # Output
     if args.json:
         output = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(tz=UTC).isoformat(),
             "files_validated": len(results),
             "valid_count": sum(1 for r in results if r.valid),
             "invalid_count": sum(1 for r in results if not r.valid),
@@ -828,9 +836,15 @@ def main():
         total_errors = sum(len(r.errors) for r in results)
         total_warnings = sum(len(r.warnings) for r in results)
 
-        logger.info("=" * 60")
-        logger.info("summary: valid count/{len(results)} valid", valid_count=valid_count)
-        logger.error("         total errors errors, total warnings warnings", total_errors=total_errors, total_warnings=total_warnings)
+        logger.info("=" * 60)
+        logger.info(
+            "summary: valid count/{len(results)} valid", valid_count=valid_count
+        )
+        logger.error(
+            "         total errors errors, total warnings warnings",
+            total_errors=total_errors,
+            total_warnings=total_warnings,
+        )
 
         if invalid_count > 0:
             logger.info("\n❌ invalid reports:")

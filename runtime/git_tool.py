@@ -192,7 +192,7 @@ async def git_commit_tool(
                 error=str(e),
             )
         except Exception:
-            pass
+            logger.debug("git_tool.log_tool_call_failed")
 
         return {
             "task_id": None,

@@ -143,7 +143,7 @@ class CodeExtractor(ast.NodeVisitor):
                 lines = source_lines.splitlines()[:5]
                 return "\n".join(lines)
         except Exception:
-            pass
+            logger.debug("build_semantic_index.body_preview_failed")
         return ""
 
 

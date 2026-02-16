@@ -46,6 +46,9 @@ import re
 from pathlib import Path
 
 import click
+import structlog
+
+logger = structlog.get_logger(__name__)
 
 
 @click.group()
@@ -81,7 +84,8 @@ def scan_secrets(path: str):
                 for pattern in patterns:
                     if re.search(pattern, line):
                         findings.append((str(py_file), line_num, line.strip()))
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     if findings:
@@ -115,7 +119,8 @@ def scan_quality(path: str):
             lines = len(py_file.read_text().split("\n"))
             if lines > 2000:
                 large_files.append((str(py_file), lines))
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     large_files.sort(key=lambda x: x[1], reverse=True)
@@ -136,7 +141,8 @@ def scan_quality(path: str):
             for line_num, line in enumerate(content.split("\n"), 1):
                 if re.search(r"^\s*except\s*:\s*$", line):
                     bare_excepts.append((str(py_file), line_num))
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     if bare_excepts:
@@ -170,7 +176,8 @@ def manage_debt(path: str):
                 for marker in markers:
                     if marker in line:
                         findings[marker].append((str(py_file), line_num, line.strip()))
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     total = sum(len(v) for v in findings.values())

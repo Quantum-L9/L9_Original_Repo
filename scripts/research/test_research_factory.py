@@ -37,7 +37,6 @@ import os
 import httpx
 import structlog
 
-
 logger = structlog.get_logger(__name__)
 
 BASE_URL = os.getenv("L9_BASE_URL", "http://localhost:8000")
@@ -45,7 +44,10 @@ BASE_URL = os.getenv("L9_BASE_URL", "http://localhost:8000")
 
 async def test_research_endpoint():
     """Test the /research endpoint."""
-    logger.info("\n🔬 testing quantum research factory at base url/research\n", BASE_URL=BASE_URL)
+    logger.info(
+        "\n🔬 testing quantum research factory at base url/research\n",
+        BASE_URL=BASE_URL,
+    )
 
     async with httpx.AsyncClient(timeout=120.0) as client:
         # Test 1: Check server status
@@ -77,9 +79,13 @@ async def test_research_endpoint():
             if response.status_code == 200:
                 result = response.json()
                 logger.info("   ✅ thread id: {result.get('thread_id')}")
-                logger.info("   ✅ refined goal: {result.get('refined_goal', '')[:80]}...")
+                logger.info(
+                    "   ✅ refined goal: {result.get('refined_goal', '')[:80]}..."
+                )
                 logger.info("   ✅ evidence count: {result.get('evidence_count', 0)}")
-                logger.info("   ✅ quality score: {result.get('quality_score', 0.0):.2f}")
+                logger.info(
+                    "   ✅ quality score: {result.get('quality_score', 0.0):.2f}"
+                )
                 logger.info("\n   📝 summary (first 500 chars):")
                 summary = result.get("summary", "No summary")
                 logger.info("   {summary[:500]}...")
@@ -97,22 +103,26 @@ async def test_research_endpoint():
         logger.info("\n3️⃣  checking perplexity api key...")
         perplexity_key = os.getenv("PERPLEXITY_API_KEY")
         if perplexity_key:
-            logger.info("   ✅ perplexity_api_key is set (length: {len(perplexity_key)})")
+            logger.info(
+                "   ✅ perplexity_api_key is set (length: {len(perplexity_key)})"
+            )
         else:
-            logger.info("   ⚠️  perplexity_api_key not set - research will use mock results")
+            logger.info(
+                "   ⚠️  perplexity_api_key not set - research will use mock results"
+            )
             logger.info("   → set: export perplexity_api_key='pplx-...")
 
 
 async def main():
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("   quantum research factory - activation test")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
     await test_research_endpoint()
 
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("   test complete")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
 
 if __name__ == "__main__":

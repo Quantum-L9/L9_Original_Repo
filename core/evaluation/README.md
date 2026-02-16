@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Agent and output evaluation framework
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module         | Purpose             |
-| -------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/agents/` | Required dependency |
 
 ---
@@ -80,12 +80,12 @@ core/evaluation/
 ├── evaluator.py
 ```
 
-| File           | Purpose                           |
-| -------------- | --------------------------------- |
-| `__init__.py`  | Core module (PROTECTED)           |
-| `evaluator.py` | Single evaluation case            |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `evaluator.py` | Single evaluation case |
 | `evaluator.py` | Collection of evaluation examples |
-| `evaluator.py` | Result of evaluation run          |
+| `evaluator.py` | Result of evaluation run |
 
 ### Naming Conventions
 
@@ -136,7 +136,7 @@ class EvaluationResult:
 
 **Public Methods:** `task_success_rate`
 
-**Lines:** 68-89 in `evaluator.py`
+**Lines:** 68-90 in `evaluator.py`
 
 ### `evaluator.py` — Evaluator
 
@@ -160,7 +160,7 @@ class Evaluator:
 
 **Public Methods:** `__init__`, `define_eval_set`, `run_eval`, `_compute_tool_accuracy`, `_judge_output`
 
-**Lines:** 92-451 in `evaluator.py`
+**Lines:** 93-460 in `evaluator.py`
 
 ### `evaluator.py` — RegressionError
 
@@ -172,35 +172,37 @@ class RegressionError:
 
 ```
 
-**Lines:** 454-457 in `evaluator.py`
+**Lines:** 463-466 in `evaluator.py`
+
 
 ---
 
 ## Data Models and Contracts
 
+
 ### Exported Symbols (`__all__`)
 
 `ALL_EVAL_SETS`, `CODE_ANALYSIS_EXAMPLES`, `EVAL_SET_DESCRIPTIONS`, `EvaluationExample`, `EvaluationResult`, `EvaluationSet`, `Evaluator`, `INFORMATION_RETRIEVAL_EXAMPLES`, `MEMORY_OPERATIONS_EXAMPLES`, `MULTI_TOOL_EXAMPLES`
 
-_...and 3 more_
+*...and 3 more*
 
 ### Module Constants
 
-| Constant                         | Value                                         | Line |
-| -------------------------------- | --------------------------------------------- | ---- |
-| `INFORMATION_RETRIEVAL_EXAMPLES` | `[EvaluationExample(input_text='What is t...` | 51   |
-| `CODE_ANALYSIS_EXAMPLES`         | `[EvaluationExample(input_text='What does...` | 110  |
-| `MULTI_TOOL_EXAMPLES`            | `[EvaluationExample(input_text='Search fo...` | 171  |
-| `MEMORY_OPERATIONS_EXAMPLES`     | `[EvaluationExample(input_text='Remember ...` | 230  |
-| `ALL_EVAL_SETS`                  | `{'information_retrieval': INFORMATION_RE...` | 329  |
-| `EVAL_SET_DESCRIPTIONS`          | `{'information_retrieval': 'Web search, f...` | 336  |
+| Constant | Value | Line |
+|----------|-------|------|
+| `INFORMATION_RETRIEVAL_EXAMPLES` | `[EvaluationExample(input_text='What is t...` | 51 |
+| `CODE_ANALYSIS_EXAMPLES` | `[EvaluationExample(input_text='What does...` | 110 |
+| `MULTI_TOOL_EXAMPLES` | `[EvaluationExample(input_text='Search fo...` | 171 |
+| `MEMORY_OPERATIONS_EXAMPLES` | `[EvaluationExample(input_text='Remember ...` | 230 |
+| `ALL_EVAL_SETS` | `{'information_retrieval': INFORMATION_RE...` | 329 |
+| `EVAL_SET_DESCRIPTIONS` | `{'information_retrieval': 'Web search, f...` | 336 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreEvaluationRequest(BaseModel):
     """Request model for core_evaluation operations."""
@@ -258,9 +260,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Evaluation feature flags
-L9_ENABLE_CORE_EVALUATION_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_EVALUATION_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_EVALUATION_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_EVALUATION_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_EVALUATION_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_EVALUATION_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -299,9 +301,10 @@ Load all default evaluation sets into an evaluator instance.
 
 Block PRs that regress eval scores
 
-- **File:** `evaluator.py:460`
+- **File:** `evaluator.py:469`
 - **Async:** Yes
 - **Returns:** `None`
+
 
 ### Usage Example
 
@@ -332,7 +335,7 @@ Core Evaluation operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.evaluation",
   "message": "Operation completed",
@@ -343,7 +346,6 @@ Core Evaluation operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -351,12 +353,12 @@ Core Evaluation operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                  | Type      | Description                    |
-| --------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_evaluation_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_evaluation_operation_total`       | Counter   | Total operations processed     |
-| `core_evaluation_error_total`           | Counter   | Total errors encountered       |
-| `core_evaluation_active_connections`    | Gauge     | Current active connections     |
+| `core_evaluation_operation_total` | Counter | Total operations processed |
+| `core_evaluation_error_total` | Counter | Total errors encountered |
+| `core_evaluation_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -374,7 +376,6 @@ Core Evaluation emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_evaluation/`:
-
 - `test_core_evaluation.py` — Core unit tests
 - `test_core_evaluation_integration.py` — Integration tests (if applicable)
 
@@ -417,7 +418,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

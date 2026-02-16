@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Alternative runtime implementations
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module     | Purpose             |
-| ---------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `runtime/` | Required dependency |
 
 ---
@@ -79,11 +79,11 @@ core/runtimes/
 ├── react_runtime.py
 ```
 
-| File               | Purpose                                            |
-| ------------------ | -------------------------------------------------- |
-| `__init__.py`      | Core module (PROTECTED)                            |
-| `react_runtime.py` | Single step in ReAct loop.                         |
-| `react_runtime.py` | ReAct (Reason + Act) runtime for agent task execut |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `react_runtime.py` | Single step in ReAct loop. |
+| `react_runtime.py` | Initializes the ReAct runtime for agent task execu |
 
 ### Naming Conventions
 
@@ -110,13 +110,13 @@ class ReActStep:
 
 **Public Methods:** `__init__`
 
-**Lines:** 44-58 in `react_runtime.py`
+**Lines:** 46-69 in `react_runtime.py`
 
 ### `react_runtime.py` — ReActRuntime
 
 ```python
 class ReActRuntime:
-    """ReAct (Reason + Act) runtime for agent task execution."""
+    """Initializes the ReAct runtime for agent task execution using the Think → Act → Observe pattern."""
 
     # Key methods:
 
@@ -132,11 +132,13 @@ class ReActRuntime:
 
 **Public Methods:** `__init__`, `execute_task`, `_build_thought_context`, `_duration_ms`
 
-**Lines:** 61-207 in `react_runtime.py`
+**Lines:** 72-243 in `react_runtime.py`
+
 
 ---
 
 ## Data Models and Contracts
+
 
 ### Exported Symbols (`__all__`)
 
@@ -147,7 +149,7 @@ class ReActRuntime:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreRuntimesRequest(BaseModel):
     """Request model for core_runtimes operations."""
@@ -206,9 +208,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Runtimes feature flags
-L9_ENABLE_CORE_RUNTIMES_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_RUNTIMES_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_RUNTIMES_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_RUNTIMES_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_RUNTIMES_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_RUNTIMES_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -239,9 +241,10 @@ CORE_RUNTIMES_ENABLED=true
 
 Factory function to create ReAct runtime.
 
-- **File:** `react_runtime.py:210`
+- **File:** `react_runtime.py:246`
 - **Async:** No
 - **Returns:** `ReActRuntime`
+
 
 ### Usage Example
 
@@ -272,7 +275,7 @@ Core Runtimes operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.runtimes",
   "message": "Operation completed",
@@ -283,7 +286,6 @@ Core Runtimes operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -291,12 +293,12 @@ Core Runtimes operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                | Type      | Description                    |
-| ------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_runtimes_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_runtimes_operation_total`       | Counter   | Total operations processed     |
-| `core_runtimes_error_total`           | Counter   | Total errors encountered       |
-| `core_runtimes_active_connections`    | Gauge     | Current active connections     |
+| `core_runtimes_operation_total` | Counter | Total operations processed |
+| `core_runtimes_error_total` | Counter | Total errors encountered |
+| `core_runtimes_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -314,7 +316,6 @@ Core Runtimes emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_runtimes/`:
-
 - `test_core_runtimes.py` — Core unit tests
 - `test_core_runtimes_integration.py` — Integration tests (if applicable)
 
@@ -357,7 +358,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

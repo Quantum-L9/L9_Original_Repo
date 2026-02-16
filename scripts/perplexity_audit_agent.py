@@ -27,17 +27,12 @@ from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import httpx
 import structlog
 import yaml
 
 from core.decorators import must_stay_async
-
-if TYPE_CHECKING:
-    pass
-
 from core.observability.instrumentation import trace_span
 from scripts.cga_spec_generator import CGASpecGenerator
 

@@ -50,7 +50,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 

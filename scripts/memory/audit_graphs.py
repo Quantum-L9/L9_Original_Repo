@@ -41,7 +41,7 @@ import asyncio
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -430,35 +430,33 @@ async def audit_world_model() -> dict[str, Any]:
 
 async def run_full_audit() -> dict[str, Any]:
     """Run comprehensive audit of all graphs."""
-    logger.info("=" * 80")
+    logger.info("=" * 80)
     logger.info("l9 graph audit - full system scan")
-    logger.info("=" * 80")
-    logger.info("timestamp: {datetime.now().isoformat()}")
-    logger.info("output", value=)
-
+    logger.info("=" * 80)
+    logger.info("timestamp: {datetime.now(tz=UTC).isoformat()}")
     audit_results = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(tz=UTC).isoformat(),
         "postgresql": {},
         "neo4j": {},
         "world_model": {},
     }
 
     # PostgreSQL Graphs
-    logger.info("\n" + "=" * 80")
+    logger.info("\n" + "=" * 80)
     logger.info("postgresql graphs")
-    logger.info("=" * 80")
+    logger.info("=" * 80)
     audit_results["postgresql"] = await audit_postgresql_graphs()
 
     # Neo4j Graphs
-    logger.info("\n" + "=" * 80")
+    logger.info("\n" + "=" * 80)
     logger.info("neo4j graphs")
-    logger.info("=" * 80")
+    logger.info("=" * 80)
     audit_results["neo4j"] = await audit_neo4j_graphs()
 
     # World Model
-    logger.info("\n" + "=" * 80")
+    logger.info("\n" + "=" * 80)
     logger.info("world model")
-    logger.info("=" * 80")
+    logger.info("=" * 80)
     audit_results["world_model"] = await audit_world_model()
 
     return audit_results
@@ -466,9 +464,9 @@ async def run_full_audit() -> dict[str, Any]:
 
 def print_audit_report(results: dict[str, Any]):
     """Print formatted audit report."""
-    logger.info("\n" + "=" * 80")
+    logger.info("\n" + "=" * 80)
     logger.info("audit report summary")
-    logger.info("=" * 80")
+    logger.info("=" * 80)
 
     # PostgreSQL Summary
     if "postgresql" in results and "error" not in results["postgresql"]:
@@ -479,7 +477,9 @@ def print_audit_report(results: dict[str, Any]):
             logger.info("   total packets:      {stats.get('total_packets', 0):,}")
             logger.info("   total threads:      {stats.get('total_threads', 0):,}")
             logger.info("   packet types:       {stats.get('packet_types', 0)}")
-            logger.info("   with parents:       {stats.get('packets_with_parents', 0):,}")
+            logger.info(
+                "   with parents:       {stats.get('packets_with_parents', 0):,}"
+            )
             logger.info("   with tags:           {stats.get('packets_with_tags', 0):,}")
             logger.info("   earliest:           {stats.get('earliest_packet', 'n/a')}")
             logger.info("   latest:             {stats.get('latest_packet', 'n/a')}")
@@ -505,8 +505,10 @@ def print_audit_report(results: dict[str, Any]):
         logger.info("\n🕸️  neo4j knowledge graph:")
         if "overall_stats" in neo:
             logger.info("   node types:")
-            for item in neo["overall_stats"][:10]:
-                logger.info("      {item.get('label', 'unknown')}: {item.get('count', 0):,}")
+            for _item in neo["overall_stats"][:10]:
+                logger.info(
+                    "      {item.get('label', 'unknown')}: {item.get('count', 0):,}"
+                )
 
         if "relationships" in neo:
             logger.info("\n   relationship types:")
@@ -517,9 +519,11 @@ def print_audit_report(results: dict[str, Any]):
 
         if "agent_state" in neo:
             logger.info("\n🤖 agent state graph:")
-            for agent in neo["agent_state"]:
+            for _agent in neo["agent_state"]:
                 logger.info("   {agent.get('agent_id', 'unknown')}:")
-                logger.info("      responsibilities: {agent.get('responsibilities', 0)}")
+                logger.info(
+                    "      responsibilities: {agent.get('responsibilities', 0)}"
+                )
                 logger.info("      directives:       {agent.get('directives', 0)}")
                 logger.info("      sops:             {agent.get('sops', 0)}")
                 logger.info("      tools:            {agent.get('tools', 0)}")
@@ -527,8 +531,10 @@ def print_audit_report(results: dict[str, Any]):
 
         if "repo_structure" in neo and neo["repo_structure"]["nodes"]:
             logger.info("\n📁 repo structure graph:")
-            for item in neo["repo_structure"]["nodes"]:
-                logger.info("   {item.get('type', 'unknown')}: {item.get('count', 0):,}")
+            for _item in neo["repo_structure"]["nodes"]:
+                logger.info(
+                    "   {item.get('type', 'unknown')}: {item.get('count', 0):,}"
+                )
 
     # World Model Summary
     if "world_model" in results and "error" not in results["world_model"]:
@@ -540,9 +546,9 @@ def print_audit_report(results: dict[str, Any]):
             logger.info("   entity types:       {stats.get('entity_types', 0)}")
             logger.info("   current version:   {stats.get('max_version', 0)}")
 
-    logger.info("\n" + "=" * 80")
+    logger.info("\n" + "=" * 80)
     logger.info("audit complete")
-    logger.info("=" * 80")
+    logger.info("=" * 80)
 
 
 async def main():
@@ -555,7 +561,7 @@ async def main():
         output_file = (
             Path(__file__).parent.parent
             / "reports"
-            / f"graph_audit_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            / f"graph_audit_{datetime.now(tz=UTC).strftime('%Y%m%d_%H%M%S')}.json"
         )
         output_file.parent.mkdir(parents=True, exist_ok=True)
         async with aiofiles.open(output_file, "w") as f:

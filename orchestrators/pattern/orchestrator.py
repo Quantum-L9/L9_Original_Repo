@@ -609,7 +609,9 @@ def create_pattern_orchestrator(
     # Try to get memory service
     memory_service = None
     try:
-        from memory.substrate_service import MemorySubstrateService
+        from memory.substrate_service import (
+            MemorySubstrateService,  # noqa: F401 — availability check
+        )
 
         # Memory service would need to be initialized elsewhere
         # This is just a placeholder for integration

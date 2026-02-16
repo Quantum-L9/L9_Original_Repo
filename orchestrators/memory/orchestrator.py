@@ -30,7 +30,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import structlog

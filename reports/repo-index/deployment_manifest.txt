@@ -2,8 +2,8 @@
 # Deployment Manifest
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-14 01:27 UTC
-# Branch:    main (cd9f1632)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -83,8 +83,8 @@
 
 | Variable | Default |
 |----------|---------|
-| `MEMORY_DSN` | `postgresql://postgres:${POSTGRES_PASSWORD}@host.docker.internal:5432/l9_memory` |
-| `DATABASE_URL` | `postgresql://postgres:${POSTGRES_PASSWORD}@host.docker.internal:5432/l9_memory` |
+| `MEMORY_DSN` | `postgresql://postgres:...@host.docker.internal:5432/l9_memory` |
+| `DATABASE_URL` | `postgresql://postgres:...@host.docker.internal:5432/l9_memory` |
 | `POSTGRES_USER` | `postgres` |
 | `POSTGRES_PASSWORD` | `***` |
 | `POSTGRES_DB` | `l9_memory` |
@@ -157,6 +157,8 @@
 | `L9_STAGE4_CONSOLIDATION` | `true` |
 | `L9_CONSOLIDATION_INTERVAL_HOURS` | `4` |
 | `L9_SKIP_STARTUP_CHECKS` | `false` |
+| `ENABLE_PIPELINE_ROUTER` | `false` |
+| `ENABLE_IMPORTANCE_RECIPE` | `false` |
 | `EMAIL_AGENT_ENABLED` | `false` |
 | `L9_EMAIL_MULTI_ACCOUNT` | `true` |
 | `MAC_AGENT_ENABLED` | `true` |

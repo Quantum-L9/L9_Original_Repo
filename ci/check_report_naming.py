@@ -29,6 +29,7 @@ Created: 2026-01-31
 """
 
 from __future__ import annotations
+
 import structlog
 
 # ============================================================================
@@ -152,24 +153,19 @@ def main() -> int:
 
     reports_dir = args.base_path / "reports"
 
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("  gmp report naming check")
-    logger.info("=" * 60")
-    logger.info("output", value=)
+    logger.info("=" * 60)
     logger.info("checking: reports dir", reports_dir=reports_dir)
-    logger.info("output", value=)
-
     violations = check_reports_dir(reports_dir)
 
     if violations:
         logger.error("❌ failed: found {len(violations)} naming violation(s):\n")
         for v in violations:
             logger.info("output", value=v)
-            logger.info("output", value=)
-
-        logger.info("=" * 60")
+        logger.info("=" * 60)
         logger.info("correct format:")
-        logger.info("=" * 60")
+        logger.info("=" * 60)
         print("""
     GMP-Report-XXX-Description-Here.md
 

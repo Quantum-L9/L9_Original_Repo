@@ -47,7 +47,7 @@ class Settings:
     """
 
     # Service Configuration
-    MCP_HOST: str = "0.0.0.0"
+    MCP_HOST: str = "0.0.0.0"  # noqa: S104 — intentional for container binding
     MCP_PORT: int = 8000
     MCP_ENV: str = "production"
     LOG_LEVEL: str = "INFO"
@@ -74,7 +74,7 @@ class Settings:
     L_CTO_USER_ID: str = "L_CTO_DEFAULT"
 
     # Audit
-    AUDIT_FALLBACK_PATH: str = "/tmp/l9_audit_fallback.jsonl"
+    AUDIT_FALLBACK_PATH: str = "/tmp/l9_audit_fallback.jsonl"  # noqa: S108 — intentional fallback path
     AUDIT_CIRCUIT_BREAKER_THRESHOLD: int = 3
     AUDIT_CIRCUIT_BREAKER_TIMEOUT: int = 60
 
@@ -89,7 +89,7 @@ class Settings:
         load_dotenv()
 
         return cls(
-            MCP_HOST=os.getenv("MCP_HOST", "0.0.0.0"),
+            MCP_HOST=os.getenv("MCP_HOST", "0.0.0.0"),  # noqa: S104 — intentional for container binding
             MCP_PORT=int(os.getenv("MCP_PORT", "8000")),
             MCP_ENV=os.getenv("MCP_ENV", "production"),
             LOG_LEVEL=os.getenv("LOG_LEVEL", "INFO"),
@@ -113,7 +113,8 @@ class Settings:
             ),
             L_CTO_USER_ID=os.getenv("L_CTO_USER_ID", "L_CTO_DEFAULT"),
             AUDIT_FALLBACK_PATH=os.getenv(
-                "AUDIT_FALLBACK_PATH", "/tmp/l9_audit_fallback.jsonl"
+                "AUDIT_FALLBACK_PATH",
+                "/tmp/l9_audit_fallback.jsonl",  # noqa: S108 — intentional fallback path
             ),
             AUDIT_CIRCUIT_BREAKER_THRESHOLD=int(
                 os.getenv("AUDIT_CIRCUIT_BREAKER_THRESHOLD", "3")

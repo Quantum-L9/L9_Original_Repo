@@ -39,11 +39,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-from collections.abc import Callable, Coroutine
 from functools import wraps
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Coroutine
 
 logger = structlog.get_logger(__name__)
 
@@ -180,6 +182,7 @@ def wrap_tool_function(
             ...
     """
 
+    @wraps(tool_name)
     def decorator(func: Callable[..., Coroutine[Any, Any, Any]]) -> Callable:
         """
         Performs a decorator that wraps tool functions to ensure all calls are logged via ToolGraph.log_tool_call for consistent audit logging.
@@ -207,10 +210,10 @@ def wrap_tool_function(
                 The result of the tool function execution, wrapped with logging.
             """
             return await tool_call_wrapper(
+                *args,
                 tool_name=tool_name,
                 tool_func=func,
                 agent_id=agent_id,
-                *args,
                 **kwargs,
             )
 

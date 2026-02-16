@@ -214,7 +214,7 @@ LEVEL_INFO = {
 
 @router.get("/autonomy-level", response_model=AutonomyLevelResponse)
 async def get_autonomy_level(
-    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),  # noqa: B008 — FastAPI dependency injection
 ):
     """Get current GMP autonomy level."""
     controller = AutonomyController(engine)
@@ -231,7 +231,7 @@ async def get_autonomy_level(
 
 @router.get("/graduation-status", response_model=GraduationStatusResponse)
 async def get_graduation_status(
-    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),  # noqa: B008 — FastAPI dependency injection
 ):
     """Check if system can graduate to next autonomy level."""
     controller = AutonomyController(engine)
@@ -251,7 +251,7 @@ async def get_graduation_status(
 
 @router.post("/graduate", response_model=GraduationStatusResponse)
 async def graduate_to_next_level(
-    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),  # noqa: B008 — FastAPI dependency injection
 ):
     """Attempt to graduate to the next autonomy level."""
     controller = AutonomyController(engine)
@@ -271,7 +271,7 @@ async def graduate_to_next_level(
 
 @router.get("/heuristics", response_model=HeuristicsResponse)
 async def get_heuristics(
-    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),  # noqa: B008 — FastAPI dependency injection
 ):
     """Get all active learned heuristics."""
     heuristics = await engine.get_active_heuristics()
@@ -295,7 +295,7 @@ async def get_heuristics(
 
 @router.get("/analytics", response_model=AnalyticsResponse)
 async def get_analytics(
-    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),  # noqa: B008 — FastAPI dependency injection
 ):
     """Get GMP execution analytics for past 30 days."""
     stats = await engine.analyze_execution_patterns()
@@ -323,7 +323,7 @@ async def get_analytics(
 @router.post("/log-execution")
 async def log_execution(
     result: GMPExecutionResult,
-    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),  # noqa: B008 — FastAPI dependency injection
 ):
     """Log a GMP execution result (internal use)."""
     success = await engine.log_execution(result)
@@ -347,7 +347,7 @@ async def log_execution(
 
 @router.post("/generate-heuristics")
 async def trigger_heuristic_generation(
-    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),  # noqa: B008 — FastAPI dependency injection
 ):
     """Manually trigger heuristic generation from execution history."""
     heuristics = await engine.generate_heuristics()

@@ -89,7 +89,7 @@ def test_loader_initialization_with_existing_file(temp_config_file):
 
 def test_loader_initialization_with_missing_file():
     """Test that loader initializes even with missing config file."""
-    missing_path = Path("/tmp/nonexistent_config.yaml")
+    missing_path = Path("/tmp/nonexistent_config.yaml")  # noqa: S108 — test fixture
     loader = DIRuntimeConfigLoader(missing_path)
     assert loader._config_path == missing_path
     assert not loader._loaded
@@ -125,7 +125,7 @@ def test_load_config_fails_on_missing_env_var(temp_config_file):
 
 def test_load_config_with_missing_file():
     """Test that load() returns defaults when file is missing."""
-    missing_path = Path("/tmp/nonexistent_config.yaml")
+    missing_path = Path("/tmp/nonexistent_config.yaml")  # noqa: S108 — test fixture
     loader = DIRuntimeConfigLoader(missing_path)
 
     config = loader.load()
@@ -182,7 +182,7 @@ def test_get_memory_substrate_config(temp_config_file):
 
 def test_get_memory_substrate_config_with_defaults():
     """Test that get_memory_substrate_config() returns defaults when file missing."""
-    missing_path = Path("/tmp/nonexistent_config.yaml")
+    missing_path = Path("/tmp/nonexistent_config.yaml")  # noqa: S108 — test fixture
     loader = DIRuntimeConfigLoader(missing_path)
 
     config = loader.get_memory_substrate_config()
@@ -212,7 +212,7 @@ def test_get_feature_flags(temp_config_file):
 
 def test_get_feature_flags_with_defaults():
     """Test that get_feature_flags() returns defaults when file missing."""
-    missing_path = Path("/tmp/nonexistent_config.yaml")
+    missing_path = Path("/tmp/nonexistent_config.yaml")  # noqa: S108 — test fixture
     loader = DIRuntimeConfigLoader(missing_path)
 
     flags = loader.get_feature_flags()

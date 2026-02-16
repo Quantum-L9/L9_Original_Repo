@@ -246,7 +246,7 @@ class CACodeChange:
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Generate timestamp-based filename
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
 

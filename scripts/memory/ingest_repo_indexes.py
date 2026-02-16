@@ -111,7 +111,7 @@ def save_hash_cache(cache: dict) -> None:
         HASH_CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
         HASH_CACHE_FILE.write_text(json.dumps(cache, indent=2))
     except Exception:
-        pass
+        logger.debug("ingest_repo_indexes.hash_cache_save_failed")
 
 
 def compute_file_hash(filepath: Path) -> str:
@@ -119,7 +119,7 @@ def compute_file_hash(filepath: Path) -> str:
     if not filepath.exists():
         return ""
     content = filepath.read_bytes()
-    return hashlib.md5(content).hexdigest()
+    return hashlib.md5(content).hexdigest()  # noqa: S324 — used for change detection checksum, not security
 
 
 def has_file_changed(filepath: Path, hash_cache: dict) -> bool:
@@ -218,7 +218,7 @@ async def ingest_index(
     # Write summary packet (include tags in content since --tags not supported)
     tagged_summary = f"[REPO-INDEX:{filename.replace('.txt', '')}] {summary}"
 
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
         [
             sys.executable,
             str(PROJECT_ROOT / "agents" / "cursor" / "cursor_memory_client.py"),
@@ -247,7 +247,7 @@ async def ingest_index(
             first_chunk = chunks[0]
             chunk_content = f"[REPO-INDEX:{filename.replace('.txt', '')}:chunk-1] L9 Index {filename} (part 1/{len(chunks)}):\n{first_chunk['content'][:3500]}"
 
-            subprocess.run(
+            subprocess.run(  # noqa: S603 — trusted cmd, no shell
                 [
                     sys.executable,
                     str(PROJECT_ROOT / "agents" / "cursor" / "cursor_memory_client.py"),

@@ -48,8 +48,8 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-import structlog
 
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -99,7 +99,7 @@ def run_phase(phase_num: int, verbose: bool = False) -> tuple[bool, str]:
         cmd.append("--verbose")
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd,
             cwd=REPO_ROOT,
             capture_output=True,
@@ -167,9 +167,9 @@ def main():
         phases_to_run = [1, 2, 3, 4]
 
     if not args.quiet:
-        logger.info("=" * 60")
+        logger.info("=" * 60)
         logger.info("l9 dead code audit - consolidated runner")
-        logger.info("=" * 60")
+        logger.info("=" * 60)
 
     start_time = time.time()
     results = []
@@ -205,9 +205,9 @@ def main():
 
     # Summary
     if not args.quiet:
-        logger.info("\n" + "=" * 60")
+        logger.info("\n" + "=" * 60)
         logger.info("summary")
-        logger.info("=" * 60")
+        logger.info("=" * 60)
 
         passed = sum(1 for _, success, _ in results if success)
         total = len(results)
@@ -224,15 +224,23 @@ def main():
             logger.info("\n🎉 dead code audit complete!")
             if 4 in phases_to_run:
                 logger.info("   gmp todo plan: reports/dead_code_gmp_todos.yaml")
-        logger.info("=" * 60")
+        logger.info("=" * 60)
     else:
         # Quiet mode - just summary line
         passed = sum(1 for _, success, _ in results if success)
         total = len(results)
         if passed == total:
-            logger.info("✅ dead code audit: passed/total phases ({elapsed:.1f}s)", passed=passed, total=total)
+            logger.info(
+                "✅ dead code audit: passed/total phases ({elapsed:.1f}s)",
+                passed=passed,
+                total=total,
+            )
         else:
-            logger.info("⚠️  dead code audit: passed/total phases ({elapsed:.1f}s)", passed=passed, total=total)
+            logger.info(
+                "⚠️  dead code audit: passed/total phases ({elapsed:.1f}s)",
+                passed=passed,
+                total=total,
+            )
 
     # Exit code: 0 if all passed, 1 if any failed
     return 0 if all(success for _, success, _ in results) else 1

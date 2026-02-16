@@ -31,13 +31,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from core.decorators import must_stay_async
 import asyncio
 import sys
 import time
 from pathlib import Path
 from uuid import uuid4
+
 import structlog
+
+from core.decorators import must_stay_async
 
 # Add project root to path
 
@@ -71,7 +73,10 @@ async def benchmark_batch_insert():
         )
         duration = time.time() - start
 
-        logger.info("✅ batch insert: links created links in {duration * 1000:.2f}ms", links_created=links_created)
+        logger.info(
+            "✅ batch insert: links created links in {duration * 1000:.2f}ms",
+            links_created=links_created,
+        )
         logger.info("   performance: {duration / len(fact_ids) * 1000:.2f}ms per link")
 
         # Cleanup
@@ -137,14 +142,12 @@ async def main():
 
     # Benchmark 2: Kernel caching
     logger.info("2. kernel loading performance")
-    logger.info("-" * 60")
+    logger.info("-" * 60)
     try:
         await benchmark_kernel_loading()
     except Exception as e:
         logger.error("❌ kernel caching benchmark failed: e", e=e)
-    logger.info("output", value=)
-
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("✅ benchmark complete!")
 
 

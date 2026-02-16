@@ -68,7 +68,7 @@ class MemorySubstrateSettings(BaseSettings):
     )
 
     # API configuration
-    api_host: str = Field(default="0.0.0.0", alias="API_HOST")
+    api_host: str = Field(default="0.0.0.0", alias="API_HOST")  # noqa: S104 — intentional for container binding
     api_port: int = Field(default=8080, alias="API_PORT")
     api_prefix: str = Field(default="/api/v1/memory", alias="API_PREFIX")
 

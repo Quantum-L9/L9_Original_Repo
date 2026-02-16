@@ -293,7 +293,7 @@ class GraphHydrator:
                 try:
                     return get_fallback_prompt()
                 except Exception:
-                    pass
+                    logger.debug("graph_hydrator.fallback_prompt_failed")
 
         # Legacy fallback: try direct kernel stack access
         if not self.kernel_stack:

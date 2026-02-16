@@ -61,7 +61,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -462,7 +462,9 @@ class SessionStartup:
         try:
             import os
 
-            from core.agents.kernel_registry import KernelAwareAgentRegistry
+            from core.agents.kernel_registry import (
+                KernelAwareAgentRegistry,  # noqa: F401 — availability check
+            )
 
             # Only check if USE_KERNELS is enabled
             if os.getenv("L9_USE_KERNELS", "true").lower() in ("true", "1", "yes"):

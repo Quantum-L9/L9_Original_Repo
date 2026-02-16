@@ -333,8 +333,8 @@ class WorldModelLoader(IWorldModelLoader):
         return WorldModelLoader.load_causal_structure(data)
 
     @staticmethod
-    def load_initial_state(path: str) -> WorldModelState:
-        """Load initial state (seed entities/relations) from YAML.
+    def load_initial_state_from_file(path: str) -> WorldModelState:
+        """Load initial state (seed entities/relations) from YAML file.
 
         Args:
             path: Path to YAML file

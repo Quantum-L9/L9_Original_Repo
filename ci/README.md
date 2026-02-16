@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Continuous integration scripts and guardrails
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -78,27 +78,27 @@ ci/
 ├── __init__.py
 ├── ai_guardrails/__init__.py
 ├── ai_guardrails/runner.py
+├── auto_fix_adr.py
+├── check_adr_compliance.py
+├── check_definition_of_done.py
 ├── check_dependency_patterns.py
+├── check_global_state.py
+├── check_imports.py
+├── check_memory_bypass.py
 ├── check_no_deprecated_services.py
+├── check_noqa_placement.py
 ├── check_packet_type_naming.py
+├── check_report_naming.py
 ├── check_schema_deprecation.py
-├── check_substrate_api.py
-├── check_syntax.py
-├── check_tool_naming.py
-├── check_tool_wiring.py
-├── dora_compliance_check.py
-├── lint_forbidden_imports.py
-├── validate_codegen.py
-├── validate_dora_blocks.py
-└── ... (1 more files)
+└── ... (8 more files)
 ```
 
-| File                          | Purpose                               |
-| ----------------------------- | ------------------------------------- |
-| `__init__.py`                 | Core module (PROTECTED)               |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `check_global_state.py` | Performs static analysis of Python files to detect |
 | `check_schema_deprecation.py` | A single deprecated import violation. |
-| `check_substrate_api.py`      | Result of linting a file.             |
-| `validate_codegen.py`         | Accumulates code validation errors.   |
+| `check_substrate_api.py` | Result of linting a file. |
 
 ### Naming Conventions
 
@@ -110,6 +110,26 @@ ci/
 ---
 
 ## Key Components
+
+### `check_global_state.py` — GlobalStateVisitor
+
+```python
+class GlobalStateVisitor:
+    """Performs static analysis of Python files to detect suspicious module-level mutable state patterns, aiding in global state audit."""
+
+    # Key methods:
+
+    def __init__(self, ...) -> None: ...
+
+    def visit_Assign(self, ...) -> None: ...
+
+    def generic_visit(self, ...) -> None: ...
+
+```
+
+**Public Methods:** `__init__`, `visit_Assign`, `generic_visit`
+
+**Lines:** 60-111 in `check_global_state.py`
 
 ### `check_schema_deprecation.py` — Violation
 
@@ -141,7 +161,7 @@ class LintResult:
 
 **Public Methods:** `__init__`, `add_error`, `has_errors`
 
-**Lines:** 83-97 in `check_substrate_api.py`
+**Lines:** 83-119 in `check_substrate_api.py`
 
 ### `validate_codegen.py` — CodeValidationResult
 
@@ -151,7 +171,7 @@ class CodeValidationResult:
 
     # Key methods:
 
-    def __init__(self, ...): ...
+    def __init__(self, ...) -> None: ...
 
     def add_error(self, ...) -> None: ...
 
@@ -165,7 +185,7 @@ class CodeValidationResult:
 
 **Public Methods:** `__init__`, `add_error`, `add_warning`, `is_valid`, `print_report`
 
-**Lines:** 86-123 in `validate_codegen.py`
+**Lines:** 86-127 in `validate_codegen.py`
 
 ### `validate_spec_v25.py` — SpecValidationError
 
@@ -179,55 +199,33 @@ class SpecValidationError:
 
 **Lines:** 177-180 in `validate_spec_v25.py`
 
-### `validate_spec_v25.py` — ValidationResult
-
-```python
-class ValidationResult:
-    """Accumulates validation errors."""
-
-    # Key methods:
-
-    def __init__(self, ...): ...
-
-    def add_error(self, ...) -> None: ...
-
-    def add_warning(self, ...) -> None: ...
-
-    def is_valid(self, ...) -> bool: ...
-
-    def _get_schema_version(self, ...) -> str: ...
-
-```
-
-**Public Methods:** `__init__`, `add_error`, `add_warning`, `is_valid`, `_get_schema_version`
-
-**Lines:** 183-229 in `validate_spec_v25.py`
 
 ---
 
 ## Data Models and Contracts
 
+
 ### Module Constants
 
-| Constant                | Value                                         | Line |
-| ----------------------- | --------------------------------------------- | ---- |
-| `VALID_TOOL_ID_PATTERN` | `re.compile('^[a-zA-Z][a-zA-Z0-9_-]*$')`      | 50   |
-| `TOOL_ID_PATTERNS`      | `[('f["\\\']{\\w+}\\s*\\.\\s*{\\w+', 'f-s...` | 53   |
-| `CHECK_PATHS`           | `['core/tools/', 'runtime/l_tools.py', 'c...` | 70   |
-| `SKIP_PATTERNS`         | `['__pycache__', '.pyc', 'test_', '_test....` | 78   |
-| `PROJECT_ROOT`          | `Path(__file__).parent.parent`                | 66   |
-| `DEPRECATED_PATTERNS`   | `['from\\s+memory\\.substrate_models\\s+i...` | 71   |
-| `CANONICAL_IMPORT`      | `'from core.schemas import PacketEnvelope...` | 86   |
-| `EXCLUDE_PATTERNS`      | `['archive/', '_archived/', 'tests/', '__...` | 89   |
+| Constant | Value | Line |
+|----------|-------|------|
+| `VALID_TOOL_ID_PATTERN` | `re.compile('^[a-zA-Z][a-zA-Z0-9_-]*$')` | 50 |
+| `TOOL_ID_PATTERNS` | `[('f["\\\']{\\w+}\\s*\\.\\s*{\\w+', 'f-s...` | 53 |
+| `CHECK_PATHS` | `['core/tools/', 'runtime/l_tools.py', 'c...` | 70 |
+| `SKIP_PATTERNS` | `['__pycache__', '.pyc', 'test_', '_test....` | 78 |
+| `ROOT` | `Path(__file__).resolve().parents[2]` | 43 |
+| `PROJECT_ROOT` | `Path(__file__).parent.parent` | 66 |
+| `DEPRECATED_PATTERNS` | `['from\\s+memory\\.substrate_models\\s+i...` | 71 |
+| `CANONICAL_IMPORT` | `'from core.schemas import PacketEnvelope...` | 86 |
 
-_...and 55 more constants_
+*...and 65 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CiRequest(BaseModel):
     """Request model for ci operations."""
@@ -286,9 +284,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Ci feature flags
-L9_ENABLE_CI_TRACING: true # Enable detailed tracing
-L9_ENABLE_CI_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CI_AUDIT: true # Enable audit logging
+L9_ENABLE_CI_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CI_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CI_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -319,7 +317,7 @@ CI_ENABLED=true
 
 Check if file should be skipped.
 
-- **File:** `check_tool_naming.py:86`
+- **File:** `check_tool_naming.py:87`
 - **Async:** No
 - **Returns:** `bool`
 
@@ -327,7 +325,7 @@ Check if file should be skipped.
 
 Check a single file for non-compliant tool IDs.
 
-- **File:** `check_tool_naming.py:92`
+- **File:** `check_tool_naming.py:93`
 - **Async:** No
 - **Returns:** `list[dict]`
 
@@ -335,24 +333,25 @@ Check a single file for non-compliant tool IDs.
 
 Check all relevant files.
 
-- **File:** `check_tool_naming.py:117`
+- **File:** `check_tool_naming.py:118`
 - **Async:** No
 - **Returns:** `list[dict]`
 
 #### `def main()`
 
-No description
+Performs CI check to enforce OpenAI tool ID naming conventions, ensuring only allowed characters are used.
 
-- **File:** `check_tool_naming.py:135`
+- **File:** `check_tool_naming.py:136`
 - **Async:** No
 
-#### `def get_current_phase() -> int`
+#### `def iter_python_files() -> list[Path]`
 
-Determine current enforcement phase based on date.
+Iterate over Python files in the repository.
 
-- **File:** `check_schema_deprecation.py:143`
+- **File:** `check_global_state.py:46`
 - **Async:** No
-- **Returns:** `int`
+- **Returns:** `list[Path]`
+
 
 ### Usage Example
 
@@ -383,7 +382,7 @@ Ci operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "ci",
   "message": "Operation completed",
@@ -394,7 +393,6 @@ Ci operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -402,12 +400,12 @@ Ci operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                     | Type      | Description                    |
-| -------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `ci_operation_duration_ms` | Histogram | Operation latency distribution |
-| `ci_operation_total`       | Counter   | Total operations processed     |
-| `ci_error_total`           | Counter   | Total errors encountered       |
-| `ci_active_connections`    | Gauge     | Current active connections     |
+| `ci_operation_total` | Counter | Total operations processed |
+| `ci_error_total` | Counter | Total errors encountered |
+| `ci_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -425,7 +423,6 @@ Ci emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/ci/`:
-
 - `test_ci.py` — Core unit tests
 - `test_ci_integration.py` — Integration tests (if applicable)
 
@@ -468,7 +465,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

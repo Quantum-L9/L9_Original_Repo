@@ -23,7 +23,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
 from datetime import UTC
 from typing import Any
 

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Causal graph, knowledge engine, and world state management
 
 ### Inbound Dependencies
 
-| Module                       | Purpose          |
-| ---------------------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `orchestrators/world_model/` | Uses this module |
-| `core/agents/`               | Uses this module |
+| `core/agents/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module                        | Purpose             |
-| ----------------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -94,14 +94,14 @@ world_model/
 └── ... (15 more files)
 ```
 
-| File            | Purpose                                     |
-| --------------- | ------------------------------------------- |
-| `engine.py`     | Core module (PROTECTED)                     |
-| `service.py`    | Core module (PROTECTED)                     |
-| `__init__.py`   | Core module (PROTECTED)                     |
+| File | Purpose |
+|------|---------|
+| `engine.py` | Core module (PROTECTED) |
+| `service.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
 | `interfaces.py` | Interface for World Model State management. |
-| `interfaces.py` | Interface for World Model Engine.           |
-| `interfaces.py` | Interface for World Model Updater.          |
+| `interfaces.py` | Interface for World Model Engine. |
+| `interfaces.py` | Interface for World Model Updater. |
 
 ### Naming Conventions
 
@@ -220,6 +220,7 @@ class IWorldModelLoader:
 
 **Lines:** 222-253 in `interfaces.py`
 
+
 ---
 
 ## Data Models and Contracts
@@ -232,31 +233,31 @@ The following data models define the contracts for this subsystem:
 
 ### Exported Symbols (`__all__`)
 
-`CausalEdge`, `CausalGraph`, `CausalLink`, `CausalMapper`, `CausalNode`, `CausalPath`, `CausalQuery`, `CausalQueryResult`, `CausalRelationType`, `CausalStrength`
+`CausalLink`, `CausalMapper`, `CausalNode`, `CausalPath`, `CausalQueryResult`, `CausalRelationType`, `CausalStrength`, `ConstraintSet`, `Decision`, `Entity`
 
-_...and 61 more_
+*...and 41 more*
 
 ### Module Constants
 
-| Constant                      | Value                                         | Line |
-| ----------------------------- | --------------------------------------------- | ---- |
-| `SUPPORTED_PACKET_TYPES`      | `frozenset(['ir_graph', 'execution_plan',...` | 96   |
-| `PACKET_TYPE_IR_GRAPH`        | `'ir_graph'`                                  | 88   |
-| `PACKET_TYPE_EXECUTION_PLAN`  | `'execution_plan'`                            | 89   |
-| `PACKET_TYPE_REFLECTION`      | `'reflection'`                                | 90   |
-| `PACKET_TYPE_INSIGHT`         | `'insight'`                                   | 91   |
-| `PACKET_TYPE_EVENT`           | `'event'`                                     | 92   |
-| `PACKET_TYPE_MEMORY_WRITE`    | `'memory_write'`                              | 93   |
-| `PACKET_TYPE_REASONING_TRACE` | `'reasoning_trace'`                           | 94   |
+| Constant | Value | Line |
+|----------|-------|------|
+| `SUPPORTED_PACKET_TYPES` | `frozenset(['ir_graph', 'execution_plan',...` | 97 |
+| `PACKET_TYPE_IR_GRAPH` | `'ir_graph'` | 88 |
+| `PACKET_TYPE_EXECUTION_PLAN` | `'execution_plan'` | 89 |
+| `PACKET_TYPE_REFLECTION` | `'reflection'` | 90 |
+| `PACKET_TYPE_INSIGHT` | `'insight'` | 91 |
+| `PACKET_TYPE_EVENT` | `'event'` | 92 |
+| `PACKET_TYPE_MEMORY_WRITE` | `'memory_write'` | 93 |
+| `PACKET_TYPE_REASONING_TRACE` | `'reasoning_trace'` | 94 |
 
-_...and 2 more constants_
+*...and 2 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class WorldModelRequest(BaseModel):
     """Request model for world_model operations."""
@@ -315,9 +316,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # World_Model feature flags
-L9_ENABLE_WORLD_MODEL_TRACING: true # Enable detailed tracing
-L9_ENABLE_WORLD_MODEL_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_WORLD_MODEL_AUDIT: true # Enable audit logging
+L9_ENABLE_WORLD_MODEL_TRACING: true  # Enable detailed tracing
+L9_ENABLE_WORLD_MODEL_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_WORLD_MODEL_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -344,11 +345,11 @@ WORLD_MODEL_ENABLED=true
 
 ### Public Functions
 
-#### `def get_world_model_service() -> WorldModelService`
+#### `def get_world_model_service(service) -> WorldModelService`
 
-Get or create singleton service.
+Get world model service singleton, or use injected instance.
 
-- **File:** `service.py:659`
+- **File:** `service.py:665`
 - **Async:** No
 - **Returns:** `WorldModelService`
 
@@ -356,14 +357,14 @@ Get or create singleton service.
 
 Close service and cleanup.
 
-- **File:** `service.py:667`
+- **File:** `service.py:690`
 - **Async:** Yes
 
 #### `def get_world_model_service_api(engine, runtime) -> WorldModelServiceAPI`
 
 Get or create singleton service API.
 
-- **File:** `world_model_service.py:932`
+- **File:** `world_model_service.py:936`
 - **Async:** No
 - **Returns:** `WorldModelServiceAPI`
 
@@ -371,7 +372,7 @@ Get or create singleton service API.
 
 Reset the singleton service API.
 
-- **File:** `world_model_service.py:958`
+- **File:** `world_model_service.py:962`
 - **Async:** No
 - **Returns:** `None`
 
@@ -379,9 +380,10 @@ Reset the singleton service API.
 
 Create a WorldModelRuntime wired to the Memory Substrate.
 
-- **File:** `runtime.py:1949`
+- **File:** `runtime.py:1995`
 - **Async:** Yes
 - **Returns:** `WorldModelRuntime`
+
 
 ### Usage Example
 
@@ -412,7 +414,7 @@ World Model operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "world_model",
   "message": "Operation completed",
@@ -423,7 +425,6 @@ World Model operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -431,12 +432,12 @@ World Model operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                              | Type      | Description                    |
-| ----------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `world_model_operation_duration_ms` | Histogram | Operation latency distribution |
-| `world_model_operation_total`       | Counter   | Total operations processed     |
-| `world_model_error_total`           | Counter   | Total errors encountered       |
-| `world_model_active_connections`    | Gauge     | Current active connections     |
+| `world_model_operation_total` | Counter | Total operations processed |
+| `world_model_error_total` | Counter | Total errors encountered |
+| `world_model_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -454,7 +455,6 @@ World Model emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/world_model/`:
-
 - `test_world_model.py` — Core unit tests
 - `test_world_model_integration.py` — Integration tests (if applicable)
 
@@ -505,7 +505,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

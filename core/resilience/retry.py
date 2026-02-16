@@ -56,11 +56,13 @@ __dora_meta__ = {
 
 import asyncio
 import random
-from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import structlog
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -112,7 +114,7 @@ class AsyncRetryConfig:
         """
         delay = self.base_backoff * (self.exponential_base ** (attempt - 1))
         delay = min(delay, self.max_backoff)
-        jitter_amount = random.random() * self.jitter * delay
+        jitter_amount = random.random() * self.jitter * delay  # noqa: S311 — used for jitter, not security
         return delay + jitter_amount
 
 

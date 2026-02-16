@@ -118,7 +118,7 @@ class TestErrorHandling:
     async def test_invalid_expression(self, generator):
         """Test handling of invalid expression."""
         result = await generator.generate_code(
-            expr="x +++ y",  # Invalid syntax
+            expr="x + * y",  # Truly invalid syntax
             variables=["x", "y"],
             language="C",
             function_name="test",

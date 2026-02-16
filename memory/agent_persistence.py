@@ -45,7 +45,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
@@ -54,9 +54,9 @@ import structlog
 from core.schemas import PacketEnvelopeIn
 from memory.checkpoint_metrics import get_metrics
 from memory.checkpoint_validator import CheckpointValidator
-from memory.substrate_repository import SubstrateRepository
 
 if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
     from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)

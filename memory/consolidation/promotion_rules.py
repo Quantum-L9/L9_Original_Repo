@@ -29,7 +29,7 @@ Nothing ambiguous. No "vibes-based" memory.
 """
 
 from enum import Enum
-from typing import Any, Dict
+from typing import Any
 
 
 class PromotionSignal(str, Enum):

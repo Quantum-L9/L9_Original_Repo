@@ -478,7 +478,7 @@ class CacheManager:
                 logger.info("Loading content index from cache...")
                 return index_path.read_text(encoding="utf-8", errors="ignore")
         except Exception:
-            pass
+            logger.debug("audit_code_integrity.content_index_cache_load_failed")
 
         return None
 
@@ -516,7 +516,7 @@ class CacheManager:
                 logger.info("Loading analysis results from cache...")
                 return data
         except (json.JSONDecodeError, Exception):
-            pass
+            logger.debug("audit_code_integrity.results_cache_load_failed")
 
         return None
 

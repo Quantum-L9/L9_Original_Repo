@@ -25,7 +25,7 @@ from memory.substrate_models import EnrichmentResult, KnowledgeFact
 def _mcp_available() -> bool:
     """Check if mcp_memory module is importable."""
     try:
-        import mcp_memory.src.routes.memory_unified
+        import mcp_memory.src.routes.memory_unified  # noqa: F401 — availability check
 
         return True
     except (ImportError, ModuleNotFoundError):

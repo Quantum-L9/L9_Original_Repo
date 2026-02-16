@@ -23,7 +23,7 @@ if str(project_root) not in sys.path:
 
 try:
     from core.agents.schemas import AIOSResult
-    from core.aios.runtime import AIOSRuntime, create_aios_runtime
+    from core.aios.runtime import AIOSRuntime
 except ImportError as e:
     pytest.skip(f"Could not import core.aios.runtime: {e}", allow_module_level=True)
 

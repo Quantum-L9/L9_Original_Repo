@@ -33,12 +33,14 @@ __dora_meta__ = {
 }
 
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from core.agents.schemas import AgentTask, ExecutionResult
-from core.aios.runtime import AIOSRuntime
+
+if TYPE_CHECKING:
+    from core.aios.runtime import AIOSRuntime
 
 logger = structlog.get_logger(__name__)
 
@@ -166,6 +168,8 @@ class ReActRuntime:
             # ACT: Execute tool call
             if aios_result.result_type.value == "tool_call":
                 tool_request = aios_result.tool_call
+                if tool_request is None:
+                    continue
 
                 step = ReActStep(
                     thought=f"Using tool: {tool_request.tool_id}",

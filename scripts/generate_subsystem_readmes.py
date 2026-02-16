@@ -55,8 +55,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-import structlog
 
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -87,10 +87,10 @@ def verify_system_time() -> tuple[datetime, bool, str]:
     # Try worldtimeapi.org first
     try:
         url = "http://worldtimeapi.org/api/timezone/UTC"
-        req = urllib.request.Request(
+        req = urllib.request.Request(  # noqa: S310 — URL from trusted config
             url, headers={"User-Agent": "L9-README-Generator/1.0"}
         )
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, timeout=5) as response:  # noqa: S310 — URL from trusted config
             data = json.loads(response.read().decode())
             api_time = datetime.fromisoformat(
                 data["utc_datetime"].replace("Z", "+00:00")
@@ -100,15 +100,15 @@ def verify_system_time() -> tuple[datetime, bool, str]:
                 return now, True, f"worldtimeapi.org (drift: {drift:.1f}s)"
             return now, False, f"worldtimeapi.org (DRIFT TOO HIGH: {drift:.1f}s)"
     except Exception:
-        pass
+        logger.debug("generate_readmes.worldtimeapi_unavailable")
 
     # Fallback: try timeapi.io
     try:
         url = "https://timeapi.io/api/Time/current/zone?timeZone=UTC"
-        req = urllib.request.Request(
+        req = urllib.request.Request(  # noqa: S310 — URL from trusted config
             url, headers={"User-Agent": "L9-README-Generator/1.0"}
         )
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, timeout=5) as response:  # noqa: S310 — URL from trusted config
             data = json.loads(response.read().decode())
             api_time = datetime(
                 data["year"],
@@ -124,7 +124,7 @@ def verify_system_time() -> tuple[datetime, bool, str]:
                 return now, True, f"timeapi.io (drift: {drift:.1f}s)"
             return now, False, f"timeapi.io (DRIFT TOO HIGH: {drift:.1f}s)"
     except Exception:
-        pass
+        logger.debug("generate_readmes.timeapi_unavailable")
 
     # Fallback: use system time but mark as unverified
     return now, False, "system clock (UNVERIFIED - no API response)"
@@ -134,12 +134,16 @@ def load_config(repo_root: Path) -> dict[str, Any]:
     """Load subsystem configuration from YAML."""
     config_file = repo_root / CONFIG_PATH
     if not config_file.exists():
-        logger.error("error: config file not found: config file", config_file=config_file)
+        logger.error(
+            "error: config file not found: config file", config_file=config_file
+        )
         logger.info("create it or use --path for ad-hoc generation.")
         sys.exit(1)
 
     if not YAML_AVAILABLE:
-        logger.error("error: pyyaml required to load config. install with: pip install pyyaml")
+        logger.error(
+            "error: pyyaml required to load config. install with: pip install pyyaml"
+        )
         sys.exit(1)
 
     with open(config_file) as f:
@@ -188,7 +192,9 @@ try:
     AST_SCANNER_AVAILABLE = True
 except ImportError as e:
     AST_SCANNER_AVAILABLE = False
-    logger.warning("warning: ast scanner module not available (e), using fallback extraction", e=e)
+    logger.warning(
+        "warning: ast scanner module not available (e), using fallback extraction", e=e
+    )
 
 
 @dataclass
@@ -390,7 +396,9 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
                         all_imports.append(node.module)
 
             except Exception as e:
-                logger.warning("warning: could not parse py file: e", py_file=py_file, e=e)
+                logger.warning(
+                    "warning: could not parse py file: e", py_file=py_file, e=e
+                )
 
     facts.imports = sorted(set(all_imports))
     facts.exports = sorted(set(all_exports))
@@ -1185,7 +1193,7 @@ def list_subsystems(config: dict[str, Any]) -> None:
 
     logger.info("\n📋 configured subsystems\n")
     logger.info("{'key':<25} {'path':<35} {'title'}")
-    logger.info("-" * 90")
+    logger.info("-" * 90)
 
     for tier in [
         "core",
@@ -1198,7 +1206,7 @@ def list_subsystems(config: dict[str, Any]) -> None:
         if tier not in by_tier:
             continue
         logger.info("\n[{tier.upper()}]")
-        for key, sub_config in sorted(by_tier[tier]):
+        for _key, sub_config in sorted(by_tier[tier]):
             last_updated = sub_config.get("last_updated", "never")
             if last_updated is None:
                 last_updated = "never"
@@ -1295,7 +1303,9 @@ def main():
                         return 1
                 except EOFError:
                     # Non-interactive mode, proceed anyway
-                    logger.info("   (non-interactive mode, proceeding with unverified time)")
+                    logger.info(
+                        "   (non-interactive mode, proceeding with unverified time)"
+                    )
                     pass
 
     # =========================================================================
@@ -1381,7 +1391,11 @@ def main():
             skipped_count += 1
             continue
 
-        logger.info("\n📝 processing subsystem name (subsystem path)...", subsystem_name=subsystem_name, subsystem_path=subsystem_path)
+        logger.info(
+            "\n📝 processing subsystem name (subsystem path)...",
+            subsystem_name=subsystem_name,
+            subsystem_path=subsystem_path,
+        )
 
         # Extract facts
         facts = extract_subsystem_facts(repo_root, subsystem_path)

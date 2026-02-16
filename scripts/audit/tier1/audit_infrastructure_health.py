@@ -523,7 +523,7 @@ def compute_startup_order(dependency_checks: list[DependencyCheck]) -> StartupSe
     graph = {service: DEPENDENCY_DAG.get(service, []) for service in SERVICES}
     in_degree = dict.fromkeys(SERVICES, 0)
 
-    for service, deps in graph.items():
+    for _service, deps in graph.items():
         for dep in deps:
             in_degree[dep] = in_degree.get(dep, 0) + 1
 

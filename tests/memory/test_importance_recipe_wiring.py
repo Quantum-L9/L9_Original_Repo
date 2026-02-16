@@ -11,7 +11,7 @@ Covers: feature flag ON → ImportanceRecipe.compute_importance() called,
 from __future__ import annotations
 
 import os
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -21,9 +21,7 @@ from memory.active_encoder import (
     TaskOutcome,
 )
 from memory.importance_recipe import (
-    ImportanceInputs,
     ImportanceUpdate,
-    compute_importance,
 )
 
 

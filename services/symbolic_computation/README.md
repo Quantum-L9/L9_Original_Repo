@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ SymPy-based symbolic math computation engine
 
 ### Inbound Dependencies
 
-| Module        | Purpose          |
-| ------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/tools/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -93,13 +93,13 @@ services/symbolic_computation/
 └── ... (6 more files)
 ```
 
-| File             | Purpose                                          |
-| ---------------- | ------------------------------------------------ |
-| `computation.py` | Core module (PROTECTED)                          |
-| `__init__.py`    | Core module (PROTECTED)                          |
-| `config.py`      | Configuration settings for symbolic computation. |
-| `models.py`      | Supported computational backends.                |
-| `models.py`      | Supported code generation languages.             |
+| File | Purpose |
+|------|---------|
+| `computation.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `config.py` | Configuration settings for symbolic computation. |
+| `models.py` | Supported computational backends. |
+| `models.py` | Supported code generation languages. |
 
 ### Naming Conventions
 
@@ -164,7 +164,7 @@ class ComputationRequest:
 
 **Public Methods:** `validate_expression`, `validate_variables`
 
-**Lines:** 54-85 in `models.py`
+**Lines:** 54-87 in `models.py`
 
 ### `models.py` — ComputationResult
 
@@ -176,7 +176,8 @@ class ComputationResult:
 
 ```
 
-**Lines:** 88-105 in `models.py`
+**Lines:** 90-107 in `models.py`
+
 
 ---
 
@@ -192,14 +193,14 @@ The following data models define the contracts for this subsystem:
 
 `BackendType`, `CacheManager`, `CodeGenRequest`, `CodeGenResult`, `CodeGenerationError`, `CodeGenerator`, `CodeLanguage`, `ComputationRequest`, `ComputationResult`, `EvaluationError`
 
-_...and 10 more_
+*...and 10 more*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class ServicesSymbolicRequest(BaseModel):
     """Request model for services_symbolic operations."""
@@ -257,9 +258,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Services_Symbolic feature flags
-L9_ENABLE_SERVICES_SYMBOLIC_TRACING: true # Enable detailed tracing
-L9_ENABLE_SERVICES_SYMBOLIC_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_SERVICES_SYMBOLIC_AUDIT: true # Enable audit logging
+L9_ENABLE_SERVICES_SYMBOLIC_TRACING: true  # Enable detailed tracing
+L9_ENABLE_SERVICES_SYMBOLIC_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_SERVICES_SYMBOLIC_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -325,6 +326,7 @@ Extract variable names from expression.
 - **Async:** No
 - **Returns:** `list[str]`
 
+
 ### Usage Example
 
 ```python
@@ -354,7 +356,7 @@ Services Symbolic operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "services.symbolic_computation",
   "message": "Operation completed",
@@ -365,7 +367,6 @@ Services Symbolic operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -373,12 +374,12 @@ Services Symbolic operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                    | Type      | Description                    |
-| ----------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `services_symbolic_operation_duration_ms` | Histogram | Operation latency distribution |
-| `services_symbolic_operation_total`       | Counter   | Total operations processed     |
-| `services_symbolic_error_total`           | Counter   | Total errors encountered       |
-| `services_symbolic_active_connections`    | Gauge     | Current active connections     |
+| `services_symbolic_operation_total` | Counter | Total operations processed |
+| `services_symbolic_error_total` | Counter | Total errors encountered |
+| `services_symbolic_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -396,7 +397,6 @@ Services Symbolic emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/services_symbolic_computation/`:
-
 - `test_services_symbolic.py` — Core unit tests
 - `test_services_symbolic_integration.py` — Integration tests (if applicable)
 
@@ -443,7 +443,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

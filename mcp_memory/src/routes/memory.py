@@ -32,7 +32,7 @@ __dora_meta__ = {
 import asyncio
 import json
 import time
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import structlog
@@ -143,7 +143,7 @@ async def save_memory_handler(
             INSERT INTO {table} (user_id, kind, content, embedding, importance, metadata, expires_at)
             VALUES ($1, $2, $3, $4::vector, $5, $6, $7)
             RETURNING id, user_id, kind, content, importance, created_at;
-            """
+            """  # noqa: S608 — table is internal constant, user values parameterized
             result = await fetch_one(
                 query,
                 user_id,
@@ -301,7 +301,7 @@ async def search_memory_handler(
             WHERE user_id = $1 {where} {scope_clause} {kind_clause}
             AND 1 - (embedding <-> ${param_idx}::vector) >= ${param_idx + 1}
             ORDER BY similarity DESC LIMIT ${param_idx + 2};
-            """
+            """  # noqa: S608 — all interpolated parts are internal SQL clauses
             rows = await fetch_all(query_sql, *params)
 
             if track_access and dur == "long" and rows:
@@ -950,7 +950,7 @@ async def query_temporal(
             FROM memory.long_term
             WHERE {where_clause}
             ORDER BY created_at DESC;
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
 
             # Count created vs updated
@@ -966,7 +966,7 @@ async def query_temporal(
             FROM memory.long_term
             WHERE {where_clause}
             ORDER BY created_at ASC;
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
             created_count = len(memories)
             updated_count = 0
@@ -978,7 +978,7 @@ async def query_temporal(
             FROM memory.long_term
             WHERE {where_clause} AND updated_at > created_at
             ORDER BY updated_at DESC;
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
             created_count = 0
             updated_count = len(memories)

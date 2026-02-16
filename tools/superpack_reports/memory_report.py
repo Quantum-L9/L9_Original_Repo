@@ -21,9 +21,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import TYPE_CHECKING
+
 from .ast_scanner import scan_directories
-from .config import SuperpackLayout
 from .filesystem import open_report, write_markdown_footer, write_markdown_header
+
+if TYPE_CHECKING:
+    from .config import SuperpackLayout
 
 
 def generate_memory_superpack(layout: SuperpackLayout) -> None:

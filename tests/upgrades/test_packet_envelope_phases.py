@@ -10,7 +10,7 @@ Tests cover:
 """
 
 import json
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -74,7 +74,7 @@ class TestPhase2Observability:
         from core.packet_envelope.observability import StructuredLogEvent
 
         event = StructuredLogEvent(
-            timestamp=datetime(2026, 1, 5, 12, 0, 0),
+            timestamp=datetime(2026, 1, 5, 12, 0, 0, tzinfo=UTC),
             level="INFO",
             message="Test message",
             trace_id="abc123",

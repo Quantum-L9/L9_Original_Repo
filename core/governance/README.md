@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Policy enforcement, approval workflows, and compliance checks
 
 ### Inbound Dependencies
 
-| Module                           | Purpose          |
-| -------------------------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/tools/registry_adapter.py` | Uses this module |
-| `core/agents/executor.py`        | Uses this module |
+| `core/agents/executor.py` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module             | Purpose             |
-| ------------------ | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `config/policies/` | Required dependency |
 
 ---
@@ -85,23 +85,23 @@ core/governance/
 ├── engine.py
 ├── loader.py
 ├── mistake_prevention.py
+├── policy_engine.py
 ├── policy_generator.py
+├── policy_models.py
 ├── policy_registry.py
 ├── protected_files_policy.py
 ├── quick_fixes.py
-├── rate_limit_policy.py
-├── schemas.py
-└── ... (5 more files)
+└── ... (7 more files)
 ```
 
-| File                  | Purpose                                            |
-| --------------------- | -------------------------------------------------- |
-| `approval_manager.py` | Core module (PROTECTED)                            |
-| `policy_engine.py`    | Core module (PROTECTED)                            |
-| `__init__.py`         | Core module (PROTECTED)                            |
-| `quick_fixes.py`      | A quick fix pattern.                               |
-| `quick_fixes.py`      | Result of applying a fix.                          |
-| `quick_fixes.py`      | Executable quick-fix engine with auto-remediation. |
+| File | Purpose |
+|------|---------|
+| `approval_manager.py` | Core module (PROTECTED) |
+| `policy_engine.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `quick_fixes.py` | A quick fix pattern. |
+| `quick_fixes.py` | Result of applying a fix. |
+| `quick_fixes.py` | Executable quick-fix engine with auto-remediation. |
 
 ### Naming Conventions
 
@@ -162,41 +162,42 @@ class QuickFixEngine:
 
 **Lines:** 88-335 in `quick_fixes.py`
 
-### `approvals.py` — ApprovalManager
+### `policy_engine.py` — PolicyConflictResolver
 
 ```python
-class ApprovalManager:
-    """Manages approval of high-risk tasks."""
+class PolicyConflictResolver:
+    """Resolves conflicts between multiple policy evaluation results."""
+
+    # Key methods:
+
+    def resolve(self, ...) -> GovernanceDecision: ...
+
+    def explain_decision(self, ...) -> str: ...
+
+```
+
+**Public Methods:** `resolve`, `explain_decision`
+
+**Lines:** 55-189 in `policy_engine.py`
+
+### `policy_engine.py` — PolicyAuditLogger
+
+```python
+class PolicyAuditLogger:
+    """Logs policy decisions and conflicts for audit trail."""
 
     # Key methods:
 
     def __init__(self, ...): ...
 
-    def requires_approval(self, ...) -> bool: ...
-
-    def get_high_risk_tools(self, ...) -> list[str]: ...
-
-    async def request_approval(self, ...) -> str: ...
-
-    async def _notify_slack(self, ...) -> None: ...
+    async def log_decision(self, ...) -> None: ...
 
 ```
 
-**Public Methods:** `__init__`, `requires_approval`, `get_high_risk_tools`, `request_approval`, `_notify_slack`
+**Public Methods:** `__init__`, `log_decision`
 
-**Lines:** 75-525 in `approvals.py`
+**Lines:** 192-247 in `policy_engine.py`
 
-### `approval_gate.py` — EscalationResult
-
-```python
-class EscalationResult:
-    """Result of escalation to Igor."""
-
-    # Key methods:
-
-```
-
-**Lines:** 52-59 in `approval_gate.py`
 
 ---
 
@@ -211,29 +212,29 @@ The following data models define the contracts for this subsystem:
 
 `ADRLoadResult`, `ApprovalDecision`, `ApprovalManager`, `ApprovalRequest`, `ApprovalStatus`, `CMTSService`, `Condition`, `ConditionOperator`, `CredentialRecord`, `CredentialRotationPolicy`
 
-_...and 58 more_
+*...and 64 more*
 
 ### Module Constants
 
-| Constant              | Value                                         | Line |
-| --------------------- | --------------------------------------------- | ---- |
-| `PROTECTED_BY_LCTO`   | `get_lcto_controlled_files()`                 | 202  |
-| `SUBSYSTEM_PROTECTED` | `get_subsystem_protected_files()`             | 203  |
-| `ALL_PROTECTED`       | `get_all_protected_files()`                   | 204  |
-| `HIGH_RISK_TOOLS`     | `get_high_risk_tools_with_descriptions()`     | 72   |
-| `FILE_PATTERNS`       | `{'auth': ['api/auth\\.py', 'core/.*auth....` | 46   |
-| `KEYWORD_PATTERNS`    | `{'auth': ['\\bauth\\w*\\b', '\\blogin\\b...` | 78   |
-| `SUBSYSTEM_PRIORITY`  | `['auth', 'tools', 'memory_retrieval', 'c...` | 115  |
-| `HIGH_RISK_TOOLS`     | `get_high_risk_tools()`                       | 262  |
+| Constant | Value | Line |
+|----------|-------|------|
+| `PROTECTED_BY_LCTO` | `get_lcto_controlled_files()` | 202 |
+| `SUBSYSTEM_PROTECTED` | `get_subsystem_protected_files()` | 203 |
+| `ALL_PROTECTED` | `get_all_protected_files()` | 204 |
+| `HIGH_RISK_TOOLS` | `get_high_risk_tools_with_descriptions()` | 74 |
+| `FILE_PATTERNS` | `{'auth': ['api/auth\\.py', 'core/.*auth....` | 67 |
+| `KEYWORD_PATTERNS` | `{'auth': ['\\bauth\\w*\\b', '\\blogin\\b...` | 99 |
+| `SUBSYSTEM_PRIORITY` | `['auth', 'tools', 'memory_retrieval', 'c...` | 136 |
+| `HIGH_RISK_TOOLS` | `get_high_risk_tools()` | 262 |
 
-_...and 3 more constants_
+*...and 3 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreGovernanceRequest(BaseModel):
     """Request model for core_governance operations."""
@@ -293,9 +294,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Governance feature flags
-L9_ENABLE_CORE_GOVERNANCE_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_GOVERNANCE_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_GOVERNANCE_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_GOVERNANCE_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_GOVERNANCE_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_GOVERNANCE_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -362,6 +363,7 @@ Check if a file is protected.
 - **Async:** No
 - **Returns:** `bool`
 
+
 ### Usage Example
 
 ```python
@@ -391,7 +393,7 @@ Core Governance operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.governance",
   "message": "Operation completed",
@@ -402,7 +404,6 @@ Core Governance operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -410,12 +411,12 @@ Core Governance operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                  | Type      | Description                    |
-| --------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_governance_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_governance_operation_total`       | Counter   | Total operations processed     |
-| `core_governance_error_total`           | Counter   | Total errors encountered       |
-| `core_governance_active_connections`    | Gauge     | Current active connections     |
+| `core_governance_operation_total` | Counter | Total operations processed |
+| `core_governance_error_total` | Counter | Total errors encountered |
+| `core_governance_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -433,7 +434,6 @@ Core Governance emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_governance/`:
-
 - `test_core_governance.py` — Core unit tests
 - `test_core_governance_integration.py` — Integration tests (if applicable)
 
@@ -481,7 +481,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

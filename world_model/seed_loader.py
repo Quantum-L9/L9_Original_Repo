@@ -38,7 +38,8 @@ __dora_meta__ = {
 
 import asyncio
 import logging  # noqa: ADR-0019
-from datetime import UTC, datetime, timezone
+import os
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -216,9 +217,6 @@ class SeedLoader:
             True if successful
         """
         try:
-            # GMP-132: Wrap with governance context for background operations
-            import os
-
             from config.rls_config import get_rls_config
             from memory.governance_gate import (
                 build_governance_context,

@@ -9,12 +9,13 @@ ADR compliance: structlog-only, timezone-aware, builtin generics, explicit zip.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from memory.llm_memory_ops import LLMMemoryOps
+if TYPE_CHECKING:
+    from memory.llm_memory_ops import LLMMemoryOps
 
 logger = structlog.get_logger(__name__)
 

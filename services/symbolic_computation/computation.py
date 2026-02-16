@@ -63,7 +63,7 @@ class ExpressionCache:
         self._cache: dict[str, Callable] = {}
         self._maxsize = maxsize
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=128)  # noqa: B019 — intentional caching of lambdified expressions
     def get_lambdified(
         self, expression: str, variables: tuple, backend: str
     ) -> Callable:
@@ -233,7 +233,7 @@ class CodeGenerator:
                     expr,
                     args=syms,
                     backend="cython",
-                    tempdir="/tmp/sympy_autowrap",
+                    tempdir="/tmp/sympy_autowrap",  # noqa: S108 — intentional temp path for sympy compilation
                 )
 
                 logger.info(

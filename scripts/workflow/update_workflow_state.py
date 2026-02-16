@@ -14,7 +14,7 @@ Part of /pr, /gmp, and /end-session slash command automation.
 
 import argparse
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import structlog
@@ -33,7 +33,7 @@ WORKFLOW_STATE_PATH = Path(__file__).parent.parent.parent / "workflow_state.md"
 
 def get_current_date() -> str:
     """Get current date in YYYY-MM-DD format."""
-    return datetime.now().strftime("%Y-%m-%d")
+    return datetime.now(tz=UTC).strftime("%Y-%m-%d")
 
 
 def read_workflow_state() -> str:

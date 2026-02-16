@@ -132,7 +132,7 @@ async def slack_health(request: Request) -> dict[str, Any]:
 @must_stay_async("callers use await")
 async def slack_events(
     request: Request,
-    validator: SlackRequestValidator = Depends(get_slack_validator),
+    validator: SlackRequestValidator = Depends(get_slack_validator),  # noqa: B008 — FastAPI dependency injection
     x_slack_signature: str = Header(None),
     x_slack_request_timestamp: str = Header(None),
 ) -> dict[str, Any]:
@@ -264,7 +264,7 @@ async def slack_events(
     neo4j_client = getattr(request.app.state, "neo4j_client", None)
     if neo4j_client:
         try:
-            from datetime import datetime
+            from datetime import datetime, timezone
             from uuid import uuid4
 
             await neo4j_client.create_event(
@@ -336,7 +336,7 @@ async def slack_events(
 @must_stay_async("callers use await")
 async def slack_commands(
     request: Request,
-    validator: SlackRequestValidator = Depends(get_slack_validator),
+    validator: SlackRequestValidator = Depends(get_slack_validator),  # noqa: B008 — FastAPI dependency injection
     x_slack_signature: str = Header(None),
     x_slack_request_timestamp: str = Header(None),
 ) -> dict[str, Any]:

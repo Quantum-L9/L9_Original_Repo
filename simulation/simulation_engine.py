@@ -170,7 +170,7 @@ class SimulationEngine:
         """
         self._config = config or SimulationConfig()
         self._runs: dict[UUID, SimulationRun] = {}
-        self._random = random.Random(self._config.random_seed)
+        self._random = random.Random(self._config.random_seed)  # noqa: S311 — seeded PRNG for simulation, not security
 
         logger.info(f"SimulationEngine initialized (mode={self._config.mode})")
 

@@ -440,7 +440,7 @@ class AutoCalibrator:
         # Apply updates to models
         for model in self.registry.get("probabilistic_models", {}).values():
             if "variables" in model:
-                for var_name, var_config in model["variables"].items():
+                for _var_name, var_config in model["variables"].items():
                     if "weights" in var_config:
                         for evidence_name, adjustment in weight_updates.items():
                             if evidence_name in var_config["weights"]:
@@ -616,7 +616,7 @@ class AutoCalibrator:
             with open(self.meta_learning_log, "a") as f:
                 f.write(log_entry)
         except Exception:
-            pass  # Silent fail - logging not critical
+            logger.debug("auto_calibrator.meta_learning_log_write_failed")
 
 
 def run_nightly_calibration():

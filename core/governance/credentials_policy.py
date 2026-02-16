@@ -53,8 +53,8 @@ class SecretType(Enum):
     """Types of secrets to detect."""
 
     API_KEY = "api_key"
-    PASSWORD = "password"
-    TOKEN = "token"
+    PASSWORD = "password"  # noqa: S105 — enum value, not a credential
+    TOKEN = "token"  # noqa: S105 — enum value, not a credential
     PRIVATE_KEY = "private_key"
     CONNECTION_STRING = "connection_string"
     WEBHOOK_URL = "webhook_url"
@@ -367,17 +367,17 @@ class CredentialsPolicy:
         """Generate recommendations based on violations."""
         recommendations: list[str] = []
 
-        if any(v.secret_type == "api_key" for v in violations):
+        if any(v.secret_type == "api_key" for v in violations):  # noqa: S105 — string comparison, not a credential
             recommendations.append("Move API keys to environment variables")
             recommendations.append(
                 "Use secret management service (Vault, AWS Secrets Manager)"
             )
 
-        if any(v.secret_type == "password" for v in violations):
+        if any(v.secret_type == "password" for v in violations):  # noqa: S105 — string comparison, not a credential
             recommendations.append("Never hardcode passwords in source code")
             recommendations.append("Use credential injection at runtime")
 
-        if any(v.secret_type == "connection_string" for v in violations):
+        if any(v.secret_type == "connection_string" for v in violations):  # noqa: S105 — string comparison, not a credential
             recommendations.append("Use DATABASE_URL environment variable")
             recommendations.append("Separate credentials from connection parameters")
 

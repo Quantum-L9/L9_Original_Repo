@@ -64,7 +64,7 @@ def find_files_with_pattern(
                 if pattern in content:
                     matches.append(filepath)
             except Exception:
-                pass
+                logger.debug("refactor_dags.file_read_failed", filepath=str(filepath))
     return matches
 
 
@@ -124,7 +124,7 @@ def main():
     # List files to move
     dag_files = list(SRC_DIR.glob("*.py"))
     logger.info("\n📁 files to move ({len(dag_files)}):")
-    for f in dag_files:
+    for _f in dag_files:
         logger.info("  - {f.name}")
 
     # Find all files needing updates
@@ -145,7 +145,7 @@ def main():
     }
 
     logger.info("\n📝 files to update ({len(all_files_to_update)}):")
-    for f in sorted(all_files_to_update):
+    for _f in sorted(all_files_to_update):
         logger.info("  - {f.relative_to(project_root)}")
 
     # Phase 1: Create destination directory

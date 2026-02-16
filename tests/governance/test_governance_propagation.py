@@ -173,7 +173,6 @@ class TestGovernanceContextPropagation:
         """Memory write with no governance context must raise RuntimeError."""
         try:
             from memory.governance_gate import (
-                build_governance_context,
                 reset_governance_context,
                 set_governance_context,
             )

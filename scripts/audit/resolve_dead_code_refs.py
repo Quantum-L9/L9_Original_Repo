@@ -158,7 +158,8 @@ class FalsePositiveDetector:
             for filepath in files:
                 try:
                     content_parts.append(filepath.read_text())
-                except Exception:
+                except Exception as e:
+                    logger.debug("audit.file_skipped", error=str(e))
                     continue
             self._codebase_content = "\n".join(content_parts)
         return self._codebase_content
@@ -179,7 +180,8 @@ class FalsePositiveDetector:
                 for pattern in patterns:
                     matches = re.findall(pattern, content)
                     self._registry_patterns.update(matches)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     def _scan_protocol_implementations(self, files: list[Path]):
@@ -201,7 +203,8 @@ class FalsePositiveDetector:
                                         item, (ast.FunctionDef, ast.AsyncFunctionDef)
                                     ):
                                         self._protocol_implementations.add(item.name)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     def _build_inheritance_map(self, files: list[Path]):
@@ -224,7 +227,8 @@ class FalsePositiveDetector:
                                 if base_name not in self._inheritance_map:
                                     self._inheritance_map[base_name] = []
                                 self._inheritance_map[base_name].append(node.name)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     def check_dynamic_access(self, symbol: str, content: str) -> str | None:
@@ -337,7 +341,8 @@ class FalsePositiveDetector:
 
                             if base_name in ("BaseModel", "BaseSettings"):
                                 self._pydantic_models.add(node.name)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     def _scan_response_models(self, files: list[Path]):
@@ -352,7 +357,8 @@ class FalsePositiveDetector:
                 # Also look for -> ClassName in route handlers
                 matches = re.findall(r"async def \w+\([^)]*\)\s*->\s*(\w+)", content)
                 self._response_models.update(matches)
-            except Exception:
+            except Exception as e:
+                logger.debug("audit.file_skipped", error=str(e))
                 continue
 
     def check_pydantic_model(self, class_name: str | None) -> bool:
@@ -469,7 +475,7 @@ class FalsePositiveDetector:
                     )
                     return resolved
             except Exception:
-                pass
+                logger.debug("resolve_dead_code.serialization_check_failed")
 
         return resolved
 
@@ -614,9 +620,9 @@ def main():
     )
 
     # Print summary
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("dead code audit - phase 2 resolution")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("input findings: {result.total_input_findings}")
     logger.info("false positives eliminated: {result.false_positives_eliminated}")
     logger.info("remaining findings: {result.remaining_findings}")
@@ -634,7 +640,7 @@ def main():
             logger.info("  reason: count", reason=reason, count=count)
 
     logger.info("\noutput: output file", output_file=output_file)
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
     return 0
 

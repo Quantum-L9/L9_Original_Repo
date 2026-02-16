@@ -39,12 +39,13 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
 
-from core.agents.selfreflection import BehaviorGap, ReflectionResult
+if TYPE_CHECKING:
+    from core.agents.selfreflection import BehaviorGap, ReflectionResult
 
 logger = structlog.get_logger(__name__)
 

@@ -351,7 +351,8 @@ def detect_project_id_env_patterns(repo_root: Path) -> list[ConfigMismatch]:
                 match = pattern.search(line)
                 if match:
                     occurrences.append((rel_path, line_num, match.group(1)))
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
 
     if occurrences:

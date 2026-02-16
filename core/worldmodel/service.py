@@ -38,8 +38,7 @@ __dora_meta__ = {
 import os
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -59,6 +58,9 @@ from core.worldmodel.l9_schema import (
     ToolCategory,
     ToolRiskLevel,
 )
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 logger = structlog.get_logger(__name__)
 
@@ -392,7 +394,7 @@ class WorldModelService:
         l_agent = self._agents[l_agent_id]
 
         # L HAS_TOOL for each tool
-        for tool_id, tool in self._tools.items():
+        for tool_id, _tool in self._tools.items():
             rel = L9Relationship(
                 relationship_type=L9RelationshipType.HAS_TOOL,
                 source_id=l_agent.id,

@@ -273,7 +273,9 @@ async def test_e2e_error_handling_database_error(mock_caller_c):
         mock_execute.side_effect = asyncpg.PostgresError("Connection failed")
 
         # Should raise HTTPException with 500 status
-        with pytest.raises(Exception):  # Will be HTTPException in actual handler
+        with pytest.raises(  # noqa: B017 — intentionally testing broad exception handling
+            Exception
+        ):  # noqa: B017 — intentionally testing broad exception handling
             await handle_tool_call(
                 tool=tool_call, user_id="test-user", caller=mock_caller_c
             )

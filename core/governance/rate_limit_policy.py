@@ -424,6 +424,7 @@ def rate_limit(
             ...
     """
 
+    @wraps(policy_key)
     def decorator(func: F) -> F:
         """Wrap function with rate limiting."""
 

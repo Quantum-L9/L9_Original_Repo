@@ -40,7 +40,10 @@ from jinja2 import Environment, FileSystemLoader
 from pydantic import BaseModel, Field
 
 # L9 imports
-from core.logger import get_logger
+import structlog
+
+def get_logger(name: str):
+    return structlog.get_logger(name)
 
 
 class CompilationResult(BaseModel):

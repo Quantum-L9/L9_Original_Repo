@@ -32,7 +32,7 @@ __dora_meta__ = {
 import asyncio
 import os
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -55,7 +55,7 @@ except ImportError:
 # GUI fallback imports
 try:
     import pyautogui
-    from PIL import Image
+    from PIL import Image  # noqa: F401 — availability check
 
     PYTHON_AUTOGUI_AVAILABLE = True
 except ImportError:
@@ -94,7 +94,7 @@ class AutomationExecutor:
             import subprocess
 
             result = subprocess.run(
-                ["python", "-m", "playwright", "install", "chromium"],
+                ["python", "-m", "playwright", "install", "chromium"],  # noqa: S607 — trusted system command
                 capture_output=True,
                 text=True,
             )
@@ -188,7 +188,7 @@ class AutomationExecutor:
             )
             screenshot_dir.mkdir(parents=True, exist_ok=True)
 
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now(tz=UTC).strftime("%Y%m%d_%H%M%S")
             filename = f"screenshot_{timestamp}{suffix}.png"
             screenshot_path = screenshot_dir / filename
 
@@ -536,7 +536,7 @@ class AutomationExecutor:
                 if self.page:
                     page_data = {"url": self.page.url, "title": await self.page.title()}
             except Exception:
-                pass
+                logger.debug("mac_executor.page_data_extraction_failed")
 
             finished_at = ts()
 
@@ -619,7 +619,7 @@ class AutomationExecutor:
                     self.logs.append(f"Typed: {text[:50]}")
 
                 elif action == "screenshot":
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    timestamp = datetime.now(tz=UTC).strftime("%Y%m%d_%H%M%S")
                     screenshot_path = os.path.join(
                         self.config.screenshot_dir, f"gui_screenshot_{timestamp}.png"
                     )
@@ -631,7 +631,7 @@ class AutomationExecutor:
                     raise ValueError(f"Unknown GUI action: {action}")
 
             if screenshot_path is None:
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                timestamp = datetime.now(tz=UTC).strftime("%Y%m%d_%H%M%S")
                 screenshot_path = os.path.join(
                     self.config.screenshot_dir, f"gui_screenshot_{timestamp}.png"
                 )

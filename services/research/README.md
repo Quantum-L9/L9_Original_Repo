@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Research graph, LangGraph integration, and insight extraction
 
 ### Inbound Dependencies
 
-| Module                   | Purpose          |
-| ------------------------ | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `agents/research_agent/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module                        | Purpose             |
-| ----------------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -93,13 +93,13 @@ services/research/
 └── ... (2 more files)
 ```
 
-| File                | Purpose                                       |
-| ------------------- | --------------------------------------------- |
-| `research_graph.py` | Core module (PROTECTED)                       |
-| `__init__.py`       | Core module (PROTECTED)                       |
-| `graph_state.py`    | Single step in a research plan.               |
-| `graph_state.py`    | Evidence gathered by a researcher.            |
-| `graph_state.py`    | Shared state across all research graph nodes. |
+| File | Purpose |
+|------|---------|
+| `research_graph.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `graph_state.py` | Single step in a research plan. |
+| `graph_state.py` | Evidence gathered by a researcher. |
+| `graph_state.py` | Shared state across all research graph nodes. |
 
 ### Naming Conventions
 
@@ -170,7 +170,7 @@ class ResearchGraphRuntime:
 
 **Public Methods:** `__init__`, `initialize`, `shutdown`, `execute`, `resume`
 
-**Lines:** 47-179 in `graph_runtime.py`
+**Lines:** 48-181 in `graph_runtime.py`
 
 ### `graph_persistence.py` — FindingType
 
@@ -182,7 +182,8 @@ class FindingType:
 
 ```
 
-**Lines:** 66-74 in `graph_persistence.py`
+**Lines:** 67-75 in `graph_persistence.py`
+
 
 ---
 
@@ -198,29 +199,29 @@ The following data models define the contracts for this subsystem:
 
 `BaseAgent`, `BaseTool`, `CriticAgent`, `Evidence`, `FindingType`, `GraphPersistenceConfig`, `HTTPTool`, `MockSearchTool`, `PerplexityClient`, `PerplexityModel`
 
-_...and 31 more_
+*...and 31 more*
 
 ### Module Constants
 
-| Constant                       | Value                                         | Line |
-| ------------------------------ | --------------------------------------------- | ---- |
-| `CREATE_FINDING_QUERY`         | `'\nCREATE (f:ResearchFinding {\n    id: ...` | 114  |
-| `LINK_FINDING_TO_QUERY_QUERY`  | `'\nMATCH (f:ResearchFinding {id: $findin...` | 130  |
-| `LINK_FINDING_TO_AGENT_QUERY`  | `'\nMATCH (f:ResearchFinding {id: $findin...` | 138  |
-| `GET_FINDINGS_BY_TYPE_QUERY`   | `'\nMATCH (f:ResearchFinding)\nWHERE f.fi...` | 145  |
-| `GET_FINDINGS_FOR_QUERY_QUERY` | `'\nMATCH (q:ResearchQuery {query: $query...` | 161  |
-| `PERPLEXITY_RETRY_CONFIG`      | `AsyncRetryConfig(max_retries=3, base_bac...` | 56   |
-| `RESEARCHER_SYSTEM_PROMPT`     | `'You are a research agent. Your job is t...` | 40   |
-| `PLANNER_SYSTEM_PROMPT`        | `'You are a research planning agent. Your...` | 39   |
+| Constant | Value | Line |
+|----------|-------|------|
+| `CREATE_FINDING_QUERY` | `'\nCREATE (f:ResearchFinding {\n    id: ...` | 115 |
+| `LINK_FINDING_TO_QUERY_QUERY` | `'\nMATCH (f:ResearchFinding {id: $findin...` | 131 |
+| `LINK_FINDING_TO_AGENT_QUERY` | `'\nMATCH (f:ResearchFinding {id: $findin...` | 139 |
+| `GET_FINDINGS_BY_TYPE_QUERY` | `'\nMATCH (f:ResearchFinding)\nWHERE f.fi...` | 146 |
+| `GET_FINDINGS_FOR_QUERY_QUERY` | `'\nMATCH (q:ResearchQuery {query: $query...` | 162 |
+| `PERPLEXITY_RETRY_CONFIG` | `AsyncRetryConfig(max_retries=3, base_bac...` | 56 |
+| `RESEARCHER_SYSTEM_PROMPT` | `'You are a research agent. Your job is t...` | 41 |
+| `PLANNER_SYSTEM_PROMPT` | `'You are a research planning agent. Your...` | 40 |
 
-_...and 1 more constants_
+*...and 1 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class ServicesResearchRequest(BaseModel):
     """Request model for services_research operations."""
@@ -278,9 +279,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Services_Research feature flags
-L9_ENABLE_SERVICES_RESEARCH_TRACING: true # Enable detailed tracing
-L9_ENABLE_SERVICES_RESEARCH_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_SERVICES_RESEARCH_AUDIT: true # Enable audit logging
+L9_ENABLE_SERVICES_RESEARCH_TRACING: true  # Enable detailed tracing
+L9_ENABLE_SERVICES_RESEARCH_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_SERVICES_RESEARCH_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -319,7 +320,7 @@ Create an initial research graph state from a query.
 
 Get or create runtime singleton.
 
-- **File:** `graph_runtime.py:191`
+- **File:** `graph_runtime.py:193`
 - **Async:** No
 - **Returns:** `ResearchGraphRuntime`
 
@@ -327,7 +328,7 @@ Get or create runtime singleton.
 
 Initialize runtime with database URL.
 
-- **File:** `graph_runtime.py:199`
+- **File:** `graph_runtime.py:201`
 - **Async:** Yes
 - **Returns:** `ResearchGraphRuntime`
 
@@ -335,7 +336,7 @@ Initialize runtime with database URL.
 
 Shutdown runtime.
 
-- **File:** `graph_runtime.py:206`
+- **File:** `graph_runtime.py:208`
 - **Async:** Yes
 - **Returns:** `None`
 
@@ -343,9 +344,10 @@ Shutdown runtime.
 
 Planning node - Decompose query into research steps.
 
-- **File:** `research_graph.py:66`
+- **File:** `research_graph.py:67`
 - **Async:** Yes
 - **Returns:** `ResearchGraphState`
+
 
 ### Usage Example
 
@@ -376,7 +378,7 @@ Services Research operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "services.research",
   "message": "Operation completed",
@@ -387,7 +389,6 @@ Services Research operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -395,12 +396,12 @@ Services Research operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                    | Type      | Description                    |
-| ----------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `services_research_operation_duration_ms` | Histogram | Operation latency distribution |
-| `services_research_operation_total`       | Counter   | Total operations processed     |
-| `services_research_error_total`           | Counter   | Total errors encountered       |
-| `services_research_active_connections`    | Gauge     | Current active connections     |
+| `services_research_operation_total` | Counter | Total operations processed |
+| `services_research_error_total` | Counter | Total errors encountered |
+| `services_research_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -418,7 +419,6 @@ Services Research emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/services_research/`:
-
 - `test_services_research.py` — Core unit tests
 - `test_services_research_integration.py` — Integration tests (if applicable)
 
@@ -466,7 +466,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

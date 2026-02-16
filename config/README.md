@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Dependency injection, settings, and configuration management
 
 ### Inbound Dependencies
 
-| Module        | Purpose          |
-| ------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `all modules` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -86,16 +86,17 @@ config/
 ├── rls_config.py
 ├── schemas/__init__.py
 ├── settings.py
+├── tool_schemas.py
 ```
 
-| File                   | Purpose                                            |
-| ---------------------- | -------------------------------------------------- |
-| `di_config.py`         | Core module (PROTECTED)                            |
-| `settings.py`          | Core module (PROTECTED)                            |
-| `__init__.py`          | Core module (PROTECTED)                            |
+| File | Purpose |
+|------|---------|
+| `di_config.py` | Core module (PROTECTED) |
+| `settings.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
 | `di_runtime_config.py` | Raised when DI config loading or validation fails. |
 | `di_runtime_config.py` | Load DI configuration from YAML with environment v |
-| `rls_config.py`        | RLS Configuration with deterministic UUID generati |
+| `rls_config.py` | RLS Configuration with deterministic UUID generati |
 
 ### Naming Conventions
 
@@ -162,7 +163,7 @@ class RLSConfig:
 
 **Public Methods:** `tenant_uuid`, `org_uuid`, `user_uuid`
 
-**Lines:** 76-111 in `rls_config.py`
+**Lines:** 76-126 in `rls_config.py`
 
 ### `ai_eval_settings.py` — HallucinationSettings
 
@@ -174,7 +175,7 @@ class HallucinationSettings:
 
 ```
 
-**Lines:** 41-58 in `ai_eval_settings.py`
+**Lines:** 41-67 in `ai_eval_settings.py`
 
 ### `ai_eval_settings.py` — BiasSettings
 
@@ -186,31 +187,34 @@ class BiasSettings:
 
 ```
 
-**Lines:** 61-74 in `ai_eval_settings.py`
+**Lines:** 70-104 in `ai_eval_settings.py`
+
 
 ---
 
 ## Data Models and Contracts
 
+
 ### Exported Symbols (`__all__`)
 
 `AIEvalSettings`, `AsyncDIContainer`, `DIConfigError`, `DIRuntimeConfigLoader`, `IntegrationSettings`, `MemorySubstrateSettings`, `ResearchSettings`, `SCHEMAS_DIR`, `async_cache_client_factory`, `async_memory_substrate_factory`
 
-_...and 28 more_
+*...and 28 more*
 
 ### Module Constants
 
-| Constant             | Value                   | Line |
-| -------------------- | ----------------------- | ---- |
-| `RLS_UUID_NAMESPACE` | `uuid.NAMESPACE_DNS`    | 55   |
-| `SCHEMAS_DIR`        | `Path(__file__).parent` | 33   |
+| Constant | Value | Line |
+|----------|-------|------|
+| `RLS_UUID_NAMESPACE` | `uuid.NAMESPACE_DNS` | 55 |
+| `TOOL_SCHEMAS` | `{'memory_search': {'type': 'object', 'pr...` | 36 |
+| `SCHEMAS_DIR` | `Path(__file__).parent` | 33 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class ConfigRequest(BaseModel):
     """Request model for config operations."""
@@ -269,9 +273,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Config feature flags
-L9_ENABLE_CONFIG_TRACING: true # Enable detailed tracing
-L9_ENABLE_CONFIG_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CONFIG_AUDIT: true # Enable audit logging
+L9_ENABLE_CONFIG_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CONFIG_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CONFIG_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -326,7 +330,7 @@ Generate a deterministic UUID from a string identifier.
 
 Get or create RLS config singleton. CACHED.
 
-- **File:** `rls_config.py:115`
+- **File:** `rls_config.py:130`
 - **Async:** No
 - **Returns:** `RLSConfig`
 
@@ -334,9 +338,10 @@ Get or create RLS config singleton. CACHED.
 
 Get RLS UUIDs for PostgreSQL RLS session variables.
 
-- **File:** `rls_config.py:130`
+- **File:** `rls_config.py:145`
 - **Async:** No
 - **Returns:** `tuple[str, str, str]`
+
 
 ### Usage Example
 
@@ -367,7 +372,7 @@ Config operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "config",
   "message": "Operation completed",
@@ -378,7 +383,6 @@ Config operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -386,12 +390,12 @@ Config operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                         | Type      | Description                    |
-| ------------------------------ | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `config_operation_duration_ms` | Histogram | Operation latency distribution |
-| `config_operation_total`       | Counter   | Total operations processed     |
-| `config_error_total`           | Counter   | Total errors encountered       |
-| `config_active_connections`    | Gauge     | Current active connections     |
+| `config_operation_total` | Counter | Total operations processed |
+| `config_error_total` | Counter | Total errors encountered |
+| `config_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -409,7 +413,6 @@ Config emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/config/`:
-
 - `test_config.py` — Core unit tests
 - `test_config_integration.py` — Integration tests (if applicable)
 
@@ -459,7 +462,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

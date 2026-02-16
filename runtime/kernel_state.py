@@ -38,7 +38,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -105,7 +105,7 @@ class KernelState:
             kernel_source: Which kernel influenced this decision
         """
         decision = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(tz=UTC).isoformat(),
             "intent": intent,
             "reasoning": reasoning,
             "confidence": confidence,
@@ -142,7 +142,7 @@ class KernelState:
             action: Action taken (HALT_EXECUTION, PAUSE_AND_ESCALATE, LOG_AND_CONTINUE)
         """
         escalation = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(tz=UTC).isoformat(),
             "category": category,
             "issue": issue,
             "severity": severity,
@@ -179,7 +179,7 @@ class KernelState:
             error: Error message (if failed)
         """
         execution = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(tz=UTC).isoformat(),
             "tool": tool_id,
             "params": params,
             "status": status,
@@ -257,12 +257,12 @@ def create_kernel_state(
         New KernelState instance
     """
     if not session_id:
-        session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        session_id = f"session_{datetime.now(tz=UTC).strftime('%Y%m%d_%H%M%S')}"
 
     return KernelState(
         agent_id=agent_id,
         session_id=session_id,
-        timestamp=datetime.now(),
+        timestamp=datetime.now(tz=UTC),
     )
 
 

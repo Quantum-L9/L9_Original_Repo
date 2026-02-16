@@ -15,6 +15,9 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+import structlog
+
+logger = structlog.get_logger(__name__)
 
 from core.decorators import must_stay_async
 
@@ -140,7 +143,7 @@ class TestSlackEventDeduplication:
                         app=MagicMock(),
                     )
                 except Exception:
-                    pass
+                    logger.debug("test_slack_idempotency.handler_call_failed")
 
         assert slack_client.post_message.call_count <= 1, (
             f"Expected at most 1 Slack reply, got "
@@ -231,7 +234,7 @@ class TestSlackEventDeduplication:
                         app=MagicMock(),
                     )
                 except Exception:
-                    pass
+                    logger.debug("test_slack_idempotency.handler_call_failed")
 
         assert slack_client.post_message.call_count >= 2, (
             "Different event_ids must both be processed, not deduplicated."
@@ -370,4 +373,4 @@ class TestSlackRedisUnavailable:
                     "Handler must catch and fail-open."
                 )
             except Exception:
-                pass  # Other exceptions (missing deps) are OK
+                logger.debug("test_slack_idempotency.non_redis_exception_ok")

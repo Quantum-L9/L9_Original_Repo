@@ -39,7 +39,7 @@ __dora_meta__ = {
 
 import os
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 
@@ -579,14 +579,14 @@ async def chat(request: Request):
                 {
                     "role": "user",
                     "content": message,
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(tz=UTC).isoformat(),
                 }
             )
             conversation_history.append(
                 {
                     "role": "assistant",
                     "content": reply,
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(tz=UTC).isoformat(),
                 }
             )
 

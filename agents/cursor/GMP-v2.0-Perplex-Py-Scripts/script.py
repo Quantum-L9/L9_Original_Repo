@@ -20,7 +20,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 
@@ -29,7 +29,7 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 gmp_version = "2.0.0"
-release_date = datetime.now().isoformat()
+release_date = datetime.now(tz=UTC).isoformat()
 
 # Generate DORA Block Template v2.0
 dora_template_v2 = {

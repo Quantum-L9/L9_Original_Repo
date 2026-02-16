@@ -41,8 +41,7 @@ __dora_meta__ = {
 
 import hashlib
 import time
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 import sympy
@@ -51,6 +50,9 @@ from sympy.utilities.lambdify import lambdify
 
 from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 from services.symbolic_computation.core.models import ComputationResult
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

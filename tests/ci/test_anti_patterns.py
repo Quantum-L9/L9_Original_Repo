@@ -31,8 +31,6 @@ from pathlib import Path
 
 import pytest
 
-from core.decorators import must_stay_async
-
 HARDCODED_MACOS_PATH = _re_module.compile(r"/Users/[a-zA-Z0-9_-]+")
 HARDCODED_LINUX_PATH = _re_module.compile(r"/home/[a-zA-Z0-9_-]+(?!/ubuntu)")
 HARDCODED_WINDOWS_PATH = _re_module.compile(r"C:\\Users\\[a-zA-Z0-9_-]+")

@@ -2,8 +2,8 @@
 # Memory Architecture
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-14 01:27 UTC
-# Branch:    main (cd9f1632)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -22,6 +22,7 @@
 | `memory/checkpoint_manager.py` | CheckpointManager | L9 Memory - Checkpoint Manager |
 | `memory/checkpoint_metrics.py` | CheckpointMetrics, Counter, Histogram, Gauge | L9 Memory - Checkpoint Metrics |
 | `memory/checkpoint_validator.py` | SchemaVersion, CheckpointValidator | L9 Memory - Checkpoint Validator |
+| `memory/chunk_view.py` | Chunk, ChunkConfig, ChunkView | ChunkView — virtual chunking layer for retrieved memory payl |
 | `memory/consolidation.py` | ConsolidationReport, ConsolidationPipeline | L9 Memory - Consolidation Pipeline |
 | `memory/context_builder.py` | MemoryTier, ContextSection, HierarchicalContextBuilder | L9 Memory Substrate - Hierarchical Context Builder |
 | `memory/cross_encoder_reranker.py` | CrossEncoderConfig, RerankingResult, CrossEncoderReranker | L9 Memory - Cross-Encoder Reranker |
@@ -44,20 +45,28 @@
 | `memory/hybrid_rag.py` | EnrichmentStrategy, VectorHit, GraphEnrichment, HybridResult | L9 Memory - Hybrid RAG Pipeline (Vector-Graph Bridge) |
 | `memory/identity_tier.py` | IdentityFactSource, IdentityFactCategory, IdentityFact, IdentityTierService | L9 Memory Substrate - Identity Tier Service |
 | `memory/importance_manager.py` | ImportanceConfig, AccessRecord, ImportanceUpdate, ImportanceManager | L9 Memory Substrate - Importance Manager |
+| `memory/importance_recipe.py` | ImportanceInputs, ImportanceUpdate | ImportanceRecipe — shared deterministic importance scoring f |
 | `memory/index_syncer.py` | IndexSyncer | L9 Memory - Index Syncer |
 | `memory/ingestion.py` | IngestionPipeline | L9 Memory Substrate - Ingestion Pipeline |
 | `memory/insight_extraction.py` | - | memory.insight_extraction — DEPRECATED compatibility shim. |
+| `memory/intake_leverage.py` | RoleWeight, IntakeTier, IntakeLeverageScorer, LeverageCandidate | Intake leverage scoring and observe-cycle prioritization. |
+| `memory/llm_memory_ops.py` | LLMClient, SummarizeResult, DistillResult, ConsolidateResult | LLMMemoryOps — isolated, testable LLM operations for the mem |
 | `memory/migration_runner.py` | MigrationRunner | L9 Memory - Migration Runner |
 | `memory/neo4j_strategy_memory.py` | StrategyMemoryConfig, Neo4jStrategyMemoryService | L9 Neo4j Strategy Memory Service |
 | `memory/neural_decay_scheduler.py` | DecayConfig, DecayResult, NeuralDecayScheduler | L9 Memory - Neural Decay Scheduler |
 | `memory/packet_serializer.py` | - | L9 Memory - Packet Serializer |
+| `memory/pipeline_router.py` | MemoryTier, TierRetrievalConfig, LLMConfig, CallerContext | PipelineRouter — single orchestration entrypoint for memory  |
 | `memory/predictive_cache.py` | PredictiveCache | L9 Memory - Predictive Cache |
+| `memory/procedural_synthesis.py` | HeuristicCandidate, SynthesisReport, ProceduralSynthesizer | ProceduralSynthesis — research-grade procedural synthesis vi |
 | `memory/query_cache.py` | QueryCache | Query Result Caching Module |
 | `memory/query_classifier.py` | QueryClassifier | L9 Memory - Query Classifier |
+| `memory/query_rewriter.py` | RewriteResult, LLMClient, QueryRewriter | QueryRewriter — LLM-powered query rewrite + expansion for me |
+| `memory/ranking_extensions.py` | ExtendedRankingItem, ExtendedWeights | RankingExtensions — importance + decayed-salience inputs for |
 | `memory/reasoning_replay.py` | ReasoningChain, ReasoningReplayPipeline | L9 Memory - Reasoning Replay Pipeline |
 | `memory/retention_engine.py` | RetentionPolicy, RetentionResult, RetentionEngine | L9 Memory - Retention Engine |
 | `memory/retention_refcount.py` | PacketRefCount, ReferenceCountingService | Reference Counting Service for TTL Safety |
 | `memory/retrieval.py` | RetrievalPipeline | L9 Memory Substrate - Retrieval Pipeline |
+| `memory/retrieval_multiquery.py` | SingleQueryRetriever, ProvenancedHit, MultiQueryResult | RetrievalMultiQuery — multi-query retrieval extension for Re |
 | `memory/retrieval_ranking.py` | RankingWeights, RankingItem, MultiFactorRanker | L9 Memory Substrate - Multi-Factor Retrieval Ranking |
 | `memory/retrieval_strategy.py` | RetrievalStrategy, StrategyContext, StrategyResult, StrategyDeterminer | L9 Memory Substrate - Strategy-Based Retrieval |
 | `memory/saga.py` | SagaStepStatus, SagaStatus, DatabaseType, SagaStepResult | L9 Memory - Cross-DB Saga Pattern |
@@ -140,6 +149,7 @@
 7. `extract_insights_node()` — Extract insights, facts, and entities from packet payload an
 8. `store_insights_node()` — Store extracted insights and facts to database (v2.1.0 - GMP
 9. `world_model_trigger_node()` — Trigger world model update based on extracted insights.
+10. `analogical_enrichment_node()` — Optional DTB node: find cross-domain analogies for the incom
 
 ## PostgreSQL Tables (from migrations)
 

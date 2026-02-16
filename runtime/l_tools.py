@@ -1233,6 +1233,8 @@ async def redis_get_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         count = await client.get_rate_limit(key)
 
         return {
@@ -1268,6 +1270,8 @@ async def redis_set_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         await client.set_rate_limit(key, count, ttl_seconds)
 
         logger.info(f"Rate limit set: {key}={count} TTL={ttl_seconds}s")
@@ -1301,6 +1305,8 @@ async def redis_increment_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         new_count = await client.increment_rate_limit(key, amount)
 
         return {
@@ -1333,6 +1339,8 @@ async def redis_decrement_rate_limit(
         from runtime.redis_client import get_redis_client
 
         client = await get_redis_client()
+        if client is None:
+            raise RuntimeError("Redis client not available")
         new_count = await client.decrement_rate_limit(key, amount)
 
         return {

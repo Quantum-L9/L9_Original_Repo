@@ -35,9 +35,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from enum import Enum
 from typing import Any
+
+import structlog
 
 from world_model.interfaces import Entity, Relation, UpdateResult
 from world_model.neo4j_substrate import Neo4jConfig, Neo4jSubstrate

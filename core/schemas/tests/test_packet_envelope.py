@@ -9,7 +9,7 @@ Validates:
 - Semantic search models
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -34,14 +34,16 @@ class TestPacketEnvelopeImmutability:
         """Verify packet_id cannot be changed after creation."""
         envelope = PacketEnvelope(packet_type="event", payload={"message": "Hello"})
 
-        with pytest.raises(Exception):  # ValidationError or AttributeError
+        with pytest.raises(  # noqa: B017 — intentionally testing broad exception handling
+            Exception
+        ):  # noqa: B017 — intentionally testing broad exception handling
             envelope.packet_id = uuid4()
 
     def test_cannot_modify_payload(self):
         """Verify payload cannot be changed after creation."""
         envelope = PacketEnvelope(packet_type="event", payload={"message": "Hello"})
 
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             envelope.payload = {"message": "Modified"}
 
     def test_with_update_creates_new_packet(self):
@@ -61,12 +63,12 @@ class TestPacketEnvelopeRequired:
 
     def test_packet_type_required(self):
         """Verify packet_type is required."""
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             PacketEnvelope(payload={"data": "test"})
 
     def test_payload_required(self):
         """Verify payload is required."""
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017 — intentionally testing broad exception handling
             PacketEnvelope(packet_type="event")
 
     def test_timestamp_auto_generated(self):

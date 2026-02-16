@@ -17,7 +17,6 @@ ADR: 0013 (governance hierarchy), 0019 (structlog)
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -31,7 +30,6 @@ from adapters.tensorglobe_bridge.schemas import (
     TensorResult,
 )
 from core.decorators import must_stay_async
-from core.eos.schemas import Verdict, VerdictDecision
 
 # =============================================================================
 # Fixtures

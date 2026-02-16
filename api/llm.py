@@ -29,7 +29,6 @@ from openai import OpenAI
 try:
     from core.kernels.prompt_builder import (
         build_system_prompt_from_kernels,
-        get_fallback_prompt,
     )
 
     KERNELS_AVAILABLE = True

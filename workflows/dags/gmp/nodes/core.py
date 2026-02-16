@@ -48,8 +48,8 @@ async def _memory_search(query: str, agent_id: str = "") -> list[dict[str, Any]]
         logger.warning("memory_search_async_failed", error=str(exc), query=query[:50])
         # Fallback: subprocess to cursor_memory_client
         try:
-            result = subprocess.run(
-                [
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                [  # noqa: S607 — trusted system command
                     "python3",
                     "agents/cursor/cursor_memory_client.py",
                     "search",
@@ -63,7 +63,7 @@ async def _memory_search(query: str, agent_id: str = "") -> list[dict[str, Any]]
             if result.returncode == 0:
                 return [{"content": result.stdout[:1000], "source": "cli_fallback"}]
         except Exception:
-            pass
+            logger.debug("gmp_nodes.memory_search_cli_fallback_failed")
         return []
 
 
@@ -86,8 +86,8 @@ async def _memory_write(content: str, kind: str = "lesson") -> bool:
         logger.warning("memory_write_async_failed", error=str(exc))
         # Fallback: subprocess
         try:
-            result = subprocess.run(
-                [
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                [  # noqa: S607 — trusted system command
                     "python3",
                     "agents/cursor/cursor_memory_client.py",
                     "write",
@@ -242,8 +242,8 @@ def node_baseline(state: GMPState) -> GMPState:
         # For Python files, verify they compile
         if full_path.suffix == ".py":
             try:
-                result = subprocess.run(
-                    ["python3", "-m", "py_compile", str(full_path)],
+                result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                    ["python3", "-m", "py_compile", str(full_path)],  # noqa: S607 — trusted system command
                     capture_output=True,
                     text=True,
                     timeout=10,
@@ -398,8 +398,8 @@ def node_validate(state: GMPState) -> GMPState:
             continue
 
         try:
-            result = subprocess.run(
-                ["python3", "-m", "py_compile", str(full_path)],
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                ["python3", "-m", "py_compile", str(full_path)],  # noqa: S607 — trusted system command
                 capture_output=True,
                 text=True,
                 timeout=10,
@@ -428,7 +428,7 @@ def node_validate(state: GMPState) -> GMPState:
                 *state.files_modified,
                 "--json",
             ]
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
                 cmd,
                 capture_output=True,
                 text=True,
@@ -601,7 +601,7 @@ def node_finalize(state: GMPState) -> GMPState:
             "--skip-verify",
         ]
 
-        gen_result = subprocess.run(
+        gen_result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd,
             capture_output=True,
             text=True,
@@ -636,8 +636,8 @@ def node_finalize(state: GMPState) -> GMPState:
 
         if report_validator.exists() and report_file.exists():
             try:
-                val_result = subprocess.run(
-                    ["python3", str(report_validator), str(report_file)],
+                val_result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                    ["python3", str(report_validator), str(report_file)],  # noqa: S607 — trusted system command
                     capture_output=True,
                     text=True,
                     timeout=30,
@@ -661,8 +661,8 @@ def node_finalize(state: GMPState) -> GMPState:
 
         if workflow_updater.exists() and report_file.exists():
             try:
-                ws_result = subprocess.run(
-                    [
+                ws_result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+                    [  # noqa: S607 — trusted system command
                         "python3",
                         str(workflow_updater),
                         "--from-report",

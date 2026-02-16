@@ -445,7 +445,7 @@ class TestTemplateEngine:
 
     def _generate_header(self, suite_spec: dict[str, Any], strategy_name: str) -> str:
         """Generate header comment with genealogy."""
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         now = datetime.now().isoformat()
         module = suite_spec["module"]

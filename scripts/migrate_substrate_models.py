@@ -31,6 +31,7 @@ __dora_meta__ = {
 import re
 import sys
 from pathlib import Path
+
 import structlog
 
 # Symbols that moved from memory.substrate_models to core.schemas.packet_envelope_v2
@@ -104,7 +105,8 @@ def find_files_to_migrate(root: Path) -> list[Path]:
             content = path.read_text()
             if "from memory.substrate_models import" in content:
                 files.append(path)
-        except Exception:
+        except Exception as e:
+            logger.debug("audit.file_skipped", error=str(e))
             continue
     return files
 
@@ -157,7 +159,9 @@ def generate_new_imports(symbols: list[str]) -> str:
             legacy_imports.append(sym)
         else:
             # Unknown symbol - keep in legacy for safety
-            logger.info("  ⚠ unknown symbol 'sym' - keeping in substrate models", sym=sym)
+            logger.info(
+                "  ⚠ unknown symbol 'sym' - keeping in substrate models", sym=sym
+            )
             legacy_imports.append(sym)
 
     lines = []
@@ -237,7 +241,7 @@ def main():
         f"{'DRY RUN - ' if dry_run else ''}Migrating from memory.substrate_models to core.schemas.packet_envelope_v2"
     )
     logger.info("project root: root", root=root)
-    logger.info("=" * 80")
+    logger.info("=" * 80)
 
     files = find_files_to_migrate(root)
     logger.info("found {len(files)} files to migrate\n")
@@ -259,9 +263,11 @@ def main():
             errors.append((path, str(e)))
             logger.error("✗ error processing path: e", path=path, e=e)
 
-    logger.info("\n" + "=" * 80")
+    logger.info("\n" + "=" * 80)
     logger.info("summary:")
-    logger.info("  files {'would be ' if dry run else ''}changed: changed", changed=changed)
+    logger.info(
+        "  files {'would be ' if dry run else ''}changed: changed", changed=changed
+    )
     logger.info("  files skipped (no v2 symbols): skipped", skipped=skipped)
     if errors:
         logger.error("  errors: {len(errors)}")

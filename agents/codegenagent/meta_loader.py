@@ -169,16 +169,20 @@ class MetaLoader:
                 f"Contract validation failed: {'; '.join(errors)}"
             ) from e
 
-    def validate_meta(self, path: str) -> MetaContractValidationResult:
+    def validate_meta(self, path: str | dict[str, Any]) -> MetaContractValidationResult:
         """
         Validate a meta specification against Module-Spec-v2.4.
 
         Args:
-            path: Path to YAML file
+            path: Path to YAML file or raw meta dictionary
 
         Returns:
             Validation result with errors and warnings
         """
+        if isinstance(path, dict):
+            # If it's a dict, validate it directly
+            return self._validator.validate_dict(path)
+
         if os.path.isabs(path):
             file_path = path
         else:

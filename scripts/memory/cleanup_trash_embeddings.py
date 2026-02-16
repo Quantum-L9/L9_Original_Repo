@@ -108,7 +108,7 @@ def is_trash_embedding(payload: dict[str, Any]) -> bool:
             # If it parses as JSON and is short, it's likely a dump
             return True
         except Exception:
-            pass
+            logger.debug("cleanup_trash.json_parse_check_failed")
 
     return False
 
@@ -215,7 +215,7 @@ async def cleanup_trash_embeddings(
                         f"""
                         DELETE FROM semantic_memory
                         WHERE embedding_id::text IN ({placeholders})
-                        """,
+                        """,  # noqa: S608 — placeholders are $N params, not user input
                         *batch,
                     )
                     deleted_count += int(result.split()[-1])
@@ -260,15 +260,15 @@ async def main(dry_run: bool = False, verbose: bool = False):
         return
 
     # Print summary
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("trash embeddings cleanup summary")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("  total embeddings scanned: {result['total_scanned']:,}")
     logger.info("  trash embeddings found: {result['trash_found']:,}")
 
     if result.get("reason_counts"):
         logger.info("\n  breakdown by reason:")
-        for reason, count in sorted(
+        for reason, _count in sorted(
             result["reason_counts"].items(), key=lambda x: x[1], reverse=True
         ):
             logger.info("    reason {count:>6}", reason=reason)

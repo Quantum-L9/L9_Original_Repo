@@ -10,6 +10,8 @@ Version: 6.0.0
 
 from __future__ import annotations
 
+import json
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Cache Manager",
@@ -37,13 +39,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from core.decorators import must_stay_async
 from services.symbolic_computation.config import SymbolicComputationConfig, get_config
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

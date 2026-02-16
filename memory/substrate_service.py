@@ -40,7 +40,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -59,6 +59,7 @@ from memory.audit_utils import prepare_packet_for_ingest
 
 if TYPE_CHECKING:
     from memory.agent_persistence import AgentPersistenceService
+    from memory.substrate_repository import SubstrateRepository
 from memory.consolidation import ConsolidationPipeline
 from memory.governance_gate import (
     enforce_packet_governance,
@@ -72,7 +73,6 @@ from memory.retention_engine import RetentionEngine
 from memory.saga import SagaExecutor, SagaResult
 from memory.saga_patterns import SagaPatterns
 from memory.substrate_dag import SubstrateDAG
-from memory.substrate_repository import SubstrateRepository
 from memory.substrate_semantic import (
     EmbeddingProvider,
     SemanticService,
@@ -846,9 +846,10 @@ class MemorySubstrateService:
         Write extracted insights to the substrate.
 
         Persists insights and associated facts to knowledge_facts table.
+        Scope is extracted from each insight's metadata if available.
 
         Args:
-            insights: List of ExtractedInsight dicts
+            insights: List of ExtractedInsight dicts (each may contain 'scope' key)
 
         Returns:
             Status dict with counts
@@ -856,15 +857,27 @@ class MemorySubstrateService:
         facts_written = 0
 
         for insight in insights:
+            # Get scope from insight metadata if available
+            fact_scope = insight.get("scope")
             # Write associated facts
             for fact in insight.get("facts", []):
-                await self._repository.insert_knowledge_fact(
-                    subject=fact.get("subject", "unknown"),
-                    predicate=fact.get("predicate", "unknown"),
-                    object_value=fact.get("object"),
-                    confidence=fact.get("confidence"),
-                    source_packet=insight.get("source_packet"),
-                )
+                if fact_scope:
+                    await self._repository.insert_knowledge_fact(
+                        subject=fact.get("subject", "unknown"),
+                        predicate=fact.get("predicate", "unknown"),
+                        object_value=fact.get("object"),
+                        confidence=fact.get("confidence"),
+                        source_packet=insight.get("source_packet"),
+                        scope=fact_scope,
+                    )
+                else:
+                    await self._repository.insert_knowledge_fact(
+                        subject=fact.get("subject", "unknown"),
+                        predicate=fact.get("predicate", "unknown"),
+                        object_value=fact.get("object"),
+                        confidence=fact.get("confidence"),
+                        source_packet=insight.get("source_packet"),
+                    )
                 facts_written += 1
 
         return {

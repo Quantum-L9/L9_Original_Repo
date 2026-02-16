@@ -30,7 +30,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import uuid
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -73,7 +73,7 @@ class FailureClass(str, Enum):
     PLANNING_FAILURE = "PLANNING_FAILURE"
     COST_CONSTRAINT_BREACH = "COST_CONSTRAINT_BREACH"
     LLM_CONTENT_FILTER = "LLM_CONTENT_FILTER"
-    TOKEN_LIMIT = "TOKEN_LIMIT"
+    TOKEN_LIMIT = "TOKEN_LIMIT"  # noqa: S105 — enum value, not a credential
     RATE_LIMIT = "RATE_LIMIT"
     UNKNOWN = "UNKNOWN"
 

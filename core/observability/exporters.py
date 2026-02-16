@@ -60,7 +60,7 @@ class AsyncSpanExporter(ABC):
         """Asynchronously export spans."""
         pass
 
-    @must_stay_async("callers use await")
+    @must_stay_async("callers use await")  # noqa: B027 — optional hook, not all exporters need flush
     async def flush(self) -> None:
         """Flush any pending spans."""
         pass
@@ -86,7 +86,7 @@ class JSONFileExporter(SpanExporter):
     def __init__(self, file_path: str | None = None):
         """Initialize file exporter."""
         if file_path is None:
-            file_path = os.getenv("L9_SPANS_PATH", "/tmp/l9_spans.jsonl")
+            file_path = os.getenv("L9_SPANS_PATH", "/tmp/l9_spans.jsonl")  # noqa: S108 — intentional temp path for span export
         self.file_path = file_path
 
     def export(self, spans: list[Span]) -> None:

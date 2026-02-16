@@ -2,8 +2,8 @@
 # Entrypoints
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-14 01:27 UTC
-# Branch:    main (cd9f1632)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -583,6 +583,18 @@ tools/superpack_reports/main.py
   Type: Script
   Has __main__ block: Yes
 tools/type_coverage/track_mypy_progress.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/audit_package_exports.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/audit_package_wiring.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/fix_internal_only_exports.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/triage_dead_code.py
   Type: Script
   Has __main__ block: Yes
 tools/validation/try_run.py

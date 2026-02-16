@@ -305,7 +305,9 @@ class TestCacheWarming:
     """Tests for cache warming via loader function."""
 
     def test_warm_populates_cache(self, lru_cache: ToolRegistryCache) -> None:
-        loader = lambda: {"t1": {"name": "t1"}, "t2": {"name": "t2"}}
+        def loader():
+            return {"t1": {"name": "t1"}, "t2": {"name": "t2"}}
+
         count = lru_cache.warm_cache(loader)
         assert count == 2
         assert lru_cache.get("t1") == {"name": "t1"}

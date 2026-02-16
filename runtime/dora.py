@@ -321,6 +321,7 @@ def l9_traced[F: Callable[..., Any]](
             ...
     """
 
+    @wraps(func)
     def decorator(fn: F) -> F:
         """
         Performs a decorator that manages DORA block auto-updating within the L9 DORA runtime.

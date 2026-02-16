@@ -28,7 +28,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
@@ -83,7 +83,7 @@ class AgentConfigExtractor(BaseExtractor):
         config = {
             "schema_meta": {
                 "version": "3.2.0",
-                "extracted_at": datetime.now().isoformat(),
+                "extracted_at": datetime.now(tz=UTC).isoformat(),
                 "source_type": "conversation",
                 "mode": mode,
                 "extractor_confidence": 0.85,

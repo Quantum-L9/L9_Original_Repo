@@ -42,6 +42,7 @@ import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+
 import structlog
 
 # ============================================================================
@@ -467,7 +468,7 @@ class DoraCompleteValidator:
         ]
 
         logger.info("\n📊 validation summary")
-        logger.info("=" * 80")
+        logger.info("=" * 80)
         logger.info("total files: {len(self.results)}")
         logger.info("✅ compliant: {len(compliant)}")
         logger.info("❌ non-compliant: {len(non_compliant)}")
@@ -488,9 +489,18 @@ class DoraCompleteValidator:
         has_trace = len([r for r in self.results if r.has_trace])
 
         logger.info("\n📦 block coverage")
-        logger.info("   header meta (  dora meta  ): has header/{len(self.results)}", has_header=has_header)
-        logger.info("   footer meta (  dora footer  ): has footer/{len(self.results)}", has_footer=has_footer)
-        logger.info("   trace block (  l9 trace  ): has trace/{len(self.results)}", has_trace=has_trace)
+        logger.info(
+            "   header meta (  dora meta  ): has header/{len(self.results)}",
+            has_header=has_header,
+        )
+        logger.info(
+            "   footer meta (  dora footer  ): has footer/{len(self.results)}",
+            has_footer=has_footer,
+        )
+        logger.info(
+            "   trace block (  l9 trace  ): has trace/{len(self.results)}",
+            has_trace=has_trace,
+        )
 
         # Show sample non-compliant files
         if non_compliant and len(non_compliant) <= 10:

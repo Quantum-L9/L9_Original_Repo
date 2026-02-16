@@ -122,6 +122,12 @@ class ComplianceReporter:
         """
         self._substrate = substrate_service
 
+    def _require_substrate(self) -> Any:
+        """Return the substrate service; raise if not configured."""
+        if self._substrate is None:
+            raise RuntimeError("ComplianceReporter not configured with substrate service")
+        return self._substrate
+
     async def generate_daily_report(
         self,
         date: datetime | None = None,
@@ -136,7 +142,7 @@ class ComplianceReporter:
             ComplianceReport
         """
         date = date or datetime.now(UTC)
-        from_date = datetime(date.year, date.month, date.day, 0, 0, 0)
+        from_date = datetime(date.year, date.month, date.day, 0, 0, 0, tzinfo=UTC)
         to_date = from_date + timedelta(days=1)
 
         return await self.generate_report(from_date, to_date)
@@ -199,7 +205,7 @@ class ComplianceReporter:
     ) -> None:
         """Process command audit entries."""
         try:
-            entries = await self._substrate.search_packets_by_type(
+            entries = await self._require_substrate().search_packets_by_type(
                 packet_type="audit_command",
                 limit=1000,
             )
@@ -231,7 +237,7 @@ class ComplianceReporter:
     ) -> None:
         """Process tool execution audit entries."""
         try:
-            entries = await self._substrate.search_packets_by_type(
+            entries = await self._require_substrate().search_packets_by_type(
                 packet_type="audit_tool",
                 limit=1000,
             )
@@ -280,7 +286,7 @@ class ComplianceReporter:
     ) -> None:
         """Process approval audit entries."""
         try:
-            entries = await self._substrate.search_packets_by_type(
+            entries = await self._require_substrate().search_packets_by_type(
                 packet_type="audit_approval",
                 limit=1000,
             )
@@ -309,7 +315,7 @@ class ComplianceReporter:
     ) -> None:
         """Process memory write audit entries."""
         try:
-            entries = await self._substrate.search_packets_by_type(
+            entries = await self._require_substrate().search_packets_by_type(
                 packet_type="audit_memory_write",
                 limit=1000,
             )
@@ -371,6 +377,7 @@ class ComplianceReporter:
             return []
 
         all_entries = []
+        substrate = self._require_substrate()
 
         # Query all audit types
         for packet_type in [
@@ -380,7 +387,7 @@ class ComplianceReporter:
             "audit_memory_write",
         ]:
             try:
-                entries = await self._substrate.search_packets_by_type(
+                entries = await substrate.search_packets_by_type(
                     packet_type=packet_type,
                     limit=1000,
                 )

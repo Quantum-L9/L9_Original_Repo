@@ -45,11 +45,11 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
 import structlog
 
-
-
 logger = structlog.get_logger(__name__)
+
 
 class Language(Enum):
     """
@@ -115,10 +115,14 @@ class RefactoringBootstrap:
         )
 
         if not has_git:
-            logger.warning("⚠️  warning: not a git repository. initialize with: git init")
+            logger.warning(
+                "⚠️  warning: not a git repository. initialize with: git init"
+            )
 
         if not has_package and self.language != Language.MIXED:
-            logger.warning("⚠️  warning: no project manifest found for {self.language.value}")
+            logger.warning(
+                "⚠️  warning: no project manifest found for {self.language.value}"
+            )
 
     def _create_directories(self):
         """Create configuration and report directories"""
@@ -128,9 +132,9 @@ class RefactoringBootstrap:
 
     def bootstrap(self):
         """Execute complete bootstrap sequence"""
-        logger.info("\n" + "=" * 70")
+        logger.info("\n" + "=" * 70)
         logger.info(" 🚀 ai-enabled refactoring bootstrap suite")
-        logger.info("=" * 70")
+        logger.info("=" * 70)
 
         self.setup_static_analysis()
         self.generate_baseline_metrics()
@@ -139,11 +143,13 @@ class RefactoringBootstrap:
         self.setup_pre_commit_hooks()
         self.generate_ai_workflow_config()
 
-        logger.info("\n" + "=" * 70")
+        logger.info("\n" + "=" * 70)
         logger.info(" ✅ bootstrap complete")
-        logger.info("=" * 70")
+        logger.info("=" * 70)
         logger.info("\nnext steps:")
-        logger.info("  1. review refactoring backlog: cat .refactor-reports/backlog.json")
+        logger.info(
+            "  1. review refactoring backlog: cat .refactor-reports/backlog.json"
+        )
         logger.info("  2. install pre-commit: pre-commit install")
         logger.info("  3. configure ai assistants in .refactor-config/ai-workflow.yaml")
         logger.info("  4. run test validation: pytest tests/ -v")
@@ -437,8 +443,12 @@ isort==5.13.2
         backlog_path = self.reports_dir / "backlog.json"
         backlog_path.write_text(json.dumps(backlog, indent=2))
         logger.info("  ✓ refactoring backlog: backlog path", backlog_path=backlog_path)
-        logger.info("    total opportunities: {len(backlog['refactoring_opportunities'])}")
-        logger.info("    estimated effort: {backlog['estimated_total_effort_hours']} hours")
+        logger.info(
+            "    total opportunities: {len(backlog['refactoring_opportunities'])}"
+        )
+        logger.info(
+            "    estimated effort: {backlog['estimated_total_effort_hours']} hours"
+        )
 
     def setup_ci_validation(self):
         """Create CI/CD validation pipeline"""
@@ -550,7 +560,9 @@ jobs:
 
         pre_commit_path = self.project_root / ".pre-commit-config.yaml"
         pre_commit_path.write_text(pre_commit_config)
-        logger.info("  ✓ pre-commit config: pre commit path", pre_commit_path=pre_commit_path)
+        logger.info(
+            "  ✓ pre-commit config: pre commit path", pre_commit_path=pre_commit_path
+        )
         logger.info("    → install hooks with: pre-commit install")
 
     def generate_ai_workflow_config(self):
@@ -641,7 +653,9 @@ quarterly_review:
 
         ai_config_path = self.config_dir / "ai-workflow.yaml"
         ai_config_path.write_text(ai_workflow)
-        logger.info("  ✓ ai workflow config: ai config path", ai_config_path=ai_config_path)
+        logger.info(
+            "  ✓ ai workflow config: ai config path", ai_config_path=ai_config_path
+        )
 
         # Generate quick-start guide
         quickstart = """# AI-Enabled Refactoring Quick Start Guide
@@ -723,7 +737,9 @@ quarterly_review:
 
         quickstart_path = self.config_dir / "QUICKSTART.md"
         quickstart_path.write_text(quickstart)
-        logger.info("  ✓ quick-start guide: quickstart path", quickstart_path=quickstart_path)
+        logger.info(
+            "  ✓ quick-start guide: quickstart path", quickstart_path=quickstart_path
+        )
 
 
 def main():

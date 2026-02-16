@@ -74,7 +74,7 @@ def check_import(file_path: Path, repo_root: Path) -> tuple[bool, str]:
 
     module_path = str(relative.with_suffix("")).replace("/", ".")
 
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
         [sys.executable, "-c", f"import {module_path}"],
         capture_output=True,
         text=True,
@@ -103,7 +103,7 @@ def check_run(
     start = time.monotonic()
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             [sys.executable, str(file_path)],
             capture_output=True,
             text=True,

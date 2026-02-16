@@ -52,7 +52,7 @@ __dora_meta__ = {
 
 import json
 import os
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -483,7 +483,7 @@ class WorldModelRepository:
                 {where_clause}
                 ORDER BY updated_at DESC
                 LIMIT ${param_idx} OFFSET ${param_idx + 1}
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
 
             rows = await conn.fetch(query, *params)
             return [WorldModelEntityRow.from_row(row) for row in rows]
@@ -720,7 +720,7 @@ class WorldModelRepository:
                 {where_clause}
                 ORDER BY applied_at DESC
                 LIMIT ${param_idx}
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
 
             rows = await conn.fetch(query, *params)
             results = []

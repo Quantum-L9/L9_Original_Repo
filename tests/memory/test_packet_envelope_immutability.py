@@ -13,7 +13,7 @@ Test Matrix:
 - Regression: Existing functionality preserved
 """
 
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest

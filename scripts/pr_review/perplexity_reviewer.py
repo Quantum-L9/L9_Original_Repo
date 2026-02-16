@@ -33,7 +33,6 @@ from typing import Any
 import requests
 import structlog
 
-
 logger = structlog.get_logger(__name__)
 
 PROTECTED_FILES = {
@@ -71,7 +70,7 @@ class PerplexityAuditor:
     def get_pr_diff(self) -> str:
         """Fetch PR diff"""
         cmd = f"git diff {os.getenv('BASE_SHA')}...{os.getenv('HEAD_SHA')}"
-        result = subprocess.run(cmd.split(), capture_output=True, text=True)
+        result = subprocess.run(cmd.split(), capture_output=True, text=True)  # noqa: S603 — trusted cmd, no shell
         return result.stdout
 
     def get_file_content(self, filepath: str) -> str:
@@ -235,7 +234,7 @@ Return ONLY valid JSON.
             return
 
         cmd = f"git diff --name-only {os.getenv('BASE_SHA')}...{os.getenv('HEAD_SHA')}"
-        result = subprocess.run(cmd.split(), capture_output=True, text=True)
+        result = subprocess.run(cmd.split(), capture_output=True, text=True)  # noqa: S603 — trusted cmd, no shell
         files = [f.strip() for f in result.stdout.split("\n") if f.strip()]
 
         logger.info("📁 auditing {len(files)} files...")
@@ -247,15 +246,18 @@ Return ONLY valid JSON.
         fixes = audit.get("auto_fixes", [])
         if fixes:
             applied = self.apply_auto_fixes(fixes)
-            logger.info("\n✅ applied applied/{len(fixes)} security/performance fixes", applied=applied)
+            logger.info(
+                "\n✅ applied applied/{len(fixes)} security/performance fixes",
+                applied=applied,
+            )
 
         # Generate report
         report = self.generate_audit_report(audit)
 
-        with open("/tmp/perplexity_audit.md", "w") as f:
+        with open("/tmp/perplexity_audit.md", "w") as f:  # noqa: S108 — intentional temp path for audit report
             f.write(report)
 
-        logger.info("\n" + report")
+        logger.info("\n" + report)
         logger.info("\n✅ audit complete")
 
 

@@ -20,8 +20,7 @@ import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -43,7 +42,7 @@ os.environ.setdefault("PYTHONPATH", str(project_root))
 # Try to import sympy to determine test strategy
 SYMPY_AVAILABLE = False
 try:
-    import sympy
+    import sympy  # noqa: F401 — availability check
 
     SYMPY_AVAILABLE = True
 except ImportError:

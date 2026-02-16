@@ -318,7 +318,7 @@ def validate_test_presence(
                         if f"def {test_name}" in content:
                             found_tests.add(test_name)
             except Exception:
-                pass
+                logger.debug("validate_codegen.test_file_read_failed", file=test_file)
 
     missing_tests = required_tests - found_tests
     if missing_tests:

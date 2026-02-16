@@ -43,11 +43,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
-from datetime import UTC, datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import asyncpg
@@ -88,6 +87,9 @@ from memory.substrate_models import (
     StructuredReasoningBlock,
 )
 from memory.substrate_semantic import EMBEDDING_DIMENSIONS
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 logger = structlog.get_logger(__name__)
 
@@ -219,7 +221,7 @@ class SubstrateRepository:
         metadata_dict = envelope.metadata.model_dump() if envelope.metadata else {}
         content_hash = metadata_dict.get("content_hash")
         session_id = metadata_dict.get("session_id")
-        scope = metadata_dict.get("scope", "shared")
+        scope = metadata_dict.get("scope", "cursor")  # Default to valid DB scope
         trace_id = metadata_dict.get("trace_id")
         # importance_score: prefer metadata (intake/leverage rating), fallback to confidence.score
         importance_score = metadata_dict.get("importance") or metadata_dict.get(
@@ -349,7 +351,7 @@ class SubstrateRepository:
             # SAFE: filter_clause is internal SQL (e.g. "AND scope = $2"), not user input.
             # User values go through filter_params as parameterized $N placeholders.  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             row = await conn.fetchrow(
-                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",  # noqa: S608, ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 packet_id,
                 *filter_params,
             )
@@ -459,7 +461,7 @@ class SubstrateRepository:
                     {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $3 OFFSET $4
-                    """,  # noqa: ADR-0087
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     thread_id,
                     packet_type,
                     limit,
@@ -477,7 +479,7 @@ class SubstrateRepository:
                     {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $2 OFFSET $3
-                    """,  # noqa: ADR-0087
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     thread_id,
                     limit,
                     offset,
@@ -539,7 +541,7 @@ class SubstrateRepository:
                 WHERE {" AND ".join(conditions)}
                 ORDER BY timestamp DESC
                 LIMIT ${param_idx}
-            """
+            """  # noqa: S608 — conditions are internal SQL, user values parameterized
 
             rows = await conn.fetch(query, *params)
             return [self._row_to_packet_store(r) for r in rows]
@@ -572,7 +574,7 @@ class SubstrateRepository:
             tags=row.get("tags") or [],
             ttl=row.get("ttl"),
             # 10X Enhancements (migration 0008)
-            scope=row.get("scope", "shared"),
+            scope=row.get("scope", "cursor"),
             importance_score=row.get("importance_score", 0.5),
             access_count=row.get("access_count", 0),
             last_accessed=row.get("last_accessed"),
@@ -821,6 +823,7 @@ class SubstrateRepository:
         confidence: float,
         source_packet: UUID | None,
         fact_id: UUID | None = None,
+        scope: str = "cursor",  # RLS scope: developer, global, cursor, l-private, agent
     ) -> KnowledgeFactRow:
         """
         Insert or update knowledge fact (idempotent via UPSERT).
@@ -837,6 +840,7 @@ class SubstrateRepository:
             object_value: Value, entity, or structured data
             confidence: Extraction confidence (0.0-1.0)
             source_packet: Source packet ID (foreign key)
+            scope: RLS scope for row-level security (default: cursor)
 
         Returns:
             KnowledgeFactRow with assigned/existing fact_id
@@ -867,6 +871,7 @@ class SubstrateRepository:
                 confidence,
                 source_packet,
                 created_at,
+                scope,
             )
         else:
             async with self.acquire() as conn:
@@ -879,6 +884,7 @@ class SubstrateRepository:
                     confidence,
                     source_packet,
                     created_at,
+                    scope,
                 )
 
         return row
@@ -893,6 +899,7 @@ class SubstrateRepository:
         confidence: float,
         source_packet: UUID | None,
         created_at: datetime,
+        scope: str = "cursor",  # RLS scope for row-level security
     ) -> KnowledgeFactRow:
         """Helper to insert fact using provided connection."""
         # UPSERT: Insert or update on conflict (idempotent)
@@ -900,14 +907,15 @@ class SubstrateRepository:
         row = await conn.fetchrow(
             """
             INSERT INTO knowledge_facts (
-                fact_id, subject, predicate, object, confidence, source_packet, created_at
-            ) VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7)
+                fact_id, subject, predicate, object, confidence, source_packet, created_at, scope
+            ) VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8)
             ON CONFLICT (source_packet, subject, predicate)
             WHERE source_packet IS NOT NULL
             DO UPDATE SET
                 object = EXCLUDED.object,
-                confidence = EXCLUDED.confidence
-            RETURNING fact_id, subject, predicate, object, confidence, source_packet, created_at
+                confidence = EXCLUDED.confidence,
+                scope = EXCLUDED.scope
+            RETURNING fact_id, subject, predicate, object, confidence, source_packet, created_at, scope
             """,
             fact_id,
             subject,
@@ -916,11 +924,12 @@ class SubstrateRepository:
             confidence,
             source_packet,
             created_at,
+            scope,
         )
 
         logger.debug(
             f"Upserted knowledge fact {row['fact_id']} "
-            f"({subject} - {predicate}) for packet {source_packet}"
+            f"({subject} - {predicate}) for packet {source_packet} with scope={scope}"
         )
 
         return KnowledgeFactRow(
@@ -977,7 +986,7 @@ class SubstrateRepository:
                 WHERE {" AND ".join(conditions)}
                 ORDER BY created_at DESC
                 LIMIT ${param_idx}
-            """
+            """  # noqa: S608 — conditions are internal SQL, user values parameterized
 
             rows = await conn.fetch(query, *params)
             return [
@@ -1007,7 +1016,7 @@ class SubstrateRepository:
         vector: list[float],
         payload: dict[str, Any],
         agent_id: str | None = None,
-        scope: str = "shared",  # RLS scope: 'developer', 'global', 'shared', 'l-private'
+        scope: str = "cursor",  # RLS scope: 'developer', 'global', 'cursor', 'l-private', 'agent'
     ) -> UUID:
         """
         Insert a semantic embedding into semantic_memory.
@@ -1043,7 +1052,7 @@ class SubstrateRepository:
         vector: list[float],
         payload: dict[str, Any],
         agent_id: str | None,
-        scope: str = "shared",
+        scope: str = "cursor",  # Default to valid DB scope
     ) -> None:
         """Helper to insert semantic embedding using provided connection.
 

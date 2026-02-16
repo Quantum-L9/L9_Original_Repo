@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -176,7 +176,7 @@ class PostgresIntrospector:
                 WHERE table_schema = $1
                 AND table_type IN ({type_filter})
                 ORDER BY table_name
-            """
+            """  # noqa: S608 — type_filter is from internal constants, not user input
             table_rows = await conn.fetch(tables_query, schema_name)
 
             results = []

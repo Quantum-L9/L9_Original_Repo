@@ -240,7 +240,7 @@ class LCTOAgent(BaseAgent):
 
     def _build_kernel_prompt(self) -> str:
         """Build system prompt from absorbed kernel data."""
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         sections = []
 
@@ -335,7 +335,7 @@ class LCTOAgent(BaseAgent):
         GMP-LCTO-FIXES: Preserve L's personality even when kernels fail to load.
         This prevents robotic/cold responses when kernel loading fails on C1.
         """
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         current_time = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
 

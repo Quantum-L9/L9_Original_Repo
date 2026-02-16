@@ -39,7 +39,7 @@ __dora_meta__ = {
 
 import subprocess
 import time
-from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 import structlog
 import sympy
@@ -47,6 +47,9 @@ from sympy import sympify
 
 from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 from services.symbolic_computation.core.models import CodeGenResult
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -78,7 +81,7 @@ class CodeGenerator:
     def __init__(
         self,
         config: SymbolicComputationConfig | None = None,
-        metrics_collector: any | None = None,
+        metrics_collector: Any | None = None,
     ):
         """
         Initialize the code generator.
@@ -209,27 +212,42 @@ class CodeGenerator:
         language: str,
     ) -> str:
         """Generate C or Fortran code using SymPy's codegen."""
-        from sympy.utilities.codegen import CCodeGen, FCodeGen, Routine
+        from sympy.utilities.codegen import codegen
 
-        # Create routine
-        Routine(function_name, expr, argument_sequence=var_symbols)
-
-        # Select code generator
-        if language.upper() == "C":
-            code_gen = CCodeGen()
-        elif language.upper() == "FORTRAN":
-            code_gen = FCodeGen()
+        # Map language names to SymPy expected names
+        lang = language.lower()
+        if lang == "c":
+            target_lang = "c"
+        elif lang == "fortran":
+            target_lang = "f95"
         else:
-            raise ValueError(f"Unsupported language: {language}")
+            target_lang = lang
 
-        # Generate code
-        result = code_gen.routine(function_name, expr, argument_sequence=var_symbols)
+        # Generate code using the high-level codegen function
+        # It handles both old and new SymPy versions better
+        try:
+            results = codegen(
+                (function_name, expr),
+                target_lang,
+                "test",
+                argument_sequence=var_symbols,
+                header=False,
+                empty=False,
+            )
+        except TypeError:
+            # Fallback for newer SymPy if argument_sequence is renamed
+            results = codegen(
+                (function_name, expr),
+                target_lang,
+                "test",
+                arguments=var_symbols,
+                header=False,
+                empty=False,
+            )
 
-        # Write to string
+        # Extract source code from results
         source_lines = []
-        for file_name, file_content in code_gen.write(
-            [result], str(self.config.codegen_temp_dir), to_files=False
-        ):
+        for file_name, file_content in results:
             if file_name.endswith((".c", ".f90", ".f")):
                 source_lines.append(file_content)
 
@@ -325,7 +343,7 @@ def {function_name}({args}):
                         "zip": zip,
                     }
                 }
-                exec(source_code, namespace)
+                exec(source_code, namespace)  # noqa: S102 — intentional dynamic execution of generated symbolic code
                 # Find the first function defined
                 for name, obj in namespace.items():
                     if callable(obj) and not name.startswith("_"):
@@ -356,8 +374,9 @@ def {function_name}({args}):
     ) -> Callable | None:
         """Compile C code to shared library and load."""
         import ctypes
+        from pathlib import Path
 
-        temp_dir = self.config.codegen_temp_dir
+        temp_dir = Path(self.config.codegen_temp_dir)
         source_file = temp_dir / f"{output_name}.c"
         lib_file = temp_dir / f"{output_name}.so"
 
@@ -365,8 +384,8 @@ def {function_name}({args}):
         source_file.write_text(source_code)
 
         # Compile
-        result = subprocess.run(
-            ["gcc", "-shared", "-fPIC", "-O3", "-o", str(lib_file), str(source_file)],
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+            ["gcc", "-shared", "-fPIC", "-O3", "-o", str(lib_file), str(source_file)],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
         )
@@ -410,6 +429,7 @@ __dora_footer__ = {
         "rest-api",
         "service",
         "subprocess",
+        "sympy",
     ],
     "keywords": ["compile", "generate", "generated", "generator", "sympy"],
     "business_value": "Implements CodeGenerator for code generator functionality",

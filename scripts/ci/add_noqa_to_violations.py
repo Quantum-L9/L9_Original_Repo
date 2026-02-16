@@ -111,7 +111,7 @@ def fix_file_print(filepath: Path, dry_run: bool) -> int:
     changes = 0
     new_lines = []
 
-    for i, line in enumerate(lines):
+    for _i, line in enumerate(lines):
         # Match print( at start of line (with optional whitespace)
         if re.match(r"^\s*print\(", line) and "# noqa" not in line:
             new_lines.append(add_noqa_to_line(line, "ADR-0019").rstrip())
@@ -142,7 +142,7 @@ def fix_file_sql(filepath: Path, dry_run: bool) -> int:
 
     sql_pattern = re.compile(r'f"(SELECT|INSERT|UPDATE|DELETE).*\{', re.IGNORECASE)
 
-    for i, line in enumerate(lines):
+    for _i, line in enumerate(lines):
         if sql_pattern.search(line) and "# noqa" not in line:
             new_lines.append(add_noqa_to_line(line, "ADR-0087").rstrip())
             changes += 1
@@ -173,7 +173,7 @@ def fix_file_logging(filepath: Path, dry_run: bool) -> int:
     changes = 0
     new_lines = []
 
-    for i, line in enumerate(lines):
+    for _i, line in enumerate(lines):
         if (
             re.match(r"^import logging$", line.strip())
             or re.match(r"^from logging import", line.strip())

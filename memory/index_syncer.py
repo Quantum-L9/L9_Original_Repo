@@ -32,9 +32,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import TYPE_CHECKING
+
 import structlog
 
-from memory.substrate_repository import SubstrateRepository
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 

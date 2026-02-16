@@ -299,13 +299,21 @@ class SemanticService:
         self._provider = embedding_provider
         self._repository = repository
 
+    def _require_repository(self) -> Any:
+        """Return the repository, raising RuntimeError if not configured."""
+        if self._repository is None:
+            raise RuntimeError(
+                "Semantic repository not configured; cannot perform storage or search."
+            )
+        return self._repository
+
     @must_stay_async("callers use await")
     async def embed_and_store(
         self,
         text: str,
         payload: dict[str, Any],
         agent_id: str | None = None,
-        scope: str = "shared",  # RLS scope for row-level security
+        scope: str = "cursor",  # RLS scope: developer, global, cursor, l-private, agent
     ) -> str:
         """
         Generate embedding for text and store in semantic_memory.
@@ -348,7 +356,8 @@ class SemanticService:
         }
 
         # Store in database with explicit scope for RLS
-        embedding_id = await self._repository.insert_semantic_embedding(
+        repo = self._require_repository()
+        embedding_id = await repo.insert_semantic_embedding(
             vector=vector,
             payload=enriched_payload,
             agent_id=agent_id,
@@ -429,7 +438,8 @@ class SemanticService:
             )
 
         # Search database (repository applies tag filter and boost)
-        hits = await self._repository.search_semantic_memory(
+        repo = self._require_repository()
+        hits = await repo.search_semantic_memory(
             query_embedding=query_vector,
             top_k=top_k,
             agent_id=agent_id,
@@ -485,7 +495,8 @@ class SemanticService:
                 "_text": text,
                 "_model": getattr(self._provider, "_model", "unknown"),
             }
-            embedding_id = await self._repository.insert_semantic_embedding(
+            repo = self._require_repository()
+            embedding_id = await repo.insert_semantic_embedding(
                 vector=vector,
                 payload=enriched_payload,
                 agent_id=agent_id,
@@ -524,7 +535,8 @@ class SemanticService:
             "_model": getattr(self._provider, "_model", "unknown"),
         }
 
-        embedding_id = await self._repository.insert_semantic_embedding(
+        repo = self._require_repository()
+        embedding_id = await repo.insert_semantic_embedding(
             vector=vector,
             payload=enriched_payload,
             agent_id=metadata.get("agent_id"),
@@ -552,7 +564,8 @@ class SemanticService:
         Returns:
             List of hits with embedding_id, score, payload
         """
-        hits = await self._repository.search_semantic_memory(
+        repo = self._require_repository()
+        hits = await repo.search_semantic_memory(
             query_embedding=query_vector,
             top_k=top_k,
             agent_id=None,  # No agent filter for recall

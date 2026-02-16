@@ -44,12 +44,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import structlog
 
 from config.settings import get_integration_settings
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 

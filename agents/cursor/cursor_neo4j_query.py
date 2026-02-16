@@ -87,7 +87,7 @@ def query_neo4j(cypher: str) -> dict:
     # Create auth header
     credentials = base64.b64encode(f"{NEO4J_USER}:{NEO4J_PASSWORD}".encode()).decode()
 
-    req = urllib.request.Request(
+    req = urllib.request.Request(  # noqa: S310 — URL from trusted config
         url,
         data=data,
         headers={
@@ -97,7 +97,7 @@ def query_neo4j(cypher: str) -> dict:
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=30) as response:
+        with urllib.request.urlopen(req, timeout=30) as response:  # noqa: S310 — URL from trusted config
             return json.loads(response.read().decode())
     except urllib.error.URLError as e:
         return {"error": str(e), "errors": [{"message": str(e)}]}

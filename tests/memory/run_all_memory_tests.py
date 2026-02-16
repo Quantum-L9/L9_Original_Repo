@@ -127,7 +127,7 @@ def run_all_tests(
     print("-" * 70)
 
     # Run tests
-    result = subprocess.run(cmd, cwd=REPO_ROOT)
+    result = subprocess.run(cmd, cwd=REPO_ROOT)  # noqa: S603 — trusted cmd, no shell
 
     duration = time.time() - start_time
 

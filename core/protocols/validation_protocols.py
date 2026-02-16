@@ -584,6 +584,7 @@ def validate_input(
     schema = schema or {}
     val = validator or StandardValidator()
 
+    @wraps(schema)
     def decorator(func: T) -> T:
         """
         Performs validation of asynchronous and synchronous functions within the L9 async-first codebase, ensuring type safety and proper error handling.

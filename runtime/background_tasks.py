@@ -34,10 +34,12 @@ __dora_meta__ = {
 
 import asyncio
 import os
-from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -291,8 +293,6 @@ __dora_footer__ = {
 __all__ = [
     "BackgroundTaskRegistry",
     "get_background_task_registry",
-    "refresh_mcp_tools_task",
-    "register_mcp_refresh_task",
 ]
 # ============================================================================
 # L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT

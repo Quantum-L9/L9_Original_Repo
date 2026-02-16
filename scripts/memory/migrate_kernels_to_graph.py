@@ -56,6 +56,9 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+from core.decorators import must_stay_async
+
+
 @must_stay_async("callers use await")
 async def run_migration(force: bool = False) -> dict:
     """

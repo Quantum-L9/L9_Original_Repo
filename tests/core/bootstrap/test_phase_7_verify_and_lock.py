@@ -5,7 +5,7 @@ Aligned with existing verify_and_lock() function API.
 Tests both the full function and the view pattern variant.
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 

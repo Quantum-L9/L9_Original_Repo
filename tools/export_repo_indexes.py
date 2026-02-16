@@ -103,7 +103,7 @@ def load_gitignore_patterns():
                     continue
                 patterns.append(line)
     except Exception:
-        pass
+        logger.debug("export_repo_indexes.parse_failed")
     return patterns
 
 
@@ -132,7 +132,7 @@ def _get_git_branch() -> str:
     """Get current git branch name."""
     try:
         result = subprocess.run(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             cwd=REPO_DIR,
@@ -140,7 +140,7 @@ def _get_git_branch() -> str:
         if result.returncode == 0:
             return result.stdout.strip()
     except Exception:
-        pass
+        logger.debug("export_repo_indexes.parse_failed")
     return "unknown"
 
 
@@ -148,7 +148,7 @@ def _get_git_short_sha() -> str:
     """Get current git short SHA."""
     try:
         result = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"],
+            ["git", "rev-parse", "--short", "HEAD"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             cwd=REPO_DIR,
@@ -156,7 +156,7 @@ def _get_git_short_sha() -> str:
         if result.returncode == 0:
             return result.stdout.strip()
     except Exception:
-        pass
+        logger.debug("export_repo_indexes.parse_failed")
     return "unknown"
 
 
@@ -342,7 +342,7 @@ def generate_api_surfaces():
                             f"  {rel_path}::{callable_name}()"
                         )
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if api_surfaces:
         lines = []
         for surface_type in sorted(api_surfaces.keys()):
@@ -446,7 +446,7 @@ def generate_entrypoints():
                             lines_out.append("  Has __main__ block: Yes")
                         entrypoints.append("\n".join(lines_out))
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
     if entrypoints:
         lines = ["# Entry Points\n"]
         lines.extend(sorted(set(entrypoints)))
@@ -462,7 +462,7 @@ def generate_env_refs():
     )
     environ_pattern = re.compile(r'os\.environ\[["\']([A-Za-z_][A-Za-z0-9_]*)["\']')
     dotenv_pattern = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=", re.MULTILINE)
-    for fpath, rel_path in walk_all_files():
+    for fpath, _rel_path in walk_all_files():
         fname = os.path.basename(fpath)
         if fname.endswith(".py"):
             try:
@@ -471,14 +471,14 @@ def generate_env_refs():
                     env_vars.update(getenv_pattern.findall(content))
                     env_vars.update(environ_pattern.findall(content))
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
         elif fname.startswith(".env"):
             try:
                 with open(fpath, encoding="utf-8", errors="ignore") as f:
                     content = f.read()
                     env_vars.update(dotenv_pattern.findall(content))
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
     if env_vars:
         return "\n".join(sorted(env_vars))
     return "No environment variables found."
@@ -488,7 +488,7 @@ def generate_imports():
     """Extract top-level Python imports from source code."""
     imports = defaultdict(set)
     import_pattern = re.compile(r"^(?:import|from)\s+([\w\.]+)", re.MULTILINE)
-    for fpath, rel_path in walk_python_files():
+    for fpath, _rel_path in walk_python_files():
         try:
             with open(fpath, encoding="utf-8", errors="ignore") as f:
                 content = f.read()
@@ -497,7 +497,7 @@ def generate_imports():
                     top_level = match.split(".")[0]
                     imports[top_level].add(match)
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if imports:
         lines = []
         for top_level in sorted(imports.keys()):
@@ -520,7 +520,7 @@ def generate_dependencies():
                     if line and not line.startswith("#"):
                         lines.append(line)
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     return "\n".join(lines) if len(lines) > 1 else "No requirements.txt found."
 
 
@@ -537,7 +537,7 @@ def generate_class_definitions():
                         docstring = docstring.split("\n")[0][:60]
                         classes.append(f"{rel_path}::{node.name} - {docstring}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if classes:
         return "\n".join(sorted(classes))
     return "No classes found."
@@ -561,7 +561,7 @@ def generate_function_signatures():
                         docstring = docstring.split("\n")[0][:40] if docstring else ""
                         functions.append(f"{rel_path}::{signature} - {docstring}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if functions:
         return "\n".join(sorted(functions))
     return "No functions found."
@@ -620,7 +620,7 @@ def generate_module_architecture():
                     docstring = docstring.split("\n")[0][:60]
                     architecture.append(f"{rel_path}/ - {docstring}")
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
     if architecture:
         return "\n".join(sorted(architecture))
     return "No module architecture found."
@@ -675,7 +675,7 @@ def generate_wiring_map():
                 ]
                 routers.append((prefix or "(root)", ", ".join(tags), rel_path))
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     for prefix, tags, module in sorted(routers, key=lambda x: x[0]):
         lines.append(f"| `{prefix}` | {tags} | {module} |")
@@ -763,7 +763,7 @@ def generate_agent_catalog():
                             lines.append(f"  - {docstring}")
                             lines.append("")
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
     # Parse config/agents/ YAML files
     config_agents_dir = os.path.join(REPO_DIR, "config", "agents")
     if os.path.isdir(config_agents_dir):
@@ -784,7 +784,7 @@ def generate_agent_catalog():
                             lines.append(f"  - Tools: {len(tools)}")
                             lines.append("")
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
     lines.extend(
         [
             "",
@@ -852,7 +852,7 @@ def generate_kernel_catalog():
                                 ]
                             )
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
     lines.extend(["", "## Kernel Loading (7-Phase Bootstrap)", ""])
     lines.append("| Phase | Function | Purpose |")
     lines.append("|-------|----------|---------|")
@@ -975,7 +975,7 @@ def generate_tool_catalog():
                             f"| `core/tools/{fname}` | {', '.join(items[:5])} |"
                         )
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
 
     return "\n".join(lines)
 
@@ -1032,7 +1032,7 @@ def generate_orchestrator_catalog():
                     if purpose:
                         break
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
         if not purpose:
             purpose = "(no docstring)"
 
@@ -1111,7 +1111,7 @@ def generate_event_types():
                         lines.append(f"| {stage} | `{node.name}` | {docstring} |")
                         stage += 1
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if lines[-1] == "## Memory DAG Pipeline Nodes":
         lines.append("(no DAG nodes found)")
 
@@ -1141,7 +1141,7 @@ def generate_event_types():
                 if event_name.islower() and len(event_name) > 3:
                     lines.append(f"- `{event_name}`: {desc}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     return "\n".join(lines)
 
@@ -1224,7 +1224,7 @@ def generate_singleton_registry():
                             (name, rel_path, category, lifecycle, description)
                         )
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     for name, module, category, lifecycle, description in sorted(singletons):
         lines.append(
@@ -1372,7 +1372,7 @@ def generate_memory_architecture():
                                     lines.append(f"| `{target.id}` | `{val}` |")
                     break
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     # Scan for PacketEnvelope fields
     lines.extend(["", "## PacketEnvelope Schema", ""])
@@ -1421,7 +1421,7 @@ def generate_memory_architecture():
                         lines.append(f"{stage}. `{node.name}()` — {doc}")
                         stage += 1
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     # Scan PostgreSQL tables from migrations
     lines.extend(["", "## PostgreSQL Tables (from migrations)", ""])
@@ -1441,7 +1441,7 @@ def generate_memory_architecture():
                     ):
                         tables.add(match.group(1))
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
     if tables:
         lines.append("| Table |")
         lines.append("|-------|")
@@ -1484,7 +1484,7 @@ def generate_governance_model():
                 class_str = ", ".join(classes[:3]) if classes else "-"
                 lines.append(f"| `core/governance/{fname}` | {class_str} | {purpose} |")
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
 
     # Scan for high-risk tools from governance policies
     lines.extend(["", "## High-Risk Tools (from governance policies)", ""])
@@ -1508,7 +1508,7 @@ def generate_governance_model():
                         if tool.islower() and len(tool) > 3:
                             high_risk.add(tool)
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
     # Also scan YAML policies
     policy_dir = os.path.join(REPO_DIR, "config", "policies")
     if os.path.isdir(policy_dir):
@@ -1525,7 +1525,7 @@ def generate_governance_model():
                         elif isinstance(hr, dict):
                             high_risk.update(hr.keys())
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
 
     if high_risk:
         lines.append("| Tool |")
@@ -1565,7 +1565,7 @@ def generate_governance_model():
                     doc = doc.split("\n")[0][:60] if doc else "-"
                     lines.append(f"- `{node.name}` ({rel_path}) — {doc}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     return "\n".join(lines)
 
@@ -1652,7 +1652,7 @@ def generate_feature_flags():
                 for match in matches:
                     flags_found.add((match, rel_path))
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     flag_descriptions = {
         "L9_NEW_AGENT_INIT": ("Enable 7-phase bootstrap ceremony", "true"),
         "L9_ENABLE_LEGACY_CHAT": ("Gate old apiserver.py POST /chat", "false"),
@@ -1889,7 +1889,7 @@ def generate_deployment_manifest():
                             vol_str = str(len(vols)) + " mounts" if vols else "-"
                             services_found[svc_name] = (image, port_str, vol_str)
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
 
     for svc_name, (image, ports, vols) in sorted(services_found.items()):
         lines.append(f"| `{svc_name}` | {image} | {ports} | {vols} |")
@@ -1933,7 +1933,7 @@ def generate_deployment_manifest():
                             val = "***"
                         lines.append(f"| `{key}` | `{val}` |")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     else:
         lines.append("(no .env.example found)")
 
@@ -1972,7 +1972,7 @@ def generate_inheritance_graph():
                                 f"{node.name}::{','.join(parents)} @ {rel_path}"
                             )
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if inheritance:
         lines.extend(sorted(inheritance))
         lines.extend(
@@ -2021,7 +2021,7 @@ def generate_method_catalog():
                                     f"{class_name}::{signature} @ {rel_path}"
                                 )
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if methods:
         lines.extend(sorted(methods))
         lines.extend(
@@ -2057,7 +2057,7 @@ def generate_route_handlers():
                     method, path, func = match.groups()
                     routes.append(f"{method.upper()} {path} → {func}() @ {rel_path}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if routes:
         lines.extend(sorted(routes))
         lines.extend(
@@ -2107,7 +2107,7 @@ def generate_file_metrics():
                         )
                     )
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     # Sort by line count descending (biggest files first)
     metrics.sort(key=lambda x: x[0], reverse=True)
     lines.extend([m[1] for m in metrics])
@@ -2155,7 +2155,7 @@ def generate_pydantic_models():
                                 models.append(f"{node.name} @ {rel_path} - {docstring}")
                                 break
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if models:
         lines.extend(sorted(models))
         lines.extend(
@@ -2220,7 +2220,7 @@ def generate_dynamic_tool_catalog():
                         "file": rel_path,
                     }
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     # Also scan for class *Tool patterns and execute_* functions in core/tools/
     tool_classes = []
@@ -2238,7 +2238,7 @@ def generate_dynamic_tool_catalog():
                     doc = doc.split("\n")[0][:50] if doc else "-"
                     tool_classes.append((node.name, rel_path, doc))
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
 
     # Output ToolDefinition table
     if tools:
@@ -2298,7 +2298,7 @@ def generate_async_function_map():
                         signature = f"async {node.name}({', '.join(args)})"
                         async_funcs.append(f"{signature} @ {rel_path}")
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if async_funcs:
         lines.extend(sorted(async_funcs))
         lines.extend(
@@ -2344,7 +2344,7 @@ def generate_decorator_catalog():
                             if dec_name:
                                 decorators[dec_name].append(rel_path)
         except Exception:
-            pass
+            logger.debug("export_repo_indexes.parse_failed")
     if decorators:
         lines.append("| Decorator | Count | Example Files |")
         lines.append("|-----------|-------|---------------|")
@@ -2418,7 +2418,7 @@ def generate_adr_catalog():
                             do_not_rules.append((adr_num, rule_clean))
 
             except Exception:
-                pass
+                logger.debug("export_repo_indexes.parse_failed")
 
     # Add total count
     lines.append(f"# Total: {len(adrs)} ADRs")
@@ -2556,7 +2556,7 @@ def generate_readme_manifest():
                     readmes.append((top_dir, rel_path, title, description))
 
                 except Exception:
-                    pass
+                    logger.debug("export_repo_indexes.parse_failed")
 
     # Sort by path
     readmes.sort(key=lambda x: x[1])
@@ -2808,7 +2808,7 @@ def main():
     logger.info("🧠 PHASE 2: Ingesting indexes to L9 Memory...")
     logger.info("=" * 60)
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             [sys.executable, "scripts/memory/ingest_repo_indexes.py", "--verbose"],
             capture_output=True,
             text=True,
@@ -2842,7 +2842,7 @@ def main():
             logger.info(f"   Using C1 external Neo4j: {neo4j_url}")
 
         if neo4j_url and neo4j_password:
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
                 [
                     sys.executable,
                     "scripts/memory/load_indexes_to_neo4j.py",

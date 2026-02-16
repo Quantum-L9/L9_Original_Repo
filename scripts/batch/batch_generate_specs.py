@@ -242,7 +242,7 @@ class PerplexityBatchClient:
 
                         if response.status_code == 429:
                             # Rate limited - exponential backoff
-                            delay = (2**attempt) + random.uniform(0, 1)
+                            delay = (2**attempt) + random.uniform(0, 1)  # noqa: S311 — used for jitter, not security
                             logger.info(
                                 f"  ⚠️  Rate limited on {module_name}, waiting {delay:.1f}s..."
                             )

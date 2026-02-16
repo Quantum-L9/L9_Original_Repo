@@ -981,7 +981,7 @@ async def saga_timeline_correlation(
     Returns:
         Dict with timeline events and causal relationships
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime, timezone, timedelta
 
     import structlog
 
@@ -1069,7 +1069,9 @@ async def saga_timeline_correlation(
                                 }
                             )
                     except Exception:
-                        pass
+                        logger.debug(
+                            "base_registry.causal_link_trace_failed", event_id=event_id
+                        )
 
                 results["causal_chains"] = causal_chains
 

@@ -3,7 +3,7 @@ Tests for memory retrieval utilities - ranking and temporal decay.
 """
 
 import sys
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest

@@ -1,0 +1,473 @@
+# config/adr-enforcement.yaml
+# Maps ADR → enforcement mechanism → CI job
+# CI validates this file is complete for all 'accepted' ADRs
+#
+# When adding a new ADR to readme/adr/, CI will fail until you either:
+#   1. Add an enforcement entry under 'rules:' with at least one mechanism
+#   2. Add an exempt entry under 'exempt:' with a reason
+#
+# Enforcement types: semgrep, grep, python, test
+# CI jobs: adr-compliance, l9-patterns, path-safety-guard, dora-check, crypto-guard
+# New gates (2026-02-16): lint_forbidden_imports, check_tool_wiring, check_no_deprecated_services,
+#   check_schema_deprecation, check_tool_naming, check_substrate_api, check_packet_type_naming,
+#   check_protected_files, check_definition_of_done, check_dependency_patterns, validate_policy_schemas
+
+schema_version: "1.0"
+
+rules:
+  # =========================================================================
+  # SECURITY TIER — Always error, blocks CI
+  # =========================================================================
+
+  - adr: "0001"
+    title: "Path Safety"
+    enforcement:
+      - type: semgrep
+        rule_file: ".sec/semgrep.yaml"
+        ci_job: "path-safety-guard"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0083"
+    title: "Datetime UTC Standard"
+    enforcement:
+      - type: grep
+        pattern: "\\.utcnow()"
+        ci_job: "adr-compliance"
+      - type: semgrep
+        rule_file: ".semgrep/l9-rules.yaml"
+        ci_job: "l9-patterns"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0087"
+    title: "SQL Parameterization"
+    enforcement:
+      - type: grep
+        pattern: 'f"(SELECT|INSERT|UPDATE|DELETE).*\{'
+        ci_job: "adr-compliance"
+      - type: semgrep
+        rule_file: ".semgrep/l9-rules.yaml"
+        ci_job: "l9-patterns"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0088"
+    title: "No Pickle Serialization"
+    enforcement:
+      - type: grep
+        pattern: "pickle\\.load"
+        ci_job: "adr-compliance"
+      - type: semgrep
+        rule_file: ".semgrep/l9-rules.yaml"
+        ci_job: "l9-patterns"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0090"
+    title: "No Hardcoded Credentials"
+    enforcement:
+      - type: grep
+        pattern: "postgresql://.*:.*@"
+        ci_job: "adr-compliance"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0095"
+    title: "Unsafe eval() Remediation"
+    enforcement:
+      - type: semgrep
+        rule_file: ".semgrep/l9-rules.yaml"
+        ci_job: "l9-patterns"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  # =========================================================================
+  # CODE QUALITY TIER — Warning by default, error in --strict
+  # =========================================================================
+
+  - adr: "0002"
+    title: "TYPE_CHECKING Imports"
+    enforcement:
+      - type: grep
+        pattern: "TYPE_CHECKING"
+        ci_job: "adr-compliance"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0004"
+    title: "Singleton Auto-Registry"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0006"
+    title: "PacketEnvelope Audit Trail"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0008"
+    title: "Feature Flag Gating"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0009"
+    title: "Circuit Breaker Resilience"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0010"
+    title: "must_stay_async Decorator"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0011"
+    title: "Lazy Initialization Pattern"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0012"
+    title: "DAG Pipeline"
+    enforcement:
+      - type: python
+        script: "ci/check_dag_validation_single_point.py"
+        ci_job: "adr-compliance"
+      - type: python
+        script: "ci/check_memory_bypass.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0014"
+    title: "DORA Metadata Block"
+    enforcement:
+      - type: python
+        script: "ci/dora_compliance_check.py"
+        ci_job: "dora-check"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0016"
+    title: "TypedDict vs Pydantic Boundary"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0017"
+    title: "Tool Definition Schema"
+    enforcement:
+      - type: python
+        script: "ci/check_tool_wiring.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0019"
+    title: "Structlog Only"
+    enforcement:
+      - type: grep
+        pattern: "import logging|from logging"
+        ci_job: "adr-compliance"
+      - type: semgrep
+        rule_file: ".semgrep/l9-rules.yaml"
+        ci_job: "l9-patterns"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+      - type: python
+        script: "ci/lint_forbidden_imports.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0021"
+    title: "LangGraph Node Wrapper"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0022"
+    title: "Registry Pattern"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0023"
+    title: "Error Packet Pattern"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0024"
+    title: "Resilience Mixin Pattern"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0025"
+    title: "FastAPI Dependency Injection"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0026"
+    title: "Protocol-Based Abstractions"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0027"
+    title: "LRU Cache Pattern"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0028"
+    title: "Database Transaction Context"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0030"
+    title: "Kernel YAML Schema"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0031"
+    title: "WebSocket Connection Pattern"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0032"
+    title: "Neo4j Cypher Query Pattern"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0033"
+    title: "Async Context Manager Pattern"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0044"
+    title: "Agent Policy Protocols"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0055"
+    title: "Fail-Loudly Policy"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0084"
+    title: "Async Resource Cleanup"
+    enforcement:
+      - type: semgrep
+        rule_file: ".semgrep/l9-rules.yaml"
+        ci_job: "l9-patterns"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0085"
+    title: "Thread-Safe Singletons"
+    enforcement:
+      - type: semgrep
+        rule_file: ".semgrep/l9-rules.yaml"
+        ci_job: "l9-patterns"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0086"
+    title: "Safe Type Conversion"
+    enforcement:
+      - type: semgrep
+        rule_file: ".semgrep/l9-rules.yaml"
+        ci_job: "l9-patterns"
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0093"
+    title: "No Debt Hiding via Noqa"
+    enforcement:
+      - type: python
+        script: "ci/check_noqa_placement.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0098"
+    title: "Single Source of Truth for Config Defaults"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+  - adr: "0099"
+    title: "DRY Config Constants Enforcement"
+    enforcement:
+      - type: python
+        script: "ci/check_adr_compliance.py"
+        ci_job: "adr-compliance"
+
+
+
+# =========================================================================
+# EXEMPT — Process/informational ADRs (no code enforcement needed)
+# =========================================================================
+exempt:
+  - adr: "0000"
+    reason: "Core philosophy — informational"
+  - adr: "0003"
+    reason: "Documentation standards — enforced by PR review"
+  - adr: "0005"
+    reason: "RLS shared tenant model — database schema design, enforced via migration review"
+  - adr: "0007"
+    reason: "7-phase bootstrap ceremony — workflow/process standard"
+  - adr: "0013"
+    reason: "Governance authority hierarchy — authority model, enforced via review"
+  - adr: "0015"
+    reason: "Migration sequential apply — migration workflow standard"
+  - adr: "0020"
+    reason: "Test fixture hierarchy — testing organization, enforced via review"
+  - adr: "0029"
+    reason: "Embedding generation pipeline — pipeline architecture"
+  - adr: "0034"
+    reason: "Agent capability scoping — architectural decision"
+  - adr: "0035"
+    reason: "ADR bootstrap protocol — meta/process"
+  - adr: "0036"
+    reason: "Schema organization pattern — file organization standard"
+  - adr: "0037"
+    reason: "Tool wiring protocol — integration pattern, enforced via review"
+  - adr: "0038"
+    reason: "Secrets management protocol — security process standard"
+  - adr: "0039"
+    reason: "L9 CLI tool — tool design decision"
+  - adr: "0040"
+    reason: "CI/CD security scanning — CI/CD process standard"
+  - adr: "0041"
+    reason: "Executor builder pattern — design pattern"
+  - adr: "0042"
+    reason: "Execution profiles — configuration pattern"
+  - adr: "0043"
+    reason: "Controller profiles — configuration pattern"
+  - adr: "0045"
+    reason: "Online/offline execution split — architectural decision"
+  - adr: "0046"
+    reason: "Pipeline stage organization — code organization pattern"
+  - adr: "0047"
+    reason: "Memory facade decomposition — architectural refactoring"
+  - adr: "0048"
+    reason: "Tool dispatch strategy — design pattern"
+  - adr: "0049"
+    reason: "Checkpoint plan snapshots — data persistence pattern"
+  - adr: "0050"
+    reason: "Tool registry cache — performance optimization"
+  - adr: "0051"
+    reason: "Cursor file organization — file organization standard"
+  - adr: "0052"
+    reason: "DI/DIP foundation — architectural foundation"
+  - adr: "0053"
+    reason: "Kernel config externalization — configuration management"
+  - adr: "0054"
+    reason: "Loop stage protocol — protocol design"
+  - adr: "0058"
+    reason: "C1 deployment workflow — deployment process standard"
+  - adr: "0059"
+    reason: "Inline analysis with script reports — tooling/workflow"
+  - adr: "0060"
+    reason: "Mediator pattern for agent communication — design pattern"
+  - adr: "0061"
+    reason: "L9 facade simplified API — API design pattern"
+  - adr: "0062"
+    reason: "Deferred strict linting — CI configuration decision"
+  - adr: "0063"
+    reason: "Incremental config adoption — migration strategy"
+  - adr: "0064"
+    reason: "Dynamic tool discovery — feature design"
+  - adr: "0065"
+    reason: "Cursor ADR enforcement — meta-process about enforcement itself"
+  - adr: "0066"
+    reason: "AWS S3 storage architecture — infrastructure decision"
+  - adr: "0067"
+    reason: "AWS Secrets Manager integration — infrastructure decision"
+  - adr: "0068"
+    reason: "Unified resilience protocol layer — architectural pattern"
+  - adr: "0069"
+    reason: "Automated documentation generation — tooling/workflow"
+  - adr: "0070"
+    reason: "Session DAG workflow orchestration — workflow design"
+  - adr: "0071"
+    reason: "Fix violations, don't exclude — process rule"
+  - adr: "0072"
+    reason: "Diagnose before fix — process rule"
+  - adr: "0073"
+    reason: "Evidence-based claims — process rule"
+  - adr: "0074"
+    reason: "Surgical edits only — process rule"
+  - adr: "0075"
+    reason: "Ask before build — process rule"
+  - adr: "0076"
+    reason: "Search before create — process rule"
+  - adr: "0077"
+    reason: "No silent changes — process rule"
+  - adr: "0078"
+    reason: "Explicit approval for destructive ops — process rule"
+  - adr: "0079"
+    reason: "Real data only — process rule"
+  - adr: "0080"
+    reason: "Understand user intent — process rule"
+  - adr: "0081"
+    reason: "Phase discipline — process rule"
+  - adr: "0082"
+    reason: "Neo4j required, not optional — architectural requirement"
+  - adr: "0089"
+    reason: "Hierarchical compose and C1 symlinks — infrastructure organization"
+  - adr: "0091"
+    reason: "Definition of done — now enforced by ci/check_definition_of_done.py in adr-compliance job"
+  - adr: "0094"
+    reason: "Tool registry primary pipeline unification — architectural refactoring"
+  - adr: "0096"
+    reason: "Security & rate limiting architecture — architectural design"
+  - adr: "0097"
+    reason: "Governance authority superpack — documentation/governance meta"
+  - adr: "0100"
+    reason: "Slash commands DAG-only — architectural design decision"
+  - adr: "0101"
+    reason: "DAG executors via SDK — API design pattern"
+  - adr: "0102"
+    reason: "SDK-first external interface — API design strategy"

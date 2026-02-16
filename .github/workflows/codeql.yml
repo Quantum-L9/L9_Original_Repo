@@ -1,0 +1,64 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Codeql"
+# module_version: "1.0.0"
+# created_by: "L9 Agent"
+# created_at: "2026-02-16T00:00:00Z"
+# updated_at: "2026-02-16T00:00:00Z"
+# layer: "operations"
+# domain: ".github"
+# file_name: "codeql"
+# type: "workflow"
+# status: "active"
+# ============================================================================
+
+name: "CodeQL"
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 4 * * 1" # Weekly Monday 04:17 UTC
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["python"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["codeql.yml", "workflow", "security", "operations"]
+# keywords: ["codeql", "sast", "security", "analysis"]
+# last_modified: "2026-02-16T00:00:00Z"
+# ============================================================================

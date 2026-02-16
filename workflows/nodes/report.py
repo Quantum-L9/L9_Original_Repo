@@ -30,7 +30,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 
@@ -80,7 +80,7 @@ async def report_node(state: WorkflowState) -> dict:
         "",
         f"ID:        {workflow_id}",
         f"Started:   {started_at}",
-        f"Completed: {datetime.now().isoformat()}",
+        f"Completed: {datetime.now(tz=UTC).isoformat()}",
         f"Status:    {'✅ SUCCESS' if validation_passed and not error else '❌ FAILED'}",
         "",
     ]
@@ -160,7 +160,7 @@ async def report_node(state: WorkflowState) -> dict:
             "total_duration_ms": total_duration,
             "validation_passed": validation_passed,
         },
-        timestamp=datetime.now().isoformat(),
+        timestamp=datetime.now(tz=UTC).isoformat(),
     )
 
     logger.info(

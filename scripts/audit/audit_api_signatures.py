@@ -41,6 +41,7 @@ import sys
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+
 import structlog
 
 # Add repo root to path
@@ -296,7 +297,7 @@ def find_value_on_get_state(filepath: Path) -> list[SignatureMismatch]:
                     )
                 )
     except Exception:
-        pass
+        logger.debug("audit_api_signatures.state_value_scan_failed")
 
     return mismatches
 
@@ -328,7 +329,7 @@ def find_httpx_app_param(filepath: Path) -> list[SignatureMismatch]:
                     )
                 )
     except Exception:
-        pass
+        logger.debug("audit_api_signatures.httpx_app_param_scan_failed")
 
     return mismatches
 
@@ -459,9 +460,9 @@ def auto_fix_mismatches(mismatches: list[SignatureMismatch]) -> int:
 
 def print_report(result: AuditResult) -> None:
     """Print audit report to stdout."""
-    logger.info("=" * 70")
+    logger.info("=" * 70)
     logger.info("l9 api signature mismatch audit v1.0")
-    logger.info("=" * 70")
+    logger.info("=" * 70)
     logger.info("files scanned: {result.total_files_scanned}")
     logger.info("mismatches found: {result.total_mismatches}")
     logger.info("  critical: {result.critical_count}")
@@ -478,9 +479,9 @@ def print_report(result: AuditResult) -> None:
             logger.info("  - err", err=err)
 
     if result.mismatches:
-        logger.info("\n" + "-" * 70")
+        logger.info("\n" + "-" * 70)
         logger.info("findings:")
-        logger.info("-" * 70")
+        logger.info("-" * 70)
 
         for m in sorted(
             result.mismatches, key=lambda x: (x.severity.value, x.filepath, x.line)
@@ -502,7 +503,7 @@ def print_report(result: AuditResult) -> None:
     else:
         logger.info("\n✅ no api signature mismatches found!")
 
-    logger.info("\n" + "=" * 70")
+    logger.info("\n" + "=" * 70)
 
 
 def main():

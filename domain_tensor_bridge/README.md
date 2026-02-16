@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Bridge for domain-specific tensor operations and validation
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -88,17 +88,17 @@ domain_tensor_bridge/
 ├── embedding_processor.py
 ├── escalation_handler.py
 ├── governance_bridge.py
+├── l9_memory_adapter.py
 ├── memory_bridge.py
-├── packet_formatter.py
-└── ... (17 more files)
+└── ... (18 more files)
 ```
 
-| File                     | Purpose                            |
-| ------------------------ | ---------------------------------- |
-| `__init__.py`            | Core module (PROTECTED)            |
-| `reasoning_engine.py`    | Result from reasoning execution.   |
-| `reasoning_engine.py`    | Multi-modal reasoning engine.      |
-| `embedding_processor.py` | Processed embedding with metadata. |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `reasoning_engine.py` | Result from reasoning execution. |
+| `reasoning_engine.py` | Multi-modal reasoning engine. |
+| `l9_memory_adapter.py` | Concrete adapter wiring DTB's MemoryBridge to L9 s |
 
 ### Naming Conventions
 
@@ -121,7 +121,7 @@ class ReasoningResult:
 
 ```
 
-**Lines:** 58-65 in `reasoning_engine.py`
+**Lines:** 60-67 in `reasoning_engine.py`
 
 ### `reasoning_engine.py` — ReasoningEngine
 
@@ -145,7 +145,31 @@ class ReasoningEngine:
 
 **Public Methods:** `__init__`, `initialize`, `execute_reasoning`, `apply_causal_reasoning`, `apply_analogical_reasoning`
 
-**Lines:** 68-254 in `reasoning_engine.py`
+**Lines:** 70-260 in `reasoning_engine.py`
+
+### `l9_memory_adapter.py` — L9MemoryAdapter
+
+```python
+class L9MemoryAdapter:
+    """Concrete adapter wiring DTB's MemoryBridge to L9 services."""
+
+    # Key methods:
+
+    def __init__(self, ...) -> None: ...
+
+    async def initialize(self, ...) -> None: ...
+
+    async def get_working_memory(self, ...) -> dict[str, Any] | None: ...
+
+    async def set_working_memory(self, ...) -> bool: ...
+
+    async def query_episodic_memory(self, ...) -> list[EpisodicEvent]: ...
+
+```
+
+**Public Methods:** `__init__`, `initialize`, `get_working_memory`, `set_working_memory`, `query_episodic_memory`
+
+**Lines:** 59-242 in `l9_memory_adapter.py`
 
 ### `embedding_processor.py` — ProcessedEmbedding
 
@@ -179,29 +203,6 @@ class EmbeddingProcessor:
 
 **Lines:** 63-97 in `embedding_processor.py`
 
-### `agent_controller.py` — AgentController
-
-```python
-class AgentController:
-    """Main controller for Domain-Tensor Bridge."""
-
-    # Key methods:
-
-    def __init__(self, ...): ...
-
-    async def initialize(self, ...) -> None: ...
-
-    async def process_packet(self, ...) -> PacketEnvelope: ...
-
-    def _create_success_response(self, ...) -> PacketEnvelope: ...
-
-    def _create_blocked_response(self, ...) -> PacketEnvelope: ...
-
-```
-
-**Public Methods:** `__init__`, `initialize`, `process_packet`, `_create_success_response`, `_create_blocked_response`
-
-**Lines:** 59-195 in `agent_controller.py`
 
 ---
 
@@ -217,14 +218,14 @@ The following data models define the contracts for this subsystem:
 
 `AgentController`, `AnalogicalReasoner`, `Analogy`, `AnomalyFlag`, `AnomalyHandler`, `AnomalyResponse`, `AnomalySeverity`, `AuditResult`, `CausalFactor`, `CausalReasoner`
 
-_...and 42 more_
+*...and 43 more*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class DomainTensorBridgeRequest(BaseModel):
     """Request model for domain_tensor_bridge operations."""
@@ -283,9 +284,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Domain_Tensor_Bridge feature flags
-L9_ENABLE_DOMAIN_TENSOR_BRIDGE_TRACING: true # Enable detailed tracing
-L9_ENABLE_DOMAIN_TENSOR_BRIDGE_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_DOMAIN_TENSOR_BRIDGE_AUDIT: true # Enable audit logging
+L9_ENABLE_DOMAIN_TENSOR_BRIDGE_TRACING: true  # Enable detailed tracing
+L9_ENABLE_DOMAIN_TENSOR_BRIDGE_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_DOMAIN_TENSOR_BRIDGE_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -316,7 +317,7 @@ DOMAIN_TENSOR_BRIDGE_ENABLED=true
 
 Convenience function to process a packet using default controller.
 
-- **File:** `agent_controller.py:198`
+- **File:** `agent_controller.py:200`
 - **Async:** Yes
 - **Returns:** `PacketEnvelope`
 
@@ -324,14 +325,14 @@ Convenience function to process a packet using default controller.
 
 Create mock packet.
 
-- **File:** `test_bridge_controller.py:15`
+- **File:** `test_bridge_controller.py:16`
 - **Async:** No
 
 #### `def controller()`
 
 Create controller with mocked dependencies.
 
-- **File:** `test_bridge_controller.py:25`
+- **File:** `test_bridge_controller.py:26`
 - **Async:** No
 
 #### `def memory_bridge()`
@@ -347,6 +348,7 @@ Create controller for API testing.
 
 - **File:** `test_api_surfaces.py:13`
 - **Async:** No
+
 
 ### Usage Example
 
@@ -377,7 +379,7 @@ Domain Tensor Bridge operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "domain_tensor_bridge",
   "message": "Operation completed",
@@ -388,7 +390,6 @@ Domain Tensor Bridge operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -396,12 +397,12 @@ Domain Tensor Bridge operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                       | Type      | Description                    |
-| -------------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `domain_tensor_bridge_operation_duration_ms` | Histogram | Operation latency distribution |
-| `domain_tensor_bridge_operation_total`       | Counter   | Total operations processed     |
-| `domain_tensor_bridge_error_total`           | Counter   | Total errors encountered       |
-| `domain_tensor_bridge_active_connections`    | Gauge     | Current active connections     |
+| `domain_tensor_bridge_operation_total` | Counter | Total operations processed |
+| `domain_tensor_bridge_error_total` | Counter | Total errors encountered |
+| `domain_tensor_bridge_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -419,7 +420,6 @@ Domain Tensor Bridge emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/domain_tensor_bridge/`:
-
 - `test_domain_tensor_bridge.py` — Core unit tests
 - `test_domain_tensor_bridge_integration.py` — Integration tests (if applicable)
 
@@ -462,7 +462,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

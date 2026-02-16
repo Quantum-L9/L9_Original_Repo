@@ -464,7 +464,8 @@ async def health_check():
 @app.get("/mcp/tools")
 @must_stay_async("FastAPI/ASGI route handler")
 async def list_tools(
-    request: Request, caller: CallerIdentity = Depends(verify_api_key)
+    request: Request,
+    caller: CallerIdentity = Depends(verify_api_key),  # noqa: B008 — FastAPI dependency injection
 ):
     """List available MCP tools for the authenticated caller.
 
@@ -479,7 +480,7 @@ async def list_tools(
 
 
 @app.post("/mcp/call")
-async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_api_key)):
+async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_api_key)):  # noqa: B008 — FastAPI dependency injection
     """Execute MCP tool with caller-enforced governance.
 
     Caller identity (L or C) determines:
@@ -491,7 +492,6 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
     GMP-C1-GOVERNANCE: Sets MemoryGovernanceContext before tool execution.
     This ensures all downstream DB operations have proper RLS context.
     """
-    import os
 
     try:
         payload = await request.json()

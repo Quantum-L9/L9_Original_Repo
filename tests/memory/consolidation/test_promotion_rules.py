@@ -19,8 +19,6 @@ ADR: 0014 (DORA metadata), 0019 (structlog)
 
 from __future__ import annotations
 
-import pytest
-
 from memory.consolidation.promotion_rules import (
     PromotionSignal,
     get_promotion_reason,

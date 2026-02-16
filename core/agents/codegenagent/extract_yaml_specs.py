@@ -37,6 +37,8 @@ import os
 import re
 from pathlib import Path
 
+import structlog
+
 # Patch type indicators
 
 logger = structlog.get_logger(__name__)

@@ -38,6 +38,7 @@ __dora_meta__ = {
 import re
 import sys
 from pathlib import Path
+
 import structlog
 
 # Pattern violations to detect
@@ -129,29 +130,26 @@ def main() -> int:
                 all_violations[rel_path] = violations
 
     # Report results
-    logger.info("checked files checked files for dependency pattern violations", files_checked=files_checked)
-    logger.info("output", value=)
-
+    logger.info(
+        "checked files checked files for dependency pattern violations",
+        files_checked=files_checked,
+    )
     if not all_violations:
         logger.info("✅ no dependency pattern violations found")
         return 0
 
     logger.info("❌ found violations in {len(all_violations)} files:")
-    logger.info("output", value=)
-
     for filepath, violations in sorted(all_violations.items()):
         logger.info("  filepath:", filepath=filepath)
-        for line_num, line_content, message in violations:
-            logger.info("    line line num: message", line_num=line_num, message=message)
+        for line_num, _line_content, message in violations:
+            logger.info(
+                "    line line num: message", line_num=line_num, message=message
+            )
             logger.info("      > {line_content[:80]}...")
-        logger.info("output", value=)
-
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("dependency pattern enforcement")
-    logger.info("=" * 60")
-    logger.info("output", value=)
+    logger.info("=" * 60)
     logger.info("l9 routes must use lazy module singletons for redis/neo4j:")
-    logger.info("output", value=)
     logger.info("  ✅ correct:")
     logger.info("     _client = none")
     logger.info("     async def get_redis():")
@@ -160,15 +158,11 @@ def main() -> int:
     logger.info("             from runtime.redis_client import get_redis_client")
     logger.info("             _client = await get_redis_client()")
     logger.info("         return _client")
-    logger.info("output", value=)
     logger.info("  ❌ wrong:")
     logger.info("     from api.dependencies import get_redis_client")
     logger.info("     @router.get(...)")
     logger.info("     async def route(client = depends(get_redis_client)):")
-    logger.info("output", value=)
     logger.info("see: .cursor/rules/89-dependency-patterns.mdc")
-    logger.info("output", value=)
-
     return 1
 
 

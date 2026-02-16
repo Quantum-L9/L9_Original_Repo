@@ -162,7 +162,7 @@ class PacketRouter:
         return self._handlers.get(packet_type)
 
     @must_stay_async("callers use await")
-    async def validate(self, packet: PacketEnvelope) -> "ValidationResult":
+    async def validate(self, packet: PacketEnvelope) -> "ValidationResult":  # noqa: F821 — forward ref resolved at runtime
         """Validate packet structure."""
         from .packet_validator import ValidationResult
 

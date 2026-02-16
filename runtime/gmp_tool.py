@@ -194,7 +194,7 @@ async def gmp_run_tool(
                 error=str(e),
             )
         except Exception:
-            pass
+            logger.debug("gmp_tool.log_tool_call_failed")
 
         return {
             "task_id": None,

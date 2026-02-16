@@ -160,6 +160,7 @@ class QueryCache:
             Decorated function with TTL caching
         """
 
+        @wraps(self)
         def decorator(func: Callable):
             """
             Performs caching of asynchronous database query functions to optimize performance using TTL and LRU strategies.
@@ -259,6 +260,7 @@ class QueryCache:
             Decorated function with LRU caching
         """
 
+        @wraps(self)
         def decorator(func: Callable):
             """
             Performs caching of asynchronous database query functions to optimize performance using TTL and LRU strategies.

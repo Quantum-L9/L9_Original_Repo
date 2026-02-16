@@ -32,7 +32,7 @@ import os
 import subprocess
 import sys
 import time
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import aiofiles
@@ -80,7 +80,7 @@ def execute_command(command: str) -> tuple[str, str]:
 
         # Use shlex.split for safer command parsing (prevents shell injection)
         cmd_args = shlex.split(command)
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd_args,
             shell=False,
             capture_output=True,
@@ -334,16 +334,16 @@ async def poll_and_execute():
                             pyautogui.screenshot(str(desktop_screenshot))
                             failure_result["screenshots"] = [str(desktop_screenshot)]
                         except Exception:
-                            pass
+                            logger.debug("mac_runner.crash_screenshot_failed")
 
                     # Try to post failure to Slack
                     try:
                         metadata = task.get("metadata", {})
                         channel = metadata.get("channel", metadata.get("user"))
                         if channel:
-                            post_result(channel, task, failure_result)
+                            await post_result_async(channel, task, failure_result)
                     except Exception:
-                        pass
+                        logger.debug("mac_runner.slack_failure_post_failed")
 
                     # Save failure JSON
                     try:
@@ -359,7 +359,7 @@ async def poll_and_execute():
                                 )
                             )
                     except Exception:
-                        pass
+                        logger.debug("mac_runner.failure_json_save_failed")
 
                     mark_task_completed(task_id)
                 except Exception as inner_e:

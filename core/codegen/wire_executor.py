@@ -167,6 +167,12 @@ class WireExecutor:
     def __init__(self):
         self.state: WireState | None = None
 
+    def _require_state(self) -> WireState:
+        """Return state or raise if not initialized."""
+        if self.state is None:
+            raise RuntimeError("WireExecutor state not initialized — call execute() first")
+        return self.state
+
     def _save_state(self):
         if self.state:
             STATE_FILE.write_text(json.dumps(self.state.to_dict(), indent=2))
@@ -203,9 +209,10 @@ class WireExecutor:
     # STEP 1: DISCOVERY
     # =========================================================================
     def _step_discovery(self) -> bool:
+        state = self._require_state()
         self._print_header("DISCOVERY — Find All References")
 
-        component = self.state.component
+        component = state.component
         print(f"Searching for references to: {component}\n")  # noqa: ADR-0019
 
         # Search for imports and usages
@@ -244,7 +251,7 @@ class WireExecutor:
                     }
                 )
 
-        self.state.references = references
+        state.references = references
 
         print(f"Found {len(references)} references:")  # noqa: ADR-0019
         print("-" * 50)  # noqa: ADR-0019
@@ -268,9 +275,10 @@ class WireExecutor:
     # STEP 2: ANALYSIS
     # =========================================================================
     def _step_analysis(self) -> bool:
+        state = self._require_state()
         self._print_header("ANALYSIS — Classify Component")
 
-        component = self.state.component
+        component = state.component
 
         # Try to determine component type
         component_type = "unknown"
@@ -282,8 +290,8 @@ class WireExecutor:
         ).exists():
             component_type = "module"
         # Check references for clues
-        elif self.state.references:
-            ref_contexts = [r["context"].lower() for r in self.state.references]
+        elif state.references:
+            ref_contexts = [r["context"].lower() for r in state.references]
             if any("class " in c for c in ref_contexts):
                 component_type = "class"
             elif any("def " in c for c in ref_contexts):
@@ -295,13 +303,13 @@ class WireExecutor:
             elif any("tool" in c for c in ref_contexts):
                 component_type = "tool"
 
-        self.state.component_type = component_type
+        state.component_type = component_type
         print(f"Component: {component}")  # noqa: ADR-0019
         print(f"Type: {component_type}")  # noqa: ADR-0019
 
         # Check for protected files
         protected_touched = []
-        for ref in self.state.references:
+        for ref in state.references:
             if ref["file"] in PROTECTED_FILES:
                 protected_touched.append(ref["file"])
 
@@ -318,13 +326,14 @@ class WireExecutor:
     # STEP 3: PLAN
     # =========================================================================
     def _step_plan(self) -> bool:
+        state = self._require_state()
         self._print_header("PLAN — Create Surgical Actions")
 
         actions = []
         action_id = 1
 
         # Analyze each reference to determine needed actions
-        for ref in self.state.references:
+        for ref in state.references:
             # Check if import is broken
             if ref["ref_type"] == "import":
                 # Try to verify the import
@@ -354,7 +363,7 @@ class WireExecutor:
                 else:
                     ref["status"] = "ok"
 
-        self.state.actions = actions
+        state.actions = actions
 
         print(f"Actions planned: {len(actions)}")  # noqa: ADR-0019
         if actions:
@@ -375,15 +384,16 @@ class WireExecutor:
     # STEP 4: EXECUTE
     # =========================================================================
     def _step_execute(self) -> bool:
+        state = self._require_state()
         self._print_header("EXECUTE — Apply Fixes")
 
-        if not self.state.actions:
+        if not state.actions:
             print("✅ Nothing to execute — all wiring OK")  # noqa: ADR-0019
             return True
 
         # For now, we'll mark actions as needing manual review
         # A full implementation would apply surgical fixes
-        for action in self.state.actions:
+        for action in state.actions:
             print(
                 f"⚠️  {action['id']}: {action['action']} in {action['file']}:{action['line']}"
             )  # noqa: ADR-0019
@@ -391,7 +401,7 @@ class WireExecutor:
             action["status"] = "needs_review"
 
         # Track modified files
-        self.state.files_modified = list({a["file"] for a in self.state.actions})
+        state.files_modified = list({a["file"] for a in state.actions})
 
         return True
 
@@ -399,13 +409,14 @@ class WireExecutor:
     # STEP 5: VALIDATE
     # =========================================================================
     def _step_validate(self) -> bool:
+        state = self._require_state()
         self._print_header("VALIDATE — Check Syntax & Imports")
 
         validations = []
 
         # py_compile on modified files
-        if self.state.files_modified:
-            files_str = " ".join(str(REPO_ROOT / f) for f in self.state.files_modified)
+        if state.files_modified:
+            files_str = " ".join(str(REPO_ROOT / f) for f in state.files_modified)
             code, stdout, stderr = self._run_shell(f"python3 -m py_compile {files_str}")
             if code == 0:
                 validations.append({"check": "py_compile", "status": "✅"})
@@ -415,11 +426,11 @@ class WireExecutor:
                     {"check": "py_compile", "status": "❌", "error": stderr}
                 )
                 print(f"❌ py_compile: FAILED\n{stderr}")  # noqa: ADR-0019
-                self.state.validation_results = validations
+                state.validation_results = validations
                 return False
 
         # Try to import the component
-        component = self.state.component
+        component = state.component
         if "." in component:
             cmd = f'python3 -c "from {component} import *" 2>&1'
         else:
@@ -432,16 +443,17 @@ class WireExecutor:
             validations.append({"check": "import", "status": "⚠️", "error": stdout})
             print(f"⚠️  import: {stdout[:100]}")  # noqa: ADR-0019
 
-        self.state.validation_results = validations
+        state.validation_results = validations
         return True
 
     # =========================================================================
     # STEP 6: RE-DISCOVERY
     # =========================================================================
     def _step_re_discovery(self) -> bool:
+        state = self._require_state()
         self._print_header("RE-DISCOVERY — Confirm All Refs Fixed")
 
-        component = self.state.component
+        component = state.component
 
         # Re-run discovery
         cmd = f'rg "{component}" --type py -n 2>/dev/null || true'
@@ -451,11 +463,11 @@ class WireExecutor:
         ref_count = len([l for l in stdout.strip().split("\n") if l and ":" in l])
 
         print(f"References after wiring: {ref_count}")  # noqa: ADR-0019
-        print(f"Original references: {len(self.state.references)}")  # noqa: ADR-0019
+        print(f"Original references: {len(state.references)}")  # noqa: ADR-0019
 
-        if ref_count == len(self.state.references):
+        if ref_count == len(state.references):
             print("✅ Reference count stable — no new broken refs")  # noqa: ADR-0019
-        elif ref_count < len(self.state.references):
+        elif ref_count < len(state.references):
             print("⚠️  Some references removed")  # noqa: ADR-0019
         else:
             print("⚠️  New references added")  # noqa: ADR-0019
@@ -466,9 +478,10 @@ class WireExecutor:
     # STEP 7: CONFIRM WIRING
     # =========================================================================
     def _step_confirm_wiring(self) -> bool:
+        state = self._require_state()
         self._print_header("CONFIRM WIRING — Full Verification")
 
-        component = self.state.component
+        component = state.component
         checks = []
 
         # 1. Verify imports resolve
@@ -522,30 +535,31 @@ class WireExecutor:
     # STEP 8: GENERATE REPORT
     # =========================================================================
     def _step_generate_report(self) -> bool:
+        state = self._require_state()
         self._print_header("GENERATE REPORT — GMP Report via Script")
 
         # Build TODO items from actions
         todo_args = []
-        for a in self.state.actions:
+        for a in state.actions:
             todo_args.append(
                 f'--todo "{a["id"]}|{a["file"]}|{a.get("line", "N/A")}|WIRE|{a["action"]}"'
             )
 
         # Build validation items
         val_args = []
-        for v in self.state.validation_results:
+        for v in state.validation_results:
             val_args.append(f'--validation "{v["check"]}|{v["status"]}"')
 
         # If no actions, add a placeholder
         if not todo_args:
             todo_args.append(
-                f'--todo "W1|{self.state.component}|N/A|VERIFY|Wiring verification"'
+                f'--todo "W1|{state.component}|N/A|VERIFY|Wiring verification"'
             )
         if not val_args:
             val_args.append('--validation "wiring|✅"')
 
         cmd = f'''python3 {REPORT_GENERATOR} \
-            --task "Wire {self.state.component}" \
+            --task "Wire {state.component}" \
             --tier RUNTIME_TIER \
             {" ".join(todo_args)} \
             {" ".join(val_args)} \
@@ -558,14 +572,14 @@ class WireExecutor:
         # Extract report path
         for line in stdout.split("\n"):
             if "Report saved:" in line or "reports/" in line.lower():
-                self.state.report_path = line.strip()
+                state.report_path = line.strip()
                 break
 
-        if self.state.report_path:
-            print(f"✅ Report: {self.state.report_path}")  # noqa: ADR-0019
+        if state.report_path:
+            print(f"✅ Report: {state.report_path}")  # noqa: ADR-0019
         else:
             print("⚠️  Report generation skipped (may already exist)")  # noqa: ADR-0019
-            self.state.report_path = "N/A"
+            state.report_path = "N/A"
 
         return True
 
@@ -573,19 +587,20 @@ class WireExecutor:
     # STEP 9: COMMIT (NO PUSH)
     # =========================================================================
     def _step_commit(self) -> bool:
+        state = self._require_state()
         self._print_header("COMMIT — Stage and Commit (NO PUSH)")
 
-        if not self.state.files_modified:
+        if not state.files_modified:
             print("✅ No files modified — nothing to commit")  # noqa: ADR-0019
             return True
 
         # Stage files
-        files_str = " ".join(self.state.files_modified)
+        files_str = " ".join(state.files_modified)
         self._run_shell(f"git add {files_str}")
 
         # Create commit message
-        component = self.state.component
-        actions_summary = ", ".join(a["action"] for a in self.state.actions[:3])
+        component = state.component
+        actions_summary = ", ".join(a["action"] for a in state.actions[:3])
         if not actions_summary:
             actions_summary = "verification"
 
@@ -600,8 +615,8 @@ class WireExecutor:
         elif code == 0 or "create mode" in stdout.lower():
             # Get commit hash
             code, hash_out, _ = self._run_shell("git rev-parse --short HEAD")
-            self.state.commit_hash = hash_out.strip()
-            print(f"✅ Committed: {self.state.commit_hash}")  # noqa: ADR-0019
+            state.commit_hash = hash_out.strip()
+            print(f"✅ Committed: {state.commit_hash}")  # noqa: ADR-0019
             print(f"   Message: {commit_msg}")  # noqa: ADR-0019
         else:
             print(f"⚠️  Commit result: {stdout[:100]}")  # noqa: ADR-0019
@@ -615,30 +630,32 @@ class WireExecutor:
     # =========================================================================
     def status(self):
         """Show current status."""
+        state = self._require_state()
         if not self._load_state():
             print("No active /wire execution. Start with:")  # noqa: ADR-0019
             print("  python3 workflows/wire_executor.py path/to/component.py")  # noqa: ADR-0019
             return
 
-        self._print_header(f"WIRE STATUS: {self.state.component}")
-        print(f"Type: {self.state.component_type}")  # noqa: ADR-0019
-        print(f"Started: {self.state.started_at}")  # noqa: ADR-0019
-        print(f"Current step: {self.state.current_step}")  # noqa: ADR-0019
+        self._print_header(f"WIRE STATUS: {state.component}")
+        print(f"Type: {state.component_type}")  # noqa: ADR-0019
+        print(f"Started: {state.started_at}")  # noqa: ADR-0019
+        print(f"Current step: {state.current_step}")  # noqa: ADR-0019
         print()  # noqa: ADR-0019
 
         for step in STEP_ORDER:
-            if step in self.state.completed_steps:
+            if step in state.completed_steps:
                 print(f"  ✅ {step}")  # noqa: ADR-0019
-            elif step == self.state.current_step:
+            elif step == state.current_step:
                 print(f"  🔄 {step}")  # noqa: ADR-0019
             else:
                 print(f"  ⏳ {step}")  # noqa: ADR-0019
 
     def run(self, component: str, resume: bool = False):
         """Execute the /wire DAG — fully autonomous."""
+        state = self._require_state()
         # Initialize or resume
         if resume and self._load_state():
-            print(f"Resuming wire: {self.state.component}")  # noqa: ADR-0019
+            print(f"Resuming wire: {state.component}")  # noqa: ADR-0019
         else:
             self.state = WireState(
                 component=component,
@@ -648,7 +665,7 @@ class WireExecutor:
             )
             self._save_state()
 
-        self._print_header(f"WIRE EXECUTOR: {self.state.component}")
+        self._print_header(f"WIRE EXECUTOR: {state.component}")
 
         # Step executors
         executors = {
@@ -665,10 +682,10 @@ class WireExecutor:
 
         # Execute steps in order
         for step in STEP_ORDER:
-            if step in self.state.completed_steps:
+            if step in state.completed_steps:
                 continue
 
-            self.state.current_step = step
+            state.current_step = step
             self._save_state()
 
             executor = executors.get(step)
@@ -679,7 +696,7 @@ class WireExecutor:
             success = executor()
 
             if success:
-                self.state.completed_steps.append(step)
+                state.completed_steps.append(step)
                 self._save_state()
             else:
                 print(f"\n❌ Step failed: {step}")  # noqa: ADR-0019
@@ -688,13 +705,13 @@ class WireExecutor:
 
         # Complete
         self._print_header("WIRE COMPLETE")
-        print(f"✅ Component: {self.state.component}")  # noqa: ADR-0019
-        print(f"   Type: {self.state.component_type}")  # noqa: ADR-0019
-        print(f"   References: {len(self.state.references)}")  # noqa: ADR-0019
-        print(f"   Actions: {len(self.state.actions)}")  # noqa: ADR-0019
-        print(f"   Report: {self.state.report_path}")  # noqa: ADR-0019
-        if self.state.commit_hash:
-            print(f"   Commit: {self.state.commit_hash}")  # noqa: ADR-0019
+        print(f"✅ Component: {state.component}")  # noqa: ADR-0019
+        print(f"   Type: {state.component_type}")  # noqa: ADR-0019
+        print(f"   References: {len(state.references)}")  # noqa: ADR-0019
+        print(f"   Actions: {len(state.actions)}")  # noqa: ADR-0019
+        print(f"   Report: {state.report_path}")  # noqa: ADR-0019
+        if state.commit_hash:
+            print(f"   Commit: {state.commit_hash}")  # noqa: ADR-0019
         print("\n⚠️  DO NOT PUSH — Review changes first")  # noqa: ADR-0019
 
         # Clean up state

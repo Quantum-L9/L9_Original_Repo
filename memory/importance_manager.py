@@ -42,15 +42,14 @@ __dora_meta__ = {
 import math
 import os
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
-from uuid import UUID
 
 import structlog
 
 if TYPE_CHECKING:
-    from memory.importance_recipe import ImportanceInputs
-    from memory.importance_recipe import ImportanceUpdate as RecipeUpdate
+    from uuid import UUID
+
     from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
@@ -511,7 +510,7 @@ class ImportanceManager:
                         WHERE tier != ALL($1::text[])
                         AND importance < $2
                         AND created_at < NOW() - INTERVAL '{min_age_days} days'
-                        """,  # noqa: ADR-0087 - SAFE: min_age_days is int, not user input
+                        """,  # noqa: S608, ADR-0087 - SAFE: min_age_days is int, not user input
                         exempt_tiers,
                         threshold,
                     )
@@ -530,8 +529,8 @@ class ImportanceManager:
                         AND importance < $2
                         AND created_at < NOW() - INTERVAL '{min_age_days} days'
                         LIMIT $3
-                    )  -- noqa: ADR-0087 - SAFE: min_age_days is int, not user input
-                    """,  # noqa: ADR-0087
+                    )
+                    """,  # noqa: S608, ADR-0087 - SAFE: min_age_days is int, not user input
                     exempt_tiers,
                     threshold,
                     batch_size,

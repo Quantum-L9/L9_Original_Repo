@@ -130,7 +130,7 @@ class TestNoqaInsideStrings:
         ci_example_files = (
             "ci/check_noqa_placement.py",  # Has docstring examples
             "ci/check_adr_compliance.py",  # Has docstring examples
-            "ci/auto_fix_adr.py",          # Constructs noqa strings
+            "ci/auto_fix_adr.py",  # Constructs noqa strings
         )
 
         for py_file in L9_ROOT.rglob("*.py"):
@@ -243,8 +243,7 @@ class TestAllowlistIntegrity:
                 missing.append(f"auto_fix_protected_files: {path}")
 
         assert not missing, (
-            "Allowlisted files that don't exist (stale entries):\n"
-            + "\n".join(missing)
+            "Allowlisted files that don't exist (stale entries):\n" + "\n".join(missing)
         )
 
 

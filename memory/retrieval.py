@@ -55,7 +55,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import math
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
@@ -705,7 +705,7 @@ class RetrievalPipeline:
                 {filter_clause}
                 ORDER BY timestamp {order_clause}
                 LIMIT $2
-                """,  # noqa: ADR-0087
+                """,  # noqa: S608, ADR-0087 — internal SQL clauses, user values parameterized
                 thread_id,
                 limit,
                 *filter_params,
@@ -795,7 +795,7 @@ class RetrievalPipeline:
                         SELECT packet_id FROM packet_store
                         WHERE $1 = ANY(parent_ids)
                         {filter_clause}
-                        """,  # noqa: ADR-0087
+                        """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                         current_id,
                         *filter_params,
                     )
@@ -861,7 +861,7 @@ class RetrievalPipeline:
                     WHERE TRUE {filter_clause}
                     ORDER BY knowledge_facts.created_at DESC
                     LIMIT $1
-                    """,  # noqa: ADR-0087
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     limit,
                     *filter_params,
                 )
@@ -919,7 +919,7 @@ class RetrievalPipeline:
                     {filter_clause}
                     ORDER BY timestamp DESC
                     LIMIT $2
-                    """,  # noqa: ADR-0087
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     str(packet_id),
                     limit,
                     *filter_params,
@@ -933,7 +933,7 @@ class RetrievalPipeline:
                     {filter_clause}
                     ORDER BY timestamp DESC
                     LIMIT $2
-                    """,  # noqa: ADR-0087
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     insight_type,
                     limit,
                     *filter_params,
@@ -949,7 +949,7 @@ class RetrievalPipeline:
                     {filter_clause_2}
                     ORDER BY timestamp DESC
                     LIMIT $1
-                    """,  # noqa: ADR-0087
+                    """,  # noqa: S608, ADR-0087 — filter_clause is internal SQL
                     limit,
                     *filter_params_2,
                 )
@@ -1334,7 +1334,7 @@ class RetrievalPipeline:
         agent_id: str | None = None,
         limit: int = 10,
         min_similarity: float = 0.5,
-        scope: str = "shared",
+        scope: str = "cursor",  # Valid: developer, global, cursor, l-private, agent
         force_mode: str | None = None,
     ) -> list[dict[str, Any]]:
         """
@@ -1429,7 +1429,7 @@ class RetrievalPipeline:
         agent_id: str | None = None,
         limit: int = 10,
         min_similarity: float = 0.5,
-        scope: str = "shared",
+        scope: str = "cursor",  # Valid: developer, global, cursor, l-private, agent
     ) -> list[dict[str, Any]]:
         """
         Graph-enriched search: vector similarity + Neo4j relationship context.

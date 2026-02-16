@@ -62,7 +62,7 @@ import json
 import re
 import sys
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 try:
@@ -1458,7 +1458,7 @@ class ADREnforcementValidator:
                 high_priority.append(v)
 
         return ValidationReport(
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(tz=UTC).isoformat(),
             total_violations=len(violations),
             violations_by_adr=by_adr,
             violations_by_severity=by_severity,

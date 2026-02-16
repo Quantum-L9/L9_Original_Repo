@@ -247,7 +247,7 @@ class TestReadmeGeneratorScript:
         import subprocess
 
         result = subprocess.run(
-            ["python3", "scripts/generate_subsystem_readmes.py", "--validate"],
+            ["python3", "scripts/generate_subsystem_readmes.py", "--validate"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             timeout=30,
@@ -259,7 +259,7 @@ class TestReadmeGeneratorScript:
         import subprocess
 
         result = subprocess.run(
-            ["python3", "scripts/generate_subsystem_readmes.py", "--list"],
+            ["python3", "scripts/generate_subsystem_readmes.py", "--list"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             timeout=30,

@@ -37,6 +37,7 @@ __dora_meta__ = {
 import ast
 import re
 from pathlib import Path
+
 import structlog
 
 # Files with violations (from test output)
@@ -170,7 +171,9 @@ def fix_file(filepath: Path, dry_run: bool = False) -> tuple[bool, int]:
     try:
         tree = ast.parse(content)
     except SyntaxError as e:
-        logger.error("  ⚠️ syntax error at line {e.lineno}, skipping: filepath", filepath=filepath)
+        logger.error(
+            "  ⚠️ syntax error at line {e.lineno}, skipping: filepath", filepath=filepath
+        )
         return False, 0
 
     analyzer = DecoratorAnalyzer()
@@ -214,7 +217,9 @@ def fix_file(filepath: Path, dry_run: bool = False) -> tuple[bool, int]:
     new_content = ensure_wraps_import(new_content)
 
     if dry_run:
-        logger.info("🔍 would fix {len(analyzer.fixes needed)} in filepath", filepath=filepath)
+        logger.info(
+            "🔍 would fix {len(analyzer.fixes needed)} in filepath", filepath=filepath
+        )
         for fix in analyzer.fixes_needed:
             print(
                 f"   Line {fix['inner_line']}: {fix['outer_name']}() -> {fix['inner_name']}()"
@@ -231,9 +236,9 @@ def main():
 
     dry_run = "--dry-run" in sys.argv
 
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("decorator @wraps fixer")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
     logger.info("mode: {'dry run' if dry_run else 'live'}\n")
 
     repo_root = Path(__file__).parent.parent
@@ -249,18 +254,27 @@ def main():
         changed, count = fix_file(filepath, dry_run=dry_run)
         if changed:
             if not dry_run:
-                logger.info("✅ fixed count in rel path", count=count, rel_path=rel_path)
+                logger.info(
+                    "✅ fixed count in rel path", count=count, rel_path=rel_path
+                )
             total_fixes += count
             files_fixed += 1
         else:
             logger.info("✓ no fixes needed: rel path", rel_path=rel_path)
 
-    logger.info("\n" + "=" * 60")
-    logger.info("summary: total fixes fixes in files fixed files", total_fixes=total_fixes, files_fixed=files_fixed)
-    logger.info("=" * 60")
+    logger.info("\n" + "=" * 60)
+    logger.info(
+        "summary: total fixes fixes in files fixed files",
+        total_fixes=total_fixes,
+        files_fixed=files_fixed,
+    )
+    logger.info("=" * 60)
 
     if dry_run:
         logger.info("\nrun without --dry-run to apply changes.")
+
+    if dry_run and total_fixes > 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

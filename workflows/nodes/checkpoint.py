@@ -30,7 +30,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 
@@ -79,7 +79,7 @@ async def checkpoint_node(state: WorkflowState) -> dict:
             error=None,
             duration_ms=duration_ms,
             artifacts={"awaiting": True},
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(tz=UTC).isoformat(),
         )
 
         logger.info("checkpoint.paused", message=message)
@@ -103,7 +103,7 @@ async def checkpoint_node(state: WorkflowState) -> dict:
             error=None,
             duration_ms=duration_ms,
             artifacts={"confirmed": True},
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(tz=UTC).isoformat(),
         )
 
         logger.info("checkpoint.confirmed")
@@ -124,7 +124,7 @@ async def checkpoint_node(state: WorkflowState) -> dict:
         error="Workflow stopped by user",
         duration_ms=duration_ms,
         artifacts={"confirmed": False},
-        timestamp=datetime.now().isoformat(),
+        timestamp=datetime.now(tz=UTC).isoformat(),
     )
 
     logger.info("checkpoint.declined")

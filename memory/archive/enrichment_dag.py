@@ -411,10 +411,11 @@ class EnrichmentDAG:
 
                     self._dlq = get_dlq()
 
-                await self._dlq.push(
-                    envelope,
-                    reason="all_enrichment_tiers_failed",
-                )
+                if self._dlq is not None:
+                    await self._dlq.push(
+                        envelope,
+                        reason="all_enrichment_tiers_failed",
+                    )
                 logger.info(
                     "enrichment_dag_pushed_to_dlq",
                     packet_id=str(envelope.packet_id),

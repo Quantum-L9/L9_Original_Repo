@@ -76,7 +76,7 @@ def rg_count_in(pattern: str, search_dir: Path, *, type_filter: str = "py") -> i
     """Count files matching pattern within a directory."""
     cmd = ["rg", "-l", "--type", type_filter, pattern, str(search_dir)]
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=15)  # noqa: S603 — trusted cmd, no shell
         return len(r.stdout.strip().splitlines()) if r.returncode == 0 else 0
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return 0
@@ -104,7 +104,7 @@ def rg_count_outside(
     if exclude_tests:
         cmd.extend(["--glob", "!tests/**"])
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=15)  # noqa: S603 — trusted cmd, no shell
         return len(r.stdout.strip().splitlines()) if r.returncode == 0 else 0
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return 0
@@ -122,7 +122,7 @@ def git_creation_date(filepath: str, repo_root: Path) -> datetime | None:
         filepath,
     ]
     try:
-        r = subprocess.run(
+        r = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd, capture_output=True, text=True, timeout=10, cwd=str(repo_root)
         )
         if r.returncode == 0 and r.stdout.strip():
@@ -146,7 +146,7 @@ def git_last_meaningful_date(filepath: str, repo_root: Path) -> datetime | None:
         filepath,
     ]
     try:
-        r = subprocess.run(
+        r = subprocess.run(  # noqa: S603 — trusted cmd, no shell
             cmd, capture_output=True, text=True, timeout=10, cwd=str(repo_root)
         )
         if r.returncode == 0 and r.stdout.strip():

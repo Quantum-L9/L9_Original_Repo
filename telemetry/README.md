@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Metrics collection and emission
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                | Purpose             |
-| --------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/observability/` | Required dependency |
 
 ---
@@ -81,10 +81,10 @@ telemetry/
 ├── slack_metrics.py
 ```
 
-| File                       | Purpose                                            |
-| -------------------------- | -------------------------------------------------- |
-| `__init__.py`              | Core module (PROTECTED)                            |
-| `calibration_dashboard.py` | Calibration quality metrics                        |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `calibration_dashboard.py` | Calibration quality metrics |
 | `calibration_dashboard.py` | Monitoring and visualization for probabilistic gov |
 
 ### Naming Conventions
@@ -108,7 +108,7 @@ class CalibrationMetrics:
 
 ```
 
-**Lines:** 96-105 in `calibration_dashboard.py`
+**Lines:** 97-107 in `calibration_dashboard.py`
 
 ### `calibration_dashboard.py` — CalibrationDashboard
 
@@ -132,24 +132,26 @@ class CalibrationDashboard:
 
 **Public Methods:** `__init__`, `_load_decisions`, `generate_weekly_report`, `_calculate_metrics`, `_calculate_ece`
 
-**Lines:** 108-524 in `calibration_dashboard.py`
+**Lines:** 110-565 in `calibration_dashboard.py`
+
 
 ---
 
 ## Data Models and Contracts
 
+
 ### Exported Symbols (`__all__`)
 
 `PROMETHEUS_AVAILABLE`, `init_metrics`, `init_slack_metrics`, `record_aios_call`, `record_idempotent_hit`, `record_latency`, `record_memory_dedup`, `record_memory_enrichment`, `record_memory_ingest`, `record_memory_poison_suspect`
 
-_...and 15 more_
+*...and 15 more*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class TelemetryRequest(BaseModel):
     """Request model for telemetry operations."""
@@ -207,9 +209,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Telemetry feature flags
-L9_ENABLE_TELEMETRY_TRACING: true # Enable detailed tracing
-L9_ENABLE_TELEMETRY_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_TELEMETRY_AUDIT: true # Enable audit logging
+L9_ENABLE_TELEMETRY_TRACING: true  # Enable detailed tracing
+L9_ENABLE_TELEMETRY_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_TELEMETRY_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -240,7 +242,7 @@ TELEMETRY_ENABLED=true
 
 Entry point for scheduled weekly report generation
 
-- **File:** `calibration_dashboard.py:527`
+- **File:** `calibration_dashboard.py:568`
 - **Async:** No
 
 #### `def record_memory_write(segment, status, duration_seconds) -> None`
@@ -275,6 +277,7 @@ Set the memory substrate health gauge.
 - **Async:** No
 - **Returns:** `None`
 
+
 ### Usage Example
 
 ```python
@@ -304,7 +307,7 @@ Telemetry operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "telemetry",
   "message": "Operation completed",
@@ -315,7 +318,6 @@ Telemetry operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -323,12 +325,12 @@ Telemetry operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                            | Type      | Description                    |
-| --------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `telemetry_operation_duration_ms` | Histogram | Operation latency distribution |
-| `telemetry_operation_total`       | Counter   | Total operations processed     |
-| `telemetry_error_total`           | Counter   | Total errors encountered       |
-| `telemetry_active_connections`    | Gauge     | Current active connections     |
+| `telemetry_operation_total` | Counter | Total operations processed |
+| `telemetry_error_total` | Counter | Total errors encountered |
+| `telemetry_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -346,7 +348,6 @@ Telemetry emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/telemetry/`:
-
 - `test_telemetry.py` — Core unit tests
 - `test_telemetry_integration.py` — Integration tests (if applicable)
 
@@ -389,7 +390,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

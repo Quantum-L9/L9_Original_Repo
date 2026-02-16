@@ -8,8 +8,6 @@ Tests:
 - Escalation logic
 """
 
-import pytest
-
 from core.governance.policy_engine import PolicyConflictResolver
 from core.governance.policy_models import (
     GovernanceDecision,

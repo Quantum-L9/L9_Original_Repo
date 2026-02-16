@@ -45,8 +45,8 @@ __dora_meta__ = {
 
 import asyncio
 import re
-from datetime import UTC, datetime, timedelta, timezone
-from typing import Any
+from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
@@ -56,7 +56,9 @@ from memory.deduplication import (
     MergeStrategy,
     SimilarityMethod,
 )
-from memory.substrate_repository import SubstrateRepository
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 

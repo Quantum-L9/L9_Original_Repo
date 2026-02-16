@@ -9,7 +9,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from core.agents.agent_instance import AgentInstance
 from core.agents.bootstrap.models import IdentityView
 from core.agents.bootstrap.orchestrator import AgentBootstrapError
 from core.agents.executor import AgentExecutorService

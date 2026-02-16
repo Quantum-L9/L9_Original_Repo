@@ -19,6 +19,7 @@ ADR: ADR-0091 (Definition of Done)
 """
 
 from __future__ import annotations
+
 import structlog
 
 # ============================================================================
@@ -133,8 +134,8 @@ def get_diff_lines(base_ref: str = "origin/main") -> list[tuple[str, int, str]]:
     Returns list of (filepath, line_num, line_content) tuples.
     """
     try:
-        result = subprocess.run(
-            ["git", "diff", "-U0", base_ref, "HEAD"],
+        result = subprocess.run(  # noqa: S603 — trusted cmd, no shell
+            ["git", "diff", "-U0", base_ref, "HEAD"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
             check=True,
@@ -142,7 +143,7 @@ def get_diff_lines(base_ref: str = "origin/main") -> list[tuple[str, int, str]]:
     except subprocess.CalledProcessError:
         # Fallback to staged diff
         result = subprocess.run(
-            ["git", "diff", "-U0", "--cached"],
+            ["git", "diff", "-U0", "--cached"],  # noqa: S607 — trusted system command
             capture_output=True,
             text=True,
         )
@@ -237,16 +238,12 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    logger.info("=" * 70")
+    logger.info("=" * 70)
     logger.info("  definition of done check (adr-0091)")
-    logger.info("=" * 70")
-    logger.info("output", value=)
-
+    logger.info("=" * 70)
     # Get diff
     diff_lines = get_diff_lines(args.base_ref)
     logger.info("checking {len(diff_lines)} added/modified lines...")
-    logger.info("output", value=)
-
     exit_code = 0
 
     # Check incomplete markers
@@ -270,9 +267,9 @@ def main() -> int:
     if exit_code == 0:
         logger.info("✅ passed: definition of done criteria met")
     else:
-        logger.info("\n" + "=" * 70")
+        logger.info("\n" + "=" * 70)
         logger.info("definition of done requirements (adr-0091)")
-        logger.info("=" * 70")
+        logger.info("=" * 70)
         print("""
 Before merging, ensure:
 

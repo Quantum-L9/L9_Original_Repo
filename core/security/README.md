@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Authentication, authorization, secrets management, and security policies
 
 ### Inbound Dependencies
 
-| Module            | Purpose          |
-| ----------------- | ---------------- |
-| `api/auth.py`     | Uses this module |
+| Module | Purpose |
+|--------|---------|
+| `api/auth.py` | Uses this module |
 | `api/middleware/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module                      | Purpose             |
-| --------------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `config/policies/security/` | Required dependency |
 
 ---
@@ -81,13 +81,13 @@ core/security/
 ├── permission_graph.py
 ```
 
-| File                  | Purpose                                            |
-| --------------------- | -------------------------------------------------- |
-| `auth_service.py`     | Core module (PROTECTED)                            |
-| `secrets_manager.py`  | Core module (PROTECTED)                            |
-| `__init__.py`         | Core module (PROTECTED)                            |
-| `permission_graph.py` | RBAC permission graph backed by Neo4j.             |
-| `path_safety.py`      | Raised when a user-controlled path fails safety va |
+| File | Purpose |
+|------|---------|
+| `auth_service.py` | Core module (PROTECTED) |
+| `secrets_manager.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `permission_graph.py` | RBAC permission graph backed by Neo4j. |
+| `path_safety.py` | Raised when a user-controlled path fails safety va |
 
 ### Naming Conventions
 
@@ -138,24 +138,26 @@ class PathSafetyError:
 
 **Public Methods:** `__str__`
 
-**Lines:** 52-59 in `path_safety.py`
+**Lines:** 52-60 in `path_safety.py`
+
 
 ---
 
 ## Data Models and Contracts
 
+
 ### Exported Symbols (`__all__`)
 
 `PathSafetyError`, `PermissionGraph`, `can_access`, `get_user_permissions`, `grant_permission`, `grant_role`, `resolve_base_dir`, `revoke_role`, `safe_resolve_path`, `safe_resolve_path_async`
 
-_...and 1 more_
+*...and 1 more*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreSecurityRequest(BaseModel):
     """Request model for core_security operations."""
@@ -215,9 +217,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Security feature flags
-L9_ENABLE_CORE_SECURITY_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_SECURITY_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_SECURITY_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_SECURITY_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_SECURITY_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_SECURITY_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -284,6 +286,7 @@ Get all permissions for a user.
 - **Async:** Yes
 - **Returns:** `list[str]`
 
+
 ### Usage Example
 
 ```python
@@ -313,7 +316,7 @@ Core Security operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.security",
   "message": "Operation completed",
@@ -324,7 +327,6 @@ Core Security operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -332,12 +334,12 @@ Core Security operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                | Type      | Description                    |
-| ------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_security_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_security_operation_total`       | Counter   | Total operations processed     |
-| `core_security_error_total`           | Counter   | Total errors encountered       |
-| `core_security_active_connections`    | Gauge     | Current active connections     |
+| `core_security_operation_total` | Counter | Total operations processed |
+| `core_security_error_total` | Counter | Total errors encountered |
+| `core_security_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -355,7 +357,6 @@ Core Security emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_security/`:
-
 - `test_core_security.py` — Core unit tests
 - `test_core_security_integration.py` — Integration tests (if applicable)
 
@@ -402,7 +403,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

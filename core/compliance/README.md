@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Compliance checking and policy enforcement
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module             | Purpose             |
-| ------------------ | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/governance/` | Required dependency |
 
 ---
@@ -80,12 +80,12 @@ core/compliance/
 ├── audit_reporter.py
 ```
 
-| File                | Purpose                                            |
-| ------------------- | -------------------------------------------------- |
-| `__init__.py`       | Core module (PROTECTED)                            |
-| `audit_reporter.py` | Compliance report for a time period.               |
-| `audit_reporter.py` | Generates compliance reports from audit trail.     |
-| `audit_log.py`      | Audit logger for Igor commands and high-risk opera |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `audit_reporter.py` | Compliance report for a time period. |
+| `audit_reporter.py` | Generates compliance reports from audit trail. |
+| `audit_log.py` | Audit logger for Igor commands and high-risk opera |
 
 ### Naming Conventions
 
@@ -112,7 +112,7 @@ class ComplianceReport:
 
 **Public Methods:** `to_dict`
 
-**Lines:** 49-100 in `audit_reporter.py`
+**Lines:** 51-102 in `audit_reporter.py`
 
 ### `audit_reporter.py` — ComplianceReporter
 
@@ -136,7 +136,7 @@ class ComplianceReporter:
 
 **Public Methods:** `__init__`, `generate_daily_report`, `generate_report`, `_process_commands`, `_process_tool_calls`
 
-**Lines:** 103-409 in `audit_reporter.py`
+**Lines:** 105-413 in `audit_reporter.py`
 
 ### `audit_log.py` — AuditLogger
 
@@ -160,11 +160,13 @@ class AuditLogger:
 
 **Public Methods:** `__init__`, `log_command`, `log_approval`, `log_tool_execution`, `log_memory_write`
 
-**Lines:** 56-351 in `audit_log.py`
+**Lines:** 58-357 in `audit_log.py`
+
 
 ---
 
 ## Data Models and Contracts
+
 
 ### Exported Symbols (`__all__`)
 
@@ -175,7 +177,7 @@ class AuditLogger:
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreComplianceRequest(BaseModel):
     """Request model for core_compliance operations."""
@@ -233,9 +235,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Compliance feature flags
-L9_ENABLE_CORE_COMPLIANCE_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_COMPLIANCE_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_COMPLIANCE_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_COMPLIANCE_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_COMPLIANCE_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_COMPLIANCE_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -266,9 +268,10 @@ CORE_COMPLIANCE_ENABLED=true
 
 Convenience function to log a command to audit trail.
 
-- **File:** `audit_log.py:354`
+- **File:** `audit_log.py:361`
 - **Async:** Yes
 - **Returns:** `bool`
+
 
 ### Usage Example
 
@@ -299,7 +302,7 @@ Core Compliance operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.compliance",
   "message": "Operation completed",
@@ -310,7 +313,6 @@ Core Compliance operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -318,12 +320,12 @@ Core Compliance operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                  | Type      | Description                    |
-| --------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_compliance_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_compliance_operation_total`       | Counter   | Total operations processed     |
-| `core_compliance_error_total`           | Counter   | Total errors encountered       |
-| `core_compliance_active_connections`    | Gauge     | Current active connections     |
+| `core_compliance_operation_total` | Counter | Total operations processed |
+| `core_compliance_error_total` | Counter | Total errors encountered |
+| `core_compliance_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -341,7 +343,6 @@ Core Compliance emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_compliance/`:
-
 - `test_core_compliance.py` — Core unit tests
 - `test_core_compliance_integration.py` — Integration tests (if applicable)
 
@@ -384,7 +385,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

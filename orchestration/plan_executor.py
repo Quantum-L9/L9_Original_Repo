@@ -53,12 +53,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -72,6 +71,9 @@ from memory.strategymemory import (
     StrategyFeedback,
     StrategyRetrievalRequest,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 

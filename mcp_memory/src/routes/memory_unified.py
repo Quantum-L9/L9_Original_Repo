@@ -41,7 +41,7 @@ __dora_meta__ = {
 import json
 import os
 import time
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 import asyncpg
@@ -461,7 +461,7 @@ async def search_memory_handler(
         AND 1 - (sm.vector <=> $1::vector) >= $2
         ORDER BY similarity DESC
         LIMIT $3;
-        """
+        """  # noqa: S608 — internal SQL clauses, user values parameterized
 
         rows = await fetch_all(search_query, *params)
 
@@ -706,7 +706,7 @@ async def get_memory_stats(
             AND ttl > CURRENT_TIMESTAMP
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '24 hours'
             {user_filter}
-            """
+            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
             r = await fetch_one(query, *params)
             short_count = r["cnt"] if r else 0
 
@@ -721,7 +721,7 @@ async def get_memory_stats(
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '7 days'
             AND ttl >= CURRENT_TIMESTAMP + INTERVAL '24 hours'
             {user_filter}
-            """
+            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
             r = await fetch_one(query, *params)
             medium_count = r["cnt"] if r else 0
 
@@ -736,7 +736,7 @@ async def get_memory_stats(
             WHERE packet_type LIKE 'memory.%'
             AND (ttl IS NULL OR ttl > CURRENT_TIMESTAMP + INTERVAL '7 days')
             {user_filter}
-            """
+            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
             r = await fetch_one(query, *params)
             if r:
                 long_count = r["cnt"] if r else 0
@@ -982,7 +982,7 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
                 WHERE packet_type LIKE 'memory.%'
                 AND (last_accessed IS NULL OR last_accessed < NOW() - INTERVAL '1 day')
                 AND importance_score > 0.01
-                """)
+                """)  # noqa: S608 — decay_factor is a float from config, not user input
             logger.info(f"Applied decay to {affected} memories")
 
         return {
@@ -1400,7 +1400,7 @@ async def query_temporal(
             FROM packet_store ps
             WHERE {where_clause}
             ORDER BY ps.timestamp DESC
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
 
             # Count created vs updated (updated = has last_accessed != timestamp)
@@ -1423,7 +1423,7 @@ async def query_temporal(
             FROM packet_store ps
             WHERE {where_clause}
             ORDER BY ps.timestamp ASC
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
             created_count = len(memories)
             updated_count = 0
@@ -1442,7 +1442,7 @@ async def query_temporal(
             AND ps.last_accessed IS NOT NULL
             AND ps.last_accessed > ps.timestamp
             ORDER BY ps.last_accessed DESC
-            """
+            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
             memories = await fetch_all(query, *params)
             created_count = 0
             updated_count = len(memories)

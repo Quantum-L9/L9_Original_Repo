@@ -46,13 +46,11 @@ import json
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import wraps
 from typing import Any
 
 import structlog
-
-from core.decorators import must_stay_async
 
 try:
     from opentelemetry import baggage, metrics, trace
@@ -60,7 +58,9 @@ try:
     from opentelemetry.exporter.jaeger.thrift import JaegerExporter
     from opentelemetry.propagators.composite import CompositePropagator
     from opentelemetry.sdk.metrics import MeterProvider
-    from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+    from opentelemetry.sdk.metrics.export import (
+        PeriodicExportingMetricReader,  # noqa: F401 — availability check
+    )
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
     from opentelemetry.trace.propagation.tracecontext import (
@@ -228,6 +228,7 @@ class PacketEnvelopeObservability:
                 ...
         """
 
+        @wraps(self)
         def decorator(func: Callable):
             """
             Performs tracing instrumentation for asynchronous functions within the PacketEnvelope observability framework.
@@ -254,6 +255,9 @@ class PacketEnvelopeObservability:
                 )
 
                 start_time = time.time()
+
+                if self.tracer is None:
+                    return await func(*args, **kwargs)
 
                 with self.tracer.start_as_current_span(operation_name) as span:
                     # Set attributes (with length limit)
@@ -301,6 +305,9 @@ class PacketEnvelopeObservability:
                 )
 
                 start_time = time.time()
+
+                if self.tracer is None:
+                    return func(*args, **kwargs)
 
                 with self.tracer.start_as_current_span(operation_name) as span:
                     for key, value in span_attrs.items():
@@ -489,7 +496,7 @@ class WebSocketTracePropagator:
                 "trace_id": format(context.trace_id, "032x"),
                 "span_id": format(context.span_id, "016x"),
                 "trace_flags": context.trace_flags,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(tz=UTC).isoformat(),
             }
 
         except Exception as e:

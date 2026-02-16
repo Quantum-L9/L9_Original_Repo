@@ -34,12 +34,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import structlog
 
 from core.auto_registry import AutoRegistry
+from functools import wraps
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = structlog.get_logger(__name__)
 
@@ -117,6 +121,7 @@ def register_upcaster(
             return packet
     """
 
+    @wraps(from_version)
     def decorator(func: Callable[[dict], dict]) -> Callable[[dict], dict]:
         """
         Performs as a decorator to register schema upcaster functions within the schema evolution system.

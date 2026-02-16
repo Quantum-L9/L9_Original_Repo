@@ -37,6 +37,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import structlog
+from functools import wraps
 
 logger = structlog.get_logger(__name__)
 
@@ -81,6 +82,7 @@ class ActionRegistry:
                 return {"sent": True}
         """
 
+        @wraps(self)
         def decorator(func: Callable) -> Callable:
             """
             Registers a function as an executable action within the L agent system, associating it with specific metadata for runtime execution.

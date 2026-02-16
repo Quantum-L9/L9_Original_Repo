@@ -8,7 +8,7 @@ Verifies:
 4. Spans capture correct attributes
 """
 
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 

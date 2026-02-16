@@ -461,7 +461,7 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
                                 facts.constants.append((target.id, value, rel_path))
 
         except Exception as e:
-            logger.error("warning: could not parse py file: e", py_file=py_file, e=e)
+            logger.warning("could not parse py file: e", py_file=py_file, e=e)
 
     # Deduplicate imports
     facts.imports = sorted(set(facts.imports))
@@ -848,22 +848,22 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
                 file=sys.stderr,
             )
 
-    logger.error("🔍 extracting facts from path...", path=path)
+    logger.info("🔍 extracting facts from path...", path=path)
 
     # Extract facts
     facts = extract_subsystem_facts(repo_root, path)
     facts.has_existing_readme = existing_readme.exists()
 
     if args.verbose:
-        logger.error("   files: {len(facts.files)}")
-        logger.error("   classes: {len(facts.classes)}")
-        logger.error("   functions: {len(facts.functions)}")
-        logger.error("   pydantic models: {len(facts.pydantic_models)}")
-        logger.error("   routes: {len(facts.routes)}")
-        logger.error("   imports: {len(facts.imports)}")
+        logger.info("   files: {len(facts.files)}")
+        logger.info("   classes: {len(facts.classes)}")
+        logger.info("   functions: {len(facts.functions)}")
+        logger.info("   pydantic models: {len(facts.pydantic_models)}")
+        logger.info("   routes: {len(facts.routes)}")
+        logger.info("   imports: {len(facts.imports)}")
         # Phase 1 enhancements
-        logger.error("   exports (__all__): {len(facts.exports)}")
-        logger.error("   dora meta: {'✅' if facts.dora_meta else '❌'}")
+        logger.info("   exports (__all__): {len(facts.exports)}")
+        logger.info("   dora meta: {'✅' if facts.dora_meta else '❌'}")
         print(
             f"   Limits: max_classes={args.max_classes}, max_functions={args.max_functions}",
             file=sys.stderr,
@@ -883,15 +883,15 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
         output_path = Path(args.output)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(superprompt)
-        logger.error("✅ superprompt written to output path", output_path=output_path)
+        logger.info("✅ superprompt written to output path", output_path=output_path)
     else:
         logger.info("output", value=superprompt)
 
-    logger.error("\n📋 next steps:")
-    logger.error("   1. copy the superprompt above")
-    logger.error("   2. paste into perplexity")
-    logger.error("   3. validate output against extracted facts")
-    logger.error("   4. save to path/readme.md", path=path)
+    logger.info("\n📋 next steps:")
+    logger.info("   1. copy the superprompt above")
+    logger.info("   2. paste into perplexity")
+    logger.info("   3. validate output against extracted facts")
+    logger.info("   4. save to path/readme.md", path=path)
 
     return 0
 

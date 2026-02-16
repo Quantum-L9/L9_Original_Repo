@@ -67,7 +67,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -550,7 +550,7 @@ class UnifiedController:
         This method uses the InputSegmenter (harvested from tokenizer) to break
         compound directives into atomic tasks. For example:
 
-            "Deploy RIL, test ToT, sync Supabase then generate plan v3"
+            "Deploy RIL, test ToT, sync embeddings then generate plan v3"
 
         Becomes 4 separate requests processed sequentially.
 
