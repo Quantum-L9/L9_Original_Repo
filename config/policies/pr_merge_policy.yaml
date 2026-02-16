@@ -1,0 +1,237 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "PR Merge Policy"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-02-16T20:45:00Z"
+# updated_at: "2026-02-16T20:45:00Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "pr_merge_policy"
+# type: "policy"
+# status: "active"
+# ============================================================================
+# L9 Governance - PR Merge Policy
+# ================================
+# Single source of truth for how PRs are merged into main.
+#
+# CRITICAL: This policy enforces git-native merging. Agents must NEVER
+# manually write files from PR diffs — git handles file transfer.
+#
+# Authority: Igor (Boss) > L (CTO) > Cursor (IDE)
+# ============================================================================
+
+id: pr_merge_policy
+version: "1.0"
+
+# =============================================================================
+# CORE PRINCIPLE
+# =============================================================================
+core_principle: |
+  MERGE THE PR = ADOPT THE FILES
+  Git handles file transfer. NEVER manually write PR files.
+  
+  ❌ WRONG: Read diff → Write each file manually
+  ✅ RIGHT: Analyze → Approve → Merge PR → Git brings in files automatically
+
+# =============================================================================
+# MERGE WORKFLOW (MANDATORY)
+# =============================================================================
+merge_workflow:
+  # Phase 1: Analysis (via /pr command)
+  phase_1_analysis:
+    required: true
+    steps:
+      - action: "memory_inject"
+        description: "Search memory for PR merge lessons and component patterns"
+        command: "python3 agents/cursor/cursor_memory_client.py search 'PR merge lessons errors'"
+      
+      - action: "fetch_pr_metadata"
+        description: "Get PR details via GitHub CLI"
+        command: "gh pr view {number} --json title,author,files,additions,deletions,baseRefName,headRefName,state,body"
+      
+      - action: "fetch_pr_diff"
+        description: "Get full diff for analysis"
+        command: "gh pr diff {number}"
+      
+      - action: "index_scan"
+        description: "Query repo indexes for existing versions and dependencies"
+        files:
+          - "reports/repo-index/class_definitions.txt"
+          - "reports/repo-index/function_signatures.txt"
+          - "reports/repo-index/imports.txt"
+          - "reports/repo-index/test_catalog.txt"
+      
+      - action: "protected_file_check"
+        description: "Cross-reference changed files with protected_files.yaml"
+        policy_file: "config/policies/protected_files.yaml"
+      
+      - action: "alignment_analysis"
+        description: "Compare PR patterns with repo standards (ADRs, logging, error handling)"
+        checks:
+          - "ADR-0019: structlog usage"
+          - "ADR-0006: PacketEnvelope compliance"
+          - "ADR-0055: Fail loudly (no silent errors)"
+          - "ADR-0087: SQL parameterization"
+
+  # Phase 2: Approval Gate
+  phase_2_approval:
+    required: true
+    conditions:
+      - condition: "protected_files_touched"
+        action: "require_owner_approval"
+        description: "If protected files touched, get approval from owner (L CTO or Igor)"
+      
+      - condition: "alignment_score_below_80"
+        action: "require_fixes_or_justification"
+        description: "If alignment < 80%, require fixes or explicit justification"
+      
+      - condition: "ci_failures"
+        action: "investigate_failures"
+        description: "Distinguish infrastructure failures from code failures"
+
+  # Phase 3: Merge Execution (git-native ONLY)
+  phase_3_merge:
+    required: true
+    allowed_methods:
+      - method: "github_merge"
+        description: "Preferred: Use GitHub's merge mechanism"
+        command: "gh pr merge {number} --squash --delete-branch -b '{summary}'"
+        when: "PR is mergeable and CI passes"
+      
+      - method: "local_rebase_merge"
+        description: "When PR has conflicts or CI infrastructure issues"
+        steps:
+          - "git stash push -m 'WIP before PR {number} merge'"
+          - "git fetch origin {pr_branch}:{local_branch}"
+          - "git checkout {local_branch}"
+          - "git rebase origin/main"
+          - "# Resolve conflicts if any"
+          - "git checkout main"
+          - "git merge {local_branch} --no-edit -m '{commit_message}'"
+          - "git push origin main"
+          - "git stash pop"
+        when: "PR has merge conflicts or GitHub merge blocked"
+      
+      - method: "cherry_pick"
+        description: "When only specific commits/files needed"
+        command: "gh pr diff {number} | git apply --include='{path}'"
+        when: "Partial adoption via /harvest"
+
+    # FORBIDDEN methods
+    forbidden_methods:
+      - method: "manual_file_write"
+        description: "NEVER read PR diff and manually write files"
+        reason: "Bypasses git history, loses attribution, error-prone"
+        violation_level: "CRITICAL"
+      
+      - method: "copy_paste_from_diff"
+        description: "NEVER copy code from diff view into files"
+        reason: "Same as manual write — bypasses git"
+        violation_level: "CRITICAL"
+
+# =============================================================================
+# PROTECTED FILE HANDLING
+# =============================================================================
+protected_file_handling:
+  # When PR touches protected files
+  workflow:
+    - step: "identify"
+      description: "List all protected files touched by PR"
+      
+    - step: "classify"
+      description: "Determine protection level (LCTO, Subsystem, Pattern)"
+      
+    - step: "request_approval"
+      description: "Request approval from appropriate owner"
+      approvers:
+        lcto_controlled: ["Igor", "L"]
+        subsystem: ["Subsystem owner (usually L)"]
+        patterns: ["Igor", "L"]
+    
+    - step: "document_approval"
+      description: "Record approval in PR comment or merge commit message"
+      format: "{owner} approved {file} change: {reason}"
+
+# =============================================================================
+# CI FAILURE HANDLING
+# =============================================================================
+ci_failure_handling:
+  # Distinguish infrastructure vs code failures
+  infrastructure_failures:
+    indicators:
+      - "steps: 0 (job failed before any steps ran)"
+      - "Runner allocation timeout"
+      - "Workflow file syntax error"
+      - "Secret not available"
+    action: "Proceed with local merge if code is sound"
+  
+  code_failures:
+    indicators:
+      - "Test failures with stack traces"
+      - "Lint errors in changed files"
+      - "Type check failures"
+      - "ADR violations in PR code"
+    action: "Fix failures before merge"
+
+# =============================================================================
+# ENFORCEMENT
+# =============================================================================
+enforcement:
+  # Who enforces this policy
+  enforcers:
+    - "Cursor IDE agent (via /pr command)"
+    - "L CTO (code review)"
+    - "Igor (final authority)"
+  
+  # Violation handling
+  violations:
+    manual_file_write:
+      severity: "CRITICAL"
+      action: "Revert changes, re-merge via git"
+      lesson: "Write to memory for future prevention"
+    
+    missing_approval:
+      severity: "HIGH"
+      action: "Get retroactive approval or revert"
+    
+    skipped_analysis:
+      severity: "MEDIUM"
+      action: "Run /pr analysis post-merge"
+
+  # Audit trail
+  audit:
+    required: true
+    location: "Merge commit message + PR comments"
+    contents:
+      - "Files changed"
+      - "Protected files touched (if any)"
+      - "Approvals obtained"
+      - "CI status at merge time"
+
+# =============================================================================
+# INTEGRATION WITH /pr COMMAND
+# =============================================================================
+pr_command_integration:
+  # /pr command must follow this policy
+  required_sections:
+    - "File Status & Delta table"
+    - "Protected Surface Check"
+    - "Alignment & Pattern Analysis"
+    - "Impact & Regression Analysis"
+    - "/ynp recommendation"
+  
+  # Output format
+  output: "INLINE in chat (no file generation)"
+  
+  # Merge execution
+  merge_trigger: "User confirms with 'yes', 'proceed', or 'merge'"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["configuration", "foundation", "policy", "governance", "pr-merge", "git"]
+# keywords: ["merge", "pull-request", "git-native", "approval", "protected-files"]
+# last_modified: "2026-02-16T20:45:00Z"
+# ============================================================================
