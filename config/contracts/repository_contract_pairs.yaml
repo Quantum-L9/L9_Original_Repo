@@ -1,0 +1,220 @@
+# Repository Contract Pairs Catalog — Stage 2 (Frontier)
+# ======================================================
+# Enforces method/param call validity repo-wide via AST scanning.
+# Stage 2: fail invalid literals, per-pair dynamic_policy enforcement,
+# positional arg resolution, multi-param validation, per-pair drift tracking.
+
+schema_version: "1.0.0"
+
+dora_metadata:
+  created_at: "2026-02-16T16:14:00Z"
+  updated_at: "2026-02-16T17:02:46Z"
+  updated_by: "meta-test-architect"
+  purpose: "Repository-wide method/param contract enforcement"
+  adr_refs:
+    - "0006"  # PacketEnvelope Audit Trail
+    - "0012"  # Memory DAG Pipeline
+    - "0019"  # structlog Logging Standard
+
+scan:
+  include_globs:
+    - "**/*.py"
+  exclude_globs:
+    - ".venv/**"
+    - ".git/**"
+    - "node_modules/**"
+    - "__pycache__/**"
+    - ".backup/**"
+    - "backup_*/**"
+    - ".mypy_cache/**"
+    - ".pytest_cache/**"
+    - ".ruff_cache/**"
+    - "htmlcov/**"
+    - "tests/fixtures/**"
+
+pairs:
+  # ── PacketEnvelope / packet_type contracts ─────────────────
+  - method: "PacketEnvelopeIn"
+    param: "packet_type"
+    allowed_literals:
+      - "memory_write"
+      - "tool_call"
+      - "tool_result"
+      - "governance_decision"
+      - "agent_task"
+      - "checkpoint"
+      - "agent_event"
+      - "research"
+      - "system"
+      - "error"
+      - "agent.executor.tool_call"
+      - "agent.executor.result"
+      - "agent.executor.error"
+      - "agent.bootstrap"
+      - "governance.approval"
+      - "governance.rejection"
+      - "memory.consolidation"
+      - "memory.retrieval"
+    dynamic_policy: "hybrid_warn"
+    severity: "error"
+    description: "PacketEnvelopeIn packet_type must be from the known type registry"
+
+  - method: "emit_packet"
+    param: "packet_type"
+    allowed_literals:
+      - "memory_write"
+      - "tool_call"
+      - "tool_result"
+      - "governance_decision"
+      - "agent_task"
+      - "checkpoint"
+      - "agent_event"
+      - "research"
+      - "system"
+      - "error"
+      - "agent.executor.tool_call"
+      - "agent.executor.result"
+      - "agent.executor.error"
+      - "agent.bootstrap"
+      - "governance.approval"
+      - "governance.rejection"
+      - "memory.consolidation"
+      - "memory.retrieval"
+    dynamic_policy: "hybrid_warn"
+    severity: "error"
+    description: "emit_packet packet_type must be from the known type registry"
+
+  - method: "search_packets_by_type"
+    param: "packet_type"
+    allowed_literals:
+      - "memory_write"
+      - "tool_call"
+      - "tool_result"
+      - "governance_decision"
+      - "agent_task"
+      - "checkpoint"
+      - "agent_event"
+      - "research"
+      - "system"
+      - "error"
+      - "agent.executor.tool_call"
+      - "agent.executor.result"
+      - "agent.executor.error"
+      - "agent.bootstrap"
+      - "governance.approval"
+      - "governance.rejection"
+      - "memory.consolidation"
+      - "memory.retrieval"
+    dynamic_policy: "hybrid_warn"
+    severity: "error"
+    description: "search_packets_by_type packet_type must be from the known type registry"
+
+  # ── AgentInstance / governance block_type contracts ─────────
+  - method: "add_governance_block"
+    param: "block_type"
+    allowed_literals:
+      - "policy_violation"
+      - "capability_denied"
+      - "rate_limited"
+      - "approval_required"
+      - "safety_block"
+      - "constraint_violation"
+    dynamic_policy: "hybrid_warn"
+    severity: "error"
+    description: "add_governance_block block_type must be a known governance block kind"
+
+  # ── Memory scope contracts ─────────────────────────────────
+  - method: "save_memory"
+    param: "scope"
+    allowed_literals:
+      - "agent"
+      - "session"
+      - "global"
+      - "user"
+      - "project"
+      - "task"
+    dynamic_policy: "hybrid_warn"
+    severity: "error"
+    description: "save_memory scope must be from the known scope enumeration"
+
+  - method: "save_memory"
+    param: "kind"
+    allowed_literals:
+      - "fact"
+      - "episode"
+      - "directive"
+      - "preference"
+      - "learning"
+      - "observation"
+      - "insight"
+      - "summary"
+    dynamic_policy: "hybrid_warn"
+    severity: "error"
+    description: "save_memory kind must be from the known memory kind enumeration"
+
+  # ── Stage 2 Substrate Pairs (S2-1 FINAL — Gap 3 corrected) ─
+  - method: "insert_semantic_embedding"
+    param: "scope"
+    param_position: 3
+    allowed_literals:
+      - "developer"    # CallerScope enum from substrate_repository.py:824
+      - "global"
+      - "cursor"
+      - "l-private"
+      - "agent"
+    dynamic_policy: "hybrid_warn"
+    baseline_callsites: null   # S2-6: set after first baseline scan
+    drift_threshold_percent: 25
+    severity: "error"
+    description: "Semantic embedding scope must be a known CallerScope value"
+
+  - method: "insert_semantic_fact"
+    param: "tier"
+    param_position: 5
+    allowed_literals:
+      - "identity"     # MemoryTier enum from context_builder.py
+      - "project"
+      - "session"
+      - "general"
+    dynamic_policy: "hybrid_warn"
+    baseline_callsites: null
+    drift_threshold_percent: 25
+    severity: "error"
+    description: "Semantic fact tier must be a valid MemoryTier value"
+
+  - method: "insert_knowledge_fact"
+    param: "subject"
+    param_position: 0
+    allowed_literals:
+      - "__dynamic_only__"  # No static allowlist — drift tracking only
+    dynamic_policy: "hybrid_warn"
+    baseline_callsites: null
+    drift_threshold_percent: 25
+    severity: "warning"
+    description: "Knowledge fact subject tracking (drift baseline only, no static enforcement)"
+
+dynamic_sources:
+  allow_patterns:
+    - kind: "enum_member"
+      pattern: "PacketType.*"
+      trust_level: "proven"
+    - kind: "attribute_chain"
+      pattern: "ctx.scope"
+      trust_level: "proven"
+    - kind: "attribute_chain"
+      pattern: "self.packet_type"
+      trust_level: "semi_proven"
+    - kind: "dict_literal_key"
+      pattern: 'metadata.get("scope")'
+      trust_level: "semi_proven"
+    - kind: "dict_literal_key"
+      pattern: 'metadata["packet_type"]'
+      trust_level: "semi_proven"
+    - kind: "variable"
+      pattern: "packet_type"
+      trust_level: "semi_proven"
+
+baseline:
+  file: "config/contracts/contract_baseline_counts.json"
+  drift_threshold_percent: 10
+  drift_policy: "warn"
