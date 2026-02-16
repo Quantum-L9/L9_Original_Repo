@@ -10,9 +10,14 @@ Reference: ci/auto_fix_adr.py::validate_syntax, validate_noqa_not_in_string
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from ci.auto_fix_adr import (
+    fix_bare_except,
+    fix_fstring_sql,
     fix_lru_cache_maxsize,
     fix_path_safety,
     fix_pickle_usage,
@@ -24,9 +29,7 @@ from ci.auto_fix_adr import (
     validate_noqa_not_in_string,
     validate_syntax,
 )
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from typing import TYPE_CHECKING
 
 
 class TestValidateSyntax:
@@ -68,7 +71,7 @@ class TestValidateSyntax:
         test_file = tmp_path / "empty.py"
         test_file.write_text("")
 
-        is_valid, _ = validate_syntax(test_file)
+        is_valid, error = validate_syntax(test_file)
 
         assert is_valid is True
 
@@ -232,7 +235,7 @@ class TestRealWorldPatterns:
             'query = f"SELECT * FROM {table_name}"  # noqa: ADR-0087\n'
         )
 
-        is_valid, _ = validate_noqa_not_in_string(test_file)
+        is_valid, bad_lines = validate_noqa_not_in_string(test_file)
 
         assert is_valid is True
 
@@ -349,7 +352,7 @@ class TestNewFixFunctions:
         assert "# noqa: ADR-0024" in content
 
     def test_fix_pickle_usage_in_test(self, tmp_path: Path) -> None:
-        """pickle usage in test files should get noqa comment."""
+        """pickle usage in test files should be reported for manual remediation."""
         test_file = tmp_path / "test_serialization.py"
         test_file.write_text(
             "import pickle\n\ndef test_pickle():\n    data = pickle.loads(serialized)\n"
@@ -359,7 +362,7 @@ class TestNewFixFunctions:
 
         assert result is True
         content = test_file.read_text()
-        assert "# noqa: ADR-0088" in content
+        assert "# noqa: ADR-0088" not in content
 
     def test_fix_pickle_usage_no_pickle(self, tmp_path: Path) -> None:
         """Files without pickle should not be modified."""
@@ -431,3 +434,31 @@ class TestNewFixFunctions:
 
         assert result is True  # Would fix
         assert test_file.read_text() == original_content  # Not modified
+
+
+class TestSecuritySuppressionRegression:
+    """Regression tests for high-risk ADR suppressions."""
+
+    def test_fix_bare_except_no_noqa(self, tmp_path: Path) -> None:
+        test_file = tmp_path / "bare_except.py"
+        test_file.write_text("""try:
+    x = 1
+except:
+    pass
+""")
+
+        result = fix_bare_except(test_file, dry_run=False, safe_mode=False)
+
+        assert result is True
+        content = test_file.read_text()
+        assert "except Exception:" in content
+        assert "# noqa: ADR-0055" not in content
+
+    def test_fix_fstring_sql_does_not_insert_noqa(self, tmp_path: Path) -> None:
+        test_file = tmp_path / "sql_fstring.py"
+        test_file.write_text('query = f"SELECT * FROM {table}"\n')
+
+        result = fix_fstring_sql(test_file, dry_run=False)
+
+        assert result is True
+        assert "# noqa: ADR-0087" not in test_file.read_text()

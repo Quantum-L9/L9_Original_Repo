@@ -25,13 +25,13 @@ class TestInputSegmenter:
     def test_comma_separated(self):
         """Test comma-separated directives."""
         segmenter = InputSegmenter()
-        result = segmenter.segment("Deploy RIL, test ToT, sync embeddings")
+        result = segmenter.segment("Deploy RIL, test ToT, sync Substrate")
 
         assert result.segment_count == 3
         assert result.was_multi_part is True
         assert "deploy ril" in result.segments
         assert "test tot" in result.segments
-        assert "sync embeddings" in result.segments
+        assert "sync substrate" in result.segments
 
     def test_then_separator(self):
         """Test 'then' keyword separates directives."""

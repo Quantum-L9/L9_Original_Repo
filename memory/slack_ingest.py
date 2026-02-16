@@ -732,13 +732,13 @@ async def handle_slack_events(
     # Parse and normalize event
     normalized = SlackRequestNormalizer.parse_event_callback(payload)
 
-    event_id: str = str(normalized.get("event_id") or "")
-    team_id: str = str(normalized.get("team_id") or "")
-    channel_id: str = str(normalized.get("channel_id") or "")
+    event_id = normalized.get("event_id")
+    team_id = normalized.get("team_id")
+    channel_id = normalized.get("channel_id")
     thread_ts = normalized.get("thread_ts")
     thread_uuid = normalized.get("thread_uuid")
     thread_string = normalized.get("thread_string")
-    user_id: str = str(normalized.get("user_id") or "")
+    user_id = normalized.get("user_id")
     text = normalized.get("text", "")
     event_type = normalized.get("event_type")
 
@@ -1110,7 +1110,7 @@ async def handle_slack_events(
 
                 # === Multi-Part Directive Support (harvested from tokenizer) ===
                 # Segment input to handle compound directives like:
-                # "Deploy RIL, test ToT, sync embeddings"
+                # "Deploy RIL, test ToT, sync Substrate"
                 segmenter = get_segmenter()
                 segment_result = segmenter.segment(text)
 
@@ -2186,7 +2186,7 @@ def _build_system_prompt(
     This gives the AIOS model context about the conversation thread and
     any related prior knowledge from the memory substrate.
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     # GMP-LCTO-FIXES: Inject current datetime so L can tell time
     current_time = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
