@@ -41,25 +41,29 @@ async def test_retention_with_refcount_integration(mock_substrate, mock_reposito
 
     # Run retention cleanup
     from memory.retention_engine import RetentionPolicy
+
     policy = RetentionPolicy(keep_last_n=0)
     refcount_service = ReferenceCountingService(mock_repository)
-    retention = RetentionEngine(mock_repository, policy=policy, refcount_service=refcount_service)
-    
+    retention = RetentionEngine(
+        mock_repository, policy=policy, refcount_service=refcount_service
+    )
+
     # Ensure packets are in repository with correct IDs
     from core.schemas.packet_envelope_v2 import PacketEnvelope
+
     parent = MagicMock(spec=PacketEnvelope)
     parent.packet_id = "parent_packet"
     parent.checkpoint_id = "parent_packet"
     parent.parent_ids = []
-    
+
     child = MagicMock(spec=PacketEnvelope)
     child.packet_id = "child_packet"
     child.checkpoint_id = "child_packet"
     child.parent_ids = ["parent_packet"]
-    
+
     await mock_repository.save_packet(parent)
     await mock_repository.save_packet(child)
-    
+
     results = await retention.run_cleanup(agent_id="test_agent")
 
     # Verify parent was NOT deleted (has child reference)
@@ -266,6 +270,7 @@ def mock_substrate(mock_repository):
             # Also save to repository if it exists
             if self.repository:
                 from core.schemas.packet_envelope_v2 import PacketEnvelope
+
                 # Create a minimal envelope
                 envelope = MagicMock(spec=PacketEnvelope)
                 envelope.packet_id = packet_id
@@ -287,13 +292,17 @@ def mock_repository():
 
         def acquire(self):
             """Simulate async context manager for database connection."""
+
             class AsyncContextManager:
                 def __init__(self, repo):
                     self.repo = repo
+
                 async def __aenter__(self):
                     return self.repo
+
                 async def __aexit__(self, exc_type, exc_val, exc_tb):
                     pass
+
             return AsyncContextManager(self)
 
         async def fetchval(self, query, *args):

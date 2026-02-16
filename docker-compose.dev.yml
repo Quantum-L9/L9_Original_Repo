@@ -1,0 +1,159 @@
+# =============================================================================
+# L9 Docker Compose - DEVELOPMENT OVERLAY (Mac Local)
+# =============================================================================
+# Version: 1.1.0
+# Purpose: Local development with hot-reload, tests mounted, debug logging
+# Usage: Combined with base docker-compose.yml
+#
+# USAGE:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml exec l9-api pytest tests/ -v
+#
+# DIFFERENCES FROM PRODUCTION:
+# - Source code mounted as volume (hot-reload)
+# - Tests directory mounted
+# - Debug logging enabled
+# - No resource limits (dev machine)
+# - No nginx proxy (direct port access)
+# =============================================================================
+services:
+  # ===========================================================================
+  # L9 Bootstrap (Development - runs migrations)
+  # ===========================================================================
+  l9-bootstrap:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: l9-bootstrap:dev
+    restart: "no"
+    depends_on:
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      l9-postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@l9-postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://default:${REDIS_PASSWORD}@redis:6379
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: ${NEO4J_USER:-neo4j}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LOG_LEVEL: DEBUG
+    command: python -m bootstrap
+    networks:
+      - l9-network
+
+  # ===========================================================================
+  # L9 API - Development (with source mount + tests)
+  # ===========================================================================
+  l9-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: l9-api:dev
+    restart: unless-stopped
+    depends_on:
+      l9-bootstrap:
+        condition: service_completed_successfully
+      l9-postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@l9-postgres:5432/${POSTGRES_DB}
+      MEMORY_DSN: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@l9-postgres:5432/${POSTGRES_DB}
+      NEO4J_URL: bolt://neo4j:7687
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: ${NEO4J_USER:-neo4j}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_URL: redis://default:${REDIS_PASSWORD}@redis:6379
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      LOG_LEVEL: DEBUG
+      LOG_FORMAT: console
+      LOCAL_DEV: "true"
+      ENVIRONMENT: development
+      L9_CONTAINER_ENV: "true"
+      PYTHONPATH: /app
+    volumes:
+      - .:/app:cached
+      - /app/.venv
+      - /app/.git
+      - /app/__pycache__
+    ports:
+      - "127.0.0.1:8000:8000"
+    # Override production command: single worker for dev (faster startup, less CPU)
+    command: ["uvicorn", "api.server:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s  # Longer startup for dev (source mount is slower)
+    networks:
+      - l9-network
+
+  # ===========================================================================
+  # MCP Memory Server (Development)
+  # ===========================================================================
+  l9-mcp-memory:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp-memory
+      target: production
+    image: l9-mcp-memory:dev
+    restart: unless-stopped
+    depends_on:
+      l9-postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@l9-postgres:5432/${POSTGRES_DB}
+      MEMORY_DSN: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@l9-postgres:5432/${POSTGRES_DB}
+      NEO4J_URL: bolt://neo4j:7687
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: ${NEO4J_USER:-neo4j}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_URL: redis://default:${REDIS_PASSWORD}@redis:6379
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: 9002
+      MCP_ENV: development
+      PYTHONPATH: /app:/app/mcp_memory
+      LOG_LEVEL: DEBUG
+    volumes:
+      - .:/app:cached
+      - /app/.venv
+      - /app/.git
+    ports:
+      - "127.0.0.1:9002:9002"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - l9-network
+
+networks:
+  l9-network:
+    driver: bridge

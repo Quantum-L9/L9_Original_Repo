@@ -20,13 +20,18 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from core.config_constants import get_default_project_id
+
+
 # Mock FeatureFlags and reset_flags_for_testing since core.config is gone
 class FeatureFlags:
     def __init__(self):
         self.L9_ENABLE_BAYESIAN_REASONING = False
 
+
 def reset_flags_for_testing():
     pass
+
+
 from core.bayesian.bayesian_kernel import (
     BayesianKernel,
     BeliefState,

@@ -281,7 +281,7 @@ class IngestionPipeline:
                         scope = (
                             (envelope.metadata or {}).get("db_scope")
                             or (envelope.metadata or {}).get("scope")
-                            or "shared"
+                            or "cursor"  # Default to valid DB scope
                         )
                         await self._repository.insert_semantic_embedding(
                             vector=vector,

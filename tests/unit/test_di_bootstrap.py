@@ -22,7 +22,9 @@ class TestBootstrapDIContainer:
     @pytest.mark.asyncio
     async def test_bootstrap_creates_container(self):
         """Test that bootstrap creates a DIContainer instance."""
-        with patch("memory.substrate_service.create_substrate_service") as mock_substrate:
+        with patch(
+            "memory.substrate_service.create_substrate_service"
+        ) as mock_substrate:
             mock_substrate.return_value = AsyncMock()
 
             container = DIContainer()
@@ -34,7 +36,9 @@ class TestBootstrapDIContainer:
     @pytest.mark.asyncio
     async def test_bootstrap_registers_memory_substrate(self):
         """Test that bootstrap registers MemorySubstrateService."""
-        with patch("memory.substrate_service.create_substrate_service") as mock_substrate:
+        with patch(
+            "memory.substrate_service.create_substrate_service"
+        ) as mock_substrate:
             mock_substrate.return_value = AsyncMock()
 
             container = DIContainer()
@@ -63,7 +67,7 @@ class TestBootstrapDIContainer:
     @pytest.mark.asyncio
     async def test_bootstrap_uses_env_variables(self):
         """Test that bootstrap falls back to environment variables."""
-        # bootstrap_di_container doesn't use getenv directly anymore, 
+        # bootstrap_di_container doesn't use getenv directly anymore,
         # it's handled by create_substrate_service or other factories.
         # We skip this test as it's testing implementation details that changed.
         pytest.skip("bootstrap_di_container implementation changed")

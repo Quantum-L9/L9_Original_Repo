@@ -180,7 +180,10 @@ class GMPExecutionHistoryDB(Base):
     l9_kernel_versions = Column(JSONB, nullable=False, default=dict)
     feature_flags_enabled = Column(ARRAY(String), nullable=False, default=list)
     created_at = Column(
-        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC), index=True
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        index=True,
     )
 
     __table_args__ = (
@@ -203,7 +206,10 @@ class LearnedHeuristicDB(Base):
     supporting_gmp_ids = Column(ARRAY(String), nullable=False, default=list)
     impact_estimate = Column(String(50), nullable=False)
     generated_date = Column(
-        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC), index=True
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        index=True,
     )
     active = Column(Boolean, nullable=False, default=True, index=True)
 

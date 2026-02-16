@@ -53,7 +53,8 @@ class Insight(BaseModel):
     id: UUID = Field(default_factory=uuid4, description="Unique insight ID")
     event_type: str = Field(..., description="Type of event that generated insight")
     timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="When the insight was created"
+        default_factory=lambda: datetime.now(UTC),
+        description="When the insight was created",
     )
     entities_involved: list[str] = Field(
         default_factory=list, description="Entity IDs involved in the event"

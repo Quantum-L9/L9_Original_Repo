@@ -62,7 +62,7 @@ import os
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -643,8 +643,8 @@ class WorldModelRuntime:
     async def _load_reflection_seeds(self, seed_dir: str | None) -> int:
         """Load reflection memory seeds if available."""
         if not seed_dir:
-            # Use default seed directory
-            seed_path = Path(__file__).parent.parent / "seed"
+            # Use default seed directory (relative to world_model module)
+            seed_path = Path(__file__).parent / "seed"
         else:
             seed_path = Path(seed_dir)
 
@@ -669,13 +669,27 @@ class WorldModelRuntime:
 
             reflections_loaded = 0
 
+            from world_model.reflection_memory import ReflectionPriority, ReflectionType
+
             # Load reflections
             for reflection_data in data.get("reflections", []):
+                reflection_type_str = reflection_data.get("type", "lesson")
+                try:
+                    reflection_type = ReflectionType(reflection_type_str)
+                except ValueError:
+                    reflection_type = ReflectionType.LESSON
+
+                priority_str = reflection_data.get("priority", "medium")
+                try:
+                    priority = ReflectionPriority(priority_str)
+                except ValueError:
+                    priority = ReflectionPriority.MEDIUM
+
                 self._reflection_memory.add_reflection(
                     content=reflection_data.get("content", ""),
-                    reflection_type=reflection_data.get("type", "lesson"),
+                    reflection_type=reflection_type,
                     context=reflection_data.get("context", ""),
-                    priority=reflection_data.get("priority", "medium"),
+                    priority=priority,
                     confidence=reflection_data.get("confidence", 0.8),
                     source="seed_file",
                     tags=reflection_data.get("tags", []),
@@ -1612,9 +1626,8 @@ class WorldModelRuntime:
                 logger.error(f"Update failed: {e}")
                 self._stats.errors_encountered += 1
                 return {"success": False, "error": str(e)}
-
-        self._mode = RuntimeMode.RUNNING
-        return None
+            finally:
+                self._mode = RuntimeMode.RUNNING
 
     def _record_update(self, record: UpdateRecord) -> None:
         """Record an update in history."""

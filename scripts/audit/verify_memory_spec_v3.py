@@ -136,7 +136,9 @@ def check_required_modules(spec: dict, verbose: bool = False) -> tuple[bool, lis
                     f"Layer '{layer_name}' references missing module: {module}"
                 )
             elif verbose:
-                logger.info("  ✓ layer name → module", layer_name=layer_name, module=module)
+                logger.info(
+                    "  ✓ layer name → module", layer_name=layer_name, module=module
+                )
 
     # Extract module references from pipelines
     pipelines = spec.get("pipelines", {})
@@ -149,7 +151,11 @@ def check_required_modules(spec: dict, verbose: bool = False) -> tuple[bool, lis
                     f"Pipeline '{pipeline_name}' references missing entrypoint: {entrypoint}"
                 )
             elif verbose:
-                logger.info("  ✓ pipeline name → entrypoint", pipeline_name=pipeline_name, entrypoint=entrypoint)
+                logger.info(
+                    "  ✓ pipeline name → entrypoint",
+                    pipeline_name=pipeline_name,
+                    entrypoint=entrypoint,
+                )
 
         # Check binding modules
         binding = pipeline_config.get("binding", {})
@@ -259,7 +265,12 @@ def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, lis
                             f"missing method: {method_name} (in {module_name})"
                         )
                     elif verbose:
-                        logger.info("  ✓ layer name.resp name → method name", layer_name=layer_name, resp_name=resp_name, method_name=method_name)
+                        logger.info(
+                            "  ✓ layer name.resp name → method name",
+                            layer_name=layer_name,
+                            resp_name=resp_name,
+                            method_name=method_name,
+                        )
 
     # Check pipeline-specific modules (reasoning_replay, consolidation)
     pipelines = spec.get("pipelines", {})
@@ -291,7 +302,12 @@ def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, lis
                             f"missing method: {method_name} (in {entrypoint})"
                         )
                     elif verbose:
-                        logger.info("  ✓ pipeline name.resp name → method name", pipeline_name=pipeline_name, resp_name=resp_name, method_name=method_name)
+                        logger.info(
+                            "  ✓ pipeline name.resp name → method name",
+                            pipeline_name=pipeline_name,
+                            resp_name=resp_name,
+                            method_name=method_name,
+                        )
 
     passed = len(issues) == 0
     return passed, issues
@@ -320,7 +336,9 @@ def check_feature_flags(spec: dict, verbose: bool = False) -> tuple[bool, list[s
             if flag_name in content:
                 found = True
                 if verbose:
-                    logger.info("  ✓ flag name found in {py file.name}", flag_name=flag_name)
+                    logger.info(
+                        "  ✓ flag name found in {py file.name}", flag_name=flag_name
+                    )
                 break
 
         # Check core directory
@@ -390,7 +408,11 @@ def check_contracts(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]
                                         f"'{must_call}' - method not found"
                                     )
                                 elif verbose:
-                                    logger.info("  ✓ contract pipeline name → must call", pipeline_name=pipeline_name, must_call=must_call)
+                                    logger.info(
+                                        "  ✓ contract pipeline name → must call",
+                                        pipeline_name=pipeline_name,
+                                        must_call=must_call,
+                                    )
 
     passed = len(issues) == 0
     return passed, issues

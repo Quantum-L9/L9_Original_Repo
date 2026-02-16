@@ -247,7 +247,10 @@ Return ONLY valid JSON.
         fixes = audit.get("auto_fixes", [])
         if fixes:
             applied = self.apply_auto_fixes(fixes)
-            logger.info("\n✅ applied applied/{len(fixes)} security/performance fixes", applied=applied)
+            logger.info(
+                "\n✅ applied applied/{len(fixes)} security/performance fixes",
+                applied=applied,
+            )
 
         # Generate report
         report = self.generate_audit_report(audit)
@@ -255,7 +258,7 @@ Return ONLY valid JSON.
         with open("/tmp/perplexity_audit.md", "w") as f:
             f.write(report)
 
-        logger.info("\n" + report")
+        logger.info("\n" + report)
         logger.info("\n✅ audit complete")
 
 

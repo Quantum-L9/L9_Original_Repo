@@ -129,7 +129,11 @@ def cmd_list(args: argparse.Namespace) -> int:
             "t3": "🔴",
         }.get(adr["tier"], "❓")
 
-        logger.info("status emoji tier emoji adr-{adr['id']}: {adr['title']}", status_emoji=status_emoji, tier_emoji=tier_emoji)
+        logger.info(
+            "status emoji tier emoji adr-{adr['id']}: {adr['title']}",
+            status_emoji=status_emoji,
+            tier_emoji=tier_emoji,
+        )
         print(
             f"   Status: {adr['status']} | Category: {adr['category']} | Tier: {adr['tier'].upper()}"
         )
@@ -200,7 +204,11 @@ def cmd_update_status(args: argparse.Namespace) -> int:
     with open(adr_file, "w") as f:
         f.writelines(lines)
 
-    logger.info("updated adr-adr id status to 'new status'", adr_id=adr_id, new_status=new_status)
+    logger.info(
+        "updated adr-adr id status to 'new status'",
+        adr_id=adr_id,
+        new_status=new_status,
+    )
     logger.info("\nnext steps:")
     logger.info("1. run 'python -m tools.adr reindex' to update the index")
     logger.info("2. submit a pr with the status change")
@@ -300,7 +308,9 @@ def cmd_validate(args: argparse.Namespace) -> int:
         else:
             logger.info("✅ {adr_file.name}: valid")
 
-    logger.error("\nvalidation complete: {len(results) - errors}/{len(results)} adrs valid")
+    logger.error(
+        "\nvalidation complete: {len(results) - errors}/{len(results)} adrs valid"
+    )
 
     return 1 if errors > 0 else 0
 

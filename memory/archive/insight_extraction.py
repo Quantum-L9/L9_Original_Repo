@@ -393,14 +393,26 @@ class InsightExtractionPipeline:
 
         for fact in facts:
             try:
-                await self._repository.insert_knowledge_fact(
-                    subject=fact.subject,
-                    predicate=fact.predicate,
-                    object_value=fact.object,
-                    confidence=fact.confidence,
-                    source_packet=fact.source_packet,
-                    fact_id=str(fact.fact_id),
-                )
+                # Pass scope from fact if available
+                if fact.scope:
+                    await self._repository.insert_knowledge_fact(
+                        subject=fact.subject,
+                        predicate=fact.predicate,
+                        object_value=fact.object,
+                        confidence=fact.confidence,
+                        source_packet=fact.source_packet,
+                        fact_id=str(fact.fact_id),
+                        scope=fact.scope,
+                    )
+                else:
+                    await self._repository.insert_knowledge_fact(
+                        subject=fact.subject,
+                        predicate=fact.predicate,
+                        object_value=fact.object,
+                        confidence=fact.confidence,
+                        source_packet=fact.source_packet,
+                        fact_id=str(fact.fact_id),
+                    )
             except Exception as e:
                 logger.error(f"Failed to store fact: {e}")
 

@@ -188,13 +188,15 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-02-14 (end-session)_
+_Last updated: 2026-02-16 (end-session)_
 
 **Unified memory pipeline (end-session write):**  
 `cursor_memory_client.py write` → `mcp_call_tool("save_memory", {...})` → MCP server on C1 → HTTP to L9 API → `api/memory/router.py` (or MCP-backed ingest) → `memory/ingestion.ingest_packet()` → `MemorySubstrateService.write_packet()` → **SubstrateDAG** (intake → reasoning → memory_write → graph_sync → semantic_embed → insights → world_model → checkpoint). **Ports:** C1 external **80** (Nginx `/memory/`), internal l9-api **30080**, Postgres **30432**, Neo4j **30474**. **Schema:** PacketEnvelope v2 (PacketEnvelopeIn). **Single entry:** `ingest_packet()` → `write_packet()` → DAG only.
 
 ## Recent Sessions (7-day window)
 
+- ✅ 2026-02-16: **Test Suite & Pre-commit Hook Restoration** — Resolved 30+ test failures and import errors across symbolic computation, DI bootstrap, and dynamic tool discovery. Refactored `code_generator.py` to use SymPy's high-level `codegen`. Fixed `test_integration_phase0.py` by implementing a robust `MockRepository` for refcount integration. Resolved a critical shell syntax error in the pre-commit hook (`local` used outside function) and committed all 13+ modified files. Status: **128 passed, 3 skipped**.
+- 2026-02-16: Enforced ADR-0002 (TYPE_CHECKING pattern) in pre-commit pipeline (redundant enforcement in .pre-commit-config.yaml and scripts/hooks/pre-commit). Fixed timeout issues on macOS and improved grep robustness.
 - 2026-02-14: **Transcript Distiller Pipeline** — Built offline text-to-memory pipeline (`transcript_distiller.py`): reads transcripts/ADRs/READMEs/GMP reports → ChunkView → LLM distill (gpt-4o-mini) → classify (lesson|insight|pattern|error|note) → ingest_packet() (facts→knowledge_facts, insights→packet_store). Added --since/--until date filters, JSON+TXT completion reports. Fixed `export_chats.sh` for new agent-transcript format. Fixed `learning_to_mcp_bridge.py` (MCP URL→C1, paths via $HOME). Made LLM models configurable via env vars (L9_DISTILLER_MODEL, L9_EPISODIC_MODEL, etc.). Fixed MEMORY_PIPELINE_MAP.md (removed :9002 direct port refs). Set up launchd cron at 5am daily. Tested: 23 Feb-13 transcripts, 101 ADRs, 10 GMP reports discoverable. LLM dry-run verified (10 facts + 5 insights from single ADR).
 - 2026-02-14: README tooling: fixed generate_subsystem_readmes.py syntax (line 1188 quote), fixed generate_readme_superprompt.py log levels (error→info). Clarified superprompt vs subsystem READMEs; 64 READMEs = all configured subsystems with existing paths.
 - 2026-02-14: Memory pipeline enhancements (pipeline_router, importance_recipe, intake_leverage, ranking_extensions, retrieval_multiquery, query_rewriter, chunk_view, procedural_synthesis, llm_memory_ops). Component wiring audit tooling (audit_package_exports, audit_package_wiring, triage_dead_code, component_audit_dag). Foresight observe cycle. SDK-First ADR-0102 wiring. Repo index refresh (34 indexes). GMP-141/142/143 CI consolidation. 3 commits pushed to main.
@@ -333,4 +335,4 @@ _Last updated: 2026-02-14 (end-session)_
 
 ---
 
-_Last updated: 2026-02-14 (end-session)_
+_Last updated: 2026-02-16 (end-session)_

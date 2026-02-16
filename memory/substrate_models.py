@@ -219,7 +219,7 @@ class PacketStoreRow(BaseModel):
     ttl: datetime | None = None
 
     # 10X Enhancements (migration 0008)
-    scope: str | None = "shared"
+    scope: str | None = "cursor"  # Valid: developer, global, cursor, l-private, agent
     importance_score: float | None = 0.5
     access_count: int | None = 0
     last_accessed: datetime | None = None
@@ -274,6 +274,7 @@ class KnowledgeFact(BaseModel):
     )
     source_packet: UUID | None = Field(None, description="Originating packet ID")
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    scope: str | None = Field(None, description="RLS scope from source context")
 
 
 class KnowledgeFactRow(BaseModel):
@@ -303,7 +304,7 @@ class KnowledgeFactRow(BaseModel):
     last_accessed: datetime | None = None
 
     # Scope (migration 0008)
-    scope: str | None = "shared"
+    scope: str | None = "cursor"  # Valid: developer, global, cursor, l-private, agent
 
     # Multi-tenant identity (migration 0008)
     tenant_id: UUID | None = None

@@ -1334,7 +1334,7 @@ class RetrievalPipeline:
         agent_id: str | None = None,
         limit: int = 10,
         min_similarity: float = 0.5,
-        scope: str = "shared",
+        scope: str = "cursor",  # Valid: developer, global, cursor, l-private, agent
         force_mode: str | None = None,
     ) -> list[dict[str, Any]]:
         """
@@ -1429,7 +1429,7 @@ class RetrievalPipeline:
         agent_id: str | None = None,
         limit: int = 10,
         min_similarity: float = 0.5,
-        scope: str = "shared",
+        scope: str = "cursor",  # Valid: developer, global, cursor, l-private, agent
     ) -> list[dict[str, Any]]:
         """
         Graph-enriched search: vector similarity + Neo4j relationship context.

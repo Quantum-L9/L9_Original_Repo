@@ -180,6 +180,12 @@ class PacketMetadata(BaseModel):
     reasoning_mode: str | None = Field(None, description="Reasoning mode used")
     agent: str | None = Field(None, description="Agent identifier")
     domain: str | None = Field("l9", description="Domain context")
+    # Required by DB constraint packet_store_project_id_not_null
+    project_id: str = Field("l9", description="Project identifier for RLS isolation")
+    # Required by DB constraint packet_store_scope_check
+    scope: str = Field(
+        "cursor", description="RLS scope: developer, global, cursor, l-private, agent"
+    )
 
     model_config = {"frozen": True, "extra": "allow"}
 

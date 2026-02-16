@@ -846,9 +846,10 @@ class MemorySubstrateService:
         Write extracted insights to the substrate.
 
         Persists insights and associated facts to knowledge_facts table.
+        Scope is extracted from each insight's metadata if available.
 
         Args:
-            insights: List of ExtractedInsight dicts
+            insights: List of ExtractedInsight dicts (each may contain 'scope' key)
 
         Returns:
             Status dict with counts
@@ -856,15 +857,27 @@ class MemorySubstrateService:
         facts_written = 0
 
         for insight in insights:
+            # Get scope from insight metadata if available
+            fact_scope = insight.get("scope")
             # Write associated facts
             for fact in insight.get("facts", []):
-                await self._repository.insert_knowledge_fact(
-                    subject=fact.get("subject", "unknown"),
-                    predicate=fact.get("predicate", "unknown"),
-                    object_value=fact.get("object"),
-                    confidence=fact.get("confidence"),
-                    source_packet=insight.get("source_packet"),
-                )
+                if fact_scope:
+                    await self._repository.insert_knowledge_fact(
+                        subject=fact.get("subject", "unknown"),
+                        predicate=fact.get("predicate", "unknown"),
+                        object_value=fact.get("object"),
+                        confidence=fact.get("confidence"),
+                        source_packet=insight.get("source_packet"),
+                        scope=fact_scope,
+                    )
+                else:
+                    await self._repository.insert_knowledge_fact(
+                        subject=fact.get("subject", "unknown"),
+                        predicate=fact.get("predicate", "unknown"),
+                        object_value=fact.get("object"),
+                        confidence=fact.get("confidence"),
+                        source_packet=insight.get("source_packet"),
+                    )
                 facts_written += 1
 
         return {

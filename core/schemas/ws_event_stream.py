@@ -110,7 +110,8 @@ class EventMessage(BaseModel):
     id: UUID = Field(default_factory=uuid4, description="Unique event identifier")
     type: EventType = Field(..., description="High-level event category")
     timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Event creation timestamp"
+        default_factory=lambda: datetime.now(UTC),
+        description="Event creation timestamp",
     )
     channel: str = Field(default="agent", description="Logical message bus")
     agent_id: str | None = Field(None, description="Related agent identifier")

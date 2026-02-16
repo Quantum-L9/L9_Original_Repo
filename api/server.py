@@ -1052,6 +1052,7 @@ async def lifespan(app: FastAPI):
                 config=RuntimeConfig(
                     poll_interval_seconds=60,  # Poll memory every minute
                     batch_size=50,
+                    auto_load_seeds=False,  # GMP-FIX: Disable auto seed loading to prevent startup hang
                 ),
             )
             app.state.world_model_runtime = world_model_runtime

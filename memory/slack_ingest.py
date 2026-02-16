@@ -108,7 +108,12 @@ try:
     _has_slack_thread_cache_module = True
 except ImportError:
     _has_slack_thread_cache_module = False
-    SlackThreadCacheService = None  # type: ignore[misc, assignment]
+
+    class SlackThreadCacheService:  # type: ignore[no-redef]
+        """Stub class when slack_thread_cache module not available."""
+
+        pass
+
 
 # Optional telemetry - gracefully degrade if module not available
 try:

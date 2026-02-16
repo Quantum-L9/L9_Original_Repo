@@ -51,15 +51,20 @@ from orchestration.long_plan_graph import extract_tasks_from_plan
 #     MockToolRegistry,
 # )
 
+
 class MockAgentRegistry:
     def __init__(self):
         self.agents = {}
+
     def register_agent(self, config):
         self.agents[config.agent_id] = config
+
     def get_agent_config(self, agent_id):
         return self.agents.get(agent_id)
+
     def agent_exists(self, agent_id):
         return agent_id in self.agents
+
 
 from tests.core.bootstrap.test_executor import (
     MockAIOSRuntime,

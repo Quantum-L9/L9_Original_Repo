@@ -305,7 +305,7 @@ class SemanticService:
         text: str,
         payload: dict[str, Any],
         agent_id: str | None = None,
-        scope: str = "shared",  # RLS scope for row-level security
+        scope: str = "cursor",  # RLS scope: developer, global, cursor, l-private, agent
     ) -> str:
         """
         Generate embedding for text and store in semantic_memory.

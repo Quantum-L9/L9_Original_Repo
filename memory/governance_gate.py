@@ -257,7 +257,7 @@ def _fallback_context() -> MemoryGovernanceContext:
     """
     caller_id = os.getenv("L9_MEMORY_CALLER_ID")
     project_id = os.getenv("L9_PROJECT_ID")
-    scope = os.getenv("L9_MEMORY_SCOPE", "shared")
+    scope = os.getenv("L9_MEMORY_SCOPE", "cursor")  # Default to valid DB scope
     if not caller_id or not project_id:
         raise RuntimeError(
             "Fallback governance context requires L9_MEMORY_CALLER_ID and L9_PROJECT_ID"

@@ -599,9 +599,9 @@ async def semantic_embed_node(
     try:
         agent_id = metadata.get("agent") if isinstance(metadata, dict) else None
         scope = (
-            (metadata.get("db_scope") or metadata.get("scope") or "shared")
+            (metadata.get("db_scope") or metadata.get("scope") or "cursor")
             if isinstance(metadata, dict)
-            else "shared"
+            else "cursor"  # Default to valid DB scope
         )
 
         # Include tags in payload for tag-aware retrieval (filter/boost)
@@ -908,6 +908,24 @@ async def store_insights_node(
     else:
         packet_id = None
 
+    # GMP-FIX: Get project_id and scope from source envelope metadata for insight packets
+    # This ensures insight packets inherit project_id and scope from their source packet
+    # to satisfy the packet_store_project_id_not_null constraint and scope isolation
+    source_metadata = envelope.get("metadata", {})
+    if isinstance(source_metadata, dict):
+        source_project_id = source_metadata.get("project_id", "l9")
+        source_scope = (
+            source_metadata.get("scope") or source_metadata.get("db_scope") or "cursor"
+        )
+    else:
+        # Handle PacketMetadata object
+        source_project_id = getattr(source_metadata, "project_id", None) or "l9"
+        source_scope = (
+            getattr(source_metadata, "scope", None)
+            or getattr(source_metadata, "db_scope", None)
+            or "cursor"
+        )
+
     if not insights and not facts:
         logger.debug("store_insights_node: No insights or facts to store")
         return state
@@ -962,6 +980,7 @@ async def store_insights_node(
                 object_value=object_value,
                 confidence=confidence,
                 source_packet=source_packet,
+                scope=source_scope,  # Inherit scope from source packet
             )
             facts_inserted += 1
 
@@ -1006,6 +1025,7 @@ async def store_insights_node(
                 }
 
             # Build a proper PacketEnvelope for the insight
+            # GMP-FIX: Include project_id in metadata to satisfy DB constraint
             insight_envelope = PacketEnvelope(
                 packet_type=insight_type,
                 payload=payload,
@@ -1013,6 +1033,7 @@ async def store_insights_node(
                     schema_version="1.1.0",
                     agent="store_insights_node",
                     source_packet_id=str(packet_id) if packet_id else None,
+                    project_id=source_project_id,  # Inherit from source packet
                 ),
             )
 
