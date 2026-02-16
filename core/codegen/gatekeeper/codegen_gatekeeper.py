@@ -42,7 +42,8 @@ import httpx
 from pydantic import BaseModel, Field
 
 # L9 imports (matching existing patterns)
-from core.agents.base_agent import AgentResponse, BaseAgent
+from agents.base_agent import AgentResponse, BaseAgent
+# from core.agents.base_agent import AgentResponse, BaseAgent
 
 
 class ContractType(str, Enum):

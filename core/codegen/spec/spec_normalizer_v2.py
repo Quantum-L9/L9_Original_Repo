@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 L9 Spec Normalizer v2.0.0
 =========================
@@ -43,8 +45,6 @@ __dora_meta__ = {
     },
 }
 # ============================================================================
-
-from __future__ import annotations
 
 import json
 import re
