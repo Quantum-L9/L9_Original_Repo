@@ -1,0 +1,193 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "SQL Security Policy"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-02-16T18:00:00Z"
+# updated_at: "2026-02-16T18:00:00Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "sql_security"
+# type: "policy"
+# status: "active"
+# ============================================================================
+
+# L9 Governance - SQL Security Policy
+# ====================================
+# Single source of truth for SQL security allowlists and constraints.
+#
+# GMP-115: Centralizes SQL security policy previously scattered across:
+# - mcp_memory/src/routes/memory_unified.py (_ALLOWED_MEMORY_TABLES)
+# - mcp_memory/src/routes/memory_unified.py (_ALLOWED_OPERATIONS)
+# - memory/substrate_repository.py (inline checks)
+#
+# ADR-0087: All SQL queries MUST use parameterized queries.
+# This policy provides allowlists for dynamic identifiers that cannot be parameterized.
+#
+# SECURITY PRINCIPLE: Defense-in-depth via allowlisting.
+# Even if input validation fails, the allowlist prevents SQL injection.
+
+id: sql_security
+version: "1.0"
+
+# =============================================================================
+# ALLOWED MEMORY TABLES
+# =============================================================================
+# Tables that can be dynamically referenced in SQL queries.
+# Used for memory tier routing (short/medium/long term).
+#
+# IMPORTANT: Table names cannot be parameterized in SQL.
+# Allowlisting is the ONLY defense against SQL injection for table names.
+#
+# To add a new table:
+# 1. Add to this list
+# 2. Run ci/check_sql_security.py to validate
+# 3. Update tests/security/test_sql_injection.py
+
+allowed_tables:
+  memory:
+    description: "Memory tier tables for MCP memory operations"
+    tables:
+      - name: "memory.short_term"
+        description: "Short-term memory (TTL < 24h)"
+        retention: "24 hours"
+      - name: "memory.medium_term"
+        description: "Medium-term memory (TTL 1-7 days)"
+        retention: "7 days"
+      - name: "memory.long_term"
+        description: "Long-term memory (permanent)"
+        retention: "permanent"
+      
+  semantic:
+    description: "Semantic memory and embedding tables"
+    tables:
+      - name: "semantic_memory"
+        description: "Vector embeddings for semantic search"
+        retention: "permanent"
+      - name: "memory_embeddings"
+        description: "Legacy embedding table (deprecated)"
+        retention: "permanent"
+        deprecated: true
+      
+  packet:
+    description: "Packet store tables"
+    tables:
+      - name: "packet_store"
+        description: "Canonical event log"
+        retention: "permanent"
+
+# =============================================================================
+# ALLOWED TEMPORAL OPERATIONS
+# =============================================================================
+# Operations that can be used in temporal queries.
+# These determine query structure, not user data.
+
+allowed_operations:
+  temporal:
+    description: "Operations for query_temporal() function"
+    operations:
+      - name: "changes"
+        description: "List all changes in time range"
+        query_type: "SELECT with timestamp filter"
+      - name: "timeline"
+        description: "Show chronological timeline"
+        query_type: "SELECT ORDER BY timestamp ASC"
+      - name: "diff"
+        description: "Show modified records only"
+        query_type: "SELECT WHERE last_accessed > timestamp"
+
+# =============================================================================
+# ALLOWED SORT COLUMNS
+# =============================================================================
+# Columns that can be used in ORDER BY clauses.
+# Prevents injection via sort parameter manipulation.
+
+allowed_sort_columns:
+  packet_store:
+    - "timestamp"
+    - "created_at"
+    - "updated_at"
+    - "importance_score"
+    - "access_count"
+    - "last_accessed"
+  semantic_memory:
+    - "created_at"
+    - "importance_score"
+    - "similarity"
+
+# =============================================================================
+# FORBIDDEN PATTERNS
+# =============================================================================
+# Patterns that should NEVER appear in SQL queries.
+# Used by ci/check_sql_security.py for static analysis.
+
+forbidden_patterns:
+  - pattern: 'f\"SELECT.*\{'
+    description: "F-string interpolation in SELECT"
+    adr: "ADR-0087"
+    severity: "critical"
+    
+  - pattern: 'f\"INSERT.*\{'
+    description: "F-string interpolation in INSERT"
+    adr: "ADR-0087"
+    severity: "critical"
+    
+  - pattern: 'f\"UPDATE.*\{'
+    description: "F-string interpolation in UPDATE"
+    adr: "ADR-0087"
+    severity: "critical"
+    
+  - pattern: 'f\"DELETE.*\{'
+    description: "F-string interpolation in DELETE"
+    adr: "ADR-0087"
+    severity: "critical"
+    
+  - pattern: '\\.format\\(.*\\).*SELECT'
+    description: "String format in SQL query"
+    adr: "ADR-0087"
+    severity: "critical"
+    
+  - pattern: '%s.*SELECT|SELECT.*%s'
+    description: "Printf-style formatting in SQL"
+    adr: "ADR-0087"
+    severity: "critical"
+
+# =============================================================================
+# SAFE PATTERNS
+# =============================================================================
+# Patterns that are explicitly allowed (for noqa justification).
+# These use internal SQL clauses with parameterized user values.
+
+safe_patterns:
+  - pattern: "f\\\".*WHERE {filter_clause}\\\""
+    justification: "filter_clause is internal SQL, user values parameterized via $N"
+    requires_comment: "# noqa: S608 — internal SQL clause, user values parameterized"
+    
+  - pattern: "f\\\".*{user_filter}\\\""
+    justification: "user_filter is internal SQL clause built with parameterized values"
+    requires_comment: "# noqa: S608 — user_filter is internal SQL clause"
+
+# =============================================================================
+# VALIDATION RULES
+# =============================================================================
+# Rules for ci/check_sql_security.py
+
+validation:
+  # Require explicit allowlist check before dynamic table use
+  require_allowlist_check: true
+  
+  # Require custom exception for invalid input
+  require_custom_exception: true
+  exception_class: "core.exceptions.security.InvalidTableError"
+  
+  # Require noqa comment with justification for safe patterns
+  require_noqa_justification: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["configuration", "foundation", "policy", "security", "sql", "injection"]
+# keywords: ["allowlist", "tables", "operations", "parameterized", "ADR-0087"]
+# last_modified: "2026-02-16T18:00:00Z"
+# ============================================================================

@@ -29,6 +29,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from typing import Any
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Wire Executor",
@@ -170,7 +172,9 @@ class WireExecutor:
     def _require_state(self) -> WireState:
         """Return state or raise if not initialized."""
         if self.state is None:
-            raise RuntimeError("WireExecutor state not initialized — call execute() first")
+            raise RuntimeError(
+                "WireExecutor state not initialized — call execute() first"
+            )
         return self.state
 
     def _save_state(self):
@@ -219,7 +223,7 @@ class WireExecutor:
         cmd = f'rg "{component}" --type py -n 2>/dev/null || true'
         _code, stdout, _stderr = self._run_shell(cmd)
 
-        references = []
+        references: list[dict[str, Any]] = []
         for line in stdout.strip().split("\n"):
             if not line or ":" not in line:
                 continue

@@ -151,7 +151,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        run: pip install pyyaml structlog
+        run: pip install pyyaml structlog aiofiles psutil pydantic-settings pydantic
 
       - name: Check ADR compliance (errors only)
         run: |
@@ -174,193 +174,27 @@ jobs:
           python3 ci/check_dag_validation_single_point.py
 
       - name: Check hardcoded credentials (ADR-0090)
-        run: |
-          echo "🔐 Checking for hardcoded credentials (ADR-0090)..."
-
-          FAILED=0
-
-          # PostgreSQL with REAL passwords (not placeholders or env vars)
-          FOUND=$(grep -r 'postgresql://.*:.*@' --include="*.py" --include="*.md" --include="*.sh" --include="*.yaml" --include="*.yml" . \
-            | grep -v ".venv" | grep -v ".git/" | grep -v "__pycache__" | grep -v '\.env' \
-            | grep -v 'user:pass@' | grep -v 'user:password@' | grep -v 'postgres:postgres@' \
-            | grep -v 'test:test@' | grep -v 'hypergraph:hypergraph@' | grep -v 'l9:l9test@' \
-            | grep -v '\$(' | grep -v '\${' | grep -v '\$[A-Z]' | grep -v 'YOUR_' | grep -v 'CHANGEME' \
-            | grep -v '\.\.\.' | grep -v '\*\*\*' | grep -v ':PASSWORD@' | grep -v ':password@' \
-            | grep -v ':devpass@' | grep -v ':l9_password@' | grep -v 'POSTGRES_PASSWORD@' \
-            | grep -v 'REAL_PASSWORD_HERE' | grep -v '❌' | grep -v 'ci\.yml' \
-            || true)
-
-          if [ -n "$FOUND" ]; then
-            echo "❌ HARDCODED POSTGRES CREDENTIALS:"
-            echo "$FOUND"
-            FAILED=1
-          fi
-
-          # AWS Access Keys (always bad - these get rotated immediately)
-          FOUND=$(grep -rE "AKIA[0-9A-Z]{16}" --include="*.py" --include="*.sh" --include="*.yaml" . \
-            | grep -v ".venv" | grep -v ".git/" | grep -v '\.env' \
-            || true)
-
-          if [ -n "$FOUND" ]; then
-            echo "❌ AWS ACCESS KEYS:"
-            echo "$FOUND"
-            FAILED=1
-          fi
-
-          # API keys (64-char hex strings assigned to KEY/API variables)
-          # Includes .yaml/.yml to catch kernel config secrets (GMP-CI-2026-02)
-          FOUND=$(grep -rE '(API_KEY|api_key|L9_API_KEY).*"[a-f0-9]{64}"' --include="*.py" --include="*.md" --include="*.sh" --include="*.yaml" --include="*.yml" . \
-            | grep -v ".venv" | grep -v ".git/" | grep -v '\.env' \
-            | grep -v 'YOUR_' | grep -v '❌' | grep -v 'checksum' | grep -v 'hash' \
-            || true)
-
-          if [ -n "$FOUND" ]; then
-            echo "❌ HARDCODED API KEYS:"
-            echo "$FOUND"
-            FAILED=1
-          fi
-
-          if [ $FAILED -eq 1 ]; then
-            echo ""
-            echo "========================================="
-            echo "ADR-0090: No hardcoded credentials allowed"
-            echo "Use: \${VARIABLE} or \$(VARIABLE) or placeholders"
-            exit 1
-          fi
-
-          echo "✅ No hardcoded credentials found"
+        run: python3 ci/check_hardcoded_credentials.py
 
       - name: Check datetime.utcnow() (ADR-0083)
-        run: |
-          echo "🕐 Checking for deprecated datetime.utcnow() (ADR-0083)..."
-
-          FOUND=$(grep -rn "\.utcnow()" --include="*.py" . \
-            | grep -v ".venv" | grep -v "__pycache__" | grep -v "tests/" \
-            | grep -v "# noqa" | grep -v "current_work/" \
-            || true)
-
-          if [ -n "$FOUND" ]; then
-            echo "❌ ADR-0083: datetime.utcnow() is deprecated:"
-            echo "$FOUND"
-            echo ""
-            echo "Fix: Use datetime.now(UTC) instead"
-            echo "  from datetime import UTC, datetime"
-            echo "  timestamp = datetime.now(UTC)"
-            exit 1
-          fi
-
-          echo "✅ No deprecated datetime.utcnow() usage"
+        run: python3 ci/check_datetime_utcnow.py
 
       - name: Check pickle usage (ADR-0088)
-        run: |
-          echo "🥒 Checking for pickle usage (ADR-0088)..."
-
-          FOUND=$(grep -rn "pickle\.load" --include="*.py" . \
-            | grep -v ".venv" | grep -v "__pycache__" | grep -v "tests/" \
-            | grep -v "# noqa" | grep -v "current_work/" \
-            || true)
-
-          if [ -n "$FOUND" ]; then
-            echo "❌ ADR-0088: pickle is forbidden (security):"
-            echo "$FOUND"
-            echo ""
-            echo "Fix: Use json.loads() or msgpack instead"
-            exit 1
-          fi
-
-          echo "✅ No pickle usage found"
+        run: python3 ci/check_pickle_usage.py
 
       - name: Check f-string SQL (ADR-0087)
-        run: |
-          echo "💉 Checking for f-string SQL injection (ADR-0087)..."
-
-          FOUND=$(grep -rnE 'f"(SELECT|INSERT|UPDATE|DELETE).*\{' --include="*.py" . \
-            | grep -v ".venv" | grep -v "__pycache__" | grep -v "tests/" \
-            | grep -v "# noqa" | grep -v "current_work/" \
-            || true)
-
-          if [ -n "$FOUND" ]; then
-            echo "❌ ADR-0087: f-string SQL is forbidden (injection risk):"
-            echo "$FOUND" | head -20
-            echo ""
-            echo "Fix: Use parameterized queries"
-            echo "Add '# noqa: ADR-0087' to suppress if safe"
-            exit 1
-          fi
-
-          echo "✅ No f-string SQL found"
+        run: python3 ci/check_fstring_sql.py
 
       - name: Check print() usage (ADR-0019)
-        run: |
-          echo "🖨️ Checking for print() in production code (ADR-0019)..."
-
-          # Check for print() in production code (not CI/scripts/tools)
-          FOUND=$(grep -rn "^\s*print(" --include="*.py" . \
-            | grep -v ".venv" | grep -v "__pycache__" | grep -v "tests/" \
-            | grep -v "ci/" | grep -v "scripts/" | grep -v "tools/" \
-            | grep -v "# noqa" | grep -v "current_work/" | grep -v "__main__.py" \
-            | grep -v "mcp_memory/" | grep -v "agents/cursor/" | grep -v "local_dashboard/" \
-            || true)
-
-          if [ -n "$FOUND" ]; then
-            echo "❌ ADR-0019: print() forbidden in production code:"
-            echo "$FOUND" | head -20
-            echo ""
-            echo "Fix: Use structlog.get_logger() instead"
-            echo "Add '# noqa: ADR-0019' to suppress if necessary"
-            exit 1
-          fi
-
-          echo "✅ No print() in production code"
+        run: python3 ci/check_print_usage.py
 
       - name: Check logging module (ADR-0019)
-        run: |
-          echo "📝 Checking for stdlib logging module (ADR-0019)..."
-
-          # Check for import logging (not structlog)
-          FOUND=$(grep -rn "^import logging$\|^from logging import" --include="*.py" . \
-            | grep -v ".venv" | grep -v "__pycache__" | grep -v "tests/" \
-            | grep -v "ci/" | grep -v "scripts/" | grep -v "config/logging" \
-            | grep -v "core/observability" | grep -v "# noqa" | grep -v "current_work/" \
-            || true)
-
-          if [ -n "$FOUND" ]; then
-            echo "❌ ADR-0019: stdlib logging module forbidden:"
-            echo "$FOUND" | head -20
-            echo ""
-            echo "Fix: Use structlog instead"
-            echo "  import structlog"
-            echo "  logger = structlog.get_logger()"
-            exit 1
-          fi
-
-          echo "✅ No stdlib logging module usage"
+        run: python3 ci/check_logging_module.py
 
       - name: Check TYPE_CHECKING pattern (ADR-0002)
-        run: |
-          echo "🔍 Checking TYPE_CHECKING pattern (ADR-0002)..."
+        run: python3 ci/check_type_checking_pattern.py
 
-          # Find files with TYPE_CHECKING but missing __future__ annotations
-          FAILED=0
-          for file in $(grep -rl "if TYPE_CHECKING:" --include="*.py" . 2>/dev/null \
-            | grep -v ".venv" | grep -v "__pycache__" | grep -v "tests/" \
-            | grep -v "current_work/"); do
-            if ! grep -q "from __future__ import annotations" "$file"; then
-              echo "❌ $file: TYPE_CHECKING requires 'from __future__ import annotations'"
-              FAILED=1
-            fi
-          done
-
-          if [ $FAILED -eq 1 ]; then
-            echo ""
-            echo "Fix: Add at top of file:"
-            echo "  from __future__ import annotations"
-            exit 1
-          fi
-
-          echo "✅ TYPE_CHECKING pattern correct"
-
-         - name: Check logging -> structlog (ADR-0019 auto-fixable)
+      - name: Check logging -> structlog (ADR-0019 auto-fixable)
         run: |
           echo "🔍 Checking for logging -> structlog violations..."
           python3 scripts/fix_logging_to_structlog.py
@@ -410,7 +244,6 @@ jobs:
         run: |
           echo "🔧 Checking tool wiring consistency across registries..."
           python3 ci/check_tool_wiring.py
-        continue-on-error: true  # TODO: requires full pip install -e . for import resolution
 
       - name: Check deprecated services (Gate 8)
         run: |
@@ -458,6 +291,11 @@ jobs:
           echo "📜 Validating policy YAML schemas in config/policies/..."
           python3 ci/validate_policy_schemas.py
 
+      - name: Repository contract validation
+        run: |
+          echo "📋 Validating repository method/param contracts..."
+          python -m pytest tests/ci/test_repository_contract_calls.py -v --tb=short
+
       # =======================================================================
       # AUTO-FIXABLE SCRIPT CHECKS (dry-run mode — fail if violations exist)
       # =======================================================================
@@ -492,7 +330,6 @@ jobs:
         run: |
           echo "📋 Validating DORA header/footer/trace blocks..."
           python3 scripts/audit/validate_dora_complete.py --repo .
-        continue-on-error: true  # Large pre-existing gap — track progress
 
       - name: Check N+1 query patterns
         run: |
@@ -540,115 +377,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Check for banned MD5 usage
-        run: |
-          echo "🔐 Checking for banned MD5 usage..."
-
-          # Find MD5 in Python files (excluding .venv and tests)
-          FOUND=$(grep -r "hashlib\.md5" --include="*.py" . \
-            | grep -v ".venv" \
-            | grep -v "__pycache__" \
-            | grep -v "# MD5 required by protocol" \
-            || true)
-
-          if [ -n "$FOUND" ]; then
-            echo "❌ BANNED: MD5 usage detected!"
-            echo ""
-            echo "$FOUND"
-            echo ""
-            echo "Use hashlib.sha256() instead."
-            echo "If MD5 is required by external protocol, add comment: # MD5 required by protocol"
-            exit 1
-          fi
-
-          echo "✅ No banned MD5 usage found"
-
-      - name: Check for weak SHA1 (non-HMAC)
-        run: |
-          echo "🔐 Checking for weak SHA1 usage..."
-
-          # Find SHA1 usage (excluding HMAC and protocol requirements)
-          FOUND=$(grep -r "hashlib\.sha1" --include="*.py" . \
-            | grep -v ".venv" \
-            | grep -v "__pycache__" \
-            | grep -v "hmac" \
-            | grep -v "# SHA1 required by protocol" \
-            || true)
-
-          if [ -n "$FOUND" ]; then
-            echo "⚠️ WARNING: SHA1 usage detected (review required)"
-            echo ""
-            echo "$FOUND"
-            echo ""
-            echo "Consider using SHA256 unless required by external protocol."
-          fi
-
-          echo "✅ SHA1 check complete"
-
-      - name: Check for deprecated TaskKind usage
-        run: |
-          echo "🚫 Checking for deprecated TaskKind usage..."
-
-          # Check 1: Import of TaskKind from core.agents.schemas (DEPRECATED)
-          # NOT core.schemas.tasks.TaskKind which is for internal routing
-          IMPORTS=$(grep -rE "from core\.agents\.schemas import.*TaskKind" --include="*.py" . \
-            | grep -v ".venv" \
-            | grep -v "__pycache__" \
-            | grep -v "current_work/" \
-            | grep -v "# TaskKind: backward compat" \
-            || true)
-
-          # Check 2: Usage of deprecated TaskKind enum values
-          # CONVERSATION, QUERY, EXECUTION, RESEARCH are ONLY in core.agents.schemas (deprecated)
-          # RESULT, ERROR, COMMAND are in core.schemas.tasks (NOT deprecated)
-          USAGE=$(grep -rE "TaskKind\.(CONVERSATION|QUERY|EXECUTION|RESEARCH)" --include="*.py" . \
-            | grep -v ".venv" \
-            | grep -v "__pycache__" \
-            | grep -v "core/agents/schemas.py" \
-            | grep -v "current_work/" \
-            | grep -v "# TaskKind: backward compat" \
-            || true)
-
-          FAILED=0
-
-          if [ -n "$IMPORTS" ]; then
-            echo "❌ DEPRECATED: TaskKind import from core.agents.schemas!"
-            echo ""
-            echo "$IMPORTS"
-            FAILED=1
-          fi
-
-          if [ -n "$USAGE" ]; then
-            echo "❌ DEPRECATED: TaskKind enum values (CONVERSATION/QUERY/EXECUTION/RESEARCH)!"
-            echo ""
-            echo "$USAGE"
-            FAILED=1
-          fi
-
-          if [ $FAILED -eq 1 ]; then
-            echo ""
-            echo "========================================="
-            echo "core.agents.schemas.TaskKind is DEPRECATED."
-            echo "Use AgentType instead:"
-            echo "  from core.agents.schemas import AgentType"
-            echo ""
-            echo "Migration mapping:"
-            echo "  TaskKind.CONVERSATION → AgentType.ASSISTANT"
-            echo "  TaskKind.QUERY        → AgentType.ANALYST"
-            echo "  TaskKind.EXECUTION    → AgentType.EXECUTOR"
-            echo "  TaskKind.RESEARCH     → AgentType.RESEARCHER"
-            echo "  TaskKind.COMMAND      → AgentType.OPERATOR"
-            echo ""
-            echo "Parameter change:"
-            echo "  kind=TaskKind.X → agent_type=AgentType.Y"
-            echo ""
-            echo "Note: core.schemas.tasks.TaskKind is NOT deprecated (internal routing)"
-            echo "      TaskKind.RESULT, TaskKind.ERROR, TaskKind.COMMAND from tasks.py are OK"
-            echo "Escape hatch: Add comment '# TaskKind: backward compat'"
-            exit 1
-          fi
-
-          echo "✅ No deprecated TaskKind usage found"
+      - name: Check crypto usage (MD5/SHA1/TaskKind)
+        run: python3 ci/check_crypto_usage.py
 
   # ===========================================================================
   # JOB 1B: DORA-CHECK — DORA Block Compliance

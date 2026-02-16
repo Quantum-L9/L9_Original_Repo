@@ -151,25 +151,16 @@ properties:
       - "tests/core/tools/"
 
   # ===========================================================================
-  # PROTECTED FILES (Optional - defaults from 90-protected-core.mdc)
+  # PROTECTED FILES (Optional - canonical source: config/policies)
   # ===========================================================================
+  # When omitted, the GMP executor MUST use the canonical list from
+  # config/policies/protected_files.yaml (via core.governance.protected_files_policy).
+  # This field is only for optional scope-specific additions to that policy.
   protected_files:
     type: array
-    description: "Files that CANNOT be modified (inherits from L9 defaults)"
+    description: "Optional scope-specific additions to protected list. Canonical list is config/policies/protected_files.yaml (see core.governance.protected_files_policy)."
     items:
       type: string
-    default:
-      - "runtime/websocket_orchestrator.py"
-      - "core/kernels/kernel_loader.py"
-      - "core/agents/executor.py"
-      - "memory/substrate_service.py"
-      - "memory/substrate_dag.py"
-      - "memory/ingestion.py"
-      - "docker-compose.yml"
-      - "kernels/**/*.yaml"
-      - "config/agents/*.yaml"
-      - "core/singleton_registry.py"
-      - "api/auth.py"
 
   # ===========================================================================
   # VALIDATION REQUIREMENTS (Optional)
@@ -215,7 +206,8 @@ properties:
 # =============================================================================
 
 additionalProperties: false
-# Custom validation: scope_items files must not be in protected_files
+# Custom validation: scope_items files must not be in protected_files.
+# Protected list: config/policies/protected_files.yaml (+ optional scope overrides).
 # (Enforced by GMP executor, not JSON Schema)
 
 # ============================================================================

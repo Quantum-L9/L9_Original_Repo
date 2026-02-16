@@ -12,17 +12,22 @@ Stage 2 behavior (Phase 0 Stage 2 — TODO S2-1 through S2-6):
 - Per-pair drift tracking with baseline_callsites.
 - Dynamic pattern matching against catalog allow_patterns.
 """
+
 from __future__ import annotations
 
 import ast
 import fnmatch
 import json
 import pathlib
+import sys
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
 import pytest
 import structlog
+
+# Increase recursion limit for deeply nested AST structures in large codebases
+sys.setrecursionlimit(5000)
 
 from tests.ci._repository_contract_loader import (
     ContractCatalog,
@@ -220,7 +225,7 @@ class ContractCallVisitor(ast.NodeVisitor):
         self.dynamic_proven: list[dict[str, str | int]] = []
         self.dynamic_unproven: list[dict[str, str | int]] = []
 
-    def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
+    def visit_Call(self, node: ast.Call) -> None:
         """Visit a Call node and enforce all matching contract pairs.
 
         S2-5: Collects ALL matching pairs per method call, validates each.
@@ -305,7 +310,12 @@ def _count_callsites_per_pair(
     """Count total callsites per ``(method, param)`` pair."""
     counts: dict[tuple[str, str], int] = defaultdict(int)
 
-    for category in ("literal_valid", "literal_invalid", "dynamic_proven", "dynamic_unproven"):
+    for category in (
+        "literal_valid",
+        "literal_invalid",
+        "dynamic_proven",
+        "dynamic_unproven",
+    ):
         for record in scan_results.get(category, []):
             key = (str(record["method"]), str(record["param"]))
             counts[key] += 1
@@ -429,7 +439,7 @@ def contract_scan_results(
 
     logger.info(
         "contract_scan_snapshot_stage2",
-        timestamp=datetime.now(tz=timezone.utc).isoformat(),
+        timestamp=datetime.now(tz=UTC).isoformat(),
         total_callsites=total,
         literal_valid=len(all_valid),
         literal_invalid=len(all_invalid),
@@ -493,9 +503,9 @@ class TestRepositoryContractCalls:
     ) -> None:
         """Every pair has at least one allowed literal value."""
         for pair in contract_catalog.pairs:
-            assert (
-                len(pair.allowed_literals) > 0
-            ), f"{pair.method}.{pair.param} has empty allowed_literals"
+            assert len(pair.allowed_literals) > 0, (
+                f"{pair.method}.{pair.param} has empty allowed_literals"
+            )
 
     def test_no_invalid_literal_calls(
         self,
@@ -591,7 +601,12 @@ class TestRepositoryContractCalls:
 
         total_now = sum(
             len(contract_scan_results[k])
-            for k in ("literal_valid", "literal_invalid", "dynamic_proven", "dynamic_unproven")
+            for k in (
+                "literal_valid",
+                "literal_invalid",
+                "dynamic_proven",
+                "dynamic_unproven",
+            )
         )
         total_prev = baseline.get("total_callsites", 0)
         if total_prev == 0:

@@ -162,11 +162,6 @@ def is_noqa_stale(
     if "write_text" in line and "noqa" in line.split("#")[0]:
         return False, None
 
-    # Skip string concatenation with SQL (legitimate pattern for dynamic clauses)
-    # e.g., "SELECT * FROM x WHERE " + filter_clause
-    if re.search(r'["\'][^"\']*(?:SELECT|INSERT|UPDATE|DELETE)[^"\']*["\'].*\+', line):
-        return False, None
-
     # Combine line with context for multi-line statement detection
     context_text = "\n".join(context_lines) + "\n" + line
 

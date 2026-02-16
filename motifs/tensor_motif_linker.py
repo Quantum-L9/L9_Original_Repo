@@ -157,7 +157,7 @@ class TensorMotifLinker:
         packet["metadata"]["tensor_response"] = tensor_response
 
         # Add binding timestamp
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         packet["metadata"]["tensor_motif_bound_at"] = datetime.now(UTC).isoformat()
 

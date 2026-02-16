@@ -198,6 +198,9 @@ _Last updated: 2026-02-16 22:00 EST (end-session)_
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-16: GMP-115 enterprise-grade SQL security: recreated core/exceptions (security.py), config/policies/sql_security.yaml, tests/security/test_sql_injection.py (34 tests), ci/check_stale_noqa.py; added operation validation in memory_unified.py; wired check_stale_noqa into CI and pre-commit. All 34 security tests pass; stale noqa check passes.
+- 2026-02-16: PR #113 analysis and merge resolution: analyzed mypy P0 hotspot PR; merge blocked by conflicts; local rebase resolved findings.yaml (kept main); closed PR 113 as superseded by PR #114 (changes already on main).
+- 2026-02-16: Phase0 scope schema: protected_files now reference config/policies/protected_files.yaml; removed duplicated default list. Single source of truth for protected files.
 - 2026-02-16: Ruff + Mypy CI Hardening: Fixed 2,584 ruff errors to 0. Installed mypy under Python 3.12. Fixed 121/130 union-attr errors across 23 files. 9 remaining.
 - ✅ 2026-02-16: **Test Suite & Pre-commit Hook Restoration** — Resolved 30+ test failures and import errors across symbolic computation, DI bootstrap, and dynamic tool discovery. Refactored `code_generator.py` to use SymPy's high-level `codegen`. Fixed `test_integration_phase0.py` by implementing a robust `MockRepository` for refcount integration. Resolved a critical shell syntax error in the pre-commit hook (`local` used outside function) and committed all 13+ modified files. Status: **128 passed, 3 skipped**.
 - 2026-02-16: Enforced ADR-0002 (TYPE_CHECKING pattern) in pre-commit pipeline (redundant enforcement in .pre-commit-config.yaml and scripts/hooks/pre-commit). Fixed timeout issues on macOS and improved grep robustness.

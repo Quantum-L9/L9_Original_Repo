@@ -461,7 +461,7 @@ async def search_memory_handler(
         AND 1 - (sm.vector <=> $1::vector) >= $2
         ORDER BY similarity DESC
         LIMIT $3;
-        """  # noqa: S608 — internal SQL clauses, user values parameterized
+        """
 
         rows = await fetch_all(search_query, *params)
 
@@ -705,7 +705,7 @@ async def get_memory_stats(
             AND ttl > CURRENT_TIMESTAMP
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '24 hours'
             {user_filter}
-            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
+            """
             r = await fetch_one(query, *params)
             short_count = r["cnt"] if r else 0
 
@@ -719,7 +719,7 @@ async def get_memory_stats(
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '7 days'
             AND ttl >= CURRENT_TIMESTAMP + INTERVAL '24 hours'
             {user_filter}
-            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
+            """
             r = await fetch_one(query, *params)
             medium_count = r["cnt"] if r else 0
 
@@ -734,7 +734,7 @@ async def get_memory_stats(
             WHERE packet_type LIKE 'memory.%'
             AND (ttl IS NULL OR ttl > CURRENT_TIMESTAMP + INTERVAL '7 days')
             {user_filter}
-            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
+            """
             r = await fetch_one(query, *params)
             if r:
                 long_count = r["cnt"] if r else 0
@@ -1347,7 +1347,28 @@ async def query_temporal(
     GOVERNANCE: When allowed_scopes is provided, filters results to only include
     memories with matching scope. Cursor gets ['developer', 'global'], L-CTO gets all.
     Uses parameterized = ANY($N) to prevent SQL injection.
+
+    GMP-115: Operation parameter validated against centralized allowlist.
+    See config/policies/sql_security.yaml for allowed operations.
     """
+    # GMP-115: Validate operation against centralized allowlist (defense-in-depth)
+    # Operations determine query structure, not user data — must be allowlisted
+    _ALLOWED_TEMPORAL_OPERATIONS: frozenset[str] = frozenset(
+        {
+            "changes",
+            "timeline",
+            "diff",
+        }
+    )
+    if operation not in _ALLOWED_TEMPORAL_OPERATIONS:
+        from core.exceptions.security import InvalidOperationError
+
+        raise InvalidOperationError(
+            operation,
+            allowed=list(_ALLOWED_TEMPORAL_OPERATIONS),
+            context="temporal",
+        )
+
     try:
         # Parse datetime strings
         since_dt = (
@@ -1400,7 +1421,7 @@ async def query_temporal(
             FROM packet_store ps
             WHERE {where_clause}
             ORDER BY ps.timestamp DESC
-            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
+            """
             memories = await fetch_all(query, *params)
 
             # Count created vs updated (updated = has last_accessed != timestamp)
@@ -1423,7 +1444,7 @@ async def query_temporal(
             FROM packet_store ps
             WHERE {where_clause}
             ORDER BY ps.timestamp ASC
-            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
+            """
             memories = await fetch_all(query, *params)
             created_count = len(memories)
             updated_count = 0
@@ -1442,7 +1463,7 @@ async def query_temporal(
             AND ps.last_accessed IS NOT NULL
             AND ps.last_accessed > ps.timestamp
             ORDER BY ps.last_accessed DESC
-            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
+            """
             memories = await fetch_all(query, *params)
             created_count = 0
             updated_count = len(memories)

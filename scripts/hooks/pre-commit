@@ -236,23 +236,26 @@ if [ -n "$STAGED_ALL" ]; then
     # Exclude ADR/documentation files and config files that contain detection patterns
     STAGED_NON_DOC=$(echo "$STAGED_ALL" | grep -v 'readme/adr/' | grep -v '\.md$' | grep -v 'config/adr-enforcement.yaml' || true)
     
-    if [ -n "$STAGED_NON_DOC" ]; then
+    # Exclude CI check scripts that contain detection patterns as regex
+    STAGED_NON_CI=$(echo "$STAGED_NON_DOC" | grep -v '^ci/check_' || true)
+    
+    if [ -n "$STAGED_NON_CI" ]; then
         # AWS Access Keys
-        FOUND=$(echo "$STAGED_NON_DOC" | xargs grep -E "AKIA[0-9A-Z]{16}" 2>/dev/null | grep -v '\.env' || true)
+        FOUND=$(echo "$STAGED_NON_CI" | xargs grep -E "AKIA[0-9A-Z]{16}" 2>/dev/null | grep -v '\.env' || true)
         if [ -n "$FOUND" ]; then
             printf "%bAWS ACCESS KEYS DETECTED:%b\n%s\n" "$RED" "$NC" "$FOUND" >&2
             CRED_VIOLATIONS=$((CRED_VIOLATIONS + 1))
         fi
         
         # API keys (64-char hex)
-        FOUND=$(echo "$STAGED_NON_DOC" | xargs grep -E '(API_KEY|api_key|L9_API_KEY).*"[a-f0-9]{64}"' 2>/dev/null | grep -v '\.env' || true)
+        FOUND=$(echo "$STAGED_NON_CI" | xargs grep -E '(API_KEY|api_key|L9_API_KEY).*"[a-f0-9]{64}"' 2>/dev/null | grep -v '\.env' || true)
         if [ -n "$FOUND" ]; then
             printf "%bHARDCODED API KEYS:%b\n%s\n" "$RED" "$NC" "$FOUND" >&2
             CRED_VIOLATIONS=$((CRED_VIOLATIONS + 1))
         fi
         
         # PostgreSQL with real passwords
-        FOUND=$(echo "$STAGED_NON_DOC" | xargs grep -E 'postgresql://.*:.*@' 2>/dev/null \
+        FOUND=$(echo "$STAGED_NON_CI" | xargs grep -E 'postgresql://.*:.*@' 2>/dev/null \
             | grep -v '\.env' \
             | grep -v 'user:pass@' | grep -v 'user:password@' | grep -v 'postgres:postgres@' \
             | grep -v 'test:test@' | grep -v 'l9:l9test@' \
@@ -576,6 +579,15 @@ else
             fi
         fi
     done
+    
+    printf "  Checking stale noqa comments (GMP-115)...\n"
+    if python3 ci/check_stale_noqa.py $STAGED_PY_FILES 2>/dev/null; then
+        : # No stale noqa comments
+    else
+        printf "  %b⚠ Stale noqa comments detected%b\n" "$YELLOW" "$NC" >&2
+        printf "     Fix: Run 'python3 ci/check_stale_noqa.py --fix' to remove\n" >&2
+        # Non-blocking for now (warning only)
+    fi
     
     if [ "$ADR_VIOLATIONS" -gt 0 ]; then
         log_audit "adr_violations" "CRITICAL" "count" "$ADR_VIOLATIONS"

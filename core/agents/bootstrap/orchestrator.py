@@ -397,7 +397,9 @@ class AgentBootstrapOrchestrator:
         try:
             instance = ctx.phase_results[-1].context_delta.get("instance")
             # Get raw kernels list from phase 1
-            kernels_list: dict[str, KernelParsed] = {}  # Would need to be passed from phase 1
+            kernels_list: dict[
+                str, KernelParsed
+            ] = {}  # Would need to be passed from phase 1
             await phase_3_bind_kernels.bind_kernels_to_agent(
                 cast("BootstrapInstanceData", instance),
                 kernels_list,
@@ -807,7 +809,9 @@ class AgentBootstrapOrchestrator:
                 logger.info("Phase 3: Binding kernels...")
                 with metrics.time_phase(3):
                     await phase_3_bind_kernels.bind_kernels_to_agent(
-                        instance, kernels, cast("MemorySubstrateService", self.substrate)
+                        instance,
+                        kernels,
+                        cast("MemorySubstrateService", self.substrate),
                     )
                     failed_phase = 3
                 logger.info("✓ Phase 3 complete")
@@ -835,7 +839,9 @@ class AgentBootstrapOrchestrator:
                 logger.info("Phase 6: Wiring governance gates...")
                 with metrics.time_phase(6):
                     await phase_6_wire_governance.wire_governance_gates(
-                        instance, cast("MemorySubstrateService", self.substrate), kernels
+                        instance,
+                        cast("MemorySubstrateService", self.substrate),
+                        kernels,
                     )
                     failed_phase = 6
                 logger.info("✓ Phase 6 complete")
