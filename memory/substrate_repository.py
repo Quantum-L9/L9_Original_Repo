@@ -348,10 +348,10 @@ class SubstrateRepository:
         )
 
         async with self.acquire() as conn:
-            # SAFE: filter_clause is internal SQL (e.g. "AND scope = $2"), not user input.
-            # User values go through filter_params as parameterized $N placeholders.  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # filter_clause is internal SQL from build_scope_project_filter();
+            # user values go through filter_params as parameterized $N placeholders.
             row = await conn.fetchrow(
-                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",  # noqa: S608, ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",
                 packet_id,
                 *filter_params,
             )
@@ -618,7 +618,7 @@ class SubstrateRepository:
                 """
                 INSERT INTO agent_memory_events (event_id, agent_id, timestamp, packet_id, event_type, content)
                 VALUES ($1, $2, $3, $4, $5, $6)
-                """,  # noqa: ADR-0087
+                """,
                 event_id,
                 agent_id,
                 timestamp or datetime.now(UTC),
@@ -1073,7 +1073,7 @@ class SubstrateRepository:
                 embedding_id, agent_id, vector, payload, created_at, scope, tenant_id, org_id, user_id
             )
             VALUES ($1, $2, $3::vector, $4, $5, $6, $7::uuid, $8::uuid, $9::uuid)
-            """,  # noqa: ADR-0087
+            """,
             embedding_id,
             agent_id,
             vector_str,

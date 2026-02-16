@@ -52,6 +52,13 @@ from src.models import (
 
 logger = structlog.get_logger(__name__)
 
+# Allowlist of valid memory table identifiers (prevents SQL injection via table name)
+_ALLOWED_MEMORY_TABLES: frozenset[str] = frozenset({
+    "memory.short_term",
+    "memory.medium_term",
+    "memory.long_term",
+})
+
 
 def _legacy_memory_disabled() -> None:
     """Dependency that disables legacy memory routes."""
@@ -138,12 +145,13 @@ async def save_memory_handler(
             expires_at = None
 
         if duration in ["short", "medium"]:
-            # SAFE: {table} is from internal logic, user values parameterized  # noqa: ADR-0087
+            if table not in _ALLOWED_MEMORY_TABLES:
+                raise ValueError(f"Invalid memory table: {table!r}")
             query = f"""
             INSERT INTO {table} (user_id, kind, content, embedding, importance, metadata, expires_at)
             VALUES ($1, $2, $3, $4::vector, $5, $6, $7)
             RETURNING id, user_id, kind, content, importance, created_at;
-            """  # noqa: S608 — table is internal constant, user values parameterized
+            """
             result = await fetch_one(
                 query,
                 user_id,
@@ -294,14 +302,15 @@ async def search_memory_handler(
             )
             params.extend([query_embedding, threshold, top_k])
 
-            # SAFE: cols, table, where, scope_clause, kind_clause are internal SQL  # noqa: ADR-0087
+            if table not in _ALLOWED_MEMORY_TABLES:
+                raise ValueError(f"Invalid memory table: {table!r}")
             query_sql = f"""
             SELECT {cols}, 1 - (embedding <-> ${param_idx}::vector) as similarity
             FROM {table}
             WHERE user_id = $1 {where} {scope_clause} {kind_clause}
             AND 1 - (embedding <-> ${param_idx}::vector) >= ${param_idx + 1}
             ORDER BY similarity DESC LIMIT ${param_idx + 2};
-            """  # noqa: S608 — all interpolated parts are internal SQL clauses
+            """
             rows = await fetch_all(query_sql, *params)
 
             if track_access and dur == "long" and rows:
@@ -942,15 +951,18 @@ async def query_temporal(
 
         where_clause = " AND ".join(where_parts)
 
+        _ALLOWED_OPERATIONS = frozenset({"changes", "timeline", "diff"})
+        if operation not in _ALLOWED_OPERATIONS:
+            raise ValueError(f"Invalid temporal operation: {operation!r}")
+
         if operation == "changes":
             # Get all memories created or updated in the period
-            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
             query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at, updated_at
             FROM memory.long_term
             WHERE {where_clause}
             ORDER BY created_at DESC;
-            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
+            """
             memories = await fetch_all(query, *params)
 
             # Count created vs updated
@@ -960,25 +972,23 @@ async def query_temporal(
             updated_count = len(memories) - created_count
 
         elif operation == "timeline":
-            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
             query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at
             FROM memory.long_term
             WHERE {where_clause}
             ORDER BY created_at ASC;
-            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
+            """
             memories = await fetch_all(query, *params)
             created_count = len(memories)
             updated_count = 0
 
         else:  # diff
-            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
             query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at, updated_at
             FROM memory.long_term
             WHERE {where_clause} AND updated_at > created_at
             ORDER BY updated_at DESC;
-            """  # noqa: S608 — where_clause is internal SQL, user values parameterized
+            """
             memories = await fetch_all(query, *params)
             created_count = 0
             updated_count = len(memories)

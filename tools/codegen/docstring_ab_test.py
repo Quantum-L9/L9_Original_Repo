@@ -274,7 +274,7 @@ def generate_docstring_ast_only(ctx: EnrichedContext) -> str:
     elif ctx.name.startswith("delete") or ctx.name.startswith("remove"):
         lines.append(f"Remove {subject}.")
     elif ctx.name.startswith("update"):
-        lines.append(f"Update {subject}.")  # noqa: ADR-0087 - table name interpolation
+        lines.append(f"Update {subject}.")
     else:
         lines.append(f"{action_verb.capitalize()} {subject}.")
 

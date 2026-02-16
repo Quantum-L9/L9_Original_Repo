@@ -697,7 +697,6 @@ async def get_memory_stats(
         avg_importance = 0.0
 
         if duration in ["all", "short"]:
-            # SAFE: user_filter is internal SQL clause, user values parameterized  # noqa: ADR-0087
             query = f"""
             SELECT COUNT(*) as cnt
             FROM packet_store
@@ -706,12 +705,11 @@ async def get_memory_stats(
             AND ttl > CURRENT_TIMESTAMP
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '24 hours'
             {user_filter}
-            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
+            """
             r = await fetch_one(query, *params)
             short_count = r["cnt"] if r else 0
 
         if duration in ["all", "medium"]:
-            # SAFE: user_filter is internal SQL clause, user values parameterized  # noqa: ADR-0087
             query = f"""
             SELECT COUNT(*) as cnt
             FROM packet_store
@@ -721,7 +719,7 @@ async def get_memory_stats(
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '7 days'
             AND ttl >= CURRENT_TIMESTAMP + INTERVAL '24 hours'
             {user_filter}
-            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
+            """
             r = await fetch_one(query, *params)
             medium_count = r["cnt"] if r else 0
 
@@ -736,7 +734,7 @@ async def get_memory_stats(
             WHERE packet_type LIKE 'memory.%'
             AND (ttl IS NULL OR ttl > CURRENT_TIMESTAMP + INTERVAL '7 days')
             {user_filter}
-            """  # noqa: S608 — user_filter is internal SQL clause, user values parameterized
+            """
             r = await fetch_one(query, *params)
             if r:
                 long_count = r["cnt"] if r else 0
@@ -972,17 +970,19 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
 
         if not dry_run and affected > 0:
             # Apply decay: importance *= decay_factor^(days_since_access)
-            # SAFE: decay_factor is a float from config, not user input  # noqa: ADR-0087
-            await execute(f"""
+            await execute(
+                """
                 UPDATE packet_store
                 SET importance_score = importance_score * POWER(
-                    {decay_factor},
+                    $1,
                     EXTRACT(EPOCH FROM (NOW() - COALESCE(last_accessed, timestamp))) / 86400
                 )
                 WHERE packet_type LIKE 'memory.%'
                 AND (last_accessed IS NULL OR last_accessed < NOW() - INTERVAL '1 day')
                 AND importance_score > 0.01
-                """)  # noqa: S608 — decay_factor is a float from config, not user input
+                """,
+                float(decay_factor),
+            )
             logger.info(f"Applied decay to {affected} memories")
 
         return {
