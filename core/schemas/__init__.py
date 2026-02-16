@@ -124,7 +124,6 @@ __all__ = [
     "DEFAULT_ARCHITECT_CAPABILITIES",
     "DEFAULT_CODER_CAPABILITIES",
     "DEFAULT_READER_CAPABILITIES",
-    # Schema Version Constants
     "SCHEMA_VERSION",
     "SUPPORTED_VERSIONS",
     "VALID_DERIVE_TYPES",
@@ -138,19 +137,14 @@ __all__ = [
     "DeriveType",
     "ErrorEvent",
     "EventMessage",
-    # WebSocket Event Stream
     "EventType",
     "HandshakeResponse",
-    # Security - Event Stream
     "HandshakeStatus",
     "IntegrationResult",
-    # L9 Unified Base Model
     "L9BaseModel",
     "PacketConfidence",
-    # Packet Envelope (Memory.yaml v1.0.1) - CANONICAL IMPORTS
     "PacketEnvelope",
     "PacketEnvelopeIn",
-    # Enums
     "PacketKind",
     "PacketLineage",
     "PacketMetadata",
@@ -160,16 +154,13 @@ __all__ = [
     "PassStatus",
     "Query",
     "QueryPlan",
-    # Research Factory Models
     "ResearchJobSpec",
     "ResearchMetrics",
-    # Research Factory State
     "ResearchState",
     "RetrievalBatch",
     "SecurityEvent",
     "SecurityEventType",
     "SemanticHit",
-    # Search Models
     "SemanticSearchRequest",
     "SemanticSearchResult",
     "Superprompt",
@@ -178,18 +169,14 @@ __all__ = [
     "TaskGraph",
     "TaskKind",
     "TaskResult",
-    # Task Types (Phase 2.5)
     "TaskStatus",
-    # Security - Capabilities
-    "ToolName",
-    # Role-Based Tool Capabilities (GMP MCP-Tools)
     "ToolCapabilities",
     "ToolCapability",
-    "filter_tools_by_capabilities",
+    "ToolName",
     "ValidationStatus",
     "create_handshake_event",
     "create_violation_event",
-    # Research Factory Nodes
+    "filter_tools_by_capabilities",
     "pass_1_plan_queries",
     "pass_2_build_superprompts",
     "pass_3_execute_retrieval",

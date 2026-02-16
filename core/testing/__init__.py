@@ -50,16 +50,14 @@ from core.testing.test_generator import (
 )
 
 __all__ = [
-    # Executor
-    "TestExecutor",
-    "TestResults",
-    "run_tests_in_sandbox",
-    # Generator (v2.1 - LLM powered with presets)
     "MODEL_PRESETS",
+    "TestExecutor",
     "TestGenerator",
+    "TestResults",
     "generate_integration_tests",
-    "generate_test_file",  # RECOMMENDED entry point
+    "generate_test_file",
     "generate_unit_tests",
+    "run_tests_in_sandbox",
 ]
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

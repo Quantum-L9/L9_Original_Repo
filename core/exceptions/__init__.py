@@ -33,11 +33,10 @@ from core.exceptions.security import (
 )
 
 __all__ = [
-    # Security exceptions
-    "SQLSecurityError",
-    "InvalidTableError",
     "InvalidOperationError",
     "InvalidSortColumnError",
+    "InvalidTableError",
+    "SQLSecurityError",
 ]
 
 # ============================================================================

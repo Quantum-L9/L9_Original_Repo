@@ -2,6 +2,12 @@
 """
 Check for hardcoded credentials (ADR-0090).
 
+This is a CI DETECTION SCRIPT that scans the codebase for violations.
+It intentionally contains credential patterns (regex) to detect them.
+
+Whitelist: This file is excluded from ADR-0090 checks because it must
+contain detection patterns like `postgresql://.*:.*@` to find violations.
+
 Scans for:
 - PostgreSQL connection strings with real passwords
 - AWS Access Keys (AKIA...)
@@ -24,16 +30,27 @@ __dora_meta__ = {
 }
 
 
-def run_grep(pattern: str, file_types: list[str], extra_excludes: list[str] | None = None) -> str:
+def run_grep(
+    pattern: str, file_types: list[str], extra_excludes: list[str] | None = None
+) -> str:
     """Run grep with standard exclusions."""
     cmd = ["grep", "-r", pattern]
     # Exclude directories at grep level for performance
-    cmd.extend(["--exclude-dir=.venv", "--exclude-dir=venv", "--exclude-dir=.git", "--exclude-dir=__pycache__"])
+    cmd.extend(
+        [
+            "--exclude-dir=.venv",
+            "--exclude-dir=venv",
+            "--exclude-dir=.git",
+            "--exclude-dir=__pycache__",
+        ]
+    )
     for ft in file_types:
         cmd.extend(["--include", ft])
     cmd.append(".")
 
-    result = subprocess.run(cmd, capture_output=True, text=True, cwd=Path(__file__).parent.parent)
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, cwd=Path(__file__).parent.parent
+    )
     output = result.stdout
 
     # Additional post-filter exclusions
@@ -64,14 +81,33 @@ def check_postgres_credentials() -> tuple[bool, str]:
 
     # Filter out known safe patterns
     safe_patterns = [
-        "user:pass@", "user:password@", "postgres:postgres@",
-        "test:test@", "hypergraph:hypergraph@", "l9:l9test@",
-        "$(", "${", "$[A-Z]", "YOUR_", "CHANGEME",
-        "...", "***", ":PASSWORD@", ":password@",
-        ":devpass@", ":l9_password@", "POSTGRES_PASSWORD@",
-        "REAL_PASSWORD_HERE", "❌", "ci.yml",
-        "ci/check_", "adr-enforcement.yaml", "current_work/",
-        "test_user:test_pass", "scripts/vps/", "deploy/"
+        "user:pass@",
+        "user:password@",
+        "postgres:postgres@",
+        "test:test@",
+        "hypergraph:hypergraph@",
+        "l9:l9test@",
+        "$(",
+        "${",
+        "$[A-Z]",
+        "YOUR_",
+        "CHANGEME",
+        "...",
+        "***",
+        ":PASSWORD@",
+        ":password@",
+        ":devpass@",
+        ":l9_password@",
+        "POSTGRES_PASSWORD@",
+        "REAL_PASSWORD_HERE",
+        "❌",
+        "ci.yml",
+        "ci/check_",
+        "adr-enforcement.yaml",
+        "current_work/",
+        "test_user:test_pass",
+        "scripts/vps/",
+        "deploy/",
     ]
 
     violations = []
@@ -90,10 +126,22 @@ def check_postgres_credentials() -> tuple[bool, str]:
 def check_aws_keys() -> tuple[bool, str]:
     """Check for AWS Access Keys."""
     result = subprocess.run(
-        ["grep", "-rE", r"AKIA[0-9A-Z]{16}",
-         "--exclude-dir=.venv", "--exclude-dir=venv", "--exclude-dir=.git", "--exclude-dir=__pycache__",
-         "--include=*.py", "--include=*.sh", "--include=*.yaml", "."],
-        capture_output=True, text=True, cwd=Path(__file__).parent.parent
+        [
+            "grep",
+            "-rE",
+            r"AKIA[0-9A-Z]{16}",
+            "--exclude-dir=.venv",
+            "--exclude-dir=venv",
+            "--exclude-dir=.git",
+            "--exclude-dir=__pycache__",
+            "--include=*.py",
+            "--include=*.sh",
+            "--include=*.yaml",
+            ".",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).parent.parent,
     )
 
     lines = []
@@ -109,13 +157,36 @@ def check_aws_keys() -> tuple[bool, str]:
 def check_api_keys() -> tuple[bool, str]:
     """Check for hardcoded API keys (64-char hex strings)."""
     result = subprocess.run(
-        ["grep", "-rE", r'(API_KEY|api_key|L9_API_KEY).*"[a-f0-9]{64}"',
-         "--exclude-dir=.venv", "--exclude-dir=venv", "--exclude-dir=.git", "--exclude-dir=__pycache__",
-         "--include=*.py", "--include=*.md", "--include=*.sh", "--include=*.yaml", "--include=*.yml", "."],
-        capture_output=True, text=True, cwd=Path(__file__).parent.parent
+        [
+            "grep",
+            "-rE",
+            r'(API_KEY|api_key|L9_API_KEY).*"[a-f0-9]{64}"',
+            "--exclude-dir=.venv",
+            "--exclude-dir=venv",
+            "--exclude-dir=.git",
+            "--exclude-dir=__pycache__",
+            "--include=*.py",
+            "--include=*.md",
+            "--include=*.sh",
+            "--include=*.yaml",
+            "--include=*.yml",
+            ".",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).parent.parent,
     )
 
-    safe_patterns = [".env", "YOUR_", "❌", "checksum", "hash", "ci/check_", "current_work/", "scripts/development/"]
+    safe_patterns = [
+        ".env",
+        "YOUR_",
+        "❌",
+        "checksum",
+        "hash",
+        "ci/check_",
+        "current_work/",
+        "scripts/development/",
+    ]
 
     lines = []
     for line in result.stdout.splitlines():

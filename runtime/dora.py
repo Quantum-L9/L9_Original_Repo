@@ -51,6 +51,7 @@ import uuid
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
+from functools import wraps
 from pathlib import Path
 from typing import Any, TypeVar
 

@@ -235,34 +235,34 @@ STAGED_ALL=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true
 if [ -n "$STAGED_ALL" ]; then
     # Exclude ADR/documentation files and config files that contain detection patterns
     STAGED_NON_DOC=$(echo "$STAGED_ALL" | grep -v 'readme/adr/' | grep -v '\.md$' | grep -v 'config/adr-enforcement.yaml' || true)
-    
-    # Exclude CI check scripts that contain detection patterns as regex
-    STAGED_NON_CI=$(echo "$STAGED_NON_DOC" | grep -v '^ci/check_' || true)
-    
-    if [ -n "$STAGED_NON_CI" ]; then
+
+    if [ -n "$STAGED_NON_DOC" ]; then
         # AWS Access Keys
-        FOUND=$(echo "$STAGED_NON_CI" | xargs grep -E "AKIA[0-9A-Z]{16}" 2>/dev/null | grep -v '\.env' || true)
+        # Note: ci/check_* files contain detection patterns as regex - they are whitelisted
+        # via their docstrings which document they are CI DETECTION SCRIPTs
+        FOUND=$(echo "$STAGED_NON_DOC" | xargs grep -E "AKIA[0-9A-Z]{16}" 2>/dev/null | grep -v '\.env' | grep -v '^ci/check_' || true)
         if [ -n "$FOUND" ]; then
             printf "%bAWS ACCESS KEYS DETECTED:%b\n%s\n" "$RED" "$NC" "$FOUND" >&2
             CRED_VIOLATIONS=$((CRED_VIOLATIONS + 1))
         fi
-        
+
         # API keys (64-char hex)
-        FOUND=$(echo "$STAGED_NON_CI" | xargs grep -E '(API_KEY|api_key|L9_API_KEY).*"[a-f0-9]{64}"' 2>/dev/null | grep -v '\.env' || true)
+        FOUND=$(echo "$STAGED_NON_DOC" | xargs grep -E '(API_KEY|api_key|L9_API_KEY).*"[a-f0-9]{64}"' 2>/dev/null | grep -v '\.env' | grep -v '^ci/check_' || true)
         if [ -n "$FOUND" ]; then
             printf "%bHARDCODED API KEYS:%b\n%s\n" "$RED" "$NC" "$FOUND" >&2
             CRED_VIOLATIONS=$((CRED_VIOLATIONS + 1))
         fi
-        
+
         # PostgreSQL with real passwords
-        FOUND=$(echo "$STAGED_NON_CI" | xargs grep -E 'postgresql://.*:.*@' 2>/dev/null \
+        FOUND=$(echo "$STAGED_NON_DOC" | xargs grep -E 'postgresql://.*:.*@' 2>/dev/null \
             | grep -v '\.env' \
+            | grep -v '^ci/check_' \
             | grep -v 'user:pass@' | grep -v 'user:password@' | grep -v 'postgres:postgres@' \
             | grep -v 'test:test@' | grep -v 'l9:l9test@' \
             | grep -v '\$(' | grep -v '\${' | grep -v '\$[A-Z]' \
             | grep -v ':PASSWORD@' | grep -v ':password@' | grep -v ':devpass@' \
             | grep -v 'POSTGRES_PASSWORD@' | grep -v '\.\.\.' | grep -v '\*\*\*' || true)
-        
+
         if [ -n "$FOUND" ]; then
             printf "%bHARDCODED POSTGRES CREDENTIALS:%b\n%s\n" "$RED" "$NC" "$FOUND" >&2
             CRED_VIOLATIONS=$((CRED_VIOLATIONS + 1))
@@ -484,7 +484,8 @@ else
     printf "  Checking ADR-0083: datetime.utcnow()...\n"
     for file in $STAGED_PY_FILES; do
         if [ -f "$file" ]; then
-            if [[ "$file" == "ci/check_adr_compliance.py" ]]; then continue; fi
+            # Skip CI detection scripts - they contain patterns they detect (see docstrings)
+            if [[ "$file" == ci/check_* ]]; then continue; fi
             if grep -n "\.utcnow()" "$file" 2>/dev/null | grep -v "# noqa"; then
                 printf "  %b❌ ADR-0083: datetime.utcnow() in %s%b\n" "$RED" "$file" "$NC" >&2
                 printf "     Fix: Use datetime.now(UTC) instead\n" >&2
@@ -492,11 +493,12 @@ else
             fi
         fi
     done
-    
+
     printf "  Checking ADR-0088: pickle usage...\n"
     for file in $STAGED_PY_FILES; do
         if [ -f "$file" ]; then
-            if [[ "$file" == "ci/check_adr_compliance.py" ]]; then continue; fi
+            # Skip CI detection scripts - they contain patterns they detect (see docstrings)
+            if [[ "$file" == ci/check_* ]]; then continue; fi
             if grep -n "pickle\.load" "$file" 2>/dev/null | grep -v "# noqa"; then
                 printf "  %b❌ ADR-0088: pickle in %s%b\n" "$RED" "$file" "$NC" >&2
                 printf "     Fix: Use json.loads() or msgpack instead\n" >&2

@@ -40,30 +40,34 @@ __dora_meta__ = {
 # ============================================================================
 
 # Directories to skip entirely
-SKIP_DIRS: frozenset[str] = frozenset({
-    ".git",
-    ".venv",
-    "venv",
-    "__pycache__",
-    ".pytest_cache",
-    "node_modules",
-    ".mypy_cache",
-    ".ruff_cache",
-    "dist",
-    "build",
-    ".dora",        # DORA templates
-    "codegen",      # Generated code
-    "igor",         # User workspace
-    "tests",        # Test files may have intentional noqa for test data
-})
+SKIP_DIRS: frozenset[str] = frozenset(
+    {
+        ".git",
+        ".venv",
+        "venv",
+        "__pycache__",
+        ".pytest_cache",
+        "node_modules",
+        ".mypy_cache",
+        ".ruff_cache",
+        "dist",
+        "build",
+        ".dora",  # DORA templates
+        "codegen",  # Generated code
+        "igor",  # User workspace
+        "tests",  # Test files may have intentional noqa for test data
+    }
+)
 
 # Files to skip
-SKIP_FILES: frozenset[str] = frozenset({
-    "scripts/fix_logging_to_structlog.py",  # This script manipulates noqa comments
-    "ci/check_noqa_placement.py",           # This script tests noqa placement
-    "ci/check_adr_compliance.py",           # Contains noqa documentation
-    "tools/test_gen/adr_property_tests.py", # Contains noqa documentation
-})
+SKIP_FILES: frozenset[str] = frozenset(
+    {
+        "scripts/fix_logging_to_structlog.py",  # This script manipulates noqa comments
+        "ci/check_noqa_placement.py",  # This script tests noqa placement
+        "ci/check_adr_compliance.py",  # Contains noqa documentation
+        "tools/test_gen/adr_property_tests.py",  # Contains noqa documentation
+    }
+)
 
 # ADR patterns: (adr_code, violation_pattern, description)
 # If the violation pattern is NOT found on the line (or nearby), the noqa is stale
@@ -116,16 +120,17 @@ def should_skip(path: Path) -> bool:
             return True
 
     # Skip test files (they may have intentional noqa for test data)
-    if "/tests/" in path_str or path_str.startswith("tests/") or path_str.startswith("tests"):
-        return True
-
-    return False
+    return (
+        "/tests/" in path_str
+        or path_str.startswith("tests/")
+        or path_str.startswith("tests")
+    )
 
 
 def find_noqa_comments(content: str) -> list[tuple[int, str, str]]:
     """
     Find all noqa comments in file content.
-    
+
     Returns list of (line_number, full_line, noqa_codes).
     """
     results = []
@@ -149,12 +154,12 @@ def is_noqa_stale(
 ) -> tuple[bool, str | None]:
     """
     Check if a noqa comment is stale (violation no longer present).
-    
+
     Args:
         line: The line containing the noqa comment
         noqa_codes: The codes specified in the noqa (e.g., "ADR-0087, S608")
         context_lines: Previous 5 lines for multi-line statement context
-    
+
     Returns:
         (is_stale, stale_code) - True if stale, with the stale code
     """
@@ -171,8 +176,16 @@ def is_noqa_stale(
     if line.strip().startswith('"""') or line.strip().startswith("'''"):
         # Check if this is closing a multi-line string with SQL
         # Look for f""" or f''' with SQL keywords in extended context
-        extended_context = "\n".join(context_lines[-30:]) if len(context_lines) >= 30 else "\n".join(context_lines)
-        if re.search(r'f\s*["\']["\']["\'].*(?:SELECT|INSERT|UPDATE|DELETE)', extended_context, re.DOTALL):
+        extended_context = (
+            "\n".join(context_lines[-30:])
+            if len(context_lines) >= 30
+            else "\n".join(context_lines)
+        )
+        if re.search(
+            r'f\s*["\']["\']["\'].*(?:SELECT|INSERT|UPDATE|DELETE)',
+            extended_context,
+            re.DOTALL,
+        ):
             return False, None
         # Also check for f" or f' with SQL (single-line that spans multiple)
         if re.search(r'f["\'][^"\']*(?:SELECT|INSERT|UPDATE|DELETE)', extended_context):
@@ -201,7 +214,7 @@ def is_noqa_stale(
 def check_file(path: Path, fix: bool = False) -> list[tuple[int, str, str]]:
     """
     Check a single file for stale noqa comments.
-    
+
     Returns list of (line_number, line_content, stale_code).
     """
     stale_comments = []
@@ -282,11 +295,13 @@ def main() -> int:
 
     if total_stale > 0:
         action = "removed" if fix_mode else "found"
-        print(f"\n{'='*60}")
-        print(f"Stale noqa comments {action}: {total_stale} in {files_with_stale} files")
+        print(f"\n{'=' * 60}")
+        print(
+            f"Stale noqa comments {action}: {total_stale} in {files_with_stale} files"
+        )
         if not fix_mode:
             print("Run with --fix to auto-remove stale comments")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         return 1
 
     print("No stale noqa comments found.")

@@ -39,14 +39,13 @@ from .tensor_motif_linker import MotifMetadata, TensorMotifLinker
 __version__ = "1.0.0"
 
 __all__ = [
-    # Data classes
     "MotifEvent",
+    "MotifFeedbackGraph",
     "MotifMetadata",
     "MotifTrace",
+    "MultimodalPlanRanker",
     "PlanCandidate",
     "RankedPlan",
-    # Core classes
-    "MultimodalPlanRanker",
     "TensorMotifLinker",
 ]
 # ============================================================================

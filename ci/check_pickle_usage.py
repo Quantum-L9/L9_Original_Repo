@@ -2,6 +2,12 @@
 """
 Check for pickle usage (ADR-0088).
 
+This is a CI DETECTION SCRIPT that scans the codebase for violations.
+It intentionally contains the pattern `pickle.load` in grep commands.
+
+Whitelist: This file is excluded from ADR-0088 checks because it must
+contain the detection pattern to find violations.
+
 Pickle is forbidden for security reasons - use JSON or msgpack instead.
 
 Usage:

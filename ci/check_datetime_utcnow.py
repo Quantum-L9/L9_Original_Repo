@@ -2,6 +2,12 @@
 """
 Check for deprecated datetime.utcnow() usage (ADR-0083).
 
+This is a CI DETECTION SCRIPT that scans the codebase for violations.
+It intentionally contains the patterns it detects (in grep commands).
+
+Whitelist: This file is excluded from ADR-0083 checks because it must
+contain the detection pattern `.utcnow()` to find violations.
+
 Usage:
     python3 ci/check_datetime_utcnow.py
 """
@@ -24,11 +30,22 @@ def main() -> int:
     print("🕐 Checking for deprecated datetime.utcnow() (ADR-0083)...")
 
     result = subprocess.run(
-        ["grep", "-rn", r"\.utcnow()",
-         "--exclude-dir=.venv", "--exclude-dir=venv", "--exclude-dir=__pycache__",
-         "--exclude-dir=tests", "--exclude-dir=current_work", "--exclude-dir=ci",
-         "--include=*.py", "."],
-        capture_output=True, text=True, cwd=Path(__file__).parent.parent
+        [
+            "grep",
+            "-rn",
+            r"\.utcnow()",
+            "--exclude-dir=.venv",
+            "--exclude-dir=venv",
+            "--exclude-dir=__pycache__",
+            "--exclude-dir=tests",
+            "--exclude-dir=current_work",
+            "--exclude-dir=ci",
+            "--include=*.py",
+            ".",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).parent.parent,
     )
 
     excludes = ["# noqa"]
