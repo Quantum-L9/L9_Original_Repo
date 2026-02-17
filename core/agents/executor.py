@@ -2345,12 +2345,25 @@ class AgentExecutorService:
         # Dispatch through registry using tool_id
         # Use guarded_execute if available (kernel-aware execution)
         try:
+            # Extract principal from agent context (fail-closed)
+            principal_id = (
+                getattr(instance.task, "source_id", None)
+                or instance.context.get("user_id")
+                or instance.context.get("agent_id")
+            )
+            if not principal_id:
+                raise RuntimeError(
+                    f"principal_id REQUIRED for tool dispatch. "
+                    f"task_id={instance.task.id}, agent_id={instance.config.agent_id}"
+                )
+
             context = {
                 "task_id": str(instance.task.id),
                 "agent_id": instance.config.agent_id,
                 "thread_id": str(instance.thread_id),
                 "iteration": instance.iteration,
                 "memory_context": memory_context,  # Inject memory context
+                "principal_id": principal_id,
             }
 
             # Require guarded execution with active kernels (fail-closed)
@@ -2385,6 +2398,7 @@ class AgentExecutorService:
                         tool_id=tool_call.tool_id,
                         arguments=tool_call.arguments,
                         context=context,
+                        principal_id=principal_id,
                     )
             else:
                 result = await self._tool_registry.guarded_execute(
@@ -2392,6 +2406,7 @@ class AgentExecutorService:
                     tool_id=tool_call.tool_id,
                     arguments=tool_call.arguments,
                     context=context,
+                    principal_id=principal_id,
                 )
 
             # Persist task result after execution

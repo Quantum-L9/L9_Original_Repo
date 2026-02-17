@@ -158,6 +158,14 @@ async def save_memory_handler(
         HTTPException 403: If scope not authorized
         HTTPException 500: If ingestion fails
     """
+    # FAIL-CLOSED: Validate principal
+    if not user_id or not isinstance(user_id, str) or not user_id.strip():
+        raise ValueError(
+            f"user_id (principal_id) REQUIRED for save_memory. "
+            f"Cannot be None/empty. Received: {user_id!r}"
+        )
+    validated_principal = user_id.strip()
+
     # GMP-68: Governance enforcement
     ctx = require_governance_context("mcp_memory.save_memory")
     if scope not in ctx.allowed_scopes:
@@ -293,7 +301,7 @@ async def _save_via_main_pipeline(
 
     # Use main ingestion pipeline (runs full DAG)
     start_time = time.time()
-    result = await substrate_service.write_packet(packet_in)
+    result = await substrate_service.write_packet(packet_in, principal_id=user_id)
     ingest_time_ms = (time.time() - start_time) * 1000
 
     if result.status == "error":
@@ -364,6 +372,14 @@ async def search_memory_handler(
     memories from the specified project_id. Uses COALESCE for backward compatibility
     with legacy packets that don't have project_id set (defaults to 'l9').
     """
+    # FAIL-CLOSED: Validate principal
+    if not user_id or not isinstance(user_id, str) or not user_id.strip():
+        raise ValueError(
+            f"user_id (principal_id) REQUIRED for search_memory. "
+            f"Cannot be None/empty. Received: {user_id!r}"
+        )
+    validated_principal = user_id.strip()
+
     # ADR-0098: project_id from centralized config_constants (single source of truth)
     if project_id is None:
         project_id = get_default_project_id()

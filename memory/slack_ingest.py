@@ -742,6 +742,9 @@ async def handle_slack_events(
     text = normalized.get("text", "")
     event_type = normalized.get("event_type")
 
+    # Derive principal_id for all write_packet calls (fail-closed)
+    principal_id = user_id or f"slack:team:{team_id}"
+
     # CANONICAL LOG EVENT 3: Thread UUID generated
     logger.info(
         "slack_thread_uuid_generated",
@@ -960,7 +963,7 @@ async def handle_slack_events(
                 ),
             )
 
-            result = await substrate_service.write_packet(inbound_packet_in)
+            result = await substrate_service.write_packet(inbound_packet_in, principal_id=principal_id)
             logger.debug(
                 "slack_command_packet_stored",
                 event_id=event_id,
@@ -1022,7 +1025,7 @@ async def handle_slack_events(
                 ),
             )
 
-            result = await substrate_service.write_packet(outbound_packet_in)
+            result = await substrate_service.write_packet(outbound_packet_in, principal_id=principal_id)
             logger.debug(
                 "slack_command_outbound_stored",
                 event_id=event_id,
@@ -1240,7 +1243,7 @@ async def handle_slack_events(
                             source="l9",
                         ),
                     )
-                    await substrate_service.write_packet(outbound_packet_in)
+                    await substrate_service.write_packet(outbound_packet_in, principal_id=principal_id)
                 except Exception as e:
                     logger.error("slack_l_agent_packet_storage_error", error=str(e))
 
@@ -1428,7 +1431,7 @@ async def handle_slack_events(
             ),
         )
 
-        result = await substrate_service.write_packet(inbound_packet_in)
+        result = await substrate_service.write_packet(inbound_packet_in, principal_id=principal_id)
         # CANONICAL LOG EVENT 7: Packet stored
         logger.debug(
             "slack_packet_stored",
@@ -1533,7 +1536,7 @@ async def handle_slack_events(
             ),
         )
 
-        result = await substrate_service.write_packet(outbound_packet_in)
+        result = await substrate_service.write_packet(outbound_packet_in, principal_id=principal_id)
         # CANONICAL LOG EVENT 7: Packet stored (outbound)
         logger.debug(
             "slack_packet_stored",
@@ -1690,7 +1693,8 @@ async def handle_slack_commands(
             ),
         )
 
-        result = await substrate_service.write_packet(command_packet_in)
+        _cmd_principal = user_id or f"slack:team:{team_id}"
+        result = await substrate_service.write_packet(command_packet_in, principal_id=_cmd_principal)
         logger.debug("slack_command_packet_stored", packet_id=result.packet_id)
     except Exception as e:
         logger.error("slack_command_packet_storage_error", error=str(e))

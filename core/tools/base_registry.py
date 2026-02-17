@@ -334,6 +334,8 @@ class ToolRegistry:
         self,
         tool_id: str,
         arguments: dict[str, Any],
+        *,
+        principal_id: str,
     ) -> dict[str, Any]:
         """
         Execute a tool with timeout handling.
@@ -341,10 +343,16 @@ class ToolRegistry:
         Args:
             tool_id: Tool to execute
             arguments: Arguments for tool
+            principal_id: REQUIRED - Principal identifier
 
         Returns:
             Dict with success, result/error, duration_ms
         """
+        if not principal_id or not principal_id.strip():
+            raise RuntimeError(
+                f"principal_id REQUIRED for tool execution: {tool_id}"
+            )
+
         start_time = datetime.now(UTC)
 
         metadata = self._tools.get(tool_id)
