@@ -1,12 +1,24 @@
+# component_name: "CI-Allowlist"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-02-12T23:15:54Z"
+# updated_at: "2026-02-16T00:00:00Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "ci-allowlist"
+# type: "config"
+# status: "active"
+
 # =============================================================================
-# L9 CI/Hook Allowlist — Single Source of Truth
+# L9 CI/Hook Allowlist — File-Specific Exemptions
 # =============================================================================
+# This file defines FILE-SPECIFIC allowlists for CI checks.
+# For DIRECTORY exclusions, see config/ci-exclusions.yaml
 #
-# All pre-commit gates, CI checks, and auto_fix_adr.py read from this file.
-# When adding an exclusion, document WHY (not just the path).
-#
-# Format: Each section maps to a specific CI gate or check.
+# When adding an exemption, document WHY (not just the path).
 # =============================================================================
+
+schema_version: "1.0"
 
 # Gate 5 (AI Security): Files that legitimately contain attack patterns for DEFENSE
 ai_security_allowlist:
@@ -43,21 +55,8 @@ adr_exemptions:
   # NOTE: Prefer parameterized queries. This is for table/column names only.
   adr_0087_safe_interpolation: []
 
-# auto_fix_adr.py: Directories to skip entirely (never scan)
-auto_fix_skip_dirs:
-  - .venv
-  - venv
-  - .git
-  - __pycache__
-  - node_modules
-  - _archived
-  - .backup
-  - current_work
-  - .cursor
-  - private
-
-# auto_fix_adr.py: Protected files (never modify)
-auto_fix_protected_files:
+# Protected files (never auto-modify)
+protected_files:
   - core/agents/executor.py
   - runtime/websocket_orchestrator.py
   - memory/substrate_service.py

@@ -21,7 +21,7 @@ Quick start:
     )
 
     # Initialize at app startup
-    observability = await initialize_observability(substrate_service=substrate_svc)
+    observability = await initialize_observability(substrate_service=substrate_service)
 
     # Instrument L9 services (one-time)
     await instrument_agent_executor(executor_service)

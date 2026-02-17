@@ -1,0 +1,21 @@
+{
+  "total_files": 1,
+  "header_injected": 1,
+  "footer_injected": 1,
+  "trace_injected": 1,
+  "skipped": 0,
+  "failed": 0,
+  "legacy_migration_needed": 0,
+  "files": [
+    {
+      "file": "/Users/ib-mac/Projects/l9/world_model/seed/reflection_memory.yaml",
+      "component_id": "WOR-LEAR-001",
+      "injected": {
+        "header": true,
+        "footer": true,
+        "trace": true
+      },
+      "classes": []
+    }
+  ]
+}

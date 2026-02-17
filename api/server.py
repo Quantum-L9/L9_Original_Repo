@@ -12,6 +12,8 @@ Provides:
 Version: 0.5.0 (Research Factory Integration)
 """
 
+from typing import Any
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Server",
@@ -144,7 +146,7 @@ except ImportError:
 try:
     from services.research.graph_runtime import init_runtime, shutdown_runtime
     from services.research.research_api import (
-        router as research_router,  # noqa: F401 — verified available
+        router as research_router,
     )
 
     _has_research = True
@@ -220,7 +222,7 @@ except ImportError:
 
 # Optional: Pattern Orchestrator (v4.0+ / Agent Pattern System)
 try:
-    from orchestrators.pattern import (  # noqa: F401 — availability check
+    from orchestrators.pattern import (
         CellAgentAdapter,
         PatternOrchestrator,
     )
@@ -316,7 +318,7 @@ try:
         startup_path = Path(__file__).parent.parent / ".cursor-commands" / "startup"
         if startup_path.exists():
             sys.path.insert(0, str(startup_path.parent))
-            from startup.session_startup import (  # type: ignore[import-not-found]
+            from startup.session_startup import (
                 SessionStartup,
                 StartupResult,
             )
@@ -932,17 +934,13 @@ async def lifespan(app: FastAPI):
                 app.state.restored_agent_state = None
 
         except Exception as persistence_err:
-            logger.warning(
-                f"Failed to initialize agent persistence: {persistence_err}"
-            )
+            logger.warning(f"Failed to initialize agent persistence: {persistence_err}")
             app.state.agent_persistence = None
             app.state.restored_agent_state = None
 
         # Initialize TimelineService for memory timeline reconstruction
         try:
-            timeline_service = TimelineService(
-                repository=substrate_service._repository
-            )
+            timeline_service = TimelineService(repository=substrate_service._repository)
             app.state.timeline_service = timeline_service
             logger.info("TimelineService initialized")
         except Exception as timeline_err:
@@ -964,8 +962,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         # P0: Memory substrate is mandatory — fail-closed
         raise RuntimeError(
-            f"Memory substrate init failed: {e}. "
-            f"L9 cannot start without memory."
+            f"Memory substrate init failed: {e}. L9 cannot start without memory."
         ) from e
 
     # Initialize MCP Memory DB pool (for /mcp/call routes)
@@ -980,9 +977,9 @@ async def lifespan(app: FastAPI):
                 sys.path.insert(0, str(mcp_path))
 
             from src.config import (
-                settings as mcp_settings,  # type: ignore[import-not-found]
+                settings as mcp_settings,
             )
-            from src.db import init_db as mcp_init_db  # type: ignore[import-not-found]
+            from src.db import init_db as mcp_init_db
 
             # Set MCP config to use same database
             mcp_settings.MEMORY_DSN = database_url
@@ -1216,15 +1213,11 @@ async def lifespan(app: FastAPI):
                             logger.warning("  Startup warning: %s", warning)
 
             except Exception as e:
-                logger.critical(
-                    "Session Startup crashed: %s", str(e), exc_info=True
-                )
+                logger.critical("Session Startup crashed: %s", str(e), exc_info=True)
                 app.state.startup_ready = False
                 # Non-fatal in dev mode
         else:
-            logger.warning(
-                "SessionStartup not available - skipping preflight checks"
-            )
+            logger.warning("SessionStartup not available - skipping preflight checks")
             app.state.startup_ready = True  # Assume ready if no checks available
 
         # Initialize agent registry with kernel loading - FAIL LOUDLY if unavailable
@@ -1246,9 +1239,7 @@ async def lifespan(app: FastAPI):
             )
         except RuntimeError as e:
             # Kernel loading failed - this is critical
-            logger.critical(
-                "FATAL: Kernel loading failed: %s", str(e), exc_info=True
-            )
+            logger.critical("FATAL: Kernel loading failed: %s", str(e), exc_info=True)
             raise
         except Exception as e:
             # Unexpected error during kernel registry creation
@@ -1346,9 +1337,7 @@ async def lifespan(app: FastAPI):
                 app.state.research_swarm_orchestrator = research_swarm_orchestrator
                 logger.info("ResearchSwarmOrchestrator initialized")
             except Exception as swarm_err:
-                logger.warning(
-                    f"ResearchSwarmOrchestrator init failed: {swarm_err}"
-                )
+                logger.warning(f"ResearchSwarmOrchestrator init failed: {swarm_err}")
                 app.state.research_swarm_orchestrator = None
         else:
             app.state.research_swarm_orchestrator = None
@@ -1407,9 +1396,7 @@ async def lifespan(app: FastAPI):
                 app.state.world_model_runtime.set_world_model_service(
                     world_model_service
                 )
-                logger.info(
-                    "WorldModelService wired to WorldModelRuntime for DB sync"
-                )
+                logger.info("WorldModelService wired to WorldModelRuntime for DB sync")
         except ImportError:
             logger.debug("WorldModelService not available")
             app.state.world_model_service = None
@@ -1448,18 +1435,15 @@ async def lifespan(app: FastAPI):
                     """
                     Represents dependencies for Cursor Graph operations within the L9 API server.
 
-                    Args:
+                    Attributes:
                         memory_gateway: Interface for memory management and data access.
-                        approval_manager: Component handling approval workflows.
+                        approval_gate: Component handling approval workflows.
                         checkpoint_manager: Manages checkpoint creation and restoration.
-
-                    Returns:
-                        An instance of CursorGraphDeps with assigned dependency attributes.
                     """
 
-                    memory_gateway: object = None  # type: ignore[assignment]
-                    approval_gate: object = None  # type: ignore[assignment]
-                    checkpoint_manager: object = None  # type: ignore[assignment]
+                    memory_gateway: object | None = None
+                    approval_gate: object | None = None
+                    checkpoint_manager: object | None = None
 
                 deps = CursorGraphDeps()
                 deps.memory_gateway = memory_gateway
@@ -1491,8 +1475,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         # P0: AgentExecutor is mandatory — fail-closed
         raise RuntimeError(
-            f"Agent Executor init failed: {e}. "
-            f"L9 cannot start without agent execution."
+            f"Agent Executor init failed: {e}. L9 cannot start without agent execution."
         ) from e
 
     # =========================================================================
@@ -1592,8 +1575,7 @@ async def lifespan(app: FastAPI):
     # P0: Neo4j URI is required
     if not neo4j_uri:
         raise RuntimeError(
-            "NEO4J_URI environment variable is required. "
-            "L9 cannot start without Neo4j."
+            "NEO4J_URI environment variable is required. L9 cannot start without Neo4j."
         )
 
     from memory.graph_client import (
@@ -1616,9 +1598,7 @@ async def lifespan(app: FastAPI):
             neo4j = await init_neo4j_client()
             if neo4j and neo4j.is_available():
                 app.state.neo4j_client = neo4j
-                logger.info(
-                    f"Neo4j graph client initialized (attempt {attempt + 1})"
-                )
+                logger.info(f"Neo4j graph client initialized (attempt {attempt + 1})")
                 break
             else:
                 if attempt < neo4j_max_retries - 1:
@@ -1655,7 +1635,7 @@ async def lifespan(app: FastAPI):
         # Bootstrap governance schema (creates Responsibility, Directive, SOP labels)
         try:
             from scripts.bootstrap_neo4j_schema import (
-                bootstrap_l_governance,  # type: ignore[import-not-found]
+                bootstrap_l_governance,
             )
 
             bootstrap_result = await bootstrap_l_governance(neo4j.driver)
@@ -1900,11 +1880,13 @@ async def lifespan(app: FastAPI):
         from core.tools.memory_tools import register_memory_tools
 
         tool_registry_opt = getattr(app.state, "tool_registry", None)
-        substrate_service: MemorySubstrateService | None = getattr(app.state, "substrate_service", None)
+        memory_substrate_service: MemorySubstrateService | None = getattr(
+            app.state, "substrate_service", None
+        )
         if tool_registry_opt:
             memory_tool_count = await register_memory_tools(
                 tool_registry_opt,
-                substrate_service=substrate_service,
+                substrate_service=memory_substrate_service,
             )
             logger.info(f"✓ Memory tools registered: {memory_tool_count} tools")
         else:
@@ -2829,7 +2811,7 @@ async def lifespan(app: FastAPI):
     if getattr(app.state, "mcp_db_initialized", False):
         try:
             from src.db import (
-                close_db as mcp_close_db,  # type: ignore[import-not-found]
+                close_db as mcp_close_db,
             )
 
             await mcp_close_db()
@@ -2882,7 +2864,7 @@ async def echo() -> dict:
 
 
 # Add security schemes to OpenAPI schema
-def custom_openapi() -> dict:
+def custom_openapi() -> dict[str, Any]:
     """Generate custom OpenAPI schema with security schemes.
 
     Adds API key authentication to all non-health endpoints
@@ -2892,7 +2874,7 @@ def custom_openapi() -> dict:
         OpenAPI schema dictionary with security schemes applied.
     """
     if app.openapi_schema:
-        return app.openapi_schema
+        return dict(app.openapi_schema)
 
     openapi_schema = app.openapi()
     openapi_schema["components"]["securitySchemes"] = get_security_schemes()
@@ -2908,7 +2890,7 @@ def custom_openapi() -> dict:
                     ]
 
     app.openapi_schema = openapi_schema
-    return app.openapi_schema
+    return dict(app.openapi_schema)
 
 
 app.openapi = custom_openapi

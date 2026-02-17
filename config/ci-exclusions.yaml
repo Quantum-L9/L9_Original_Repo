@@ -1,0 +1,95 @@
+# component_name: "CI-Exclusions"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-02-16T00:00:00Z"
+# updated_at: "2026-02-16T00:00:00Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "ci-exclusions"
+# type: "config"
+# status: "active"
+
+# =============================================================================
+# SINGLE SOURCE OF TRUTH: CI Scan Exclusions
+# =============================================================================
+# All CI scripts MUST import exclusions from ci/__init__.py which loads this file.
+# DO NOT duplicate these lists in individual CI scripts.
+#
+# To add a new exclusion:
+#   1. Add it to the appropriate list below
+#   2. Run: python -c "from ci import EXCLUDED_DIRS; print(EXCLUDED_DIRS)"
+#   3. All CI scripts automatically pick up the change
+# =============================================================================
+
+schema_version: "1.0"
+
+# Directories to ALWAYS exclude from CI scans (not production code)
+excluded_dirs:
+  # Virtual environments
+  - ".venv"
+  - "venv"
+  
+  # Git and cache directories
+  - ".git"
+  - "__pycache__"
+  - ".pytest_cache"
+  - ".ruff_cache"
+  - ".mypy_cache"
+  
+  # Build artifacts
+  - "build"
+  - "dist"
+  - "*.egg-info"
+  - "node_modules"
+  
+  # Working/personal directories (NOT production code)
+  - "current_work"
+  - "igor"
+  
+  # Archived code
+  - "_archived"
+  
+  # Documentation and reports (scanned separately if needed)
+  - "readme"
+  - "docs"
+  - "reports"
+  
+  # Other non-production
+  - ".backup"
+  - "_pack_staging"
+  - "codegen"
+  
+  # Config directories with templates
+  - ".dora"
+  - ".cursor"
+  - "private"
+
+# Files to always exclude
+excluded_files:
+  - "conftest.py"
+
+# Patterns for grep --exclude-dir (same as excluded_dirs but formatted for grep)
+# Auto-generated from excluded_dirs - DO NOT EDIT MANUALLY
+grep_exclude_args:
+  - "--exclude-dir=.venv"
+  - "--exclude-dir=venv"
+  - "--exclude-dir=.git"
+  - "--exclude-dir=__pycache__"
+  - "--exclude-dir=.pytest_cache"
+  - "--exclude-dir=.ruff_cache"
+  - "--exclude-dir=.mypy_cache"
+  - "--exclude-dir=build"
+  - "--exclude-dir=dist"
+  - "--exclude-dir=node_modules"
+  - "--exclude-dir=current_work"
+  - "--exclude-dir=igor"
+  - "--exclude-dir=_archived"
+  - "--exclude-dir=readme"
+  - "--exclude-dir=docs"
+  - "--exclude-dir=reports"
+  - "--exclude-dir=.backup"
+  - "--exclude-dir=_pack_staging"
+  - "--exclude-dir=codegen"
+  - "--exclude-dir=.dora"
+  - "--exclude-dir=.cursor"
+  - "--exclude-dir=private"

@@ -1,0 +1,113 @@
+# component_name: "Pipeline Models"
+# module_version: "1.0.0"
+# created_by: "cryptoxdog"
+# created_at: "2026-02-15T10:59:00Z"
+# updated_at: "2026-02-16T22:08:07Z"
+# layer: "operations"
+# domain: "pipeline_models.yaml"
+# file_name: "pipeline_models"
+# type: "schema"
+# status: "active"
+
+tool_execution_pipelines:
+  - id: TP1
+    entrypoint: api/tools/router.py:execute_tool
+    trace:
+      - api/tools/router.py:execute_tool
+      - core/tools/registry_adapter.py:ExecutorToolRegistry.dispatch_tool_call
+      - core/tools/registry_adapter.py:ExecutorToolRegistry.guarded_execute
+    governance_context_injected: partial
+    kernel_enforcement: false
+    canonical_service: true
+    bypasses_invariants: false
+  - id: TP2
+    entrypoint: api/routes/mcp.py:call_tool
+    trace:
+      - api/routes/mcp.py:call_tool
+      - mcp_memory/src/mcp_server.py:handle_tool_call
+      - mcp_memory/src/routes/memory_unified.py:save_memory_handler
+      - memory/substrate_service.py:MemorySubstrateService.write_packet
+    governance_context_injected: true
+    kernel_enforcement: false
+    canonical_service: true
+    bypasses_invariants: false
+  - id: TP3
+    entrypoint: api/server.py:websocket_endpoint
+    trace:
+      - api/server.py:websocket_endpoint
+      - orchestration/ws_task_router.py:route_event_to_task
+      - orchestration/plan_executor.py:execute_plan
+    governance_context_injected: unknown
+    kernel_enforcement: partial
+    canonical_service: false
+    bypasses_invariants: true
+
+memory_ingestion_pipelines:
+  - id: MPW1
+    entrypoint: api/memory/router.py:ingest_packet_route
+    trace:
+      - api/memory/router.py:ingest_packet_route
+      - memory/ingestion.py:ingest_packet
+      - memory/substrate_service.py:MemorySubstrateService.write_packet
+      - memory/substrate_dag.py:SubstrateDAG.run
+      - memory/substrate_repository.py:insert_packet
+      - memory/substrate_repository.py:insert_semantic_embedding
+    governance_context_injected: true
+    kernel_enforcement: false
+    canonical_service: true
+    bypasses_invariants: false
+  - id: MPW2
+    entrypoint: mcp_memory/src/routes/memory_unified.py:save_memory_handler
+    trace:
+      - mcp_memory/src/routes/memory_unified.py:save_memory_handler
+      - mcp_memory/src/routes/memory_unified.py:_save_via_main_pipeline
+      - memory/substrate_service.py:MemorySubstrateService.write_packet
+    governance_context_injected: true
+    kernel_enforcement: false
+    canonical_service: true
+    bypasses_invariants: false
+  - id: MPW3
+    entrypoint: memory/substrate_service.py:embed_text
+    trace:
+      - memory/substrate_service.py:embed_text
+      - memory/substrate_semantic.py:SemanticService.embed_and_store
+      - memory/substrate_repository.py:insert_semantic_embedding
+    governance_context_injected: true
+    kernel_enforcement: false
+    canonical_service: partial
+    bypasses_invariants: true
+
+memory_retrieval_pipelines:
+  - id: MPR1
+    entrypoint: api/memory/router.py:semantic_search
+    trace:
+      - api/memory/router.py:semantic_search
+      - memory/substrate_service.py:MemorySubstrateService.semantic_search
+      - memory/substrate_semantic.py:SemanticService.search
+      - memory/substrate_repository.py:search_semantic_memory
+    governance_context_injected: true
+    kernel_enforcement: false
+    canonical_service: true
+    bypasses_invariants: false
+  - id: MPR2
+    entrypoint: memory/substrate_service.py:query_packets
+    trace:
+      - memory/substrate_service.py:query_packets
+      - memory/substrate_repository.py:search_packets_by_type
+    governance_context_injected: true
+    kernel_enforcement: false
+    canonical_service: true
+    bypasses_invariants: false
+  - id: MPR3
+    entrypoint: memory/substrate_repository.py:get_packets_batch
+    trace:
+      - memory/substrate_repository.py:get_packets_batch
+      - memory/substrate_repository.py:packet_store query
+    governance_context_injected: true
+    kernel_enforcement: false
+    canonical_service: partial
+    bypasses_invariants: false
+# tags: ["api-config", "kernel", "operations", "pipeline", "pipeline-models.yaml", "schema", "tool-config"]
+# keywords: ["memory_ingestion_pipelines", "memory_retrieval_pipelines", "models", "pipeline", "tool_execution_pipelines"]
+# last_modified: "2026-02-16T22:08:07Z"
+# ============================================================================
