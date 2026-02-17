@@ -697,6 +697,23 @@ async def handle_tool_call(
     creator = caller.creator if caller else "unknown"
     source = caller.source if caller else "unknown"
 
+    # =========================================================================
+    # PRINCIPAL EXTRACTION (fail-closed — no implicit SYSTEM escalation)
+    # principal_id MUST come from authenticated caller identity.
+    # Bootstrap/health-check flows must explicitly pass SYSTEM_PRINCIPAL_ID
+    # at the callsite — MCP layer NEVER injects it.
+    # =========================================================================
+    principal_id = getattr(caller, "principal_id", None)
+    if not principal_id or not isinstance(principal_id, str) or not principal_id.strip():
+        logger.error(
+            "mcp_tool_call_missing_or_invalid_principal",
+            tool=tool.name,
+            caller_id=caller_id,
+        )
+        raise RuntimeError(
+            f"MCP request missing valid principal_id for tool '{tool.name}'."
+        )
+
     # ADR-0098: project_id from centralized config_constants (single source of truth)
     # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9-default
     project_id = get_default_project_id()

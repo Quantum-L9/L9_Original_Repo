@@ -54,6 +54,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import os
 from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from enum import Enum
@@ -248,7 +249,37 @@ class ToolRegistry:
         return self._tools.get(tool_id)
 
     def get_executor(self, tool_id: str) -> Any | None:
-        """Get tool executor instance by ID."""
+        """
+        [DEPRECATED] Get tool executor instance by ID.
+
+        SECURITY WARNING:
+        Direct executor access bypasses governance, sanitization, and audit trail.
+        Use core.tools.tool_kernel.execute_via_kernel() instead.
+
+        When L9_STRICT_TOOL_KERNEL=1 is set, this method raises RuntimeError.
+        Otherwise it logs a warning and returns the executor for compatibility.
+
+        Args:
+            tool_id: Tool identifier
+
+        Returns:
+            Tool executor instance (compatibility mode) or raises RuntimeError (strict mode)
+        """
+        logger.warning(
+            "legacy_get_executor_used",
+            tool_id=tool_id,
+        )
+
+        if os.getenv("L9_STRICT_TOOL_KERNEL") == "1":
+            raise RuntimeError(
+                f"Direct executor access disabled for tool '{tool_id}'. "
+                "Use core.tools.tool_kernel.execute_via_kernel() instead."
+            )
+
+        # Temporary compatibility path (will be removed)
+        metadata = self.get(tool_id)
+        if not metadata:
+            raise ValueError(f"Tool not found: {tool_id}")
         return self._executors.get(tool_id)
 
     def get_by_type(self, tool_type: ToolType) -> list[ToolMetadata]:

@@ -2342,6 +2342,33 @@ class AgentExecutorService:
                     },
                 )
 
+        # =====================================================================
+        # PRINCIPAL EXTRACTION (fail-closed — no implicit SYSTEM escalation)
+        # principal_id MUST come from task.source_id or task.context.
+        # Bootstrap/system flows must explicitly pass SYSTEM_PRINCIPAL_ID
+        # at the callsite — Executor MUST NOT infer it from mutable context.
+        # =====================================================================
+        principal_id = (
+            instance.task.context.get("principal_id")
+            or instance.task.payload.get("principal_id")
+            or instance.task.source_id
+        )
+        if (
+            principal_id is None
+            or not isinstance(principal_id, str)
+            or not principal_id.strip()
+        ):
+            logger.error(
+                "executor_principal_missing",
+                agent_id=instance.config.agent_id,
+                tool_id=tool_call.tool_id,
+            )
+            raise RuntimeError(
+                f"Cannot determine principal_id for agent '{instance.config.agent_id}'. "
+                "Set agent.principal_id explicitly. "
+                f"Tool: {tool_call.tool_id}"
+            )
+
         # Dispatch through registry using tool_id
         # Use guarded_execute if available (kernel-aware execution)
         try:
@@ -2351,6 +2378,7 @@ class AgentExecutorService:
                 "thread_id": str(instance.thread_id),
                 "iteration": instance.iteration,
                 "memory_context": memory_context,  # Inject memory context
+                "source": "agent_executor",
             }
 
             # Require guarded execution with active kernels (fail-closed)
@@ -2385,6 +2413,7 @@ class AgentExecutorService:
                         tool_id=tool_call.tool_id,
                         arguments=tool_call.arguments,
                         context=context,
+                        principal_id=principal_id,  # Explicit, no fallback
                     )
             else:
                 result = await self._tool_registry.guarded_execute(
@@ -2392,6 +2421,7 @@ class AgentExecutorService:
                     tool_id=tool_call.tool_id,
                     arguments=tool_call.arguments,
                     context=context,
+                    principal_id=principal_id,  # Explicit, no fallback
                 )
 
             # Persist task result after execution

@@ -861,18 +861,25 @@ class ExecutorToolRegistry:
         7. Execute tool via dispatch_tool_call
         8. Emit ToolAuditEntry with kernel metadata (GATE 7)
 
+        Security Model (Fail-Closed):
+        - principal_id is MANDATORY (no default, no fallback)
+        - Raises ValueError if principal_id is None or empty
+        - This is defense-in-depth (kernel already checks, but enforce here too)
+
         Args:
             agent: The kernel-aware agent (must have kernel_state attribute)
             tool_id: Tool identifier
             arguments: Tool call arguments
             context: Optional execution context
-            principal_id: Optional principal ID for audit trail
+            principal_id: Principal authorizing this execution (REQUIRED)
 
         Returns:
             ToolCallResult with success/failure, result, and tool_id
 
         Raises:
+            ValueError: If principal_id is missing or empty (fail-closed)
             RuntimeError: If kernels not active (hard failure)
+            PermissionError: If governance denies execution
         """
         start_time = time.time()
         call_id = uuid4()
@@ -883,7 +890,13 @@ class ExecutorToolRegistry:
 
         agent_id = getattr(agent, "agent_id", context.get("agent_id", "unknown"))
         context["agent_id"] = agent_id
-        principal_id = principal_id or context.get("principal_id", "unknown")
+        # Defense-in-depth: Validate principal_id (kernel also checks)
+        if not principal_id:
+            raise ValueError(
+                "principal_id is required for guarded tool execution. "
+                f"Tool: {tool_id}"
+            )
+        principal_id = principal_id  # Explicit, no fallback to context or 'unknown'
 
         # Extract kernel metadata for audit trail
         kernel_hashes = getattr(agent, "_kernel_hashes", {})
