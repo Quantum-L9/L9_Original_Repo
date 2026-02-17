@@ -77,7 +77,7 @@ fi
 
 # Metrics
 readonly HOOK_START=$(date +%s)
-TOTAL_CHECKS=11
+TOTAL_CHECKS=9
 CHECKS_PASSED=0
 STASH_CREATED=0
 
@@ -307,7 +307,6 @@ gate_header "2-4" "AUTO-FORMAT + LINT + TYPE CHECK (parallel)"
 
 if [ -z "$STAGED_PY_FILES" ]; then
     gate_success "No Python files to process"
-    CHECKS_PASSED=$((CHECKS_PASSED + 3))
 else
     # Stash uncommitted changes before formatting
     if git diff --quiet; then
@@ -378,7 +377,6 @@ else
     wait "$lint_pid" || gate_fail "Lint gate failed" 3
     wait "$type_pid" || true # Non-blocking, always succeeds
     
-    CHECKS_PASSED=$((CHECKS_PASSED + 3))
     gate_success "Format + Lint + Type check complete (parallel)"
 fi
 
