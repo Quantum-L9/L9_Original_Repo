@@ -178,7 +178,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **🚨 EXECUTE MIGRATIONS at next Docker rebuild!!!** (PostgreSQL + Neo4j via deploy script Phase 4/5)
 - **✅ VPS DEPLOYED**: 2026-01-15 commit `960b2de7` (106 files, governance hardening + RLS)
 - VPS IP: 157.180.73.53, User: admin, L9 dir: /opt/l9
-- **C1 (PRIMARY)**: 46.62.243.82 — PostgreSQL :30432, Neo4j :30474, MCP via Nginx port 80 `/memory/`
+- **C1 (PRIMARY)**: 46.62.243.82 — PostgreSQL :30432, Neo4j :30474, MCP via L9 API port 80 `/memory/`
 - **C1 Backup**: `scripts/backup/backup_c1_memory.sh` — cron `0 */12 * * *` (every 12h)
 - **Domain**: `l9.quantumaipartners.com` (Cloudflare proxied)
 - **Ports**: 8000=l9-api (unified)
@@ -191,13 +191,14 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-02-16 22:00 EST (end-session)_
+_Last updated: 2026-02-16 20:10 EST_
 
 **Unified memory pipeline (end-session write):**  
-`cursor_memory_client.py write` → `mcp_call_tool("save_memory", {...})` → MCP server on C1 → HTTP to L9 API → `api/memory/router.py` (or MCP-backed ingest) → `memory/ingestion.ingest_packet()` → `MemorySubstrateService.write_packet()` → **SubstrateDAG** (intake → reasoning → memory_write → graph_sync → semantic_embed → insights → world_model → checkpoint). **Ports:** C1 external **80** (Nginx `/memory/`), internal l9-api **30080**, Postgres **30432**, Neo4j **30474**. **Schema:** PacketEnvelope v2 (PacketEnvelopeIn). **Single entry:** `ingest_packet()` → `write_packet()` → DAG only.
+`cursor_memory_client.py write` → `mcp_call_tool("save_memory", {...})` → MCP server on C1 → HTTP to L9 API → `api/memory/router.py` (or MCP-backed ingest) → `memory/ingestion.ingest_packet()` → `MemorySubstrateService.write_packet()` → **SubstrateDAG** (intake → reasoning → memory_write → graph_sync → semantic_embed → insights → world_model → checkpoint). **Ports:** C1 external **80** (L9 API `/memory/`), internal l9-api **8000**, Postgres **5432**, Neo4j **7474/7687**. **Schema:** PacketEnvelope v2 (PacketEnvelopeIn). **Single entry:** `ingest_packet()` → `write_packet()` → DAG only.
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-17: CI SSOT consolidation: moved .l9-allowlist.yaml→config/ci-allowlist.yaml, findings.yaml→reports/mypy/, pipeline_models.yaml→config/. Updated .cursor/memory configs: cursor-ide→cursor, clarified MCP-only access (no direct DB bypass).
 - 2026-02-16: CI wiring: check_syntax.py (Gate 0), auto_stub_adr_enforcement.py (dry-run). Renamed lint_forbidden_imports.py→check_forbidden_imports.py, dora_compliance_check.py→check_dora_compliance.py for naming convention alignment.
 - 2026-02-16: GMP-115 enterprise-grade SQL security: recreated core/exceptions (security.py), config/policies/sql_security.yaml, tests/security/test_sql_injection.py (34 tests), ci/check_stale_noqa.py; added operation validation in memory_unified.py; wired check_stale_noqa into CI and pre-commit. All 34 security tests pass; stale noqa check passes.
 - 2026-02-16: PR #113 analysis and merge resolution: analyzed mypy P0 hotspot PR; merge blocked by conflicts; local rebase resolved findings.yaml (kept main); closed PR 113 as superseded by PR #114 (changes already on main).
