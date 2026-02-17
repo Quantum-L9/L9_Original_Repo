@@ -316,7 +316,9 @@ router_registry = RouterRegistry()
 
 def discover_routers() -> int:
     """
-    Auto-discover all routers in api/routes/ directory.
+    Auto-discover all routers in api/ subdirectories.
+
+    Scans: api/routes/, api/memory/, api/tools/, api/adapters/, api/middleware/
 
     Convention: Each router file should call router_registry.register()
     at module level (outside any function).
@@ -334,24 +336,44 @@ def discover_routers() -> int:
     import importlib
     import pkgutil
 
-    count = 0
-    try:
-        import api.routes
+    # All api subdirectories to scan for routers
+    api_packages = [
+        "api.routes",
+        "api.memory",
+        "api.tools",
+        "api.adapters",
+        "api.middleware",
+    ]
 
-        for _importer, modname, ispkg in pkgutil.iter_modules(api.routes.__path__):
-            # Skip registry module itself
-            if not ispkg and modname != "registry":
+    # Modules to skip (not routers)
+    skip_modules = {"registry", "__init__", "conftest"}
+
+    count = 0
+    for package_name in api_packages:
+        try:
+            package = importlib.import_module(package_name)
+            if not hasattr(package, "__path__"):
+                continue
+
+            for _importer, modname, ispkg in pkgutil.iter_modules(package.__path__):
+                # Skip non-router modules
+                if ispkg or modname in skip_modules:
+                    continue
                 try:
                     # Import router module (triggers registration)
-                    importlib.import_module(f"api.routes.{modname}")
+                    importlib.import_module(f"{package_name}.{modname}")
                     count += 1
-                    logger.debug(f"Discovered router module: {modname}")
+                    logger.debug(f"Discovered router module: {package_name}.{modname}")
                 except Exception as e:
                     logger.warning(
-                        f"Failed to import router module: {modname}", error=str(e)
+                        f"Failed to import router module: {package_name}.{modname}",
+                        error=str(e),
                     )
-    except Exception as e:
-        logger.error("Failed to discover routers", error=str(e), exc_info=True)
+        except ImportError:
+            # Package doesn't exist, skip
+            logger.debug(f"Package not found (skipping): {package_name}")
+        except Exception as e:
+            logger.error(f"Failed to scan package: {package_name}", error=str(e))
 
     logger.info(f"Router discovery complete: {count} modules imported")
     return count
