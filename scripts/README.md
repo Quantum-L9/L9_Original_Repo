@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -83,14 +83,14 @@ scripts/
 ├── audit/audit_api_signatures.py
 ├── audit/audit_shared_core.py
 ├── audit/categorize_dead_code.py
-├── audit/cleanup_audit_reports.py
 ├── audit/ensure_logger_instantiated.py
 ├── audit/find_dead_code.py
 ├── audit/generate_gmp_todos.py
 ├── audit/inject_dora_complete.py
 ├── audit/inject_dora_multiformat_complete.py
-├── audit/migrate_dora_legacy.py
-└── ... (78 more files)
+├── audit/resolve_dead_code_refs.py
+├── audit/run_all.py
+└── ... (76 more files)
 ```
 
 | File | Purpose |
@@ -193,7 +193,7 @@ The following data models define the contracts for this subsystem:
 | `SKIP_DIRS` | `{'tests', 'current_work', 'codegen', 'ig...` | 48 |
 | `REASON_MAP` | `{'FastAPI/ASGI route handler requires as...` | 61 |
 
-*...and 132 more constants*
+*...and 227 more constants*
 
 ### Key Schemas
 
@@ -357,7 +357,7 @@ Scripts operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "scripts",
   "message": "Operation completed",

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -147,37 +147,41 @@ class ModuleCoverage:
 
 **Lines:** 36-46 in `track_mypy_progress.py`
 
-### `adr_enforcer.py` — Violation
+### `docstring_injector.py` — InjectionResult
 
 ```python
-class Violation:
-    """Represents a single ADR violation."""
+class InjectionResult:
+    """Result of docstring injection for a single file."""
 
     # Key methods:
 
-    def to_dict(self, ...) -> dict: ...
-
 ```
 
-**Public Methods:** `to_dict`
+**Lines:** 54-61 in `docstring_injector.py`
 
-**Lines:** 83-101 in `adr_enforcer.py`
-
-### `adr_enforcer.py` — ValidationReport
+### `docstring_injector.py` — DocstringInjector
 
 ```python
-class ValidationReport:
-    """Comprehensive validation report."""
+class DocstringInjector:
+    """Automated docstring generator using AST analysis."""
 
     # Key methods:
 
-    def to_dict(self, ...) -> dict: ...
+    def __init__(self, ...) -> None: ...
+
+    def _should_skip(self, ...) -> bool: ...
+
+    def _name_to_description(self, ...) -> str: ...
+
+    def _get_type_str(self, ...) -> str: ...
+
+    def _get_param_description(self, ...) -> str: ...
 
 ```
 
-**Public Methods:** `to_dict`
+**Public Methods:** `__init__`, `_should_skip`, `_name_to_description`, `_get_type_str`, `_get_param_description`
 
-**Lines:** 105-130 in `adr_enforcer.py`
+**Lines:** 64-575 in `docstring_injector.py`
 
 
 ---
@@ -206,7 +210,7 @@ The following data models define the contracts for this subsystem:
 | `DROPBOX_EXPORT_DIR` | `os.getenv('L9_DROPBOX_EXPORT_DIR', os.pa...` | 59 |
 | `ICLOUD_EXPORT_DIR` | `os.getenv('L9_ICLOUD_EXPORT_DIR', os.pat...` | 63 |
 | `SKIP_DIRS` | `{'.git', '__pycache__', '.venv', 'venv',...` | 76 |
-| `REQUIRED_SECTIONS` | `['# ADR-', '## Status', '## Context', '#...` | 33 |
+| `REQUIRED_SECTIONS` | `['# ADR-', '## Status', '## Context', '#...` | 36 |
 
 *...and 26 more constants*
 
@@ -369,7 +373,7 @@ Tools operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "tools",
   "message": "Operation completed",

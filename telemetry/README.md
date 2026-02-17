@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -108,7 +108,7 @@ class CalibrationMetrics:
 
 ```
 
-**Lines:** 97-107 in `calibration_dashboard.py`
+**Lines:** 96-106 in `calibration_dashboard.py`
 
 ### `calibration_dashboard.py` — CalibrationDashboard
 
@@ -132,7 +132,7 @@ class CalibrationDashboard:
 
 **Public Methods:** `__init__`, `_load_decisions`, `generate_weekly_report`, `_calculate_metrics`, `_calculate_ece`
 
-**Lines:** 110-565 in `calibration_dashboard.py`
+**Lines:** 109-564 in `calibration_dashboard.py`
 
 
 ---
@@ -242,14 +242,14 @@ TELEMETRY_ENABLED=true
 
 Entry point for scheduled weekly report generation
 
-- **File:** `calibration_dashboard.py:568`
+- **File:** `calibration_dashboard.py:567`
 - **Async:** No
 
 #### `def record_memory_write(segment, status, duration_seconds) -> None`
 
 Record a memory write operation.
 
-- **File:** `memory_metrics.py:269`
+- **File:** `memory_metrics.py:274`
 - **Async:** No
 - **Returns:** `None`
 
@@ -257,7 +257,7 @@ Record a memory write operation.
 
 Record a memory search operation.
 
-- **File:** `memory_metrics.py:293`
+- **File:** `memory_metrics.py:298`
 - **Async:** No
 - **Returns:** `None`
 
@@ -265,7 +265,7 @@ Record a memory search operation.
 
 Record a tool invocation.
 
-- **File:** `memory_metrics.py:316`
+- **File:** `memory_metrics.py:321`
 - **Async:** No
 - **Returns:** `None`
 
@@ -273,7 +273,7 @@ Record a tool invocation.
 
 Set the memory substrate health gauge.
 
-- **File:** `memory_metrics.py:339`
+- **File:** `memory_metrics.py:344`
 - **Async:** No
 - **Returns:** `None`
 
@@ -307,7 +307,7 @@ Telemetry operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "telemetry",
   "message": "Operation completed",

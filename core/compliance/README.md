@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -124,19 +124,19 @@ class ComplianceReporter:
 
     def __init__(self, ...): ...
 
+    def _require_substrate(self, ...) -> Any: ...
+
     async def generate_daily_report(self, ...) -> ComplianceReport: ...
 
     async def generate_report(self, ...) -> ComplianceReport: ...
 
     async def _process_commands(self, ...) -> None: ...
 
-    async def _process_tool_calls(self, ...) -> None: ...
-
 ```
 
-**Public Methods:** `__init__`, `generate_daily_report`, `generate_report`, `_process_commands`, `_process_tool_calls`
+**Public Methods:** `__init__`, `_require_substrate`, `generate_daily_report`, `generate_report`, `_process_commands`
 
-**Lines:** 105-413 in `audit_reporter.py`
+**Lines:** 105-420 in `audit_reporter.py`
 
 ### `audit_log.py` — AuditLogger
 
@@ -302,7 +302,7 @@ Core Compliance operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "core.compliance",
   "message": "Operation completed",

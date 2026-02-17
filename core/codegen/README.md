@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -115,7 +115,7 @@ class StepStatus:
 
 ```
 
-**Lines:** 86-91 in `wire_executor.py`
+**Lines:** 88-93 in `wire_executor.py`
 
 ### `wire_executor.py` — RefStatus
 
@@ -127,7 +127,7 @@ class RefStatus:
 
 ```
 
-**Lines:** 94-97 in `wire_executor.py`
+**Lines:** 96-99 in `wire_executor.py`
 
 ### `wire_executor.py` — Reference
 
@@ -139,7 +139,7 @@ class Reference:
 
 ```
 
-**Lines:** 101-106 in `wire_executor.py`
+**Lines:** 103-108 in `wire_executor.py`
 
 ### `wire_executor.py` — WireAction
 
@@ -151,7 +151,7 @@ class WireAction:
 
 ```
 
-**Lines:** 110-117 in `wire_executor.py`
+**Lines:** 112-119 in `wire_executor.py`
 
 ### `wire_executor.py` — WireState
 
@@ -169,7 +169,7 @@ class WireState:
 
 **Public Methods:** `to_dict`, `from_dict`
 
-**Lines:** 121-139 in `wire_executor.py`
+**Lines:** 123-141 in `wire_executor.py`
 
 
 ---
@@ -192,11 +192,11 @@ The following data models define the contracts for this subsystem:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `REPO_ROOT` | `Path(__file__).parent.parent.parent` | 67 |
-| `REPORT_GENERATOR` | `REPO_ROOT / 'scripts' / 'generate_gmp_re...` | 68 |
-| `STATE_FILE` | `REPO_ROOT / '.wire_executor_state.json'` | 69 |
-| `PROTECTED_FILES` | `{'core/agents/executor.py', 'runtime/web...` | 72 |
-| `STEP_ORDER` | `['discovery', 'analysis', 'plan', 'execu...` | 146 |
+| `REPO_ROOT` | `Path(__file__).parent.parent.parent` | 69 |
+| `REPORT_GENERATOR` | `REPO_ROOT / 'scripts' / 'generate_gmp_re...` | 70 |
+| `STATE_FILE` | `REPO_ROOT / '.wire_executor_state.json'` | 71 |
+| `PROTECTED_FILES` | `{'core/agents/executor.py', 'runtime/web...` | 74 |
+| `STEP_ORDER` | `['discovery', 'analysis', 'plan', 'execu...` | 148 |
 | `TEMPLATE_AGENT_CORE` | `'"""\n{{metadata.name}} - L9 Agent\n{{de...` | 64 |
 | `TEMPLATE_CONFIG` | `'"""\n{{metadata.name}} - Configuration\...` | 304 |
 | `TEMPLATE_MODELS` | `'"""\n{{metadata.name}} - Data Models\n"...` | 329 |
@@ -327,7 +327,7 @@ Research a topic using Perplexity
 
 No description
 
-- **File:** `wire_executor.py:710`
+- **File:** `wire_executor.py:731`
 - **Async:** No
 
 
@@ -360,7 +360,7 @@ Core Codegen operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "core.codegen",
   "message": "Operation completed",

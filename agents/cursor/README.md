@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -134,7 +134,7 @@ class CursorClient:
 
 **Public Methods:** `__init__`, `_request`, `send_code`, `send_command`, `health_check`
 
-**Lines:** 36-113 in `cursor_client.py`
+**Lines:** 36-107 in `cursor_client.py`
 
 ### `cursor_session_hooks.py` — CursorSessionHooks
 
@@ -331,7 +331,7 @@ AGENTS_CURSOR_ENABLED=true
 
 Example demonstrating GMP v2.0 learning engine (async).
 
-- **File:** `gmp_meta_learning.py:804`
+- **File:** `gmp_meta_learning.py:810`
 - **Async:** Yes
 
 #### `def parse_lessons(path) -> list[dict]`
@@ -396,7 +396,7 @@ Agents Cursor operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "agents.cursor",
   "message": "Operation completed",

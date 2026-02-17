@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -79,26 +79,26 @@ ci/
 ├── ai_guardrails/__init__.py
 ├── ai_guardrails/runner.py
 ├── auto_fix_adr.py
+├── auto_stub_adr_enforcement.py
 ├── check_adr_compliance.py
+├── check_adr_enforcement_manifest.py
+├── check_crypto_usage.py
+├── check_dag_validation_single_point.py
+├── check_datetime_utcnow.py
 ├── check_definition_of_done.py
 ├── check_dependency_patterns.py
-├── check_global_state.py
-├── check_imports.py
-├── check_memory_bypass.py
-├── check_no_deprecated_services.py
-├── check_noqa_placement.py
-├── check_packet_type_naming.py
-├── check_report_naming.py
-├── check_schema_deprecation.py
-└── ... (8 more files)
+├── check_dora_compliance.py
+├── check_forbidden_imports.py
+├── check_fstring_sql.py
+└── ... (22 more files)
 ```
 
 | File | Purpose |
 |------|---------|
 | `__init__.py` | Core module (PROTECTED) |
+| `check_memory_bypass.py` | Represents a memory bypass violation. |
 | `check_global_state.py` | Performs static analysis of Python files to detect |
 | `check_schema_deprecation.py` | A single deprecated import violation. |
-| `check_substrate_api.py` | Result of linting a file. |
 
 ### Naming Conventions
 
@@ -110,6 +110,24 @@ ci/
 ---
 
 ## Key Components
+
+### `check_memory_bypass.py` — BypassViolation
+
+```python
+class BypassViolation:
+    """Represents a memory bypass violation."""
+
+    # Key methods:
+
+    def __init__(self, ...): ...
+
+    def __str__(self, ...) -> str: ...
+
+```
+
+**Public Methods:** `__init__`, `__str__`
+
+**Lines:** 135-146 in `check_memory_bypass.py`
 
 ### `check_global_state.py` — GlobalStateVisitor
 
@@ -143,61 +161,41 @@ class Violation:
 
 **Lines:** 129-135 in `check_schema_deprecation.py`
 
-### `check_substrate_api.py` — LintResult
+### `check_report_naming.py` — NamingViolation
 
 ```python
-class LintResult:
-    """Result of linting a file."""
+class NamingViolation:
+    """Represents a report naming violation."""
 
     # Key methods:
 
     def __init__(self, ...): ...
 
-    def add_error(self, ...): ...
-
-    def has_errors(self, ...) -> bool: ...
+    def __str__(self, ...) -> str: ...
 
 ```
 
-**Public Methods:** `__init__`, `add_error`, `has_errors`
+**Public Methods:** `__init__`, `__str__`
 
-**Lines:** 83-119 in `check_substrate_api.py`
+**Lines:** 87-95 in `check_report_naming.py`
 
-### `validate_codegen.py` — CodeValidationResult
+### `check_definition_of_done.py` — DoDViolation
 
 ```python
-class CodeValidationResult:
-    """Accumulates code validation errors."""
+class DoDViolation:
+    """Represents a Definition of Done violation."""
 
     # Key methods:
 
-    def __init__(self, ...) -> None: ...
+    def __init__(self, ...): ...
 
-    def add_error(self, ...) -> None: ...
-
-    def add_warning(self, ...) -> None: ...
-
-    def is_valid(self, ...) -> bool: ...
-
-    def print_report(self, ...) -> None: ...
+    def __str__(self, ...) -> str: ...
 
 ```
 
-**Public Methods:** `__init__`, `add_error`, `add_warning`, `is_valid`, `print_report`
+**Public Methods:** `__init__`, `__str__`
 
-**Lines:** 86-127 in `validate_codegen.py`
-
-### `validate_spec_v25.py` — SpecValidationError
-
-```python
-class SpecValidationError:
-    """Raised when spec validation fails."""
-
-    # Key methods:
-
-```
-
-**Lines:** 177-180 in `validate_spec_v25.py`
+**Lines:** 107-118 in `check_definition_of_done.py`
 
 
 ---
@@ -209,16 +207,16 @@ class SpecValidationError:
 
 | Constant | Value | Line |
 |----------|-------|------|
+| `L9_ROOT` | `Path(__file__).parent.parent` | 22 |
+| `ALLOWED_CALLERS` | `{'memory/substrate_dag.py', 'memory/subs...` | 25 |
+| `ALLOWED_DIRS` | `{'tests', 'codegen', '.backup', 'current...` | 33 |
+| `SKIP_DIRS` | `{'.git', '.venv', 'venv', '__pycache__',...` | 44 |
+| `VALIDATION_PATTERNS` | `[re.compile('PacketValidator\\.validate\...` | 55 |
+| `NOQA_MARKER` | `'# noqa: ADR-0012'` | 61 |
 | `VALID_TOOL_ID_PATTERN` | `re.compile('^[a-zA-Z][a-zA-Z0-9_-]*$')` | 50 |
 | `TOOL_ID_PATTERNS` | `[('f["\\\']{\\w+}\\s*\\.\\s*{\\w+', 'f-s...` | 53 |
-| `CHECK_PATHS` | `['core/tools/', 'runtime/l_tools.py', 'c...` | 70 |
-| `SKIP_PATTERNS` | `['__pycache__', '.pyc', 'test_', '_test....` | 78 |
-| `ROOT` | `Path(__file__).resolve().parents[2]` | 43 |
-| `PROJECT_ROOT` | `Path(__file__).parent.parent` | 66 |
-| `DEPRECATED_PATTERNS` | `['from\\s+memory\\.substrate_models\\s+i...` | 71 |
-| `CANONICAL_IMPORT` | `'from core.schemas import PacketEnvelope...` | 86 |
 
-*...and 65 more constants*
+*...and 104 more constants*
 
 ### Key Schemas
 
@@ -313,6 +311,14 @@ CI_ENABLED=true
 
 ### Public Functions
 
+#### `def main() -> int`
+
+No description
+
+- **File:** `check_dag_validation_single_point.py:64`
+- **Async:** No
+- **Returns:** `int`
+
 #### `def should_skip(path) -> bool`
 
 Check if file should be skipped.
@@ -344,14 +350,6 @@ Performs CI check to enforce OpenAI tool ID naming conventions, ensuring only al
 - **File:** `check_tool_naming.py:136`
 - **Async:** No
 
-#### `def iter_python_files() -> list[Path]`
-
-Iterate over Python files in the repository.
-
-- **File:** `check_global_state.py:46`
-- **Async:** No
-- **Returns:** `list[Path]`
-
 
 ### Usage Example
 
@@ -382,7 +380,7 @@ Ci operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "ci",
   "message": "Operation completed",

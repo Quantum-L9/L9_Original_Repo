@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -253,7 +253,7 @@ CORE_SECRETS_ENABLED=true
 
 Get or create the secrets client singleton.
 
-- **File:** `__init__.py:76`
+- **File:** `__init__.py:75`
 - **Async:** No
 - **Returns:** `SecretsClientType`
 
@@ -261,7 +261,7 @@ Get or create the secrets client singleton.
 
 Reset singleton for testing.
 
-- **File:** `__init__.py:138`
+- **File:** `__init__.py:137`
 - **Async:** No
 - **Returns:** `None`
 
@@ -269,7 +269,7 @@ Reset singleton for testing.
 
 Convenience function to get a secret value.
 
-- **File:** `__init__.py:155`
+- **File:** `__init__.py:154`
 - **Async:** No
 - **Returns:** `str | None`
 
@@ -277,7 +277,7 @@ Convenience function to get a secret value.
 
 Get secret from configured provider, with explicit env fallback.
 
-- **File:** `__init__.py:168`
+- **File:** `__init__.py:167`
 - **Async:** No
 - **Returns:** `str | None`
 
@@ -311,7 +311,7 @@ Core Secrets operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "core.secrets",
   "message": "Operation completed",

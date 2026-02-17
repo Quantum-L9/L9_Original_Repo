@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -140,7 +140,7 @@ class KernelReloadRequest:
 
 ```
 
-**Lines:** 3103-3106 in `server.py`
+**Lines:** 3040-3043 in `server.py`
 
 ### `server.py` — KernelReloadResponse
 
@@ -152,7 +152,7 @@ class KernelReloadResponse:
 
 ```
 
-**Lines:** 3109-3116 in `server.py`
+**Lines:** 3046-3053 in `server.py`
 
 ### `server.py` — ChatRequest
 
@@ -164,7 +164,7 @@ class ChatRequest:
 
 ```
 
-**Lines:** 3435-3451 in `server.py`
+**Lines:** 3372-3388 in `server.py`
 
 ### `server.py` — ChatResponse
 
@@ -176,7 +176,7 @@ class ChatResponse:
 
 ```
 
-**Lines:** 3454-3462 in `server.py`
+**Lines:** 3391-3399 in `server.py`
 
 
 ---
@@ -202,11 +202,11 @@ The following data models define the contracts for this subsystem:
 | `EXECUTOR_API_KEY_L` | `os.environ.get('L9_EXECUTOR_API_KEY_L')` | 44 |
 | `EXECUTOR_API_KEY_C` | `os.environ.get('L9_EXECUTOR_API_KEY_C') ...` | 45 |
 | `MEMORY_DSN` | `os.getenv('MEMORY_DSN', os.getenv('DATAB...` | 31 |
-| `L9_NEW_AGENT_INIT` | `settings.l9_new_agent_init` | 353 |
-| `L9_STAGE3_MODULES` | `settings.l9_stage3_modules` | 354 |
-| `L9_GRAPH_AGENT_STATE` | `settings.l9_graph_agent_state` | 355 |
-| `L9_OBSERVABILITY` | `settings.l9_observability` | 381 |
-| `LOCAL_DEV` | `settings.local_dev` | 489 |
+| `L9_NEW_AGENT_INIT` | `settings.l9_new_agent_init` | 347 |
+| `L9_STAGE3_MODULES` | `settings.l9_stage3_modules` | 348 |
+| `L9_GRAPH_AGENT_STATE` | `settings.l9_graph_agent_state` | 349 |
+| `L9_OBSERVABILITY` | `settings.l9_observability` | 371 |
+| `LOCAL_DEV` | `settings.local_dev` | 478 |
 
 *...and 35 more constants*
 
@@ -389,7 +389,7 @@ Api operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "api",
   "message": "Operation completed",

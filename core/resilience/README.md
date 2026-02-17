@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -114,7 +114,7 @@ class ResilienceMixin:
 
 **Public Methods:** `with_resilience`
 
-**Lines:** 69-226 in `mixin.py`
+**Lines:** 70-227 in `mixin.py`
 
 ### `protocols.py` — ResilientService
 
@@ -126,7 +126,7 @@ class ResilientService:
 
 ```
 
-**Lines:** 51-70 in `protocols.py`
+**Lines:** 50-69 in `protocols.py`
 
 ### `retry.py` — RetryExhaustedError
 
@@ -142,7 +142,7 @@ class RetryExhaustedError:
 
 **Public Methods:** `__init__`
 
-**Lines:** 70-86 in `retry.py`
+**Lines:** 72-88 in `retry.py`
 
 ### `retry.py` — AsyncRetryConfig
 
@@ -158,7 +158,7 @@ class AsyncRetryConfig:
 
 **Public Methods:** `calculate_delay`
 
-**Lines:** 90-116 in `retry.py`
+**Lines:** 92-118 in `retry.py`
 
 
 ---
@@ -174,8 +174,8 @@ class AsyncRetryConfig:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `T` | `TypeVar('T')` | 67 |
-| `DEFAULT_RETRY_CONFIG` | `AsyncRetryConfig()` | 120 |
+| `T` | `TypeVar('T')` | 69 |
+| `DEFAULT_RETRY_CONFIG` | `AsyncRetryConfig()` | 122 |
 
 ### Key Schemas
 
@@ -273,7 +273,7 @@ CORE_RESILIENCE_ENABLED=true
 
 Execute async function with retry logic and exponential backoff.
 
-- **File:** `retry.py:124`
+- **File:** `retry.py:126`
 - **Async:** Yes
 - **Returns:** `T`
 
@@ -307,7 +307,7 @@ Core Resilience operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "core.resilience",
   "message": "Operation completed",

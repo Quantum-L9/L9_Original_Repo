@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -120,9 +120,15 @@ class SymbolicComputationConfig:
 
     # Key methods:
 
+    def get_redis_key(self, ...) -> str: ...
+
+    def get_compiled_key(self, ...) -> str: ...
+
 ```
 
-**Lines:** 47-111 in `config.py`
+**Public Methods:** `get_redis_key`, `get_compiled_key`
+
+**Lines:** 47-134 in `config.py`
 
 ### `models.py` — BackendType
 
@@ -291,7 +297,7 @@ SERVICES_SYMBOLIC_ENABLED=true
 
 Get configuration instance.
 
-- **File:** `config.py:118`
+- **File:** `config.py:141`
 - **Async:** No
 - **Returns:** `SymbolicComputationConfig`
 
@@ -299,7 +305,7 @@ Get configuration instance.
 
 Reload configuration from environment.
 
-- **File:** `config.py:128`
+- **File:** `config.py:151`
 - **Async:** No
 
 #### `def get_logger(name) -> logging.Logger`
@@ -356,7 +362,7 @@ Services Symbolic operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "services.symbolic_computation",
   "message": "Operation completed",

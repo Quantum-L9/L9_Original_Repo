@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -193,12 +193,12 @@ The following data models define the contracts for this subsystem:
 |----------|-------|------|
 | `FORBIDDEN_PATTERNS` | `['if applicable', 'when needed', 'as req...` | 64 |
 | `REQUIRED_SECTIONS` | `['metadata', 'ownership', 'runtime_wirin...` | 81 |
-| `INTENT_EXTRACTION_PROMPT` | `'You are an intent extraction system. An...` | 73 |
+| `INTENT_EXTRACTION_PROMPT` | `'You are an intent extraction system. An...` | 75 |
 | `PRODUCER_PROMPT` | `'You are IR Producer Agent. Your role is...` | 102 |
 | `CRITIC_PROMPT` | `'You are IR Critic Agent. Your role is t...` | 133 |
 | `CHALLENGE_PROMPT` | `'You are a constraint analysis expert. R...` | 55 |
-| `ADAPTER_TEMPLATE` | `'"""\n{{ module_name }} Adapter\n{{ \'=\...` | 77 |
-| `ROUTE_TEMPLATE` | `'"""\n{{ module_name }} Routes\n{{ \'=\'...` | 161 |
+| `ADAPTER_TEMPLATE` | `'"""\n{{ module_name }} Adapter\n{{ \'=\...` | 79 |
+| `ROUTE_TEMPLATE` | `'"""\n{{ module_name }} Routes\n{{ \'=\'...` | 163 |
 
 *...and 5 more constants*
 
@@ -331,7 +331,7 @@ Compile a MetaContract to IR.
 
 Compile ModuleIR to Python source files.
 
-- **File:** `ir_to_python.py:959`
+- **File:** `ir_to_python.py:961`
 - **Async:** No
 - **Returns:** `dict[str, str]`
 
@@ -365,7 +365,7 @@ Ir Engine operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "ir_engine",
   "message": "Operation completed",

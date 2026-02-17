@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -109,7 +109,7 @@ class CriterionType:
 
 ```
 
-**Lines:** 50-57 in `outcome_evaluator.py`
+**Lines:** 51-58 in `outcome_evaluator.py`
 
 ### `outcome_evaluator.py` — EvaluationVerdict
 
@@ -121,7 +121,7 @@ class EvaluationVerdict:
 
 ```
 
-**Lines:** 60-65 in `outcome_evaluator.py`
+**Lines:** 61-66 in `outcome_evaluator.py`
 
 ### `outcome_evaluator.py` — EvaluationCriteria
 
@@ -137,7 +137,7 @@ class EvaluationCriteria:
 
 **Public Methods:** `evaluate`
 
-**Lines:** 69-112 in `outcome_evaluator.py`
+**Lines:** 70-113 in `outcome_evaluator.py`
 
 ### `outcome_evaluator.py` — CriterionResult
 
@@ -149,7 +149,7 @@ class CriterionResult:
 
 ```
 
-**Lines:** 116-124 in `outcome_evaluator.py`
+**Lines:** 117-125 in `outcome_evaluator.py`
 
 ### `outcome_evaluator.py` — EvaluationResult
 
@@ -165,7 +165,7 @@ class EvaluationResult:
 
 **Public Methods:** `to_dict`
 
-**Lines:** 128-159 in `outcome_evaluator.py`
+**Lines:** 129-160 in `outcome_evaluator.py`
 
 
 ---
@@ -308,7 +308,7 @@ Simulation operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "simulation",
   "message": "Operation completed",

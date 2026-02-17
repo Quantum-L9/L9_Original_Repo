@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -316,14 +316,14 @@ Factory function to create a ResearchAgent instance.
 
 Decorator to register an agent class for auto-discovery.
 
-- **File:** `agent_registry.py:63`
+- **File:** `agent_registry.py:64`
 - **Async:** No
 
 #### `def discover_agents(package) -> int`
 
 Automatically discover all agents in the specified package.
 
-- **File:** `agent_registry.py:127`
+- **File:** `agent_registry.py:129`
 - **Async:** No
 - **Returns:** `int`
 
@@ -331,7 +331,7 @@ Automatically discover all agents in the specified package.
 
 Get all registered agent classes as a dictionary.
 
-- **File:** `agent_registry.py:143`
+- **File:** `agent_registry.py:145`
 - **Async:** No
 - **Returns:** `dict[str, type]`
 
@@ -365,7 +365,7 @@ Agents operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "agents",
   "message": "Operation completed",

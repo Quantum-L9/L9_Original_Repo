@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -221,12 +221,12 @@ The following data models define the contracts for this subsystem:
 |----------|-------|------|
 | `DEFAULT_CONFIG` | `CrossEncoderConfig()` | 97 |
 | `MODEL_PRESETS` | `{'fast': 'cross-encoder/ms-marco-MiniLM-...` | 100 |
-| `CHECKPOINT_CREATE_LATENCY` | `Histogram('l9_checkpoint_create_latency_...` | 126 |
-| `CHECKPOINT_RESTORE_LATENCY` | `Histogram('l9_checkpoint_restore_latency...` | 133 |
-| `CHECKPOINT_VALIDATE_LATENCY` | `Histogram('l9_checkpoint_validate_latenc...` | 140 |
-| `CHECKPOINT_CREATE_TOTAL` | `Counter('l9_checkpoint_create_total', 'T...` | 148 |
-| `CHECKPOINT_RESTORE_TOTAL` | `Counter('l9_checkpoint_restore_total', '...` | 154 |
-| `CHECKPOINT_DELETE_TOTAL` | `Counter('l9_checkpoint_delete_total', 'T...` | 160 |
+| `CHECKPOINT_CREATE_LATENCY` | `Histogram('l9_checkpoint_create_latency_...` | 134 |
+| `CHECKPOINT_RESTORE_LATENCY` | `Histogram('l9_checkpoint_restore_latency...` | 141 |
+| `CHECKPOINT_VALIDATE_LATENCY` | `Histogram('l9_checkpoint_validate_latenc...` | 148 |
+| `CHECKPOINT_CREATE_TOTAL` | `Counter('l9_checkpoint_create_total', 'T...` | 156 |
+| `CHECKPOINT_RESTORE_TOTAL` | `Counter('l9_checkpoint_restore_total', '...` | 162 |
+| `CHECKPOINT_DELETE_TOTAL` | `Counter('l9_checkpoint_delete_total', 'T...` | 168 |
 
 *...and 52 more constants*
 
@@ -360,13 +360,13 @@ Execute multiple queries against a single retriever and merge results.
 - **Async:** Yes
 - **Returns:** `MultiQueryResult`
 
-#### `async def smoke_test() -> dict[str, any]`
+#### `async def smoke_test() -> dict[str, Any]`
 
 Run smoke test to verify memory system.
 
-- **File:** `smoke_test.py:50`
+- **File:** `smoke_test.py:51`
 - **Async:** Yes
-- **Returns:** `dict[str, any]`
+- **Returns:** `dict[str, Any]`
 
 
 ### Usage Example
@@ -410,7 +410,7 @@ Memory operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "memory",
   "message": "Operation completed",

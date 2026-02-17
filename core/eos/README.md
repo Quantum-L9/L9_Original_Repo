@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -112,17 +112,17 @@ class EOSHypergraphClient:
 
     def available(self, ...) -> bool: ...
 
+    def _require_client(self, ...) -> Any: ...
+
     async def check_violations(self, ...) -> dict[str, Any]: ...
 
     async def get_agent_capabilities(self, ...) -> list[dict[str, Any]]: ...
 
-    async def get_active_prohibitions(self, ...) -> list[dict[str, Any]]: ...
-
 ```
 
-**Public Methods:** `__init__`, `available`, `check_violations`, `get_agent_capabilities`, `get_active_prohibitions`
+**Public Methods:** `__init__`, `available`, `_require_client`, `check_violations`, `get_agent_capabilities`
 
-**Lines:** 49-351 in `hypergraph_client.py`
+**Lines:** 49-359 in `hypergraph_client.py`
 
 ### `ledger_writer.py` — EOSLedgerWriter
 
@@ -146,7 +146,7 @@ class EOSLedgerWriter:
 
 **Public Methods:** `__init__`, `available`, `_compute_hash`, `write`, `write_verdict_entry`
 
-**Lines:** 55-422 in `ledger_writer.py`
+**Lines:** 55-426 in `ledger_writer.py`
 
 ### `accountability_engine.py` — AccountabilityEngine
 
@@ -305,7 +305,7 @@ CORE_EOS_ENABLED=true
 
 Factory function to create EOSHypergraphClient with Neo4j.
 
-- **File:** `hypergraph_client.py:359`
+- **File:** `hypergraph_client.py:367`
 - **Async:** Yes
 - **Returns:** `EOSHypergraphClient`
 
@@ -313,7 +313,7 @@ Factory function to create EOSHypergraphClient with Neo4j.
 
 Factory function to create EOSLedgerWriter with SubstrateService.
 
-- **File:** `ledger_writer.py:430`
+- **File:** `ledger_writer.py:434`
 - **Async:** Yes
 - **Returns:** `EOSLedgerWriter`
 
@@ -347,7 +347,7 @@ Core Eos operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "core.eos",
   "message": "Operation completed",

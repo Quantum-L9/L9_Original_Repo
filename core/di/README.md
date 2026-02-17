@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -107,7 +107,7 @@ class DIContainerError:
 
 ```
 
-**Lines:** 75-78 in `container.py`
+**Lines:** 77-80 in `container.py`
 
 ### `container.py` — CircularDependencyError
 
@@ -119,7 +119,7 @@ class CircularDependencyError:
 
 ```
 
-**Lines:** 81-84 in `container.py`
+**Lines:** 83-86 in `container.py`
 
 ### `container.py` — BindingNotFoundError
 
@@ -131,7 +131,7 @@ class BindingNotFoundError:
 
 ```
 
-**Lines:** 87-90 in `container.py`
+**Lines:** 89-92 in `container.py`
 
 ### `container.py` — ResolutionError
 
@@ -143,7 +143,7 @@ class ResolutionError:
 
 ```
 
-**Lines:** 93-96 in `container.py`
+**Lines:** 95-98 in `container.py`
 
 ### `container.py` — DIContainer
 
@@ -167,7 +167,7 @@ class DIContainer:
 
 **Public Methods:** `__init__`, `bind_singleton`, `bind_transient`, `bind_instance`, `resolve`
 
-**Lines:** 99-535 in `container.py`
+**Lines:** 101-537 in `container.py`
 
 
 ---
@@ -185,7 +185,7 @@ class DIContainer:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `T` | `TypeVar('T')` | 72 |
+| `T` | `TypeVar('T')` | 74 |
 
 ### Key Schemas
 
@@ -291,7 +291,7 @@ Bootstrap DIContainer with all core service registrations.
 
 Get global DI container instance.
 
-- **File:** `container.py:543`
+- **File:** `container.py:545`
 - **Async:** No
 - **Returns:** `DIContainer`
 
@@ -299,7 +299,7 @@ Get global DI container instance.
 
 Reset global DI container.
 
-- **File:** `container.py:563`
+- **File:** `container.py:565`
 - **Async:** No
 - **Returns:** `None`
 
@@ -307,7 +307,7 @@ Reset global DI container.
 
 Bootstrap the DI container with all core services.
 
-- **File:** `bootstrap_integration.py:55`
+- **File:** `bootstrap_integration.py:57`
 - **Async:** Yes
 - **Returns:** `DIContainer`
 
@@ -315,7 +315,7 @@ Bootstrap the DI container with all core services.
 
 Shutdown the DI container and cleanup resources.
 
-- **File:** `bootstrap_integration.py:271`
+- **File:** `bootstrap_integration.py:273`
 - **Async:** Yes
 - **Returns:** `None`
 
@@ -349,7 +349,7 @@ Core Di operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "core.di",
   "message": "Operation completed",

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -241,7 +241,7 @@ The following data models define the contracts for this subsystem:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `SUPPORTED_PACKET_TYPES` | `frozenset(['ir_graph', 'execution_plan',...` | 97 |
+| `SUPPORTED_PACKET_TYPES` | `frozenset(['ir_graph', 'execution_plan',...` | 98 |
 | `PACKET_TYPE_IR_GRAPH` | `'ir_graph'` | 88 |
 | `PACKET_TYPE_EXECUTION_PLAN` | `'execution_plan'` | 89 |
 | `PACKET_TYPE_REFLECTION` | `'reflection'` | 90 |
@@ -380,7 +380,7 @@ Reset the singleton service API.
 
 Create a WorldModelRuntime wired to the Memory Substrate.
 
-- **File:** `runtime.py:1995`
+- **File:** `runtime.py:2009`
 - **Async:** Yes
 - **Returns:** `WorldModelRuntime`
 
@@ -414,7 +414,7 @@ World Model operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "world_model",
   "message": "Operation completed",

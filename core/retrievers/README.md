@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -113,7 +113,7 @@ class SubstrateRetriever:
 
 **Public Methods:** `__init__`, `_aget_relevant_documents`, `_get_relevant_documents`
 
-**Lines:** 41-102 in `substrate_retriever.py`
+**Lines:** 43-104 in `substrate_retriever.py`
 
 
 ---
@@ -246,7 +246,7 @@ Core Retrievers operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "core.retrievers",
   "message": "Operation completed",

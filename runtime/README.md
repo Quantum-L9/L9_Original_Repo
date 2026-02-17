@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -126,7 +126,7 @@ class DoraMetrics:
 
 ```
 
-**Lines:** 70-76 in `dora.py`
+**Lines:** 71-77 in `dora.py`
 
 ### `dora.py` — DoraGraph
 
@@ -138,7 +138,7 @@ class DoraGraph:
 
 ```
 
-**Lines:** 80-84 in `dora.py`
+**Lines:** 81-85 in `dora.py`
 
 ### `dora.py` — DoraTraceBlock
 
@@ -158,7 +158,7 @@ class DoraTraceBlock:
 
 **Public Methods:** `to_dict`, `create`, `_sanitize_for_json`
 
-**Lines:** 88-165 in `dora.py`
+**Lines:** 89-166 in `dora.py`
 
 ### `response_renderer.py` — ResponseRenderer
 
@@ -182,7 +182,7 @@ class ResponseRenderer:
 
 **Public Methods:** `render`, `_format_confidence`, `_format_kernel_status`, `render_minimal`, `render_escalation`
 
-**Lines:** 54-262 in `response_renderer.py`
+**Lines:** 51-259 in `response_renderer.py`
 
 ### `response_renderer.py` — ResponseBuilder
 
@@ -206,7 +206,7 @@ class ResponseBuilder:
 
 **Public Methods:** `__init__`, `opening`, `section`, `confidence`, `from_claims`
 
-**Lines:** 270-346 in `response_renderer.py`
+**Lines:** 267-343 in `response_renderer.py`
 
 
 ---
@@ -222,16 +222,16 @@ The following data models define the contracts for this subsystem:
 
 `ALL_SEGMENTS`, `AuthAttemptResult`, `AuthRateLimitConfig`, `AuthRateLimiter`, `BackgroundTaskRegistry`, `ClaimCollection`, `ConfidenceLevel`, `DEFAULT_KERNEL_PATH`, `DEFAULT_TOOL_AUTHORIZATION`, `DoraGraph`
 
-*...and 122 more*
+*...and 120 more*
 
 ### Module Constants
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `DORA_BLOCK_START_PY` | `re.compile('^# ={10,}\\n# L9 DORA BLOCK ...` | 174 |
-| `DORA_BLOCK_END_PY` | `re.compile('^# ={10,}\\n# END L9 DORA BL...` | 177 |
-| `DORA_BLOCK_PATTERN_PY` | `re.compile('(# ={10,}\\n# L9 DORA BLOCK ...` | 181 |
-| `F` | `TypeVar('F', bound=Callable[..., Any])` | 281 |
+| `DORA_BLOCK_START_PY` | `re.compile('^# ={10,}\\n# L9 DORA BLOCK ...` | 175 |
+| `DORA_BLOCK_END_PY` | `re.compile('^# ={10,}\\n# END L9 DORA BL...` | 178 |
+| `DORA_BLOCK_PATTERN_PY` | `re.compile('(# ={10,}\\n# L9 DORA BLOCK ...` | 182 |
+| `F` | `TypeVar('F', bound=Callable[..., Any])` | 282 |
 | `GIT_QUEUE` | `TaskQueue(queue_name='l9:git_commits', u...` | 48 |
 | `MEMORY_SEGMENT_GOVERNANCE_META` | `'governance_meta'` | 61 |
 | `MEMORY_SEGMENT_PROJECT_HISTORY` | `'project_history'` | 62 |
@@ -345,7 +345,7 @@ GMP run tool implementation.
 
 Format DORA block for Python files.
 
-- **File:** `dora.py:189`
+- **File:** `dora.py:190`
 - **Async:** No
 - **Returns:** `str`
 
@@ -353,7 +353,7 @@ Format DORA block for Python files.
 
 Update the DORA block at the end of a file.
 
-- **File:** `dora.py:214`
+- **File:** `dora.py:215`
 - **Async:** No
 - **Returns:** `bool`
 
@@ -361,7 +361,7 @@ Update the DORA block at the end of a file.
 
 Decorator to trace function execution for DORA Block.
 
-- **File:** `dora.py:284`
+- **File:** `dora.py:285`
 - **Async:** No
 - **Returns:** `F | Callable[[F], F]`
 
@@ -369,7 +369,7 @@ Decorator to trace function execution for DORA Block.
 
 Create and emit a DORA trace from the executor.
 
-- **File:** `dora.py:472`
+- **File:** `dora.py:474`
 - **Async:** Yes
 - **Returns:** `DoraTraceBlock`
 
@@ -403,7 +403,7 @@ Runtime operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "runtime",
   "message": "Operation completed",

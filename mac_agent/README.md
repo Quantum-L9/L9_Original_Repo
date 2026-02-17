@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -133,7 +133,7 @@ class AgentConfig:
 
 **Public Methods:** `from_env`
 
-**Lines:** 85-132 in `websocket_client.py`
+**Lines:** 88-135 in `websocket_client.py`
 
 ### `websocket_client.py` — EventType
 
@@ -145,7 +145,7 @@ class EventType:
 
 ```
 
-**Lines:** 140-149 in `websocket_client.py`
+**Lines:** 143-152 in `websocket_client.py`
 
 ### `websocket_client.py` — TaskExecutor
 
@@ -169,7 +169,7 @@ class TaskExecutor:
 
 **Public Methods:** `__init__`, `running_count`, `execute`, `_execute_shell`, `_execute_browser`
 
-**Lines:** 243-596 in `websocket_client.py`
+**Lines:** 246-599 in `websocket_client.py`
 
 ### `websocket_client.py` — MacAgentClient
 
@@ -193,7 +193,7 @@ class MacAgentClient:
 
 **Public Methods:** `__init__`, `run`, `shutdown`, `is_connected`, `_connect_and_run`
 
-**Lines:** 604-1038 in `websocket_client.py`
+**Lines:** 607-1041 in `websocket_client.py`
 
 
 ---
@@ -374,7 +374,7 @@ Mac Agent operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "mac_agent",
   "message": "Operation completed",

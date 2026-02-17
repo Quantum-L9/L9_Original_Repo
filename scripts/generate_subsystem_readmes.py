@@ -87,10 +87,10 @@ def verify_system_time() -> tuple[datetime, bool, str]:
     # Try worldtimeapi.org first
     try:
         url = "http://worldtimeapi.org/api/timezone/UTC"
-        req = urllib.request.Request(  # noqa: S310 — URL from trusted config
+        req = urllib.request.Request(
             url, headers={"User-Agent": "L9-README-Generator/1.0"}
         )
-        with urllib.request.urlopen(req, timeout=5) as response:  # noqa: S310 — URL from trusted config
+        with urllib.request.urlopen(req, timeout=5) as response:
             data = json.loads(response.read().decode())
             api_time = datetime.fromisoformat(
                 data["utc_datetime"].replace("Z", "+00:00")
@@ -105,10 +105,10 @@ def verify_system_time() -> tuple[datetime, bool, str]:
     # Fallback: try timeapi.io
     try:
         url = "https://timeapi.io/api/Time/current/zone?timeZone=UTC"
-        req = urllib.request.Request(  # noqa: S310 — URL from trusted config
+        req = urllib.request.Request(
             url, headers={"User-Agent": "L9-README-Generator/1.0"}
         )
-        with urllib.request.urlopen(req, timeout=5) as response:  # noqa: S310 — URL from trusted config
+        with urllib.request.urlopen(req, timeout=5) as response:
             data = json.loads(response.read().decode())
             api_time = datetime(
                 data["year"],
@@ -1192,7 +1192,7 @@ def list_subsystems(config: dict[str, Any]) -> None:
         by_tier[tier].append((key, sub_config))
 
     logger.info("\n📋 configured subsystems\n")
-    logger.info("{'key':<25} {'path':<35} {'title'}")
+    logger.info(f"{'key':<25} {'path':<35} {'title'}")
     logger.info("-" * 90)
 
     for tier in [
@@ -1205,12 +1205,12 @@ def list_subsystems(config: dict[str, Any]) -> None:
     ]:
         if tier not in by_tier:
             continue
-        logger.info("\n[{tier.upper()}]")
-        for _key, sub_config in sorted(by_tier[tier]):
+        logger.info(f"\n[{tier.upper()}]")
+        for key, sub_config in sorted(by_tier[tier]):
             last_updated = sub_config.get("last_updated", "never")
             if last_updated is None:
                 last_updated = "never"
-            logger.info("  {key:<23} {sub_config['path']:<35} {sub_config['title']}")
+            logger.info(f"  {key:<23} {sub_config['path']:<35} {sub_config['title']}")
 
     total = sum(len(v) for v in by_tier.values())
     logger.info("\n✅ total: total subsystems configured", total=total)

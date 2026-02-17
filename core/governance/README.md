@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-02-14 08:25:39 UTC"
+  generated: "2026-02-17 00:14:44 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "worldtimeapi.org (drift: 1.5s)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -124,7 +124,7 @@ class QuickFix:
 
 ```
 
-**Lines:** 53-73 in `quick_fixes.py`
+**Lines:** 55-75 in `quick_fixes.py`
 
 ### `quick_fixes.py` — FixResult
 
@@ -136,7 +136,7 @@ class FixResult:
 
 ```
 
-**Lines:** 77-85 in `quick_fixes.py`
+**Lines:** 79-87 in `quick_fixes.py`
 
 ### `quick_fixes.py` — QuickFixEngine
 
@@ -160,7 +160,7 @@ class QuickFixEngine:
 
 **Public Methods:** `__init__`, `_load_default_fixes`, `fixes`, `add_fix`, `diagnose`
 
-**Lines:** 88-335 in `quick_fixes.py`
+**Lines:** 90-337 in `quick_fixes.py`
 
 ### `policy_engine.py` — PolicyConflictResolver
 
@@ -218,9 +218,9 @@ The following data models define the contracts for this subsystem:
 
 | Constant | Value | Line |
 |----------|-------|------|
-| `PROTECTED_BY_LCTO` | `get_lcto_controlled_files()` | 202 |
-| `SUBSYSTEM_PROTECTED` | `get_subsystem_protected_files()` | 203 |
-| `ALL_PROTECTED` | `get_all_protected_files()` | 204 |
+| `PROTECTED_BY_LCTO` | `get_lcto_controlled_files()` | 256 |
+| `SUBSYSTEM_PROTECTED` | `get_subsystem_protected_files()` | 257 |
+| `ALL_PROTECTED` | `get_all_protected_files()` | 258 |
 | `HIGH_RISK_TOOLS` | `get_high_risk_tools_with_descriptions()` | 74 |
 | `FILE_PATTERNS` | `{'auth': ['api/auth\\.py', 'core/.*auth....` | 67 |
 | `KEYWORD_PATTERNS` | `{'auth': ['\\bauth\\w*\\b', '\\blogin\\b...` | 99 |
@@ -327,15 +327,23 @@ CORE_GOVERNANCE_ENABLED=true
 
 Create a QuickFixEngine instance with default fixes.
 
-- **File:** `quick_fixes.py:339`
+- **File:** `quick_fixes.py:341`
 - **Async:** No
 - **Returns:** `QuickFixEngine`
+
+#### `def get_protected_patterns() -> list[str]`
+
+Get protected file patterns (fnmatch-style). Applies to all including L.
+
+- **File:** `protected_files_policy.py:162`
+- **Async:** No
+- **Returns:** `list[str]`
 
 #### `def get_lcto_controlled_files() -> set[str]`
 
 Get set of LCTO-controlled file paths.
 
-- **File:** `protected_files_policy.py:124`
+- **File:** `protected_files_policy.py:167`
 - **Async:** No
 - **Returns:** `set[str]`
 
@@ -343,7 +351,7 @@ Get set of LCTO-controlled file paths.
 
 Get subsystem-protected files by subsystem name.
 
-- **File:** `protected_files_policy.py:135`
+- **File:** `protected_files_policy.py:178`
 - **Async:** No
 - **Returns:** `dict[str, set[str]]`
 
@@ -351,17 +359,9 @@ Get subsystem-protected files by subsystem name.
 
 Get all protected file paths.
 
-- **File:** `protected_files_policy.py:146`
+- **File:** `protected_files_policy.py:189`
 - **Async:** No
 - **Returns:** `set[str]`
-
-#### `def is_protected(file_path) -> bool`
-
-Check if a file is protected.
-
-- **File:** `protected_files_policy.py:159`
-- **Async:** No
-- **Returns:** `bool`
 
 
 ### Usage Example
@@ -393,7 +393,7 @@ Core Governance operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-02-14T08:25:39Z",
+  "timestamp": "2026-02-17T00:14:44Z",
   "level": "INFO",
   "module": "core.governance",
   "message": "Operation completed",
