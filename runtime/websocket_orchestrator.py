@@ -7,7 +7,7 @@ Manages WebSocket connections from L9 agents.
 Responsibilities:
 - Accept and validate agent handshakes
 - Track connected agents with metadata
-- Route incoming messages to the ws_bridge for task conversion
+- Route incoming messages to ws_task_router for task conversion
 - Dispatch outbound events to specific agents
 
 The module-level singleton `ws_orchestrator` is the canonical instance.
@@ -216,9 +216,9 @@ class WebSocketOrchestrator:
             await self.dispatch_event(agent_id, response)
             return
 
-        # Route worker agent events through ws_bridge (existing behavior)
+        # Route worker agent events through ws_task_router (ws_bridge archived)
         from core.schemas.ws_event_stream import EventMessage, EventType
-        from orchestrators.ws_bridge import handle_ws_event
+        from orchestration.ws_task_router import handle_ws_event
 
         # Convert raw data to EventMessage
         try:
@@ -235,7 +235,7 @@ class WebSocketOrchestrator:
             correlation_id=data.get("correlation_id"),
         )
 
-        # Route through ws_bridge for task conversion
+        # Route through ws_task_router for task conversion
         envelope = handle_ws_event(event)
         if envelope:
             logger.debug(

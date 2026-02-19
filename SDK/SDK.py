@@ -510,14 +510,12 @@ class ReasoningInterface:
     ) -> dict[str, Any]:
         """Run tensor bridge inference."""
         try:
-            from domain_tensor_bridge.memory_bridge import (
-                MemoryBridge,
-            )
+            from domain_tensor_bridge.gateway import DomainBridgeGateway
 
-            bridge = MemoryBridge()
-            return await bridge.infer(input_data=input_data, mode=mode)
+            gw = DomainBridgeGateway()
+            return await gw.route_infer(input_data=input_data, mode=mode)
         except ImportError:
-            logger.warning("MemoryBridge not available")
+            logger.warning("DomainBridgeGateway not available")
             return {"error": "tensor bridge not available"}
 
     @must_stay_async("callers use await")
@@ -527,14 +525,12 @@ class ReasoningInterface:
     ) -> dict[str, Any]:
         """Process a domain packet through tensor bridge."""
         try:
-            from domain_tensor_bridge.memory_bridge import (
-                MemoryBridge,
-            )
+            from domain_tensor_bridge.gateway import DomainBridgeGateway
 
-            bridge = MemoryBridge()
-            return await bridge.process_packet(packet=packet)
+            gw = DomainBridgeGateway()
+            return await gw.route_packet(packet=packet)
         except ImportError:
-            logger.warning("MemoryBridge not available")
+            logger.warning("DomainBridgeGateway not available")
             return {"error": "tensor bridge not available"}
 
 
