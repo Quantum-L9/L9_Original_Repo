@@ -294,16 +294,7 @@ from memory.substrate_models import (
     SubstrateState,
 )
 
-# Semantic Tool Router (GMP-57)
-from memory.tool_router import (
-    ToolEmbedding,
-    ToolMatch,
-    ToolRouter,
-    ToolSearchResult,
-    find_tools,
-    get_tool_router,
-    init_tool_router,
-)
+# Semantic Tool Router (GMP-57) — ARCHIVED: use core.tools.tool_embeddings
 from memory.vector_search_config import VectorSearchConfig, get_vector_config
 
 # Stage 5: Predictive Memory Warming (GMP-STAGE5)
@@ -487,10 +478,7 @@ __all__ = [
     "TaskOutcome",
     "ThinkingOutput",
     "TierRetrievalConfig",
-    "ToolEmbedding",
-    "ToolMatch",
-    "ToolRouter",
-    "ToolSearchResult",
+
     "TopicExtractor",
     "VectorSearchConfig",
     "build_governance_context",
@@ -507,7 +495,6 @@ __all__ = [
     "ensure_governance_context",
     "execute_template",
     "fetch_and_enrich",
-    "find_tools",
     "get_active_encoder",
     "get_checkpoint_metrics",
     "get_graph_memory",
@@ -518,7 +505,6 @@ __all__ = [
     "get_retrieval_pipeline",
     "get_schema_introspector",
     "get_template_library",
-    "get_tool_router",
     "governance_context",
     "has_injection_markers",
     "hybrid_search",
@@ -527,7 +513,6 @@ __all__ = [
     "init_importance_manager",
     "init_ingestion_pipeline",
     "init_retrieval_pipeline",
-    "init_tool_router",
     "normalize_payload",
     "normalize_text",
     "on_task_completion",
