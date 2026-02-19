@@ -1,0 +1,52 @@
+--- a/memory/working_memory_adapter.py
++++ b/memory/working_memory_adapter.py
+@@ -56,6 +56,7 @@
+ if TYPE_CHECKING:
+     from memory.substrate_service import MemorySubstrateService
++    from domain_tensor_bridge.gateway import DomainBridgeGateway
+ 
+ logger = structlog.get_logger(__name__)
+ 
+@@ -66,10 +67,16 @@
+ class WorkingMemoryAdapter:
+     """World-model aware helper for agent working memory.
+ 
+-    This is a thin, non-invasive adapter that lets agents hydrate their
+-    repo-scoped working memory with context from the substrate world model
+-    and semantic memory, without changing core substrate semantics.
++    ADR-0092: This adapter is READ-ONLY against the substrate.
++    It builds context by querying MemorySubstrateService (reads).
++    Any long-term writes MUST go through DomainBridgeGateway.
+ 
+     Responsibilities:
+     - Build world-model informed context snapshots per (agent_id, repo_id, branch)
+     - Query recent packets (insights, reflections, execution plans) for that agent
++
++    This adapter does NOT perform any direct writes to Postgres, Neo4j,
++    or pgvector. If a caller needs to persist data, it must use the
++    DomainBridgeGateway injected via set_bridge().
+     """
+ 
+-    def __init__(self, substrate: MemorySubstrateService) -> None:
++    def __init__(
++        self,
++        substrate: MemorySubstrateService,
++        bridge: DomainBridgeGateway | None = None,
++    ) -> None:
+         """Initialize adapter.
+ 
+         Args:
+             substrate: Memory substrate service for reads.
++            bridge: Optional DomainBridgeGateway for long-term writes (ADR-0092).
+         """
+         self._substrate = substrate
++        self._bridge = bridge
++
++    def set_bridge(self, bridge: DomainBridgeGateway) -> None:
++        """Set or update the Domain Bridge Gateway reference.
++
++        Args:
++            bridge: DomainBridgeGateway instance for long-term writes.
++        """
++        self._bridge = bridge
++        logger.info("working_memory_adapter.bridge_set")

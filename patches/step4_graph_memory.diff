@@ -1,0 +1,36 @@
+--- a/memory/graph_memory.py
++++ b/memory/graph_memory.py
+@@ -293,12 +293,16 @@
+     @must_stay_async("callers use await")
+     async def store_message(
+         self,
+         content: str,
+         role: MessageRole = MessageRole.USER,
+         user_id: str | None = None,
+         session_id: UUID | None = None,
+         previous_message_id: UUID | None = None,
+         metadata: dict[str, Any] | None = None,
++        *,
++        principal_id: str | None = None,
+     ) -> GraphMessage:
+         """
+         Store a message in the graph.
+@@ -308,6 +312,13 @@
+             role: Message role
+             user_id: User identifier
+             session_id: Session identifier
+             previous_message_id: Previous message for FOLLOWS relationship
+             metadata: Additional metadata
++            principal_id: Identity of the caller (required for audit trail).
+         """
++        # ADR-0092: Log principal_id for audit trail on every Neo4j write.
++        # Not fail-closed here (graph_memory is a low-level service),
++        # but logged as a warning if missing so callers can be traced.
++        if not principal_id:
++            logger.warning(
++                "graph_memory.store_message.no_principal_id",
++                session_id=str(session_id),
++                user_id=user_id,
++            )
+         # Create message object
+         message = GraphMessage(

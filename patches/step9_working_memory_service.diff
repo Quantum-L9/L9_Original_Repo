@@ -1,0 +1,36 @@
+--- a/agents/cursor/working_memory_service.py
++++ b/agents/cursor/working_memory_service.py
+@@ -148,6 +148,7 @@
+     async def update(
+         self,
+         repo_id: str,
+         branch: str,
+         intent: str | None = None,
+         action: dict[str, Any] | None = None,
+         files_touched: list[str] | None = None,
+         hypothesis: str | None = None,
+         error: dict[str, Any] | None = None,
+         repo_state_hash: str | None = None,
++        *,
++        principal_id: str | None = None,
+     ) -> WorkingMemorySnapshot:
+         """
+         Update working memory (incremental append).
+@@ -160,6 +161,15 @@
+         Effect: merges new data with existing cache, resets TTL
+         Returns: updated snapshot
++
++        Args:
++            principal_id: Identity of the caller (for audit trail).
++                Redis writes are exempt from Domain Bridge (ADR-0092 Rule 6),
++                but principal_id is still logged for observability.
+         """
++        # ADR-0092: Log principal_id for audit trail on Redis writes.
++        logger.debug(
++            "working_memory_service.update",
++            repo_id=repo_id,
++            branch=branch,
++            principal_id=principal_id or "unset",
++        )
+         # Retrieve current state
+         snapshot = await self.hydrate(repo_id, branch)

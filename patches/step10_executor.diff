@@ -1,0 +1,135 @@
+--- a/core/agents/executor.py
++++ b/core/agents/executor.py
+@@ -447,6 +447,7 @@
+ class AgentExecutorService:
+     """
+     Core agent execution service.
+@@ -460,6 +461,7 @@
+         aios_runtime: AIOSRuntime,
+         tool_registry: ToolRegistryProtocol,
+         substrate_service: SubstrateServiceProtocol,
+         agent_registry: AgentRegistryProtocol,
+         default_agent_id: str | None = None,
+         max_iterations: int | None = None,
+         agent_persistence: AgentPersistenceService | None = None,
++        session_hooks: Any | None = None,
+     ):
+         """
+         Initialize the executor service.
+@@ -472,6 +474,7 @@
+             default_agent_id: Default agent ID (from env if not provided)
+             max_iterations: Max iterations (from env if not provided)
+             agent_persistence: Agent persistence service for checkpoint management
++            session_hooks: Optional L9SessionHooks for lifecycle callbacks (ADR-0092).
+         """
+         self._aios_runtime = aios_runtime
+         self._tool_registry = tool_registry
+@@ -500,6 +503,9 @@
+         # Domain Tensor Bridge for tensor reasoning enrichment (optional)
+         self._tensor_bridge: Any | None = None
+ 
++        # ADR-0092: Session hooks for lifecycle callbacks
++        self._session_hooks: Any | None = session_hooks
++
+         # Stage 7: Virtual Context Manager for tiered memory (optional)
+         self._virtual_context_manager: Any | None = None
+ 
+@@ -781,6 +787,22 @@
+     async def start_agent_task(
+         self,
+         task: AgentTask,
+     ) -> ExecutionResult | DuplicateTaskResponse:
++        """
++        Start executing an agent task.
++        ...
++        """
+         start_time = datetime.now(UTC)
+         task_id_str = str(task.id)
+ 
++        # ADR-0092: Invoke session hooks on_task_start for context hydration
++        hooks_context: dict[str, Any] = {}
++        if self._session_hooks is not None:
++            try:
++                hooks_context = await self._session_hooks.on_task_start(
++                    agent_id=task.agent_id,
++                    task_id=task_id_str,
++                    task_payload=task.payload or {},
++                )
++            except Exception as hooks_err:
++                logger.warning(
++                    "agent.executor.session_hooks.on_task_start_failed",
++                    task_id=task_id_str,
++                    error=str(hooks_err),
++                )
++
+         # Log start
+         logger.info(
+ 
+@@ -2042,6 +2064,18 @@
+                 tool_result = await self._dispatch_tool_call(instance, tool_call)
++
++                # ADR-0092: Invoke session hooks on_tool_call for cache update
++                if self._session_hooks is not None:
++                    try:
++                        await self._session_hooks.on_tool_call(
++                            agent_id=instance.task.agent_id,
++                            tool_id=tool_call.tool_id,
++                            tool_result={"result": tool_result.result, "success": tool_result.success},
++                        )
++                    except Exception as hooks_err:
++                        logger.warning(
++                            "agent.executor.session_hooks.on_tool_call_failed",
++                            tool_id=tool_call.tool_id,
++                            error=str(hooks_err),
++                        )
++
+                 # Add result to history using tool_id (canonical identity)
+                 instance.add_tool_result(
+ 
+@@ -2166,6 +2200,20 @@
+         return ExecutionResult(
+             task_id=instance.task.id,
+             status=status,
+             result=final_result,
+             iterations=instance.iteration,
+             duration_ms=duration_ms,
+             error=error,
+             trace_id=instance.instance_id,
+             tool_calls=tool_call_results if tool_call_results else None,
+             tokens_used=instance.total_tokens,
+             governance_blocks=(
+                 instance.governance_blocks if instance.governance_blocks else None
+             ),
+             user_corrections=(
+                 instance.user_corrections if instance.user_corrections else None
+             ),
+         )
++
++        # NOTE: The above return statement ends the method. The on_task_end
++        # hook must be called BEFORE the return. The correct injection point
++        # is just before the return statement above. The diff below shows
++        # the actual insertion:
+
+--- a/core/agents/executor.py (on_task_end injection — insert BEFORE the final return)
++++ b/core/agents/executor.py
+@@ -2160,6 +2160,19 @@
++        # ADR-0092: Invoke session hooks on_task_end for promotion
++        if self._session_hooks is not None:
++            try:
++                await self._session_hooks.on_task_end(
++                    agent_id=instance.task.agent_id,
++                    task_id=str(instance.task.id),
++                    result={
++                        "status": status,
++                        "result": str(final_result)[:500] if final_result else "",
++                        "iterations": instance.iteration,
++                    },
++                )
++            except Exception as hooks_err:
++                logger.warning(
++                    "agent.executor.session_hooks.on_task_end_failed",
++                    task_id=str(instance.task.id),
++                    error=str(hooks_err),
++                )
++
+         return ExecutionResult(

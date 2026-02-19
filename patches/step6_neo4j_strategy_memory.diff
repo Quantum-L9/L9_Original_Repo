@@ -1,0 +1,36 @@
+--- a/memory/neo4j_strategy_memory.py
++++ b/memory/neo4j_strategy_memory.py
+@@ -195,6 +195,8 @@
+     async def record_new_strategy(
+         self,
+         task_id: str,
+         description: str,
+         plan_payload: dict[str, Any],
+         context_embedding: list[float],
+         tags: list[str] | None = None,
++        *,
++        principal_id: str | None = None,
+     ) -> str:
+         """
+         Record a new strategy to Neo4j.
+@@ -205,6 +207,7 @@
+             plan_payload: Serialized ExecutionPlan
+             context_embedding: Task context embedding (1536-dim)
+             tags: Optional categorization tags
++            principal_id: Identity of the caller (required for audit trail).
+ 
+         Returns:
+             strategy_id of the newly created strategy
+@@ -212,6 +215,13 @@
+         if not self._neo4j or not await self._neo4j.is_available():
+             logger.error("Neo4j not available, cannot record strategy")
+             raise RuntimeError("Neo4j not available")
++
++        # ADR-0092: Log principal_id for audit trail on every Neo4j write.
++        if not principal_id:
++            logger.warning(
++                "neo4j_strategy.record_new_strategy.no_principal_id",
++                task_id=task_id,
++            )
+ 
+         strategy_id = f"str_{uuid.uuid4().hex[:12]}"
