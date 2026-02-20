@@ -1570,152 +1570,152 @@ codegen/export_repo_indexes.py::should_scan_file(path, max_bytes) -
 codegen/export_repo_indexes.py::sort_node(n) - 
 codegen/export_repo_indexes.py::write_manifest(out_dir, produced, args) - 
 codegen/export_repo_indexes.py::write_yaml(path, data) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py::__init__(self, reasoning_engine, packet_router, governance_bridge) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py::_create_blocked_response(self, original_packet, reason) - Create governance-blocked response packe
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py::_create_success_response(self, original_packet, result) - Create successful response packet.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py::async initialize(self) - Initialize controller and all sub-compon
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py::async process_packet(packet) - Convenience function to process a packet
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py::async process_packet(self, packet) - Process incoming domain packet through f
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/analogical_reasoner.py::async find_analogies(self, context) - Find analogies in context.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py::async _escalate_anomaly(self, anomaly) - Escalate anomaly to governance.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py::async handle_anomaly(self, anomaly) - Handle detected anomaly.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py::_build_causal_chain(self, factors) - Build causal chain from factors.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py::_identify_interventions(self, chain) - Identify intervention points in chain.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py::async apply_causal_logic(self, context) - Apply causal reasoning to context.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py::_check_rule(self, decision, rule) - Check single rule.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py::check_compliance(self, decision, rules) - Check decision against rules.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/context_enricher.py::__init__(self, world_model_bridge, memory_bridge) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/context_enricher.py::async enrich_context(self, packet) - Enrich packet with contextual data.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py::__init__(self, mode_weights) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py::_build_summary(self, outputs, resolved) - Build human-readable summary of synthesi
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py::_calculate_weighted_confidence(self, outputs) - Calculate weighted confidence from all o
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py::_detect_conflicts(self, outputs) - Detect conflicting recommendations acros
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py::_determine_action(self, outputs, confidence) - Determine final action based on outputs 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py::_get_contributing_modes(self, outputs) - Extract list of contributing modes.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py::_resolve_conflicts(self, conflicts) - Resolve detected conflicts using weighte
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py::async synthesize_decision(self, reasoning_outputs) - Combine reasoning mode outputs into fina
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_context_builder.py::build_domain_context(self, packet, domain) - Build context for specific domain.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py::_enrich_mortgageos_payload(self, payload) - Apply MortgageOS-specific enrichments.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py::_enrich_plastos_payload(self, payload) - Apply PlastOS-specific enrichments.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py::async handle_generic_domain(self, packet, domain) - Handle packets from any registered domai
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py::async handle_mortgageos_packet(self, packet) - Handle MortgageOS domain packets.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py::async handle_plastos_packet(self, packet) - Handle PlastOS domain packets.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/embedding_processor.py::_normalize(self, values) - L2 normalize embedding.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/embedding_processor.py::compute_similarity(self, emb_a, emb_b) - Compute cosine similarity between embedd
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/embedding_processor.py::process_embeddings(self, raw_embeddings) - Process raw embedding vector.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py::_determine_anchor(self, trigger) - Determine which anchor to escalate to.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py::async _escalate_to_anchor(self, anchor, trigger) - Escalate to governance anchor.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py::async handle_escalation(self, trigger) - Handle escalation trigger.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::__init__(self, approval_service, igor) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::_determine_escalation_level(self, decision) - Determine appropriate escalation level.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::_requires_escalation(self, decision) - Determine if decision requires escalatio
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::async _check_approval(self, decision) - Check with approval service.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::async check(self, result) - Alias for check_governance.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::async check_governance(self, decision) - Check decision against governance policy
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::async escalate_to_anchor(self, decision, reason) - Escalate decision to governance anchor (
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::async initialize(self) - Initialize governance connections.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py::__init__(self, substrate_service) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py::async get_working_memory(self, key) - Get value from working memory (Redis).
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py::async initialize(self) - Initialize memory connections.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py::async query_causal_graph(self, entity_id, depth) - Query causal graph for entity relationsh
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py::async query_episodic_memory(self, filters) - Query episodic memory (Postgres) for eve
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py::async query_semantic_graph(self, query) - Query semantic graph (Neo4j).
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py::async set_working_memory(self, key, value, ttl_seconds) - Set value in working memory (Redis).
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py::async store_episodic_event(self, event) - Store event in episodic memory.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_formatter.py::_format_generic(self, result) - Generic format.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_formatter.py::_format_mortgageos(self, result) - MortgageOS-specific format.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_formatter.py::_format_plastos(self, result) - PlastOS-specific format.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_formatter.py::format_for_domain(self, result, domain) - Format result for specific domain.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py::__init__(self) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py::_extract_domain(self, source_id) - Extract domain from source_id.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py::async route(self, packet) - Route packet and return routing info.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py::async route_packet(self, packet) - Determine routing for packet.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py::async validate(self, packet) - Validate packet structure.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py::get_handler_for_type(self, packet_type) - Get handler for packet type.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py::register_domain_handler(self, domain, handler) - Register handler for domain.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py::register_handler(self, packet_kind, handler) - Register handler for packet type.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py::set_fallback_handler(self, handler) - Set fallback handler for unknown packets
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py::__init__(self, strict_mode) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py::_validate_kind(self, kind) - Validate packet kind.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py::_validate_payload(self, payload) - Validate payload structure and size.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py::_validate_source_id(self, source_id) - Validate source_id format.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py::validate_packet(self, packet) - Validate packet structure and fields.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py::__init__(self, symbolic_reasoner, causal_reasoner, analogical_reasoner, reflective_auditor) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py::_calculate_confidence(self, mode_outputs) - Calculate overall confidence from mode o
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py::_synthesize_decision(self, mode_outputs) - Synthesize decision from multiple reason
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py::async _apply_reflective(self, mode_outputs) - Apply reflective self-critique.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py::async _apply_symbolic(self, context) - Apply symbolic rule reasoning.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py::async apply_analogical_reasoning(self, context) - Apply cross-domain pattern matching.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py::async apply_causal_reasoning(self, context) - Apply world model causal logic.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py::async execute_reasoning(self, context, modes) - Execute reasoning with specified modes.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py::async initialize(self) - Initialize reasoning engine and sub-comp
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reflective_auditor.py::audit_reasoning(self, decision) - Audit decision for issues.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/symbolic_reasoner.py::_apply_rule(self, rule, context) - Apply single rule.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/symbolic_reasoner.py::apply_domain_rules(self, context, domain) - Apply domain-specific rules.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py::__init__(self, tensoraios_bridge, batch_size) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py::async _process_batch(self, entities) - Process a batch of entities.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py::async _score_entity(self, entity_id) - Score single entity via tensor layer.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py::async coordinate_tensor_calls(self, entities) - Coordinate batched tensor calls for enti
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py::__init__(self, tensor_url) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py::async call_embedding_similarity(self, entity_a, entity_b) - Calculate embedding similarity between e
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py::async call_link_prediction(self, source, target) - Call link prediction model.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py::async close(self) - Close HTTP client.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py::async get_embeddings(self, entity_ids) - Get embeddings for entities.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py::async initialize(self) - Initialize HTTP client.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py::__init__(self, world_model_url) - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py::async close(self) - Close HTTP client.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py::async initialize(self) - Initialize HTTP client.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py::async query_causal_factors(self, entity_id) - Query causal factors for entity.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py::async query_temporal_patterns(self, entity_id, window_days) - Query temporal patterns for entity.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py::async test_initialized_status(self, controller) - Test status reflects initialization.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py::async test_response_format(self, controller) - Test response has correct format.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py::async test_valid_packet_processed(self, controller) - Test valid packet is processed.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py::controller() - Create controller for API testing.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py::async test_governance_blocked(self, controller, mock_packet) - Test governance blocking.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py::async test_governance_check(self, controller, mock_packet) - Test governance is checked.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py::async test_happy_path_packet_dispatch(self, controller, mock_packet) - Test successful packet processing.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py::async test_process_packet_creates_controller(self, mock_packet) - Test convenience function creates contro
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py::async test_routing_decision(self, controller, mock_packet) - Test routing is called correctly.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py::async test_validation_failure(self, controller, mock_packet) - Test validation failure handling.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py::controller() - Create controller with mocked dependenci
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py::mock_packet() - Create mock packet.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py::async test_causal_factors_queried(self, enricher, mock_packet) - Test causal factors are queried.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py::async test_enriched_context_structure(self, enricher, mock_packet) - Test enriched context has correct struct
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py::async test_episodic_memory_queried(self, enricher, mock_packet) - Test episodic memory is queried.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py::async test_without_dependencies(self, mock_packet) - Test enricher works without dependencies
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py::enricher() - Create context enricher with mocks.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py::mock_packet() - Create mock packet.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py::async test_escalation_to_igor(self, governance_with_igor) - Test escalation to Igor anchor.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py::async test_governance_check_logged(self, governance) - Test governance checks are logged.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py::async test_high_risk_triggers_escalation(self, governance) - Test high risk flag triggers escalation.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py::async test_low_confidence_triggers_escalation(self, governance) - Test low confidence triggers escalation.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py::async test_normal_decision_approved(self, governance) - Test normal decision is approved.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py::governance() - Create governance bridge.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py::governance_with_igor() - Create governance bridge with Igor mock.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py::async test_get_working_memory(self, memory_bridge) - Test reading from working memory.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py::async test_query_causal_graph(self, memory_bridge) - Test querying causal graph.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py::async test_query_episodic_memory(self, memory_bridge) - Test querying episodic memory.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py::async test_query_semantic_graph(self, memory_bridge) - Test querying semantic graph.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py::async test_set_working_memory(self, memory_bridge) - Test writing to working memory.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py::memory_bridge() - Create memory bridge with mocked substra
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py::async test_fallback_routing(self, router, mock_packet) - Test fallback handler is used.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py::async test_get_handler_for_type(self, router) - Test getting handler by type.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py::async test_route_by_domain(self, router) - Test routing by domain prefix.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py::async test_route_by_packet_kind(self, router, mock_packet) - Test routing by packet kind.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py::mock_packet() - Create mock packet.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py::router() - Create packet router.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_all_modes_applied(self, engine) - Test all reasoning modes are applied.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_confidence_calculation(self, engine) - Test confidence is calculated.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_empty_context(self, engine) - Test handling of empty context.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_low_confidence_warning(self, engine) - Test low confidence generates warning.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_reasoner_failure_handling(self, engine) - Test graceful handling of reasoner failu
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_selective_modes(self, engine) - Test selective mode application.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py::engine() - Create reasoning engine with mocked reas
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py::async test_batch_processing(self, coordinator) - Test batch processing of entities.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py::async test_empty_entities(self, coordinator) - Test handling of empty entity list.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py::async test_mock_results_without_tensoraios(self) - Test mock results when tensoraios not co
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py::async test_single_entity(self, coordinator) - Test single entity scoring.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py::coordinator() - Create tensor coordinator.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py::__init__(self, reasoning_engine, packet_router, governance_bridge) - 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py::_create_blocked_response(self, original_packet, reason) - Create governance-blocked response packe
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py::_create_success_response(self, original_packet, result) - Create successful response packet.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py::async initialize(self) - Initialize controller and all sub-compon
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py::async process_packet(packet) - Convenience function to process a packet
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py::async process_packet(self, packet) - Process incoming domain packet through f
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/analogical_reasoner.py::async find_analogies(self, context) - Find analogies in context.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/anomaly_handler.py::async _escalate_anomaly(self, anomaly) - Escalate anomaly to governance.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/anomaly_handler.py::async handle_anomaly(self, anomaly) - Handle detected anomaly.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/causal_reasoner.py::_build_causal_chain(self, factors) - Build causal chain from factors.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/causal_reasoner.py::_identify_interventions(self, chain) - Identify intervention points in chain.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/causal_reasoner.py::async apply_causal_logic(self, context) - Apply causal reasoning to context.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/compliance_checker.py::_check_rule(self, decision, rule) - Check single rule.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/compliance_checker.py::check_compliance(self, decision, rules) - Check decision against rules.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/context_enricher.py::__init__(self, world_model_bridge, memory_bridge) - 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/context_enricher.py::async enrich_context(self, packet) - Enrich packet with contextual data.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py::__init__(self, mode_weights) - 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py::_build_summary(self, outputs, resolved) - Build human-readable summary of synthesi
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py::_calculate_weighted_confidence(self, outputs) - Calculate weighted confidence from all o
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py::_detect_conflicts(self, outputs) - Detect conflicting recommendations acros
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py::_determine_action(self, outputs, confidence) - Determine final action based on outputs 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py::_get_contributing_modes(self, outputs) - Extract list of contributing modes.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py::_resolve_conflicts(self, conflicts) - Resolve detected conflicts using weighte
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py::async synthesize_decision(self, reasoning_outputs) - Combine reasoning mode outputs into fina
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_context_builder.py::build_domain_context(self, packet, domain) - Build context for specific domain.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_packet_handler.py::_enrich_mortgageos_payload(self, payload) - Apply MortgageOS-specific enrichments.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_packet_handler.py::_enrich_plastos_payload(self, payload) - Apply PlastOS-specific enrichments.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_packet_handler.py::async handle_generic_domain(self, packet, domain) - Handle packets from any registered domai
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_packet_handler.py::async handle_mortgageos_packet(self, packet) - Handle MortgageOS domain packets.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_packet_handler.py::async handle_plastos_packet(self, packet) - Handle PlastOS domain packets.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/embedding_processor.py::_normalize(self, values) - L2 normalize embedding.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/embedding_processor.py::compute_similarity(self, emb_a, emb_b) - Compute cosine similarity between embedd
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/embedding_processor.py::process_embeddings(self, raw_embeddings) - Process raw embedding vector.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/escalation_handler.py::_determine_anchor(self, trigger) - Determine which anchor to escalate to.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/escalation_handler.py::async _escalate_to_anchor(self, anchor, trigger) - Escalate to governance anchor.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/escalation_handler.py::async handle_escalation(self, trigger) - Handle escalation trigger.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::__init__(self, approval_service, igor) - 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::_determine_escalation_level(self, decision) - Determine appropriate escalation level.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::_requires_escalation(self, decision) - Determine if decision requires escalatio
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::async _check_approval(self, decision) - Check with approval service.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::async check(self, result) - Alias for check_governance.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::async check_governance(self, decision) - Check decision against governance policy
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::async escalate_to_anchor(self, decision, reason) - Escalate decision to governance anchor (
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::async initialize(self) - Initialize governance connections.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py::__init__(self, substrate_service) - 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py::async get_working_memory(self, key) - Get value from working memory (Redis).
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py::async initialize(self) - Initialize memory connections.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py::async query_causal_graph(self, entity_id, depth) - Query causal graph for entity relationsh
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py::async query_episodic_memory(self, filters) - Query episodic memory (Postgres) for eve
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py::async query_semantic_graph(self, query) - Query semantic graph (Neo4j).
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py::async set_working_memory(self, key, value, ttl_seconds) - Set value in working memory (Redis).
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py::async store_episodic_event(self, event) - Store event in episodic memory.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_formatter.py::_format_generic(self, result) - Generic format.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_formatter.py::_format_mortgageos(self, result) - MortgageOS-specific format.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_formatter.py::_format_plastos(self, result) - PlastOS-specific format.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_formatter.py::format_for_domain(self, result, domain) - Format result for specific domain.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py::__init__(self) - 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py::_extract_domain(self, source_id) - Extract domain from source_id.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py::async route(self, packet) - Route packet and return routing info.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py::async route_packet(self, packet) - Determine routing for packet.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py::async validate(self, packet) - Validate packet structure.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py::get_handler_for_type(self, packet_type) - Get handler for packet type.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py::register_domain_handler(self, domain, handler) - Register handler for domain.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py::register_handler(self, packet_kind, handler) - Register handler for packet type.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py::set_fallback_handler(self, handler) - Set fallback handler for unknown packets
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py::__init__(self, strict_mode) - 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py::_validate_kind(self, kind) - Validate packet kind.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py::_validate_payload(self, payload) - Validate payload structure and size.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py::_validate_source_id(self, source_id) - Validate source_id format.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py::validate_packet(self, packet) - Validate packet structure and fields.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py::__init__(self, symbolic_reasoner, causal_reasoner, analogical_reasoner, reflective_auditor) - 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py::_calculate_confidence(self, mode_outputs) - Calculate overall confidence from mode o
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py::_synthesize_decision(self, mode_outputs) - Synthesize decision from multiple reason
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py::async _apply_reflective(self, mode_outputs) - Apply reflective self-critique.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py::async _apply_symbolic(self, context) - Apply symbolic rule reasoning.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py::async apply_analogical_reasoning(self, context) - Apply cross-domain pattern matching.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py::async apply_causal_reasoning(self, context) - Apply world model causal logic.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py::async execute_reasoning(self, context, modes) - Execute reasoning with specified modes.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py::async initialize(self) - Initialize reasoning engine and sub-comp
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reflective_auditor.py::audit_reasoning(self, decision) - Audit decision for issues.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/symbolic_reasoner.py::_apply_rule(self, rule, context) - Apply single rule.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/symbolic_reasoner.py::apply_domain_rules(self, context, domain) - Apply domain-specific rules.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensor_coordinator.py::__init__(self, tensoraios_bridge, batch_size) - 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensor_coordinator.py::async _process_batch(self, entities) - Process a batch of entities.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensor_coordinator.py::async _score_entity(self, entity_id) - Score single entity via tensor layer.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensor_coordinator.py::async coordinate_tensor_calls(self, entities) - Coordinate batched tensor calls for enti
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py::__init__(self, tensor_url) - 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py::async call_embedding_similarity(self, entity_a, entity_b) - Calculate embedding similarity between e
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py::async call_link_prediction(self, source, target) - Call link prediction model.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py::async close(self) - Close HTTP client.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py::async get_embeddings(self, entity_ids) - Get embeddings for entities.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py::async initialize(self) - Initialize HTTP client.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py::__init__(self, world_model_url) - 
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py::async close(self) - Close HTTP client.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py::async initialize(self) - Initialize HTTP client.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py::async query_causal_factors(self, entity_id) - Query causal factors for entity.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py::async query_temporal_patterns(self, entity_id, window_days) - Query temporal patterns for entity.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_api_surfaces.py::async test_initialized_status(self, controller) - Test status reflects initialization.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_api_surfaces.py::async test_response_format(self, controller) - Test response has correct format.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_api_surfaces.py::async test_valid_packet_processed(self, controller) - Test valid packet is processed.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_api_surfaces.py::controller() - Create controller for API testing.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py::async test_governance_blocked(self, controller, mock_packet) - Test governance blocking.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py::async test_governance_check(self, controller, mock_packet) - Test governance is checked.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py::async test_happy_path_packet_dispatch(self, controller, mock_packet) - Test successful packet processing.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py::async test_process_packet_creates_controller(self, mock_packet) - Test convenience function creates contro
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py::async test_routing_decision(self, controller, mock_packet) - Test routing is called correctly.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py::async test_validation_failure(self, controller, mock_packet) - Test validation failure handling.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py::controller() - Create controller with mocked dependenci
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py::mock_packet() - Create mock packet.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py::async test_causal_factors_queried(self, enricher, mock_packet) - Test causal factors are queried.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py::async test_enriched_context_structure(self, enricher, mock_packet) - Test enriched context has correct struct
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py::async test_episodic_memory_queried(self, enricher, mock_packet) - Test episodic memory is queried.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py::async test_without_dependencies(self, mock_packet) - Test enricher works without dependencies
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py::enricher() - Create context enricher with mocks.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py::mock_packet() - Create mock packet.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py::async test_escalation_to_igor(self, governance_with_igor) - Test escalation to Igor anchor.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py::async test_governance_check_logged(self, governance) - Test governance checks are logged.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py::async test_high_risk_triggers_escalation(self, governance) - Test high risk flag triggers escalation.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py::async test_low_confidence_triggers_escalation(self, governance) - Test low confidence triggers escalation.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py::async test_normal_decision_approved(self, governance) - Test normal decision is approved.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py::governance() - Create governance bridge.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py::governance_with_igor() - Create governance bridge with Igor mock.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py::async test_get_working_memory(self, memory_bridge) - Test reading from working memory.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py::async test_query_causal_graph(self, memory_bridge) - Test querying causal graph.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py::async test_query_episodic_memory(self, memory_bridge) - Test querying episodic memory.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py::async test_query_semantic_graph(self, memory_bridge) - Test querying semantic graph.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py::async test_set_working_memory(self, memory_bridge) - Test writing to working memory.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py::memory_bridge() - Create memory bridge with mocked substra
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py::async test_fallback_routing(self, router, mock_packet) - Test fallback handler is used.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py::async test_get_handler_for_type(self, router) - Test getting handler by type.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py::async test_route_by_domain(self, router) - Test routing by domain prefix.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py::async test_route_by_packet_kind(self, router, mock_packet) - Test routing by packet kind.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py::mock_packet() - Create mock packet.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py::router() - Create packet router.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py::async test_all_modes_applied(self, engine) - Test all reasoning modes are applied.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py::async test_confidence_calculation(self, engine) - Test confidence is calculated.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py::async test_empty_context(self, engine) - Test handling of empty context.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py::async test_low_confidence_warning(self, engine) - Test low confidence generates warning.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py::async test_reasoner_failure_handling(self, engine) - Test graceful handling of reasoner failu
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py::async test_selective_modes(self, engine) - Test selective mode application.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py::engine() - Create reasoning engine with mocked reas
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_tensor_coordination.py::async test_batch_processing(self, coordinator) - Test batch processing of entities.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_tensor_coordination.py::async test_empty_entities(self, coordinator) - Test handling of empty entity list.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_tensor_coordination.py::async test_mock_results_without_tensoraios(self) - Test mock results when tensoraios not co
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_tensor_coordination.py::async test_single_entity(self, coordinator) - Test single entity scoring.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_tensor_coordination.py::coordinator() - Create tensor coordinator.
 codegen/scripts/generate_spec.py::__init__(self, api_key) - 
 codegen/scripts/generate_spec.py::async generate_from_synthesis(synthesis_path, module_name, api_key) - Generate spec from a synthesis result JS
 codegen/scripts/generate_spec.py::async generate_module_spec(module_description, synthesis, api_key, output_path, validate) - Generate a Module-Spec-v2.4 YAML file.
@@ -4171,160 +4171,160 @@ core/worldmodel/service.py::async update_agent_activity(self, agent_name) - Upda
 core/worldmodel/service.py::async update_infrastructure_status(self, infra_name, new_status) - Update infrastructure component status.
 core/worldmodel/service.py::async update_tool_usage(self, tool_name) - Update tool usage statistics.
 core/worldmodel/service.py::get_world_model_service(substrate_service) - Get or create the global WorldModelServi
-domain_tensor_bridge/agent_controller.py::__init__(self, reasoning_engine, packet_router, governance_bridge) - 
-domain_tensor_bridge/agent_controller.py::_create_blocked_response(self, original_packet, reason) - Create governance-blocked response packe
-domain_tensor_bridge/agent_controller.py::_create_success_response(self, original_packet, result) - Create successful response packet.
-domain_tensor_bridge/agent_controller.py::async initialize(self) - Initialize controller and all sub-compon
-domain_tensor_bridge/agent_controller.py::async process_packet(packet) - Convenience function to process a packet
-domain_tensor_bridge/agent_controller.py::async process_packet(self, packet) - Process incoming domain packet through f
-domain_tensor_bridge/analogical_reasoner.py::async find_analogies(self, context) - Find analogies in context.
-domain_tensor_bridge/anomaly_handler.py::async _escalate_anomaly(self, anomaly) - Escalate anomaly to governance.
-domain_tensor_bridge/anomaly_handler.py::async handle_anomaly(self, anomaly) - Handle detected anomaly.
-domain_tensor_bridge/causal_reasoner.py::_build_causal_chain(self, factors) - Build causal chain from factors.
-domain_tensor_bridge/causal_reasoner.py::_identify_interventions(self, chain) - Identify intervention points in chain.
-domain_tensor_bridge/causal_reasoner.py::async apply_causal_logic(self, context) - Apply causal reasoning to context.
-domain_tensor_bridge/compliance_checker.py::_check_rule(self, decision, rule) - Check single rule.
-domain_tensor_bridge/compliance_checker.py::check_compliance(self, decision, rules) - Check decision against rules.
-domain_tensor_bridge/context_enricher.py::__init__(self, world_model_bridge, memory_bridge) - 
-domain_tensor_bridge/context_enricher.py::async enrich_context(self, packet) - Enrich packet with contextual data.
-domain_tensor_bridge/decision_synthesizer.py::__init__(self, mode_weights) - 
-domain_tensor_bridge/decision_synthesizer.py::_build_summary(self, outputs, resolved) - Build human-readable summary of synthesi
-domain_tensor_bridge/decision_synthesizer.py::_calculate_weighted_confidence(self, outputs) - Calculate weighted confidence from all o
-domain_tensor_bridge/decision_synthesizer.py::_detect_conflicts(self, outputs) - Detect conflicting recommendations acros
-domain_tensor_bridge/decision_synthesizer.py::_determine_action(self, outputs, confidence) - Determine final action based on outputs 
-domain_tensor_bridge/decision_synthesizer.py::_get_contributing_modes(self, outputs) - Extract list of contributing modes.
-domain_tensor_bridge/decision_synthesizer.py::_resolve_conflicts(self, conflicts) - Resolve detected conflicts using weighte
-domain_tensor_bridge/decision_synthesizer.py::async synthesize_decision(self, reasoning_outputs) - Combine reasoning mode outputs into fina
-domain_tensor_bridge/domain_context_builder.py::build_domain_context(self, packet, domain) - Build context for specific domain.
-domain_tensor_bridge/domain_packet_handler.py::_enrich_mortgageos_payload(self, payload) - Apply MortgageOS-specific enrichments.
-domain_tensor_bridge/domain_packet_handler.py::_enrich_plastos_payload(self, payload) - Apply PlastOS-specific enrichments.
-domain_tensor_bridge/domain_packet_handler.py::async handle_generic_domain(self, packet, domain) - Handle packets from any registered domai
-domain_tensor_bridge/domain_packet_handler.py::async handle_mortgageos_packet(self, packet) - Handle MortgageOS domain packets.
-domain_tensor_bridge/domain_packet_handler.py::async handle_plastos_packet(self, packet) - Handle PlastOS domain packets.
-domain_tensor_bridge/embedding_processor.py::_normalize(self, values) - L2 normalize embedding.
-domain_tensor_bridge/embedding_processor.py::compute_similarity(self, emb_a, emb_b) - Compute cosine similarity between embedd
-domain_tensor_bridge/embedding_processor.py::process_embeddings(self, raw_embeddings) - Process raw embedding vector.
-domain_tensor_bridge/escalation_handler.py::_determine_anchor(self, trigger) - Determine which anchor to escalate to.
-domain_tensor_bridge/escalation_handler.py::async _escalate_to_anchor(self, anchor, trigger) - Escalate to governance anchor.
-domain_tensor_bridge/escalation_handler.py::async handle_escalation(self, trigger) - Handle escalation trigger.
-domain_tensor_bridge/governance_bridge.py::__init__(self, approval_manager, igor_client) - 
-domain_tensor_bridge/governance_bridge.py::_determine_escalation_level(self, decision) - Determine appropriate escalation level.
-domain_tensor_bridge/governance_bridge.py::_requires_escalation(self, decision) - Determine if decision requires escalatio
-domain_tensor_bridge/governance_bridge.py::async _check_approval(self, decision) - Check with approval manager.
-domain_tensor_bridge/governance_bridge.py::async check(self, result) - Alias for check_governance.
-domain_tensor_bridge/governance_bridge.py::async check_governance(self, decision) - Check decision against governance policy
-domain_tensor_bridge/governance_bridge.py::async escalate_to_anchor(self, decision, reason) - Escalate decision to governance anchor (
-domain_tensor_bridge/governance_bridge.py::async initialize(self) - Initialize governance connections.
-domain_tensor_bridge/l9_memory_adapter.py::__init__(self, substrate_service, working_memory_service, neo4j_client) - 
-domain_tensor_bridge/l9_memory_adapter.py::async get_working_memory(self, key) - 
-domain_tensor_bridge/l9_memory_adapter.py::async initialize(self) - Mark adapter as ready.  Underlying servi
-domain_tensor_bridge/l9_memory_adapter.py::async query_causal_graph(self, entity_id, depth) - HyperGraphDB is not implemented in L9.  
-domain_tensor_bridge/l9_memory_adapter.py::async query_episodic_memory(self, filters) - 
-domain_tensor_bridge/l9_memory_adapter.py::async query_semantic_graph(self, query) - 
-domain_tensor_bridge/l9_memory_adapter.py::async set_working_memory(self, key, value, ttl_seconds) - 
-domain_tensor_bridge/l9_memory_adapter.py::async store_episodic_event(self, event) - 
-domain_tensor_bridge/memory_bridge.py::__init__(self, substrate_service) - 
-domain_tensor_bridge/memory_bridge.py::async get_working_memory(self, key) - Get value from working memory (Redis).
-domain_tensor_bridge/memory_bridge.py::async initialize(self) - Initialize memory connections.
-domain_tensor_bridge/memory_bridge.py::async query_causal_graph(self, entity_id, depth) - Query causal graph for entity relationsh
-domain_tensor_bridge/memory_bridge.py::async query_episodic_memory(self, filters) - Query episodic memory (Postgres) for eve
-domain_tensor_bridge/memory_bridge.py::async query_semantic_graph(self, query) - Query semantic graph (Neo4j).
-domain_tensor_bridge/memory_bridge.py::async set_working_memory(self, key, value, ttl_seconds) - Set value in working memory (Redis).
-domain_tensor_bridge/memory_bridge.py::async store_episodic_event(self, event) - Store event in episodic memory.
-domain_tensor_bridge/packet_formatter.py::_format_generic(self, result) - Generic format.
-domain_tensor_bridge/packet_formatter.py::_format_mortgageos(self, result) - MortgageOS-specific format.
-domain_tensor_bridge/packet_formatter.py::_format_plastos(self, result) - PlastOS-specific format.
-domain_tensor_bridge/packet_formatter.py::format_for_domain(self, result, domain) - Format result for specific domain.
-domain_tensor_bridge/packet_router.py::__init__(self) - 
-domain_tensor_bridge/packet_router.py::_extract_domain(self, source_id) - Extract domain from source_id.
-domain_tensor_bridge/packet_router.py::async route(self, packet) - Route packet and return routing info.
-domain_tensor_bridge/packet_router.py::async route_packet(self, packet) - Determine routing for packet.
-domain_tensor_bridge/packet_router.py::async validate(self, packet) - Validate packet structure.
-domain_tensor_bridge/packet_router.py::get_handler_for_type(self, packet_type) - Get handler for packet type.
-domain_tensor_bridge/packet_router.py::register_domain_handler(self, domain, handler) - Register handler for domain.
-domain_tensor_bridge/packet_router.py::register_handler(self, packet_kind, handler) - Register handler for packet type.
-domain_tensor_bridge/packet_router.py::set_fallback_handler(self, handler) - Set fallback handler for unknown packets
-domain_tensor_bridge/packet_validator.py::__init__(self, strict_mode) - 
-domain_tensor_bridge/packet_validator.py::_validate_packet_type(self, packet_type) - Validate packet_type field.
-domain_tensor_bridge/packet_validator.py::_validate_payload(self, payload) - Validate payload structure and size.
-domain_tensor_bridge/packet_validator.py::_validate_source_id(self, source_id) - Validate source_id format.
-domain_tensor_bridge/packet_validator.py::validate_packet(self, packet) - Validate packet structure and fields.
-domain_tensor_bridge/reasoning_engine.py::__init__(self, symbolic_reasoner, causal_reasoner, analogical_reasoner, reflective_auditor) - 
-domain_tensor_bridge/reasoning_engine.py::_calculate_confidence(self, mode_outputs) - Calculate overall confidence from mode o
-domain_tensor_bridge/reasoning_engine.py::_synthesize_decision(self, mode_outputs) - Synthesize decision from multiple reason
-domain_tensor_bridge/reasoning_engine.py::async _apply_reflective(self, mode_outputs) - Apply reflective self-critique.
-domain_tensor_bridge/reasoning_engine.py::async _apply_symbolic(self, context) - Apply symbolic rule reasoning.
-domain_tensor_bridge/reasoning_engine.py::async apply_analogical_reasoning(self, context) - Apply cross-domain pattern matching.
-domain_tensor_bridge/reasoning_engine.py::async apply_causal_reasoning(self, context) - Apply world model causal logic.
-domain_tensor_bridge/reasoning_engine.py::async execute_reasoning(self, context, modes) - Execute reasoning with specified modes.
-domain_tensor_bridge/reasoning_engine.py::async initialize(self) - Initialize reasoning engine and sub-comp
-domain_tensor_bridge/reflective_auditor.py::audit_reasoning(self, decision) - Audit decision for issues.
-domain_tensor_bridge/symbolic_reasoner.py::_apply_rule(self, rule, context) - Apply single rule.
-domain_tensor_bridge/symbolic_reasoner.py::apply_domain_rules(self, context, domain) - Apply domain-specific rules.
-domain_tensor_bridge/tensor_coordinator.py::__init__(self, tensoraios_bridge, batch_size) - 
-domain_tensor_bridge/tensor_coordinator.py::async _process_batch(self, entities) - Process a batch of entities.
-domain_tensor_bridge/tensor_coordinator.py::async _score_entity(self, entity_id) - Score single entity via tensor layer.
-domain_tensor_bridge/tensor_coordinator.py::async coordinate_tensor_calls(self, entities) - Coordinate batched tensor calls for enti
-domain_tensor_bridge/tensoraios_bridge.py::__init__(self, tensor_url) - 
-domain_tensor_bridge/tensoraios_bridge.py::async call_embedding_similarity(self, entity_a, entity_b) - Calculate embedding similarity between e
-domain_tensor_bridge/tensoraios_bridge.py::async call_link_prediction(self, source, target) - Call link prediction model.
-domain_tensor_bridge/tensoraios_bridge.py::async close(self) - Close HTTP client.
-domain_tensor_bridge/tensoraios_bridge.py::async get_embeddings(self, entity_ids) - Get embeddings for entities.
-domain_tensor_bridge/tensoraios_bridge.py::async initialize(self) - Initialize HTTP client.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py::async test_initialized_status(self, controller) - Test status reflects initialization.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py::async test_response_format(self, controller) - Test response has correct format.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py::async test_valid_packet_processed(self, controller) - Test valid packet is processed.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py::controller() - Create controller for API testing.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py::async test_governance_blocked(self, controller, mock_packet) - Test governance blocking.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py::async test_governance_check(self, controller, mock_packet) - Test governance is checked.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py::async test_happy_path_packet_dispatch(self, controller, mock_packet) - Test successful packet processing.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py::async test_process_packet_creates_controller(self, mock_packet) - Test convenience function creates contro
-domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py::async test_routing_decision(self, controller, mock_packet) - Test routing is called correctly.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py::async test_validation_failure(self, controller, mock_packet) - Test validation failure handling.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py::controller() - Create controller with mocked dependenci
-domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py::mock_packet() - Create mock packet.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py::async test_causal_factors_queried(self, enricher, mock_packet) - Test causal factors are queried.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py::async test_enriched_context_structure(self, enricher, mock_packet) - Test enriched context has correct struct
-domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py::async test_episodic_memory_queried(self, enricher, mock_packet) - Test episodic memory is queried.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py::async test_without_dependencies(self, mock_packet) - Test enricher works without dependencies
-domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py::enricher() - Create context enricher with mocks.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py::mock_packet() - Create mock packet.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py::async test_escalation_to_igor(self, governance_with_igor) - Test escalation to Igor anchor.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py::async test_governance_check_logged(self, governance) - Test governance checks are logged.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py::async test_high_risk_triggers_escalation(self, governance) - Test high risk flag triggers escalation.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py::async test_low_confidence_triggers_escalation(self, governance) - Test low confidence triggers escalation.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py::async test_normal_decision_approved(self, governance) - Test normal decision is approved.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py::governance() - Create governance bridge.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py::governance_with_igor() - Create governance bridge with Igor mock.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py::async test_get_working_memory(self, memory_bridge) - Test reading from working memory.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py::async test_query_causal_graph(self, memory_bridge) - Test querying causal graph.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py::async test_query_episodic_memory(self, memory_bridge) - Test querying episodic memory.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py::async test_query_semantic_graph(self, memory_bridge) - Test querying semantic graph.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py::async test_set_working_memory(self, memory_bridge) - Test writing to working memory.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py::memory_bridge() - Create memory bridge with mocked substra
-domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py::async test_fallback_routing(self, router, mock_packet) - Test fallback handler is used.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py::async test_get_handler_for_type(self, router) - Test getting handler by type.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py::async test_route_by_domain(self, router) - Test routing by domain prefix.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py::async test_route_by_packet_kind(self, router, mock_packet) - Test routing by packet kind.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py::mock_packet() - Create mock packet.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py::router() - Create packet router.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_all_modes_applied(self, engine) - Test all reasoning modes are applied.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_confidence_calculation(self, engine) - Test confidence is calculated.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_empty_context(self, engine) - Test handling of empty context.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_low_confidence_warning(self, engine) - Test low confidence generates warning.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_reasoner_failure_handling(self, engine) - Test graceful handling of reasoner failu
-domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py::async test_selective_modes(self, engine) - Test selective mode application.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py::engine() - Create reasoning engine with mocked reas
-domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py::async test_batch_processing(self, coordinator) - Test batch processing of entities.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py::async test_empty_entities(self, coordinator) - Test handling of empty entity list.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py::async test_mock_results_without_tensoraios(self) - Test mock results when tensoraios not co
-domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py::async test_single_entity(self, coordinator) - Test single entity scoring.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py::coordinator() - Create tensor coordinator.
-domain_tensor_bridge/world_model_bridge.py::__init__(self, world_model_url) - 
-domain_tensor_bridge/world_model_bridge.py::async close(self) - Close HTTP client.
-domain_tensor_bridge/world_model_bridge.py::async initialize(self) - Initialize HTTP client.
-domain_tensor_bridge/world_model_bridge.py::async query_causal_factors(self, entity_id) - Query causal factors for entity.
-domain_tensor_bridge/world_model_bridge.py::async query_temporal_patterns(self, entity_id, window_days) - Query temporal patterns for entity.
+domain_bridge/agent_controller.py::__init__(self, reasoning_engine, packet_router, governance_bridge) - 
+domain_bridge/agent_controller.py::_create_blocked_response(self, original_packet, reason) - Create governance-blocked response packe
+domain_bridge/agent_controller.py::_create_success_response(self, original_packet, result) - Create successful response packet.
+domain_bridge/agent_controller.py::async initialize(self) - Initialize controller and all sub-compon
+domain_bridge/agent_controller.py::async process_packet(packet) - Convenience function to process a packet
+domain_bridge/agent_controller.py::async process_packet(self, packet) - Process incoming domain packet through f
+domain_bridge/analogical_reasoner.py::async find_analogies(self, context) - Find analogies in context.
+domain_bridge/anomaly_handler.py::async _escalate_anomaly(self, anomaly) - Escalate anomaly to governance.
+domain_bridge/anomaly_handler.py::async handle_anomaly(self, anomaly) - Handle detected anomaly.
+domain_bridge/causal_reasoner.py::_build_causal_chain(self, factors) - Build causal chain from factors.
+domain_bridge/causal_reasoner.py::_identify_interventions(self, chain) - Identify intervention points in chain.
+domain_bridge/causal_reasoner.py::async apply_causal_logic(self, context) - Apply causal reasoning to context.
+domain_bridge/compliance_checker.py::_check_rule(self, decision, rule) - Check single rule.
+domain_bridge/compliance_checker.py::check_compliance(self, decision, rules) - Check decision against rules.
+domain_bridge/context_enricher.py::__init__(self, world_model_bridge, memory_bridge) - 
+domain_bridge/context_enricher.py::async enrich_context(self, packet) - Enrich packet with contextual data.
+domain_bridge/decision_synthesizer.py::__init__(self, mode_weights) - 
+domain_bridge/decision_synthesizer.py::_build_summary(self, outputs, resolved) - Build human-readable summary of synthesi
+domain_bridge/decision_synthesizer.py::_calculate_weighted_confidence(self, outputs) - Calculate weighted confidence from all o
+domain_bridge/decision_synthesizer.py::_detect_conflicts(self, outputs) - Detect conflicting recommendations acros
+domain_bridge/decision_synthesizer.py::_determine_action(self, outputs, confidence) - Determine final action based on outputs 
+domain_bridge/decision_synthesizer.py::_get_contributing_modes(self, outputs) - Extract list of contributing modes.
+domain_bridge/decision_synthesizer.py::_resolve_conflicts(self, conflicts) - Resolve detected conflicts using weighte
+domain_bridge/decision_synthesizer.py::async synthesize_decision(self, reasoning_outputs) - Combine reasoning mode outputs into fina
+domain_bridge/domain_context_builder.py::build_domain_context(self, packet, domain) - Build context for specific domain.
+domain_bridge/domain_packet_handler.py::_enrich_mortgageos_payload(self, payload) - Apply MortgageOS-specific enrichments.
+domain_bridge/domain_packet_handler.py::_enrich_plastos_payload(self, payload) - Apply PlastOS-specific enrichments.
+domain_bridge/domain_packet_handler.py::async handle_generic_domain(self, packet, domain) - Handle packets from any registered domai
+domain_bridge/domain_packet_handler.py::async handle_mortgageos_packet(self, packet) - Handle MortgageOS domain packets.
+domain_bridge/domain_packet_handler.py::async handle_plastos_packet(self, packet) - Handle PlastOS domain packets.
+domain_bridge/embedding_processor.py::_normalize(self, values) - L2 normalize embedding.
+domain_bridge/embedding_processor.py::compute_similarity(self, emb_a, emb_b) - Compute cosine similarity between embedd
+domain_bridge/embedding_processor.py::process_embeddings(self, raw_embeddings) - Process raw embedding vector.
+domain_bridge/escalation_handler.py::_determine_anchor(self, trigger) - Determine which anchor to escalate to.
+domain_bridge/escalation_handler.py::async _escalate_to_anchor(self, anchor, trigger) - Escalate to governance anchor.
+domain_bridge/escalation_handler.py::async handle_escalation(self, trigger) - Handle escalation trigger.
+domain_bridge/governance_bridge.py::__init__(self, approval_manager, igor_client) - 
+domain_bridge/governance_bridge.py::_determine_escalation_level(self, decision) - Determine appropriate escalation level.
+domain_bridge/governance_bridge.py::_requires_escalation(self, decision) - Determine if decision requires escalatio
+domain_bridge/governance_bridge.py::async _check_approval(self, decision) - Check with approval manager.
+domain_bridge/governance_bridge.py::async check(self, result) - Alias for check_governance.
+domain_bridge/governance_bridge.py::async check_governance(self, decision) - Check decision against governance policy
+domain_bridge/governance_bridge.py::async escalate_to_anchor(self, decision, reason) - Escalate decision to governance anchor (
+domain_bridge/governance_bridge.py::async initialize(self) - Initialize governance connections.
+domain_bridge/l9_memory_adapter.py::__init__(self, substrate_service, working_memory_service, neo4j_client) - 
+domain_bridge/l9_memory_adapter.py::async get_working_memory(self, key) - 
+domain_bridge/l9_memory_adapter.py::async initialize(self) - Mark adapter as ready.  Underlying servi
+domain_bridge/l9_memory_adapter.py::async query_causal_graph(self, entity_id, depth) - HyperGraphDB is not implemented in L9.  
+domain_bridge/l9_memory_adapter.py::async query_episodic_memory(self, filters) - 
+domain_bridge/l9_memory_adapter.py::async query_semantic_graph(self, query) - 
+domain_bridge/l9_memory_adapter.py::async set_working_memory(self, key, value, ttl_seconds) - 
+domain_bridge/l9_memory_adapter.py::async store_episodic_event(self, event) - 
+domain_bridge/memory_bridge.py::__init__(self, substrate_service) - 
+domain_bridge/memory_bridge.py::async get_working_memory(self, key) - Get value from working memory (Redis).
+domain_bridge/memory_bridge.py::async initialize(self) - Initialize memory connections.
+domain_bridge/memory_bridge.py::async query_causal_graph(self, entity_id, depth) - Query causal graph for entity relationsh
+domain_bridge/memory_bridge.py::async query_episodic_memory(self, filters) - Query episodic memory (Postgres) for eve
+domain_bridge/memory_bridge.py::async query_semantic_graph(self, query) - Query semantic graph (Neo4j).
+domain_bridge/memory_bridge.py::async set_working_memory(self, key, value, ttl_seconds) - Set value in working memory (Redis).
+domain_bridge/memory_bridge.py::async store_episodic_event(self, event) - Store event in episodic memory.
+domain_bridge/packet_formatter.py::_format_generic(self, result) - Generic format.
+domain_bridge/packet_formatter.py::_format_mortgageos(self, result) - MortgageOS-specific format.
+domain_bridge/packet_formatter.py::_format_plastos(self, result) - PlastOS-specific format.
+domain_bridge/packet_formatter.py::format_for_domain(self, result, domain) - Format result for specific domain.
+domain_bridge/packet_router.py::__init__(self) - 
+domain_bridge/packet_router.py::_extract_domain(self, source_id) - Extract domain from source_id.
+domain_bridge/packet_router.py::async route(self, packet) - Route packet and return routing info.
+domain_bridge/packet_router.py::async route_packet(self, packet) - Determine routing for packet.
+domain_bridge/packet_router.py::async validate(self, packet) - Validate packet structure.
+domain_bridge/packet_router.py::get_handler_for_type(self, packet_type) - Get handler for packet type.
+domain_bridge/packet_router.py::register_domain_handler(self, domain, handler) - Register handler for domain.
+domain_bridge/packet_router.py::register_handler(self, packet_kind, handler) - Register handler for packet type.
+domain_bridge/packet_router.py::set_fallback_handler(self, handler) - Set fallback handler for unknown packets
+domain_bridge/packet_validator.py::__init__(self, strict_mode) - 
+domain_bridge/packet_validator.py::_validate_packet_type(self, packet_type) - Validate packet_type field.
+domain_bridge/packet_validator.py::_validate_payload(self, payload) - Validate payload structure and size.
+domain_bridge/packet_validator.py::_validate_source_id(self, source_id) - Validate source_id format.
+domain_bridge/packet_validator.py::validate_packet(self, packet) - Validate packet structure and fields.
+domain_bridge/reasoning_engine.py::__init__(self, symbolic_reasoner, causal_reasoner, analogical_reasoner, reflective_auditor) - 
+domain_bridge/reasoning_engine.py::_calculate_confidence(self, mode_outputs) - Calculate overall confidence from mode o
+domain_bridge/reasoning_engine.py::_synthesize_decision(self, mode_outputs) - Synthesize decision from multiple reason
+domain_bridge/reasoning_engine.py::async _apply_reflective(self, mode_outputs) - Apply reflective self-critique.
+domain_bridge/reasoning_engine.py::async _apply_symbolic(self, context) - Apply symbolic rule reasoning.
+domain_bridge/reasoning_engine.py::async apply_analogical_reasoning(self, context) - Apply cross-domain pattern matching.
+domain_bridge/reasoning_engine.py::async apply_causal_reasoning(self, context) - Apply world model causal logic.
+domain_bridge/reasoning_engine.py::async execute_reasoning(self, context, modes) - Execute reasoning with specified modes.
+domain_bridge/reasoning_engine.py::async initialize(self) - Initialize reasoning engine and sub-comp
+domain_bridge/reflective_auditor.py::audit_reasoning(self, decision) - Audit decision for issues.
+domain_bridge/symbolic_reasoner.py::_apply_rule(self, rule, context) - Apply single rule.
+domain_bridge/symbolic_reasoner.py::apply_domain_rules(self, context, domain) - Apply domain-specific rules.
+domain_bridge/tensor_coordinator.py::__init__(self, tensoraios_bridge, batch_size) - 
+domain_bridge/tensor_coordinator.py::async _process_batch(self, entities) - Process a batch of entities.
+domain_bridge/tensor_coordinator.py::async _score_entity(self, entity_id) - Score single entity via tensor layer.
+domain_bridge/tensor_coordinator.py::async coordinate_tensor_calls(self, entities) - Coordinate batched tensor calls for enti
+domain_bridge/tensoraios_bridge.py::__init__(self, tensor_url) - 
+domain_bridge/tensoraios_bridge.py::async call_embedding_similarity(self, entity_a, entity_b) - Calculate embedding similarity between e
+domain_bridge/tensoraios_bridge.py::async call_link_prediction(self, source, target) - Call link prediction model.
+domain_bridge/tensoraios_bridge.py::async close(self) - Close HTTP client.
+domain_bridge/tensoraios_bridge.py::async get_embeddings(self, entity_ids) - Get embeddings for entities.
+domain_bridge/tensoraios_bridge.py::async initialize(self) - Initialize HTTP client.
+domain_bridge/tests/domain_bridge/test_api_surfaces.py::async test_initialized_status(self, controller) - Test status reflects initialization.
+domain_bridge/tests/domain_bridge/test_api_surfaces.py::async test_response_format(self, controller) - Test response has correct format.
+domain_bridge/tests/domain_bridge/test_api_surfaces.py::async test_valid_packet_processed(self, controller) - Test valid packet is processed.
+domain_bridge/tests/domain_bridge/test_api_surfaces.py::controller() - Create controller for API testing.
+domain_bridge/tests/domain_bridge/test_bridge_controller.py::async test_governance_blocked(self, controller, mock_packet) - Test governance blocking.
+domain_bridge/tests/domain_bridge/test_bridge_controller.py::async test_governance_check(self, controller, mock_packet) - Test governance is checked.
+domain_bridge/tests/domain_bridge/test_bridge_controller.py::async test_happy_path_packet_dispatch(self, controller, mock_packet) - Test successful packet processing.
+domain_bridge/tests/domain_bridge/test_bridge_controller.py::async test_process_packet_creates_controller(self, mock_packet) - Test convenience function creates contro
+domain_bridge/tests/domain_bridge/test_bridge_controller.py::async test_routing_decision(self, controller, mock_packet) - Test routing is called correctly.
+domain_bridge/tests/domain_bridge/test_bridge_controller.py::async test_validation_failure(self, controller, mock_packet) - Test validation failure handling.
+domain_bridge/tests/domain_bridge/test_bridge_controller.py::controller() - Create controller with mocked dependenci
+domain_bridge/tests/domain_bridge/test_bridge_controller.py::mock_packet() - Create mock packet.
+domain_bridge/tests/domain_bridge/test_context_enrichment.py::async test_causal_factors_queried(self, enricher, mock_packet) - Test causal factors are queried.
+domain_bridge/tests/domain_bridge/test_context_enrichment.py::async test_enriched_context_structure(self, enricher, mock_packet) - Test enriched context has correct struct
+domain_bridge/tests/domain_bridge/test_context_enrichment.py::async test_episodic_memory_queried(self, enricher, mock_packet) - Test episodic memory is queried.
+domain_bridge/tests/domain_bridge/test_context_enrichment.py::async test_without_dependencies(self, mock_packet) - Test enricher works without dependencies
+domain_bridge/tests/domain_bridge/test_context_enrichment.py::enricher() - Create context enricher with mocks.
+domain_bridge/tests/domain_bridge/test_context_enrichment.py::mock_packet() - Create mock packet.
+domain_bridge/tests/domain_bridge/test_governance_integration.py::async test_escalation_to_igor(self, governance_with_igor) - Test escalation to Igor anchor.
+domain_bridge/tests/domain_bridge/test_governance_integration.py::async test_governance_check_logged(self, governance) - Test governance checks are logged.
+domain_bridge/tests/domain_bridge/test_governance_integration.py::async test_high_risk_triggers_escalation(self, governance) - Test high risk flag triggers escalation.
+domain_bridge/tests/domain_bridge/test_governance_integration.py::async test_low_confidence_triggers_escalation(self, governance) - Test low confidence triggers escalation.
+domain_bridge/tests/domain_bridge/test_governance_integration.py::async test_normal_decision_approved(self, governance) - Test normal decision is approved.
+domain_bridge/tests/domain_bridge/test_governance_integration.py::governance() - Create governance bridge.
+domain_bridge/tests/domain_bridge/test_governance_integration.py::governance_with_igor() - Create governance bridge with Igor mock.
+domain_bridge/tests/domain_bridge/test_memory_integration.py::async test_get_working_memory(self, memory_bridge) - Test reading from working memory.
+domain_bridge/tests/domain_bridge/test_memory_integration.py::async test_query_causal_graph(self, memory_bridge) - Test querying causal graph.
+domain_bridge/tests/domain_bridge/test_memory_integration.py::async test_query_episodic_memory(self, memory_bridge) - Test querying episodic memory.
+domain_bridge/tests/domain_bridge/test_memory_integration.py::async test_query_semantic_graph(self, memory_bridge) - Test querying semantic graph.
+domain_bridge/tests/domain_bridge/test_memory_integration.py::async test_set_working_memory(self, memory_bridge) - Test writing to working memory.
+domain_bridge/tests/domain_bridge/test_memory_integration.py::memory_bridge() - Create memory bridge with mocked substra
+domain_bridge/tests/domain_bridge/test_packet_routing.py::async test_fallback_routing(self, router, mock_packet) - Test fallback handler is used.
+domain_bridge/tests/domain_bridge/test_packet_routing.py::async test_get_handler_for_type(self, router) - Test getting handler by type.
+domain_bridge/tests/domain_bridge/test_packet_routing.py::async test_route_by_domain(self, router) - Test routing by domain prefix.
+domain_bridge/tests/domain_bridge/test_packet_routing.py::async test_route_by_packet_kind(self, router, mock_packet) - Test routing by packet kind.
+domain_bridge/tests/domain_bridge/test_packet_routing.py::mock_packet() - Create mock packet.
+domain_bridge/tests/domain_bridge/test_packet_routing.py::router() - Create packet router.
+domain_bridge/tests/domain_bridge/test_reasoning_engine.py::async test_all_modes_applied(self, engine) - Test all reasoning modes are applied.
+domain_bridge/tests/domain_bridge/test_reasoning_engine.py::async test_confidence_calculation(self, engine) - Test confidence is calculated.
+domain_bridge/tests/domain_bridge/test_reasoning_engine.py::async test_empty_context(self, engine) - Test handling of empty context.
+domain_bridge/tests/domain_bridge/test_reasoning_engine.py::async test_low_confidence_warning(self, engine) - Test low confidence generates warning.
+domain_bridge/tests/domain_bridge/test_reasoning_engine.py::async test_reasoner_failure_handling(self, engine) - Test graceful handling of reasoner failu
+domain_bridge/tests/domain_bridge/test_reasoning_engine.py::async test_selective_modes(self, engine) - Test selective mode application.
+domain_bridge/tests/domain_bridge/test_reasoning_engine.py::engine() - Create reasoning engine with mocked reas
+domain_bridge/tests/domain_bridge/test_tensor_coordination.py::async test_batch_processing(self, coordinator) - Test batch processing of entities.
+domain_bridge/tests/domain_bridge/test_tensor_coordination.py::async test_empty_entities(self, coordinator) - Test handling of empty entity list.
+domain_bridge/tests/domain_bridge/test_tensor_coordination.py::async test_mock_results_without_tensoraios(self) - Test mock results when tensoraios not co
+domain_bridge/tests/domain_bridge/test_tensor_coordination.py::async test_single_entity(self, coordinator) - Test single entity scoring.
+domain_bridge/tests/domain_bridge/test_tensor_coordination.py::coordinator() - Create tensor coordinator.
+domain_bridge/world_model_bridge.py::__init__(self, world_model_url) - 
+domain_bridge/world_model_bridge.py::async close(self) - Close HTTP client.
+domain_bridge/world_model_bridge.py::async initialize(self) - Initialize HTTP client.
+domain_bridge/world_model_bridge.py::async query_causal_factors(self, entity_id) - Query causal factors for entity.
+domain_bridge/world_model_bridge.py::async query_temporal_patterns(self, entity_id, window_days) - Query temporal patterns for entity.
 email_agent/client.py::execute_email_task(task, account) - Execute an email task from Mac Agent run
 email_agent/config.py::__post_init__(self) - Validate and normalize config after init
 email_agent/config.py::attachments_dir(self) - Path to attachments directory for this a

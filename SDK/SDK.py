@@ -442,7 +442,7 @@ class ReasoningInterface:
 
     Wraps:
     - orchestrators/reasoning/orchestrator.py::ReasoningOrchestrator
-    - domain_tensor_bridge (tensor inference, domain packets)
+    - domain_bridge (tensor inference, domain packets)
     """
 
     def __init__(self, sdk: L9SDK):
@@ -467,7 +467,7 @@ class ReasoningInterface:
         if not self._gateway_loaded:
             self._gateway_loaded = True
             try:
-                from domain_tensor_bridge.gateway import DomainBridgeGateway
+                from domain_bridge.gateway import DomainBridgeGateway
 
                 self._gateway = DomainBridgeGateway()
             except (ImportError, TypeError):

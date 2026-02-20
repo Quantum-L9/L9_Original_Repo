@@ -148,7 +148,7 @@ except ImportError:
 
 # Domain Tensor Bridge import (optional - graceful degradation)
 try:
-    from domain_tensor_bridge import ReasoningEngine as DTBReasoningEngine
+    from domain_bridge import ReasoningEngine as DTBReasoningEngine
 
     _has_tensor_bridge = True
 except ImportError:
@@ -621,7 +621,7 @@ class AgentExecutorService:
         The bridge provides multi-modal reasoning (causal, symbolic, analogical).
 
         Args:
-            bridge: ReasoningEngine instance from domain_tensor_bridge
+            bridge: ReasoningEngine instance from domain_bridge
         """
         self._tensor_bridge = bridge
         logger.info(
@@ -1830,7 +1830,7 @@ class AgentExecutorService:
         # DTB: Cross-domain analogical reasoning (feature-flagged)
         if os.getenv("L9_ENABLE_DTB", "false").lower() == "true" and user_message:
             try:
-                from domain_tensor_bridge.analogical_reasoner import AnalogicalReasoner
+                from domain_bridge.analogical_reasoner import AnalogicalReasoner
 
                 dtb_reasoner = AnalogicalReasoner()
                 dtb_context = {

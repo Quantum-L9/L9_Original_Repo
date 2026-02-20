@@ -437,15 +437,15 @@
   dev_layer.runtime.enforcement
 # difflib
   difflib
-# domain_tensor_bridge
-  domain_tensor_bridge.agent_controller
-  domain_tensor_bridge.context_enricher
-  domain_tensor_bridge.governance_bridge
-  domain_tensor_bridge.memory_bridge
-  domain_tensor_bridge.packet_router
-  domain_tensor_bridge.reasoning_engine
-  domain_tensor_bridge.tensor_coordinator
-  domain_tensor_bridge.world_model_bridge
+# domain_bridge
+  domain_bridge.agent_controller
+  domain_bridge.context_enricher
+  domain_bridge.governance_bridge
+  domain_bridge.memory_bridge
+  domain_bridge.packet_router
+  domain_bridge.reasoning_engine
+  domain_bridge.tensor_coordinator
+  domain_bridge.world_model_bridge
 # dotenv
   dotenv
 # email

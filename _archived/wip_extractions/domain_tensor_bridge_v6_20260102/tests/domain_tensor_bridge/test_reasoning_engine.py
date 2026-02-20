@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from domain_tensor_bridge.reasoning_engine import ReasoningEngine, ReasoningResult
+from domain_bridge.reasoning_engine import ReasoningEngine, ReasoningResult
 
 
 @pytest.fixture

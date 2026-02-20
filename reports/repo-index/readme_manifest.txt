@@ -108,7 +108,7 @@ PATH: codegen/codegen_agent_spec/Spec-codegen+codegenAgent/README.md
 TITLE: CodeGenAgent (CGA) — L9 Autonomous Code Generation System
 DESC: **CodeGenAgent (CGA)** is the autonomous "Head of Code Generation" for L9 and all company projects. It receives contracts and specifications from L...
 
-PATH: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/README.md
+PATH: codegen/extractions/domain_bridge_v6_20260102/domain_bridge/README.md
 TITLE: Domain-Tensor Bridge v6.0
 DESC: > Central orchestrator connecting domain data with TensorAIOS layer
 
@@ -292,9 +292,9 @@ DESC: Target: **C1 Hetzner Server** (46.62.243.82) Type: CPX32 (8GB RAM, 4 vCPU,
 # DOMAIN_TENSOR_BRIDGE (1 files)
 # ============================================================================
 
-PATH: domain_tensor_bridge/README.md
+PATH: domain_bridge/README.md
 TITLE: Domain Tensor Bridge
-DESC: > **Tier:** SERVICES | **Path:** `domain_tensor_bridge` | **Owner:** Igor
+DESC: > **Tier:** SERVICES | **Path:** `domain_bridge` | **Owner:** Igor
 
 # ============================================================================
 # EMAIL_AGENT (1 files)

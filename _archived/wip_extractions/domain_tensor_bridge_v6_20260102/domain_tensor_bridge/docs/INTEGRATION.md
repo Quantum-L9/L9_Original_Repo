@@ -5,13 +5,13 @@
 ### Step 1: Create Domain Handler
 
 ```python
-from domain_tensor_bridge import DomainPacketHandler
+from domain_bridge import DomainPacketHandler
 
 class MyDomainHandler(DomainPacketHandler):
     async def handle_mydomain_packet(self, packet):
         enriched = self._enrich_mydomain_payload(packet.payload)
         return PacketEnvelope(
-            source_id="domain_tensor_bridge",
+            source_id="domain_bridge",
             kind=PacketKind.REASONING,
             payload=enriched,
         )
@@ -41,7 +41,7 @@ result = await controller.process_packet(packet)
 Access shared memory layers:
 
 ```python
-from domain_tensor_bridge import MemoryBridge
+from domain_bridge import MemoryBridge
 
 memory = MemoryBridge()
 await memory.initialize()
@@ -58,7 +58,7 @@ events = await memory.query_episodic_memory({"entity_id": "123"})
 Decisions are automatically checked against governance policy. For custom governance:
 
 ```python
-from domain_tensor_bridge import GovernanceBridge
+from domain_bridge import GovernanceBridge
 
 governance = GovernanceBridge()
 result = await governance.check_governance(decision)

@@ -1392,7 +1392,7 @@ async function: core.tools.tool_graph.register_tool_with_metadata
   calls:
     - register_tool
 
-async function: domain_tensor_bridge.agent_controller.process_packet
+async function: domain_bridge.agent_controller.process_packet
   calls:
     - initialize
     - process_packet

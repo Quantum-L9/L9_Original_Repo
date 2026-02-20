@@ -15,7 +15,7 @@
 | `collaborative_cells` | 6 | 5 | 1 | 0 | 0 | 0 |
 | `config` | 10 | 3 | 5 | 0 | 0 | 2 |
 | `core` | 10 | 0 | 9 | 1 | 0 | 0 |
-| `domain_tensor_bridge` | 22 | 0 | 8 | 14 | 0 | 0 |
+| `domain_bridge` | 22 | 0 | 8 | 14 | 0 | 0 |
 | `email_agent` | 8 | 1 | 5 | 1 | 1 | 0 |
 | `governance` | 1 | 0 | 1 | 0 | 0 | 0 |
 | `graph_adapter` | 1 | 0 | 1 | 0 | 0 | 0 |
@@ -50,7 +50,7 @@
 | `collaborative_cells` | HAS_API | 8 | 7 | 1 | 0 | 3 |
 | `config` | HAS_API | 13 | 6 | 2 | 5 | 23 |
 | `core` | SHOULD_HAVE_API | 46 | 22 | 7 | 17 | 0 |
-| `domain_tensor_bridge` | HAS_API | 10 | 10 | 0 | 0 | 0 |
+| `domain_bridge` | HAS_API | 10 | 10 | 0 | 0 | 0 |
 | `email_agent` | HAS_API | 9 | 2 | 2 | 5 | 3 |
 | `governance` | HAS_API | 3 | 0 | 3 | 0 | 0 |
 | `graph_adapter` | HAS_API | 1 | 0 | 0 | 1 | 0 |
@@ -111,9 +111,9 @@
   ... and 2 more
 **Recommended `__all__` entries (22):** `AutoRegistry`, `DuplicateRegistrationError`, `GovernanceIntegration`, `ModuleDefinition`, `ModuleRegistry`, `ModuleStatus`, `SingletonLifecycle`, `ValidationError`, `discover_singleton_services`, `get_all_event_types`
 
-### `domain_tensor_bridge`
+### `domain_bridge`
 
-**Orphan files (14):** `domain_tensor_bridge/analogical_reasoner.py`, `domain_tensor_bridge/anomaly_handler.py`, `domain_tensor_bridge/causal_reasoner.py`, `domain_tensor_bridge/compliance_checker.py`, `domain_tensor_bridge/decision_synthesizer.py`, `domain_tensor_bridge/domain_context_builder.py`, `domain_tensor_bridge/domain_packet_handler.py`, `domain_tensor_bridge/embedding_processor.py`, `domain_tensor_bridge/escalation_handler.py`, `domain_tensor_bridge/packet_formatter.py`, `domain_tensor_bridge/packet_validator.py`, `domain_tensor_bridge/reflective_auditor.py`, `domain_tensor_bridge/symbolic_reasoner.py`, `domain_tensor_bridge/tensoraios_bridge.py`
+**Orphan files (14):** `domain_bridge/analogical_reasoner.py`, `domain_bridge/anomaly_handler.py`, `domain_bridge/causal_reasoner.py`, `domain_bridge/compliance_checker.py`, `domain_bridge/decision_synthesizer.py`, `domain_bridge/domain_context_builder.py`, `domain_bridge/domain_packet_handler.py`, `domain_bridge/embedding_processor.py`, `domain_bridge/escalation_handler.py`, `domain_bridge/packet_formatter.py`, `domain_bridge/packet_validator.py`, `domain_bridge/reflective_auditor.py`, `domain_bridge/symbolic_reasoner.py`, `domain_bridge/tensoraios_bridge.py`
 
 ### `email_agent`
 

@@ -168,7 +168,7 @@ class AgentController:
     ) -> PacketEnvelope:
         """Create successful response packet."""
         return PacketEnvelope(
-            source_id="domain_tensor_bridge",
+            source_id="domain_bridge",
             kind=PacketKind.DECISION,
             payload={"result": result, "status": "success"},
             metadata={"original_packet_id": getattr(original_packet, "id", None)},
@@ -181,7 +181,7 @@ class AgentController:
     ) -> PacketEnvelope:
         """Create governance-blocked response packet."""
         return PacketEnvelope(
-            source_id="domain_tensor_bridge",
+            source_id="domain_bridge",
             kind=PacketKind.DECISION,
             payload={"status": "blocked", "reason": reason},
             metadata={

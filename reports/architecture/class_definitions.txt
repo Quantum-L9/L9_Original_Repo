@@ -1028,132 +1028,132 @@ module: core.worldmodel.l9_schema
 module: core.worldmodel.service
   class WorldModelService (object)
 
-module: domain_tensor_bridge.agent_controller
+module: domain_bridge.agent_controller
   class AgentController (object)
 
-module: domain_tensor_bridge.analogical_reasoner
+module: domain_bridge.analogical_reasoner
   @dataclass class Analogy (object)
   class AnalogicalReasoner (object)
 
-module: domain_tensor_bridge.anomaly_handler
+module: domain_bridge.anomaly_handler
   @dataclass class AnomalyFlag (object)
   @dataclass class AnomalyResponse (object)
   class AnomalyHandler (object)
   class AnomalySeverity (str, Enum)
 
-module: domain_tensor_bridge.causal_reasoner
+module: domain_bridge.causal_reasoner
   @dataclass class CausalResult (object)
   class CausalReasoner (object)
 
-module: domain_tensor_bridge.compliance_checker
+module: domain_bridge.compliance_checker
   @dataclass class ComplianceResult (object)
   @dataclass class Rule (object)
   class ComplianceChecker (object)
 
-module: domain_tensor_bridge.context_enricher
+module: domain_bridge.context_enricher
   @dataclass class EnrichedContext (object)
   class ContextEnricher (object)
 
-module: domain_tensor_bridge.decision_synthesizer
+module: domain_bridge.decision_synthesizer
   @dataclass class Decision (object)
   class DecisionSynthesizer (object)
 
-module: domain_tensor_bridge.domain_context_builder
+module: domain_bridge.domain_context_builder
   @dataclass class DomainContext (object)
   class DomainContextBuilder (object)
 
-module: domain_tensor_bridge.domain_packet_handler
+module: domain_bridge.domain_packet_handler
   class DomainPacketHandler (object)
 
-module: domain_tensor_bridge.embedding_processor
+module: domain_bridge.embedding_processor
   @dataclass class ProcessedEmbedding (object)
   class EmbeddingProcessor (object)
 
-module: domain_tensor_bridge.escalation_handler
+module: domain_bridge.escalation_handler
   @dataclass class EscalationResult (object)
   @dataclass class EscalationTrigger (object)
   class EscalationHandler (object)
   class EscalationTriggerType (str, Enum)
 
-module: domain_tensor_bridge.governance_bridge
+module: domain_bridge.governance_bridge
   @dataclass class EscalationResult (object)
   @dataclass class GovernanceResult (object)
   class EscalationLevel (str, Enum)
   class GovernanceBridge (object)
   class GovernanceDecision (str, Enum)
 
-module: domain_tensor_bridge.memory_bridge
+module: domain_bridge.memory_bridge
   @dataclass class EpisodicEvent (object)
   @dataclass class Node (object)
   class MemoryBridge (object)
 
-module: domain_tensor_bridge.packet_formatter
+module: domain_bridge.packet_formatter
   class PacketFormatter (object)
 
-module: domain_tensor_bridge.packet_router
+module: domain_bridge.packet_router
   @dataclass class RoutingResult (object)
   class PacketRouter (object)
 
-module: domain_tensor_bridge.packet_validator
+module: domain_bridge.packet_validator
   @dataclass class ValidationResult (object)
   class PacketValidator (object)
 
-module: domain_tensor_bridge.reasoning_engine
+module: domain_bridge.reasoning_engine
   @dataclass class ReasoningResult (object)
   class ReasoningEngine (object)
 
-module: domain_tensor_bridge.reflective_auditor
+module: domain_bridge.reflective_auditor
   @dataclass class AuditResult (object)
   class ReflectiveAuditor (object)
 
-module: domain_tensor_bridge.symbolic_reasoner
+module: domain_bridge.symbolic_reasoner
   @dataclass class RuleResult (object)
   class SymbolicReasoner (object)
 
-module: domain_tensor_bridge.tensor_coordinator
+module: domain_bridge.tensor_coordinator
   @dataclass class TensorResult (object)
   class TensorCoordinator (object)
 
-module: domain_tensor_bridge.tensoraios_bridge
+module: domain_bridge.tensoraios_bridge
   class TensorAIOSBridge (object)
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_api_surfaces
+module: domain_bridge.tests.domain_bridge.test_api_surfaces
   class TestProcessPacketEndpoint (object)
   class TestStatusEndpoint (object)
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_bridge_controller
+module: domain_bridge.tests.domain_bridge.test_bridge_controller
   class TestAgentController (object)
   class TestProcessPacketFunction (object)
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_context_enrichment
+module: domain_bridge.tests.domain_bridge.test_context_enrichment
   class TestContextBuilding (object)
   class TestWorldModelQuery (object)
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_governance_integration
+module: domain_bridge.tests.domain_bridge.test_governance_integration
   class TestAuditLogging (object)
   class TestEscalationTriggers (object)
   class TestOverrides (object)
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_memory_integration
+module: domain_bridge.tests.domain_bridge.test_memory_integration
   class TestHyperGraphDBQuery (object)
   class TestNeo4jQuery (object)
   class TestPostgresQuery (object)
   class TestRedisReadWrite (object)
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_packet_routing
+module: domain_bridge.tests.domain_bridge.test_packet_routing
   class TestRouteByDomain (object)
   class TestRouteByType (object)
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_reasoning_engine
+module: domain_bridge.tests.domain_bridge.test_reasoning_engine
   class TestConfidenceThresholds (object)
   class TestErrorPaths (object)
   class TestReasoningModes (object)
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_tensor_coordination
+module: domain_bridge.tests.domain_bridge.test_tensor_coordination
   class TestBatchTensorCalls (object)
   class TestTimeoutHandling (object)
 
-module: domain_tensor_bridge.world_model_bridge
+module: domain_bridge.world_model_bridge
   @dataclass class CausalFactor (object)
   @dataclass class Pattern (object)
   class WorldModelBridge (object)

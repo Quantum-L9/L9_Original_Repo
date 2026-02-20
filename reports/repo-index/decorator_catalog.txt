@@ -17,7 +17,7 @@
 | `@abstractmethod` | 42 | agents/base_agent.py, agents/cursor/extractors/base_extractor.py, collaborative_cells/base_cell.py |
 | `@async_retry(...)` | 1 | core/codegen/gatekeeper/codegen_gatekeeper_v2.py |
 | `@asynccontextmanager` | 26 | api/server.py, config/di_async_config.py, core/governance/rate_limit_policy.py |
-| `@asyncio` | 1339 | codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py, codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py, codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py |
+| `@asyncio` | 1339 | codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py, codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_api_surfaces.py, codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py |
 | `@benchmark(...)` | 9 | tests/performance/test_memory_benchmarks.py |
 | `@classmethod` | 62 | agents/codegenagent/cursor_context_sync_engine.py, agents/codegenagent/cursor_sync.py, codegen/code-gen-files/glue_resolver.py |
 | `@command(...)` | 6 | core/codegen/cli.py, tools/l9_cli.py |
@@ -29,7 +29,7 @@
 | `@exception_handler(...)` | 5 | api/server.py, mcp_memory/src/main.py |
 | `@field_validator(...)` | 10 | codegen/code-gen-files/schema_parser.py, core/calibration/schemas.py, core/kernels/schemas.py |
 | `@filterwarnings(...)` | 1 | tests/memory/test_unified_pipeline.py |
-| `@fixture` | 391 | codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py, codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py, codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py |
+| `@fixture` | 391 | codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py, codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_api_surfaces.py, codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py |
 | `@fixture(...)` | 19 | tests/collaborative_cells/test_cell_registry.py, tests/conftest.py, tests/core/governance/test_policy_registry.py |
 | `@get(...)` | 117 | api/agent_routes.py, api/memory/cache.py, api/memory/graph.py |
 | `@given(...)` | 3 | tests/generated/test_adr_0006_properties.py, tests/generated/test_adr_0019_properties.py |

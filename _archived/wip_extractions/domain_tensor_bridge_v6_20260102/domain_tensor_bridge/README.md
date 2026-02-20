@@ -47,7 +47,7 @@ L9 Domain-Tensor Bridge is the OS-level cognitive orchestrator that bridges doma
 ## Quick Start
 
 ```python
-from domain_tensor_bridge import AgentController, process_packet
+from domain_bridge import AgentController, process_packet
 from l9.core.schemas import PacketEnvelope, PacketKind
 
 # Create controller

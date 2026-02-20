@@ -31,7 +31,7 @@ __dora_meta__ = {
     "created_at": "2026-01-23T15:07:20Z",
     "updated_at": "2026-01-24T13:02:52Z",
     "layer": "operations",
-    "domain": "domain_tensor_bridge",
+    "domain": "domain_bridge",
     "module_name": "memory_bridge",
     "type": "dataclass",
     "status": "active",
@@ -40,8 +40,8 @@ __dora_meta__ = {
         "datasources": ["Neo4j", "Redis"],
         "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
         "imported_by": [
-            "domain_tensor_bridge.tests.domain_tensor_bridge.test_context_enrichment",
-            "domain_tensor_bridge.tests.domain_tensor_bridge.test_memory_integration",
+            "domain_bridge.tests.domain_bridge.test_context_enrichment",
+            "domain_bridge.tests.domain_bridge.test_memory_integration",
         ],
     },
 }
@@ -93,7 +93,7 @@ class MemoryBridge:
     - Causal Graph (HyperGraphDB): Causal reasoning, interventions
 
     **Integration note:** For L9 production use, instantiate via
-    ``L9MemoryAdapter`` (``domain_tensor_bridge.l9_memory_adapter``)
+    ``L9MemoryAdapter`` (``domain_bridge.l9_memory_adapter``)
     which maps this interface to real L9 services (MemorySubstrateService,
     WorkingMemoryService, Neo4jClient).  Passing a raw
     ``MemorySubstrateService`` here will NOT work because this class

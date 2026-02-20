@@ -89,9 +89,9 @@
 - `GovernanceHook` (memory/governance_hooks.py) — Abstract base class for governance hooks.
 - `GovernanceHookRegistry` (memory/governance_hooks.py) — Registry for governance hooks.
 - `GovernancePattern` (memory/governance_patterns.py) — A governance pattern capturing Igor's approval/rejection dec
-- `GovernanceDecision` (domain_tensor_bridge/governance_bridge.py) — Governance check outcomes.
-- `GovernanceResult` (domain_tensor_bridge/governance_bridge.py) — Result of governance check.
-- `GovernanceBridge` (domain_tensor_bridge/governance_bridge.py) — Bridge to L9 governance layer.
+- `GovernanceDecision` (domain_bridge/governance_bridge.py) — Governance check outcomes.
+- `GovernanceResult` (domain_bridge/governance_bridge.py) — Result of governance check.
+- `GovernanceBridge` (domain_bridge/governance_bridge.py) — Bridge to L9 governance layer.
 - `TestGovernanceHookRegistry` (tests/unit/test_governance_hooks.py) — Test GovernanceHookRegistry.
 - `TestExecutorGovernanceValidation` (tests/core/bootstrap/test_executor_governance.py) — Test governance validation in executor.
 - `TestAgentInstanceGovernanceTracking` (tests/integration/test_governance_tracking_e2e.py) — Tests for AgentInstance governance block tracking.
@@ -101,6 +101,6 @@
 - `TestGovernanceTrackingEndToEnd` (tests/integration/test_governance_tracking_e2e.py) — End-to-end test of the complete governance tracking flow.
 - `TestMemoryGovernanceIntegration` (tests/integration/test_l_cto_memory_governance_integration.py) — Test memory and governance integration.
 - `TestGovernanceContextPropagation` (tests/governance/test_governance_propagation.py) — Governance ContextVar must propagate across async task bound
-- `GovernanceDecision` (codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py) — Governance check outcomes.
-- `GovernanceResult` (codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py) — Result of governance check.
-- `GovernanceBridge` (codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py) — Bridge to L9 governance layer.
+- `GovernanceDecision` (codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py) — Governance check outcomes.
+- `GovernanceResult` (codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py) — Result of governance check.
+- `GovernanceBridge` (codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py) — Bridge to L9 governance layer.

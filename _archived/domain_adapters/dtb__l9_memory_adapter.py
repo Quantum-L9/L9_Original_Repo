@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from domain_tensor_bridge.memory_bridge import EpisodicEvent, MemoryBridge, Node
+from domain_bridge.memory_bridge import EpisodicEvent, MemoryBridge, Node
 
 if TYPE_CHECKING:
     from memory.graph_client import Neo4jClient
@@ -43,7 +43,7 @@ __dora_meta__ = {
     "created_at": "2026-02-14T00:00:00Z",
     "updated_at": "2026-02-14T00:00:00Z",
     "layer": "foundation",
-    "domain": "domain_tensor_bridge",
+    "domain": "domain_bridge",
     "module_name": "l9_memory_adapter",
     "type": "adapter",
     "status": "active",
@@ -51,7 +51,7 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["PostgreSQL", "Neo4j", "Redis"],
         "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
-        "imported_by": ["domain_tensor_bridge.memory_bridge"],
+        "imported_by": ["domain_bridge.memory_bridge"],
     },
 }
 
@@ -179,7 +179,7 @@ class L9MemoryAdapter(MemoryBridge):
             from memory.substrate_models import PacketEnvelopeIn
 
             packet_in = PacketEnvelopeIn(
-                source_id="domain_tensor_bridge",
+                source_id="domain_bridge",
                 agent_id="dtb_adapter",
                 packet_type=event.event_type,
                 payload=json.dumps(event.payload)

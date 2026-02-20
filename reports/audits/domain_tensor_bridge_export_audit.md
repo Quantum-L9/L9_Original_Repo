@@ -1,8 +1,8 @@
-# Package Export Audit: domain_tensor_bridge
+# Package Export Audit: domain_bridge
 
 - `__all__` count: 10
 - Names bound by imports: 7
-- Names imported from domain_tensor_bridge.* submodules: 0
+- Names imported from domain_bridge.* submodules: 0
 
 ## 1. In __all__ but NOT bound by any import (broken re-export)
 

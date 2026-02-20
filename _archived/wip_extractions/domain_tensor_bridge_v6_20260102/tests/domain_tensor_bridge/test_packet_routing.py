@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock
 import pytest
 from l9.core.schemas import PacketEnvelope, PacketKind
 
-from domain_tensor_bridge.packet_router import PacketRouter
+from domain_bridge.packet_router import PacketRouter
 
 
 @pytest.fixture
