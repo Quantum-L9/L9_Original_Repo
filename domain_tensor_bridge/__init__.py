@@ -48,6 +48,7 @@ __dora_meta__ = {
 from .agent_controller import AgentController, process_packet
 from .decision_synthesizer import DecisionSynthesizer
 from .governance_bridge import GovernanceBridge
+from .gateway import DomainBridgeGateway
 from .memory_bridge import MemoryBridge
 from .packet_router import PacketRouter
 from .reasoning_engine import ReasoningEngine
@@ -83,6 +84,7 @@ __footer_meta__ = {
 __all__ = [
     "AgentController",
     "DecisionSynthesizer",
+    "DomainBridgeGateway",
     "GovernanceBridge",
     "MemoryBridge",
     "PacketRouter",

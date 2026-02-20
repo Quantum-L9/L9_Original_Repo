@@ -2831,6 +2831,38 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# ============================================================================
+# MIDDLEWARE: IngressGuard (ADR-0092) — must be registered before routes
+# ============================================================================
+from api.middleware.ingress_guard import IngressGuardMiddleware
+
+app.add_middleware(IngressGuardMiddleware)
+
+# ============================================================================
+# SINGLETON: DomainBridgeGateway (ADR-0092) — lazy init at first use
+# ============================================================================
+_domain_bridge_gateway: "DomainBridgeGateway | None" = None
+
+
+def get_domain_bridge_gateway() -> "DomainBridgeGateway":
+    """Return the singleton DomainBridgeGateway instance.
+
+    Lazily initialised on first call. Requires GovernanceEngine and
+    IngestionPipeline to be available in the DI container or as module-level
+    singletons.
+    """
+    global _domain_bridge_gateway  # noqa: PLW0603
+    if _domain_bridge_gateway is None:
+        from domain_bridge.gateway import DomainBridgeGateway
+        from core.governance.engine import GovernanceEngine
+        from memory.ingestion import IngestionPipeline
+
+        _domain_bridge_gateway = DomainBridgeGateway(
+            governance=GovernanceEngine(),
+            ingestion=IngestionPipeline(),
+        )
+    return _domain_bridge_gateway
+
 
 # ============================================================================
 # ECHO / LIVENESS PROBE
