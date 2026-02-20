@@ -115,7 +115,7 @@ class DomainPacketResponse(BaseModel):
 class BridgeStatusResponse(BaseModel):
     """Status of tensor bridge components."""
 
-    domain_tensor_bridge: dict[str, Any]
+    domain_bridge: dict[str, Any]
     tensorglobe_adapter: dict[str, Any]
     eos_status: dict[str, Any]
     timestamp: datetime
@@ -134,7 +134,7 @@ async def tensor_bridge_health() -> dict[str, Any]:
         "status": "healthy",
         "service": "tensor_bridge",
         "components": {
-            "domain_tensor_bridge": "available",
+            "domain_bridge": "available",
             "tensorglobe_adapter": "available",
             "eos_gate": "available",
         },
@@ -147,7 +147,7 @@ async def tensor_bridge_health() -> dict[str, Any]:
 async def get_bridge_status() -> BridgeStatusResponse:
     """Get detailed status of all tensor bridge components."""
     return BridgeStatusResponse(
-        domain_tensor_bridge={
+        domain_bridge={
             "status": "active",
             "version": "6.0.0",
             "modules_loaded": 23,

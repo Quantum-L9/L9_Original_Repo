@@ -64,7 +64,7 @@ class DomainPacketHandler:
         enriched_payload = self._enrich_plastos_payload(packet.payload)
 
         return PacketEnvelope(
-            source_id="domain_tensor_bridge",
+            source_id="domain_bridge",
             kind=PacketKind.REASONING,
             payload=enriched_payload,
             metadata={"original_domain": "plastos", **getattr(packet, "metadata", {})},
@@ -77,7 +77,7 @@ class DomainPacketHandler:
         enriched_payload = self._enrich_mortgageos_payload(packet.payload)
 
         return PacketEnvelope(
-            source_id="domain_tensor_bridge",
+            source_id="domain_bridge",
             kind=PacketKind.REASONING,
             payload=enriched_payload,
             metadata={
@@ -93,7 +93,7 @@ class DomainPacketHandler:
         logger.info("handling_generic_domain", domain=domain)
 
         return PacketEnvelope(
-            source_id="domain_tensor_bridge",
+            source_id="domain_bridge",
             kind=PacketKind.REASONING,
             payload=packet.payload,
             metadata={"original_domain": domain, **getattr(packet, "metadata", {})},

@@ -190,16 +190,16 @@ AgentContext::get_memory(key) @ core/protocols/agent_protocols.py
 AgentContext::get_metadata() @ core/protocols/agent_protocols.py
 AgentContext::session_id() @ core/protocols/agent_protocols.py
 AgentContext::set_memory(key, value) @ core/protocols/agent_protocols.py
-AgentController::__init__(reasoning_engine, packet_router, governance_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
-AgentController::__init__(reasoning_engine, packet_router, governance_bridge) @ domain_tensor_bridge/agent_controller.py
-AgentController::_create_blocked_response(original_packet, reason) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
-AgentController::_create_blocked_response(original_packet, reason) @ domain_tensor_bridge/agent_controller.py
-AgentController::_create_success_response(original_packet, result) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
-AgentController::_create_success_response(original_packet, result) @ domain_tensor_bridge/agent_controller.py
-AgentController::async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
-AgentController::async initialize() @ domain_tensor_bridge/agent_controller.py
-AgentController::async process_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
-AgentController::async process_packet(packet) @ domain_tensor_bridge/agent_controller.py
+AgentController::__init__(reasoning_engine, packet_router, governance_bridge) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py
+AgentController::__init__(reasoning_engine, packet_router, governance_bridge) @ domain_bridge/agent_controller.py
+AgentController::_create_blocked_response(original_packet, reason) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py
+AgentController::_create_blocked_response(original_packet, reason) @ domain_bridge/agent_controller.py
+AgentController::_create_success_response(original_packet, result) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py
+AgentController::_create_success_response(original_packet, result) @ domain_bridge/agent_controller.py
+AgentController::async initialize() @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py
+AgentController::async initialize() @ domain_bridge/agent_controller.py
+AgentController::async process_packet(packet) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py
+AgentController::async process_packet(packet) @ domain_bridge/agent_controller.py
 AgentExecutionOrchestrator::__init__() @ orchestrators/agent_execution/orchestrator.py
 AgentExecutionOrchestrator::async execute(request) @ orchestrators/agent_execution/orchestrator.py
 AgentExecutionOrchestrator::async poll_and_execute() @ orchestrators/agent_execution/orchestrator.py
@@ -360,8 +360,8 @@ AgentTask::get_thread_id() @ core/agents/schemas.py
 AgentTask::to_dict() @ core/schemas/tasks.py
 AlignmentReport::alignment_percentage() @ memory/substrate_alignment.py
 AlignmentReport::is_aligned() @ memory/substrate_alignment.py
-AnalogicalReasoner::async find_analogies(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/analogical_reasoner.py
-AnalogicalReasoner::async find_analogies(context) @ domain_tensor_bridge/analogical_reasoner.py
+AnalogicalReasoner::async find_analogies(context) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/analogical_reasoner.py
+AnalogicalReasoner::async find_analogies(context) @ domain_bridge/analogical_reasoner.py
 AnomalyClassifier::__init__(custom_rules) @ workers/anomaly_classifier.py
 AnomalyClassifier::_calc_duration(start_time) @ workers/anomaly_classifier.py
 AnomalyClassifier::_flatten_to_text(data, prefix) @ workers/anomaly_classifier.py
@@ -378,10 +378,10 @@ AnomalyDetector::_check_statistical_outlier(request_id, latency_ms, avg_confiden
 AnomalyDetector::async detect(request, response) @ adapters/tensorglobe_bridge/anomaly_guard.py
 AnomalyDetector::get_statistics() @ adapters/tensorglobe_bridge/anomaly_guard.py
 AnomalyDetector::reset_failure_count() @ adapters/tensorglobe_bridge/anomaly_guard.py
-AnomalyHandler::async _escalate_anomaly(anomaly) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
-AnomalyHandler::async _escalate_anomaly(anomaly) @ domain_tensor_bridge/anomaly_handler.py
-AnomalyHandler::async handle_anomaly(anomaly) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
-AnomalyHandler::async handle_anomaly(anomaly) @ domain_tensor_bridge/anomaly_handler.py
+AnomalyHandler::async _escalate_anomaly(anomaly) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/anomaly_handler.py
+AnomalyHandler::async _escalate_anomaly(anomaly) @ domain_bridge/anomaly_handler.py
+AnomalyHandler::async handle_anomaly(anomaly) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/anomaly_handler.py
+AnomalyHandler::async handle_anomaly(anomaly) @ domain_bridge/anomaly_handler.py
 AnomalyResponseMonitor::__init__(classifier, remediation_engine, poll_interval_seconds) @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitor::_calc_duration(start_time) @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitor::_detect_anomaly(event) @ workers/anomaly_response_monitor.py
@@ -1002,12 +1002,12 @@ CausalMapper::to_dict() @ world_model/causal_mapper.py
 CausalMapper::update_edges_from_simulation(simulation_result) @ world_model/causal_mapper.py
 CausalNode::to_dict() @ world_model/causal_mapper.py
 CausalPath::to_dict() @ world_model/causal_mapper.py
-CausalReasoner::_build_causal_chain(factors) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py
-CausalReasoner::_build_causal_chain(factors) @ domain_tensor_bridge/causal_reasoner.py
-CausalReasoner::_identify_interventions(chain) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py
-CausalReasoner::_identify_interventions(chain) @ domain_tensor_bridge/causal_reasoner.py
-CausalReasoner::async apply_causal_logic(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py
-CausalReasoner::async apply_causal_logic(context) @ domain_tensor_bridge/causal_reasoner.py
+CausalReasoner::_build_causal_chain(factors) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/causal_reasoner.py
+CausalReasoner::_build_causal_chain(factors) @ domain_bridge/causal_reasoner.py
+CausalReasoner::_identify_interventions(chain) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/causal_reasoner.py
+CausalReasoner::_identify_interventions(chain) @ domain_bridge/causal_reasoner.py
+CausalReasoner::async apply_causal_logic(context) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/causal_reasoner.py
+CausalReasoner::async apply_causal_logic(context) @ domain_bridge/causal_reasoner.py
 CellAgentAdapter::__init__(cell_config, role_mapping, api_key, model) @ orchestrators/pattern/cell_adapter.py
 CellAgentAdapter::_build_task(prompt, input_data, context) @ orchestrators/pattern/cell_adapter.py
 CellAgentAdapter::_get_cell_for_role(role) @ orchestrators/pattern/cell_adapter.py
@@ -1301,10 +1301,10 @@ ComplianceAuditor::check_policy_zone(code) @ agents/codegenagent/compliance_audi
 ComplianceAuditor::check_rollback_handler(code) @ agents/codegenagent/compliance_auditor.py
 ComplianceAuditor::check_trace_hooks(code) @ agents/codegenagent/compliance_auditor.py
 ComplianceAuditor::generate_audit_report(result, output_path) @ agents/codegenagent/compliance_auditor.py
-ComplianceChecker::_check_rule(decision, rule) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py
-ComplianceChecker::_check_rule(decision, rule) @ domain_tensor_bridge/compliance_checker.py
-ComplianceChecker::check_compliance(decision, rules) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py
-ComplianceChecker::check_compliance(decision, rules) @ domain_tensor_bridge/compliance_checker.py
+ComplianceChecker::_check_rule(decision, rule) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/compliance_checker.py
+ComplianceChecker::_check_rule(decision, rule) @ domain_bridge/compliance_checker.py
+ComplianceChecker::check_compliance(decision, rules) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/compliance_checker.py
+ComplianceChecker::check_compliance(decision, rules) @ domain_bridge/compliance_checker.py
 ComplianceExporter::__init__(audit_log) @ core/packet_envelope/governance.py
 ComplianceExporter::async export_audit_trail_report(aggregate_id, start_date, end_date) @ core/packet_envelope/governance.py
 ComplianceExporter::async export_gdpr_sar(user_id, start_date, end_date) @ core/packet_envelope/governance.py
@@ -1397,10 +1397,10 @@ ConstructEnhancer::async enhance_spec(spec, max_iterations) @ runtime/construct_
 ConstructEnhancer::async enhance_yaml(yaml_path) @ runtime/construct_enhancer.py
 ConstructEnhancer::preview_enhancement(spec) @ runtime/construct_enhancer.py
 ContextBuilderService::async build(sections) @ memory/pipeline_router.py
-ContextEnricher::__init__(world_model_bridge, memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/context_enricher.py
-ContextEnricher::__init__(world_model_bridge, memory_bridge) @ domain_tensor_bridge/context_enricher.py
-ContextEnricher::async enrich_context(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/context_enricher.py
-ContextEnricher::async enrich_context(packet) @ domain_tensor_bridge/context_enricher.py
+ContextEnricher::__init__(world_model_bridge, memory_bridge) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/context_enricher.py
+ContextEnricher::__init__(world_model_bridge, memory_bridge) @ domain_bridge/context_enricher.py
+ContextEnricher::async enrich_context(packet) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/context_enricher.py
+ContextEnricher::async enrich_context(packet) @ domain_bridge/context_enricher.py
 ContextEnvelope::from_dict(cls, data) @ agents/codegenagent/cursor_sync.py
 ContextEnvelope::to_dict() @ agents/codegenagent/cursor_sync.py
 ContextSection::__post_init__() @ memory/context_builder.py
@@ -1628,22 +1628,22 @@ DeadLetterQueue::async pop(wait_for_retry) @ memory/dead_letter_queue.py
 DeadLetterQueue::async push(packet, failure_reason, failure_count) @ memory/dead_letter_queue.py
 DeadLetterQueue::async requeue(entry, new_failure_reason) @ memory/dead_letter_queue.py
 Decision::to_dict() @ world_model/causal_mapper.py
-DecisionSynthesizer::__init__(mode_weights) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::__init__(mode_weights) @ domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_build_summary(outputs, resolved) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_build_summary(outputs, resolved) @ domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_calculate_weighted_confidence(outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_calculate_weighted_confidence(outputs) @ domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_detect_conflicts(outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_detect_conflicts(outputs) @ domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_determine_action(outputs, confidence) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_determine_action(outputs, confidence) @ domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_get_contributing_modes(outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_get_contributing_modes(outputs) @ domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_resolve_conflicts(conflicts) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::_resolve_conflicts(conflicts) @ domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::async synthesize_decision(reasoning_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
-DecisionSynthesizer::async synthesize_decision(reasoning_outputs) @ domain_tensor_bridge/decision_synthesizer.py
+DecisionSynthesizer::__init__(mode_weights) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::__init__(mode_weights) @ domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_build_summary(outputs, resolved) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_build_summary(outputs, resolved) @ domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_calculate_weighted_confidence(outputs) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_calculate_weighted_confidence(outputs) @ domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_detect_conflicts(outputs) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_detect_conflicts(outputs) @ domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_determine_action(outputs, confidence) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_determine_action(outputs, confidence) @ domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_get_contributing_modes(outputs) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_get_contributing_modes(outputs) @ domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_resolve_conflicts(conflicts) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::_resolve_conflicts(conflicts) @ domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::async synthesize_decision(reasoning_outputs) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py
+DecisionSynthesizer::async synthesize_decision(reasoning_outputs) @ domain_bridge/decision_synthesizer.py
 DecoratorWithoutWrapsVisitor::__init__() @ tests/ci/test_adr_enforcement.py
 DecoratorWithoutWrapsVisitor::_check_decorator(node) @ tests/ci/test_adr_enforcement.py
 DecoratorWithoutWrapsVisitor::visit_AsyncFunctionDef(node) @ tests/ci/test_adr_enforcement.py
@@ -1719,18 +1719,18 @@ DocstringScanner::scan_directory(scan_dirs) @ tools/codegen/docstring_injector.p
 DocstringScanner::scan_file(filepath) @ tools/codegen/docstring_injector.py
 DocumentClassifier::__init__(schemas) @ tools/codegen/doc_compiler.py
 DocumentClassifier::classify(text) @ tools/codegen/doc_compiler.py
-DomainContextBuilder::build_domain_context(packet, domain) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_context_builder.py
-DomainContextBuilder::build_domain_context(packet, domain) @ domain_tensor_bridge/domain_context_builder.py
-DomainPacketHandler::_enrich_mortgageos_payload(payload) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
-DomainPacketHandler::_enrich_mortgageos_payload(payload) @ domain_tensor_bridge/domain_packet_handler.py
-DomainPacketHandler::_enrich_plastos_payload(payload) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
-DomainPacketHandler::_enrich_plastos_payload(payload) @ domain_tensor_bridge/domain_packet_handler.py
-DomainPacketHandler::async handle_generic_domain(packet, domain) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
-DomainPacketHandler::async handle_generic_domain(packet, domain) @ domain_tensor_bridge/domain_packet_handler.py
-DomainPacketHandler::async handle_mortgageos_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
-DomainPacketHandler::async handle_mortgageos_packet(packet) @ domain_tensor_bridge/domain_packet_handler.py
-DomainPacketHandler::async handle_plastos_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
-DomainPacketHandler::async handle_plastos_packet(packet) @ domain_tensor_bridge/domain_packet_handler.py
+DomainContextBuilder::build_domain_context(packet, domain) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_context_builder.py
+DomainContextBuilder::build_domain_context(packet, domain) @ domain_bridge/domain_context_builder.py
+DomainPacketHandler::_enrich_mortgageos_payload(payload) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_packet_handler.py
+DomainPacketHandler::_enrich_mortgageos_payload(payload) @ domain_bridge/domain_packet_handler.py
+DomainPacketHandler::_enrich_plastos_payload(payload) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_packet_handler.py
+DomainPacketHandler::_enrich_plastos_payload(payload) @ domain_bridge/domain_packet_handler.py
+DomainPacketHandler::async handle_generic_domain(packet, domain) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_packet_handler.py
+DomainPacketHandler::async handle_generic_domain(packet, domain) @ domain_bridge/domain_packet_handler.py
+DomainPacketHandler::async handle_mortgageos_packet(packet) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_packet_handler.py
+DomainPacketHandler::async handle_mortgageos_packet(packet) @ domain_bridge/domain_packet_handler.py
+DomainPacketHandler::async handle_plastos_packet(packet) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_packet_handler.py
+DomainPacketHandler::async handle_plastos_packet(packet) @ domain_bridge/domain_packet_handler.py
 DoraMetaExtractor::__init__() @ tests/ci/test_structural_invariants.py
 DoraMetaExtractor::visit_Assign(node) @ tests/ci/test_structural_invariants.py
 DoraTraceBlock::_sanitize_for_json(data) @ runtime/dora.py
@@ -1793,12 +1793,12 @@ EmailInterface::async get(account, msg_id) @ SDK/SDK.py
 EmailInterface::async query(account, query_str, limit) @ SDK/SDK.py
 EmailInterface::async reply(account, msg_id, body) @ SDK/SDK.py
 EmailInterface::async send(account, to, subject, body) @ SDK/SDK.py
-EmbeddingProcessor::_normalize(values) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/embedding_processor.py
-EmbeddingProcessor::_normalize(values) @ domain_tensor_bridge/embedding_processor.py
-EmbeddingProcessor::compute_similarity(emb_a, emb_b) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/embedding_processor.py
-EmbeddingProcessor::compute_similarity(emb_a, emb_b) @ domain_tensor_bridge/embedding_processor.py
-EmbeddingProcessor::process_embeddings(raw_embeddings) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/embedding_processor.py
-EmbeddingProcessor::process_embeddings(raw_embeddings) @ domain_tensor_bridge/embedding_processor.py
+EmbeddingProcessor::_normalize(values) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/embedding_processor.py
+EmbeddingProcessor::_normalize(values) @ domain_bridge/embedding_processor.py
+EmbeddingProcessor::compute_similarity(emb_a, emb_b) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/embedding_processor.py
+EmbeddingProcessor::compute_similarity(emb_a, emb_b) @ domain_bridge/embedding_processor.py
+EmbeddingProcessor::process_embeddings(raw_embeddings) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/embedding_processor.py
+EmbeddingProcessor::process_embeddings(raw_embeddings) @ domain_bridge/embedding_processor.py
 EmbeddingProvider::async embed_batch(texts) @ memory/substrate_semantic.py
 EmbeddingProvider::async embed_text(text) @ memory/substrate_semantic.py
 EmbeddingProvider::dimensions() @ memory/substrate_semantic.py
@@ -1852,12 +1852,12 @@ ErrorHandlingProtocol::async handle_error(exception, correlation_id, metadata) @
 ErrorHandlingProtocol::async log_error(context) @ core/protocols/error_handling_protocols.py
 ErrorHandlingProtocol::classify_error(exception) @ core/protocols/error_handling_protocols.py
 ErrorHandlingProtocol::should_retry(context, attempt_number, max_retries) @ core/protocols/error_handling_protocols.py
-EscalationHandler::_determine_anchor(trigger) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py
-EscalationHandler::_determine_anchor(trigger) @ domain_tensor_bridge/escalation_handler.py
-EscalationHandler::async _escalate_to_anchor(anchor, trigger) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py
-EscalationHandler::async _escalate_to_anchor(anchor, trigger) @ domain_tensor_bridge/escalation_handler.py
-EscalationHandler::async handle_escalation(trigger) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py
-EscalationHandler::async handle_escalation(trigger) @ domain_tensor_bridge/escalation_handler.py
+EscalationHandler::_determine_anchor(trigger) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/escalation_handler.py
+EscalationHandler::_determine_anchor(trigger) @ domain_bridge/escalation_handler.py
+EscalationHandler::async _escalate_to_anchor(anchor, trigger) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/escalation_handler.py
+EscalationHandler::async _escalate_to_anchor(anchor, trigger) @ domain_bridge/escalation_handler.py
+EscalationHandler::async handle_escalation(trigger) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/escalation_handler.py
+EscalationHandler::async handle_escalation(trigger) @ domain_bridge/escalation_handler.py
 EvaluationCriteria::evaluate(value) @ simulation/outcome_evaluator.py
 EvaluationInterface::__init__(sdk) @ SDK/SDK.py
 EvaluationInterface::async _get_evaluator() @ SDK/SDK.py
@@ -2217,22 +2217,22 @@ GmailClient::reply_to_email(msg_id, body) @ email_agent/gmail_client.py
 GmailClient::send_email(to, subject, body, attachments) @ email_agent/gmail_client.py
 GovernanceBlock::validate_mode(cls, v) @ codegen/code-gen-files/schema_parser.py
 GovernanceBlockPattern::detect(context) @ core/agents/selfreflection.py
-GovernanceBridge::__init__(approval_manager, igor_client) @ domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::__init__(approval_service, igor) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::_determine_escalation_level(decision) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::_determine_escalation_level(decision) @ domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::_requires_escalation(decision) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::_requires_escalation(decision) @ domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::async _check_approval(decision) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::async _check_approval(decision) @ domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::async check(result) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::async check(result) @ domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::async check_governance(decision) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::async check_governance(decision) @ domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::async escalate_to_anchor(decision, reason) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::async escalate_to_anchor(decision, reason) @ domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
-GovernanceBridge::async initialize() @ domain_tensor_bridge/governance_bridge.py
+GovernanceBridge::__init__(approval_manager, igor_client) @ domain_bridge/governance_bridge.py
+GovernanceBridge::__init__(approval_service, igor) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py
+GovernanceBridge::_determine_escalation_level(decision) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py
+GovernanceBridge::_determine_escalation_level(decision) @ domain_bridge/governance_bridge.py
+GovernanceBridge::_requires_escalation(decision) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py
+GovernanceBridge::_requires_escalation(decision) @ domain_bridge/governance_bridge.py
+GovernanceBridge::async _check_approval(decision) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py
+GovernanceBridge::async _check_approval(decision) @ domain_bridge/governance_bridge.py
+GovernanceBridge::async check(result) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py
+GovernanceBridge::async check(result) @ domain_bridge/governance_bridge.py
+GovernanceBridge::async check_governance(decision) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py
+GovernanceBridge::async check_governance(decision) @ domain_bridge/governance_bridge.py
+GovernanceBridge::async escalate_to_anchor(decision, reason) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py
+GovernanceBridge::async escalate_to_anchor(decision, reason) @ domain_bridge/governance_bridge.py
+GovernanceBridge::async initialize() @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py
+GovernanceBridge::async initialize() @ domain_bridge/governance_bridge.py
 GovernanceDecision::to_dict() @ core/governance/policy_models.py
 GovernanceEngineService::__init__(policy_dir, default_effect, substrate_service, conflict_resolver, audit_logger) @ core/governance/engine.py
 GovernanceEngineService::_calculate_duration_ms(start_time) @ core/governance/engine.py
@@ -2743,14 +2743,14 @@ L9Compiler::compile_directory(input_dir, output_dir) @ tools/codegen/doc_compile
 L9Compiler::compile_document(doc_path, output_dir) @ tools/codegen/doc_compiler.py
 L9ExternalSystem::to_node_dict() @ core/worldmodel/l9_schema.py
 L9Infrastructure::to_node_dict() @ core/worldmodel/l9_schema.py
-L9MemoryAdapter::__init__(substrate_service, working_memory_service, neo4j_client) @ domain_tensor_bridge/l9_memory_adapter.py
-L9MemoryAdapter::async get_working_memory(key) @ domain_tensor_bridge/l9_memory_adapter.py
-L9MemoryAdapter::async initialize() @ domain_tensor_bridge/l9_memory_adapter.py
-L9MemoryAdapter::async query_causal_graph(entity_id, depth) @ domain_tensor_bridge/l9_memory_adapter.py
-L9MemoryAdapter::async query_episodic_memory(filters) @ domain_tensor_bridge/l9_memory_adapter.py
-L9MemoryAdapter::async query_semantic_graph(query) @ domain_tensor_bridge/l9_memory_adapter.py
-L9MemoryAdapter::async set_working_memory(key, value, ttl_seconds) @ domain_tensor_bridge/l9_memory_adapter.py
-L9MemoryAdapter::async store_episodic_event(event) @ domain_tensor_bridge/l9_memory_adapter.py
+L9MemoryAdapter::__init__(substrate_service, working_memory_service, neo4j_client) @ domain_bridge/l9_memory_adapter.py
+L9MemoryAdapter::async get_working_memory(key) @ domain_bridge/l9_memory_adapter.py
+L9MemoryAdapter::async initialize() @ domain_bridge/l9_memory_adapter.py
+L9MemoryAdapter::async query_causal_graph(entity_id, depth) @ domain_bridge/l9_memory_adapter.py
+L9MemoryAdapter::async query_episodic_memory(filters) @ domain_bridge/l9_memory_adapter.py
+L9MemoryAdapter::async query_semantic_graph(query) @ domain_bridge/l9_memory_adapter.py
+L9MemoryAdapter::async set_working_memory(key, value, ttl_seconds) @ domain_bridge/l9_memory_adapter.py
+L9MemoryAdapter::async store_episodic_event(event) @ domain_bridge/l9_memory_adapter.py
 L9MemorySegment::to_node_dict() @ core/worldmodel/l9_schema.py
 L9PostgresSaver::__init__(repository) @ memory/checkpoint/postgres_saver.py
 L9PostgresSaver::async get(config) @ memory/checkpoint/postgres_saver.py
@@ -3020,22 +3020,22 @@ MemoryAdapter::get_action_history(action_type, limit) @ core/l_agent_runtime/mem
 MemoryAdapter::get_actions_for_context(context) @ core/l_agent_runtime/memory_adapter.py
 MemoryAdapter::get_recent_patterns(days) @ core/l_agent_runtime/memory_adapter.py
 MemoryAdapter::store_action_outcome(action_record) @ core/l_agent_runtime/memory_adapter.py
-MemoryBridge::__init__(substrate_service) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
-MemoryBridge::__init__(substrate_service) @ domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async get_working_memory(key) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async get_working_memory(key) @ domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async initialize() @ domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async query_causal_graph(entity_id, depth) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async query_causal_graph(entity_id, depth) @ domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async query_episodic_memory(filters) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async query_episodic_memory(filters) @ domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async query_semantic_graph(query) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async query_semantic_graph(query) @ domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async set_working_memory(key, value, ttl_seconds) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async set_working_memory(key, value, ttl_seconds) @ domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async store_episodic_event(event) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
-MemoryBridge::async store_episodic_event(event) @ domain_tensor_bridge/memory_bridge.py
+MemoryBridge::__init__(substrate_service) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py
+MemoryBridge::__init__(substrate_service) @ domain_bridge/memory_bridge.py
+MemoryBridge::async get_working_memory(key) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py
+MemoryBridge::async get_working_memory(key) @ domain_bridge/memory_bridge.py
+MemoryBridge::async initialize() @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py
+MemoryBridge::async initialize() @ domain_bridge/memory_bridge.py
+MemoryBridge::async query_causal_graph(entity_id, depth) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py
+MemoryBridge::async query_causal_graph(entity_id, depth) @ domain_bridge/memory_bridge.py
+MemoryBridge::async query_episodic_memory(filters) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py
+MemoryBridge::async query_episodic_memory(filters) @ domain_bridge/memory_bridge.py
+MemoryBridge::async query_semantic_graph(query) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py
+MemoryBridge::async query_semantic_graph(query) @ domain_bridge/memory_bridge.py
+MemoryBridge::async set_working_memory(key, value, ttl_seconds) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py
+MemoryBridge::async set_working_memory(key, value, ttl_seconds) @ domain_bridge/memory_bridge.py
+MemoryBridge::async store_episodic_event(event) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py
+MemoryBridge::async store_episodic_event(event) @ domain_bridge/memory_bridge.py
 MemoryCacheInterface::__init__(sdk) @ SDK/SDK.py
 MemoryCacheInterface::async _get_client() @ SDK/SDK.py
 MemoryCacheInterface::async delete(key) @ SDK/SDK.py
@@ -3759,14 +3759,14 @@ PacketEnvelopeUpgradeEngine::async activate_phase_5() @ core/packet_envelope/int
 PacketEnvelopeUpgradeEngine::get_upgrade_status() @ core/packet_envelope/integration.py
 PacketEnvelopeV2::__post_init__() @ mcp_memory/src/kernel/protocol.py
 PacketEnvelopeV2::with_update() @ mcp_memory/src/kernel/protocol.py
-PacketFormatter::_format_generic(result) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_formatter.py
-PacketFormatter::_format_generic(result) @ domain_tensor_bridge/packet_formatter.py
-PacketFormatter::_format_mortgageos(result) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_formatter.py
-PacketFormatter::_format_mortgageos(result) @ domain_tensor_bridge/packet_formatter.py
-PacketFormatter::_format_plastos(result) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_formatter.py
-PacketFormatter::_format_plastos(result) @ domain_tensor_bridge/packet_formatter.py
-PacketFormatter::format_for_domain(result, domain) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_formatter.py
-PacketFormatter::format_for_domain(result, domain) @ domain_tensor_bridge/packet_formatter.py
+PacketFormatter::_format_generic(result) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_formatter.py
+PacketFormatter::_format_generic(result) @ domain_bridge/packet_formatter.py
+PacketFormatter::_format_mortgageos(result) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_formatter.py
+PacketFormatter::_format_mortgageos(result) @ domain_bridge/packet_formatter.py
+PacketFormatter::_format_plastos(result) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_formatter.py
+PacketFormatter::_format_plastos(result) @ domain_bridge/packet_formatter.py
+PacketFormatter::format_for_domain(result, domain) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_formatter.py
+PacketFormatter::format_for_domain(result, domain) @ domain_bridge/packet_formatter.py
 PacketNodeAdapter::__init__(service, agent_id, event_type) @ graph_adapter/packet_node_adapter.py
 PacketNodeAdapter::async __call__(state, node, node_name) @ graph_adapter/packet_node_adapter.py
 PacketProvenanceVisitor::__init__() @ tests/ci/test_structural_invariants.py
@@ -3774,43 +3774,43 @@ PacketProvenanceVisitor::visit_Call(node) @ tests/ci/test_structural_invariants.
 PacketRefCount::__repr__() @ memory/retention_refcount.py
 PacketRefCount::is_safe_to_delete() @ memory/retention_refcount.py
 PacketRefCount::total_refs() @ memory/retention_refcount.py
-PacketRouter::__init__() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
-PacketRouter::__init__() @ domain_tensor_bridge/packet_router.py
-PacketRouter::_extract_domain(source_id) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
-PacketRouter::_extract_domain(source_id) @ domain_tensor_bridge/packet_router.py
-PacketRouter::async route(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
-PacketRouter::async route(packet) @ domain_tensor_bridge/packet_router.py
-PacketRouter::async route_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
-PacketRouter::async route_packet(packet) @ domain_tensor_bridge/packet_router.py
-PacketRouter::async validate(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
-PacketRouter::async validate(packet) @ domain_tensor_bridge/packet_router.py
-PacketRouter::get_handler_for_type(packet_type) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
-PacketRouter::get_handler_for_type(packet_type) @ domain_tensor_bridge/packet_router.py
-PacketRouter::register_domain_handler(domain, handler) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
-PacketRouter::register_domain_handler(domain, handler) @ domain_tensor_bridge/packet_router.py
-PacketRouter::register_handler(packet_kind, handler) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
-PacketRouter::register_handler(packet_kind, handler) @ domain_tensor_bridge/packet_router.py
-PacketRouter::set_fallback_handler(handler) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
-PacketRouter::set_fallback_handler(handler) @ domain_tensor_bridge/packet_router.py
+PacketRouter::__init__() @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py
+PacketRouter::__init__() @ domain_bridge/packet_router.py
+PacketRouter::_extract_domain(source_id) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py
+PacketRouter::_extract_domain(source_id) @ domain_bridge/packet_router.py
+PacketRouter::async route(packet) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py
+PacketRouter::async route(packet) @ domain_bridge/packet_router.py
+PacketRouter::async route_packet(packet) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py
+PacketRouter::async route_packet(packet) @ domain_bridge/packet_router.py
+PacketRouter::async validate(packet) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py
+PacketRouter::async validate(packet) @ domain_bridge/packet_router.py
+PacketRouter::get_handler_for_type(packet_type) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py
+PacketRouter::get_handler_for_type(packet_type) @ domain_bridge/packet_router.py
+PacketRouter::register_domain_handler(domain, handler) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py
+PacketRouter::register_domain_handler(domain, handler) @ domain_bridge/packet_router.py
+PacketRouter::register_handler(packet_kind, handler) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py
+PacketRouter::register_handler(packet_kind, handler) @ domain_bridge/packet_router.py
+PacketRouter::set_fallback_handler(handler) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py
+PacketRouter::set_fallback_handler(handler) @ domain_bridge/packet_router.py
 PacketSource::async fetch_packets(packet_types, limit, since) @ world_model/runtime.py
 PacketSpec::class_name() @ ir_engine/compile_meta_to_ir.py
 PacketValidationError::__init__(message, field, value, error_code) @ memory/validators/packet_validator.py
-PacketValidator::__init__(strict_mode) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py
-PacketValidator::__init__(strict_mode) @ domain_tensor_bridge/packet_validator.py
-PacketValidator::_validate_kind(kind) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py
-PacketValidator::_validate_packet_type(packet_type) @ domain_tensor_bridge/packet_validator.py
-PacketValidator::_validate_payload(payload) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py
-PacketValidator::_validate_payload(payload) @ domain_tensor_bridge/packet_validator.py
+PacketValidator::__init__(strict_mode) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py
+PacketValidator::__init__(strict_mode) @ domain_bridge/packet_validator.py
+PacketValidator::_validate_kind(kind) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py
+PacketValidator::_validate_packet_type(packet_type) @ domain_bridge/packet_validator.py
+PacketValidator::_validate_payload(payload) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py
+PacketValidator::_validate_payload(payload) @ domain_bridge/packet_validator.py
 PacketValidator::_validate_provenance(packet_in) @ memory/validators/packet_validator.py
-PacketValidator::_validate_source_id(source_id) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py
-PacketValidator::_validate_source_id(source_id) @ domain_tensor_bridge/packet_validator.py
+PacketValidator::_validate_source_id(source_id) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py
+PacketValidator::_validate_source_id(source_id) @ domain_bridge/packet_validator.py
 PacketValidator::allowed_types() @ memory/validators/packet_validator.py
 PacketValidator::core_types() @ memory/validators/packet_validator.py
 PacketValidator::extended_types() @ memory/validators/packet_validator.py
 PacketValidator::scan_security(packet_in) @ memory/validators/packet_validator.py
 PacketValidator::validate(packet_in, strict) @ memory/validators/packet_validator.py
-PacketValidator::validate_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py
-PacketValidator::validate_packet(packet) @ domain_tensor_bridge/packet_validator.py
+PacketValidator::validate_packet(packet) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py
+PacketValidator::validate_packet(packet) @ domain_bridge/packet_validator.py
 ParallelConsolidationPipeline::__init__(substrate_service, embedder) @ memory/consolidation/parallel_pipeline.py
 ParallelConsolidationPipeline::async _can_execute_phase(phase) @ memory/consolidation/parallel_pipeline.py
 ParallelConsolidationPipeline::async _execute_phase(phase, agent_id, context) @ memory/consolidation/parallel_pipeline.py
@@ -4222,24 +4222,24 @@ ReasoningAdapterNode::__call__(state) @ orchestrators/reasoning/adapter_node.py
 ReasoningAdapterNode::__init__(orchestrator) @ orchestrators/reasoning/adapter_node.py
 ReasoningAdapterNode::async process(state) @ orchestrators/reasoning/adapter_node.py
 ReasoningChain::__init__(chain_id, start_packet_id, packets, depth, is_complete) @ memory/reasoning_replay.py
-ReasoningEngine::__init__(symbolic_reasoner, causal_reasoner, analogical_reasoner, reflective_auditor) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::__init__(symbolic_reasoner, causal_reasoner, analogical_reasoner, reflective_auditor) @ domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::_calculate_confidence(mode_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::_calculate_confidence(mode_outputs) @ domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::_synthesize_decision(mode_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::_synthesize_decision(mode_outputs) @ domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async _apply_reflective(mode_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async _apply_reflective(mode_outputs) @ domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async _apply_symbolic(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async _apply_symbolic(context) @ domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async apply_analogical_reasoning(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async apply_analogical_reasoning(context) @ domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async apply_causal_reasoning(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async apply_causal_reasoning(context) @ domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async execute_reasoning(context, modes) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async execute_reasoning(context, modes) @ domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
-ReasoningEngine::async initialize() @ domain_tensor_bridge/reasoning_engine.py
+ReasoningEngine::__init__(symbolic_reasoner, causal_reasoner, analogical_reasoner, reflective_auditor) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py
+ReasoningEngine::__init__(symbolic_reasoner, causal_reasoner, analogical_reasoner, reflective_auditor) @ domain_bridge/reasoning_engine.py
+ReasoningEngine::_calculate_confidence(mode_outputs) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py
+ReasoningEngine::_calculate_confidence(mode_outputs) @ domain_bridge/reasoning_engine.py
+ReasoningEngine::_synthesize_decision(mode_outputs) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py
+ReasoningEngine::_synthesize_decision(mode_outputs) @ domain_bridge/reasoning_engine.py
+ReasoningEngine::async _apply_reflective(mode_outputs) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py
+ReasoningEngine::async _apply_reflective(mode_outputs) @ domain_bridge/reasoning_engine.py
+ReasoningEngine::async _apply_symbolic(context) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py
+ReasoningEngine::async _apply_symbolic(context) @ domain_bridge/reasoning_engine.py
+ReasoningEngine::async apply_analogical_reasoning(context) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py
+ReasoningEngine::async apply_analogical_reasoning(context) @ domain_bridge/reasoning_engine.py
+ReasoningEngine::async apply_causal_reasoning(context) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py
+ReasoningEngine::async apply_causal_reasoning(context) @ domain_bridge/reasoning_engine.py
+ReasoningEngine::async execute_reasoning(context, modes) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py
+ReasoningEngine::async execute_reasoning(context, modes) @ domain_bridge/reasoning_engine.py
+ReasoningEngine::async initialize() @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py
+ReasoningEngine::async initialize() @ domain_bridge/reasoning_engine.py
 ReasoningInterface::__init__(sdk) @ SDK/SDK.py
 ReasoningInterface::async _get_orchestrator() @ SDK/SDK.py
 ReasoningInterface::async execute(mode, hypothesis, evidence, context) @ SDK/SDK.py
@@ -4391,8 +4391,8 @@ ReflectionMemory::store_lesson(lesson, context, task_id, tags, confidence) @ wor
 ReflectionMemory::to_dict() @ world_model/reflection_memory.py
 ReflectionMemory::update_improvement_status(improvement_id, status, actual_impact) @ world_model/reflection_memory.py
 ReflectionMemory::update_reflection(reflection_id, content, confidence, priority) @ world_model/reflection_memory.py
-ReflectiveAuditor::audit_reasoning(decision) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reflective_auditor.py
-ReflectiveAuditor::audit_reasoning(decision) @ domain_tensor_bridge/reflective_auditor.py
+ReflectiveAuditor::audit_reasoning(decision) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reflective_auditor.py
+ReflectiveAuditor::audit_reasoning(decision) @ domain_bridge/reflective_auditor.py
 RemediationEngine::__init__(rollback_endpoint, escalation_endpoint) @ workers/remediation_engine.py
 RemediationEngine::_calc_duration(start_time) @ workers/remediation_engine.py
 RemediationEngine::async _execute(request) @ workers/remediation_engine.py
@@ -5144,10 +5144,10 @@ SymbolicComputationTool::async compute(expression, variables, backend) @ core/to
 SymbolicComputationTool::async generate_code(expression, variables, language, function_name, compile) @ core/tools/symbolic_tool.py
 SymbolicComputationTool::async health_check() @ core/tools/symbolic_tool.py
 SymbolicComputationTool::optimize(expression, strategies) @ core/tools/symbolic_tool.py
-SymbolicReasoner::_apply_rule(rule, context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/symbolic_reasoner.py
-SymbolicReasoner::_apply_rule(rule, context) @ domain_tensor_bridge/symbolic_reasoner.py
-SymbolicReasoner::apply_domain_rules(context, domain) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/symbolic_reasoner.py
-SymbolicReasoner::apply_domain_rules(context, domain) @ domain_tensor_bridge/symbolic_reasoner.py
+SymbolicReasoner::_apply_rule(rule, context) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/symbolic_reasoner.py
+SymbolicReasoner::_apply_rule(rule, context) @ domain_bridge/symbolic_reasoner.py
+SymbolicReasoner::apply_domain_rules(context, domain) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/symbolic_reasoner.py
+SymbolicReasoner::apply_domain_rules(context, domain) @ domain_bridge/symbolic_reasoner.py
 SymbolicVerificationResult::to_dict() @ agents/codegenagent/codegen_agent.py
 SymbolicVerificationResult::to_dict() @ tests/core/agents/codegenagent/test_symbolic_verification.py
 SyncBlockingCallVisitor::__init__() @ tests/ci/test_anti_patterns.py
@@ -5223,26 +5223,26 @@ TaskRouter::route(task, context) @ orchestration/task_router.py
 TaskRouter::route_batch(tasks, context) @ orchestration/task_router.py
 TaskRouter::route_with_dependencies(tasks, dependencies) @ orchestration/task_router.py
 TelemetryReport::to_dict() @ agents/codegenagent/telemetry_codegen.py
-TensorAIOSBridge::__init__(tensor_url) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
-TensorAIOSBridge::__init__(tensor_url) @ domain_tensor_bridge/tensoraios_bridge.py
-TensorAIOSBridge::async call_embedding_similarity(entity_a, entity_b) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
-TensorAIOSBridge::async call_embedding_similarity(entity_a, entity_b) @ domain_tensor_bridge/tensoraios_bridge.py
-TensorAIOSBridge::async call_link_prediction(source, target) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
-TensorAIOSBridge::async call_link_prediction(source, target) @ domain_tensor_bridge/tensoraios_bridge.py
-TensorAIOSBridge::async close() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
-TensorAIOSBridge::async close() @ domain_tensor_bridge/tensoraios_bridge.py
-TensorAIOSBridge::async get_embeddings(entity_ids) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
-TensorAIOSBridge::async get_embeddings(entity_ids) @ domain_tensor_bridge/tensoraios_bridge.py
-TensorAIOSBridge::async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
-TensorAIOSBridge::async initialize() @ domain_tensor_bridge/tensoraios_bridge.py
-TensorCoordinator::__init__(tensoraios_bridge, batch_size) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py
-TensorCoordinator::__init__(tensoraios_bridge, batch_size) @ domain_tensor_bridge/tensor_coordinator.py
-TensorCoordinator::async _process_batch(entities) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py
-TensorCoordinator::async _process_batch(entities) @ domain_tensor_bridge/tensor_coordinator.py
-TensorCoordinator::async _score_entity(entity_id) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py
-TensorCoordinator::async _score_entity(entity_id) @ domain_tensor_bridge/tensor_coordinator.py
-TensorCoordinator::async coordinate_tensor_calls(entities) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py
-TensorCoordinator::async coordinate_tensor_calls(entities) @ domain_tensor_bridge/tensor_coordinator.py
+TensorAIOSBridge::__init__(tensor_url) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py
+TensorAIOSBridge::__init__(tensor_url) @ domain_bridge/tensoraios_bridge.py
+TensorAIOSBridge::async call_embedding_similarity(entity_a, entity_b) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py
+TensorAIOSBridge::async call_embedding_similarity(entity_a, entity_b) @ domain_bridge/tensoraios_bridge.py
+TensorAIOSBridge::async call_link_prediction(source, target) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py
+TensorAIOSBridge::async call_link_prediction(source, target) @ domain_bridge/tensoraios_bridge.py
+TensorAIOSBridge::async close() @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py
+TensorAIOSBridge::async close() @ domain_bridge/tensoraios_bridge.py
+TensorAIOSBridge::async get_embeddings(entity_ids) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py
+TensorAIOSBridge::async get_embeddings(entity_ids) @ domain_bridge/tensoraios_bridge.py
+TensorAIOSBridge::async initialize() @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py
+TensorAIOSBridge::async initialize() @ domain_bridge/tensoraios_bridge.py
+TensorCoordinator::__init__(tensoraios_bridge, batch_size) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensor_coordinator.py
+TensorCoordinator::__init__(tensoraios_bridge, batch_size) @ domain_bridge/tensor_coordinator.py
+TensorCoordinator::async _process_batch(entities) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensor_coordinator.py
+TensorCoordinator::async _process_batch(entities) @ domain_bridge/tensor_coordinator.py
+TensorCoordinator::async _score_entity(entity_id) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensor_coordinator.py
+TensorCoordinator::async _score_entity(entity_id) @ domain_bridge/tensor_coordinator.py
+TensorCoordinator::async coordinate_tensor_calls(entities) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensor_coordinator.py
+TensorCoordinator::async coordinate_tensor_calls(entities) @ domain_bridge/tensor_coordinator.py
 TensorGlobeBridgeAdapter::__init__(accountability_engine, substrate_service, boundary_enforcer, tensorglobe_endpoint, tensorglobe_auth_key) @ adapters/tensorglobe_bridge/adapter.py
 TensorGlobeBridgeAdapter::_validate_request_schema(request) @ adapters/tensorglobe_bridge/adapter.py
 TensorGlobeBridgeAdapter::_validate_response_schema(response) @ adapters/tensorglobe_bridge/adapter.py
@@ -5335,16 +5335,16 @@ TestAgent::_generate_recommendations(results) @ core/testing/test_agent.py
 TestAgent::async _store_results(result) @ core/testing/test_agent.py
 TestAgent::async validate_proposal(task_id, code_proposal, proposal_type, dependencies) @ core/testing/test_agent.py
 TestAgent::greet() @ tests/agents/test_agent_registry.py
-TestAgentController::async test_governance_blocked(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
-TestAgentController::async test_governance_blocked(controller, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
-TestAgentController::async test_governance_check(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
-TestAgentController::async test_governance_check(controller, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
-TestAgentController::async test_happy_path_packet_dispatch(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
-TestAgentController::async test_happy_path_packet_dispatch(controller, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
-TestAgentController::async test_routing_decision(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
-TestAgentController::async test_routing_decision(controller, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
-TestAgentController::async test_validation_failure(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
-TestAgentController::async test_validation_failure(controller, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
+TestAgentController::async test_governance_blocked(controller, mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py
+TestAgentController::async test_governance_blocked(controller, mock_packet) @ domain_bridge/tests/domain_bridge/test_bridge_controller.py
+TestAgentController::async test_governance_check(controller, mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py
+TestAgentController::async test_governance_check(controller, mock_packet) @ domain_bridge/tests/domain_bridge/test_bridge_controller.py
+TestAgentController::async test_happy_path_packet_dispatch(controller, mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py
+TestAgentController::async test_happy_path_packet_dispatch(controller, mock_packet) @ domain_bridge/tests/domain_bridge/test_bridge_controller.py
+TestAgentController::async test_routing_decision(controller, mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py
+TestAgentController::async test_routing_decision(controller, mock_packet) @ domain_bridge/tests/domain_bridge/test_bridge_controller.py
+TestAgentController::async test_validation_failure(controller, mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py
+TestAgentController::async test_validation_failure(controller, mock_packet) @ domain_bridge/tests/domain_bridge/test_bridge_controller.py
 TestAgentExecuteAuth::test_agent_execute_requires_auth(api_client_no_auth) @ tests/api/test_agent_auth.py
 TestAgentExecuteAuth::test_agent_execute_with_invalid_auth(api_client_no_auth) @ tests/api/test_agent_auth.py
 TestAgentExecuteAuth::test_agent_execute_with_valid_auth(api_client_with_auth) @ tests/api/test_agent_auth.py
@@ -5432,8 +5432,8 @@ TestAuditLogger::async test_log_command_without_substrate() @ tests/integration/
 TestAuditLogger::async test_log_memory_write_without_substrate() @ tests/integration/test_compliance_audit.py
 TestAuditLogger::async test_log_tool_execution_without_substrate() @ tests/integration/test_compliance_audit.py
 TestAuditLoggerConvenience::async test_log_command_to_audit() @ tests/integration/test_compliance_audit.py
-TestAuditLogging::async test_governance_check_logged(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
-TestAuditLogging::async test_governance_check_logged(governance) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py
+TestAuditLogging::async test_governance_check_logged(governance) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py
+TestAuditLogging::async test_governance_check_logged(governance) @ domain_bridge/tests/domain_bridge/test_governance_integration.py
 TestAuditLoggingHook::async test_audit_logging_always_allows() @ tests/unit/test_governance_hooks.py
 TestAuditPerformanceBaseline::test_large_payload_performance() @ tests/performance/test_memory_benchmarks.py
 TestAuditPerformanceBaseline::test_prepare_packet_returns_valid_result() @ tests/performance/test_memory_benchmarks.py
@@ -5479,12 +5479,12 @@ TestBasicValidation::test_none_arguments_rejected(sanitizer) @ tests/tools/test_
 TestBasicValidation::test_valid_input_passes(sanitizer, sample_schema) @ tests/tools/test_tool_sanitizer.py
 TestBatchOperations::test_read_packets_batch() @ tests/core/schemas/test_schema_registry.py
 TestBatchOperations::test_write_packet_to_dict() @ tests/core/schemas/test_schema_registry.py
-TestBatchTensorCalls::async test_batch_processing(coordinator) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py
-TestBatchTensorCalls::async test_batch_processing(coordinator) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py
-TestBatchTensorCalls::async test_empty_entities(coordinator) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py
-TestBatchTensorCalls::async test_empty_entities(coordinator) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py
-TestBatchTensorCalls::async test_single_entity(coordinator) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py
-TestBatchTensorCalls::async test_single_entity(coordinator) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py
+TestBatchTensorCalls::async test_batch_processing(coordinator) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_tensor_coordination.py
+TestBatchTensorCalls::async test_batch_processing(coordinator) @ domain_bridge/tests/domain_bridge/test_tensor_coordination.py
+TestBatchTensorCalls::async test_empty_entities(coordinator) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_tensor_coordination.py
+TestBatchTensorCalls::async test_empty_entities(coordinator) @ domain_bridge/tests/domain_bridge/test_tensor_coordination.py
+TestBatchTensorCalls::async test_single_entity(coordinator) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_tensor_coordination.py
+TestBatchTensorCalls::async test_single_entity(coordinator) @ domain_bridge/tests/domain_bridge/test_tensor_coordination.py
 TestBenignInputs::test_code_review_request() @ tests/core/bootstrap/test_prompt_defense.py
 TestBenignInputs::test_empty_input() @ tests/core/bootstrap/test_prompt_defense.py
 TestBenignInputs::test_none_context() @ tests/core/bootstrap/test_prompt_defense.py
@@ -5698,10 +5698,10 @@ TestConfidenceEscalation::test_should_not_escalate_above_threshold() @ tests/run
 TestConfidenceScore::test_confidence_is_always_1() @ tests/integration/test_tool_observability_integration.py
 TestConfidenceScoring::async test_confidence_capped_at_95() @ tests/workers/test_anomaly_classifier.py
 TestConfidenceScoring::async test_confidence_increases_with_matches() @ tests/workers/test_anomaly_classifier.py
-TestConfidenceThresholds::async test_confidence_calculation(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
-TestConfidenceThresholds::async test_confidence_calculation(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
-TestConfidenceThresholds::async test_low_confidence_warning(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
-TestConfidenceThresholds::async test_low_confidence_warning(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
+TestConfidenceThresholds::async test_confidence_calculation(engine) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py
+TestConfidenceThresholds::async test_confidence_calculation(engine) @ domain_bridge/tests/domain_bridge/test_reasoning_engine.py
+TestConfidenceThresholds::async test_low_confidence_warning(engine) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py
+TestConfidenceThresholds::async test_low_confidence_warning(engine) @ domain_bridge/tests/domain_bridge/test_reasoning_engine.py
 TestConfidenceValidation::test_confidence_above_one() @ core/schemas/tests/test_packet_envelope.py
 TestConfidenceValidation::test_confidence_above_one_rejected() @ tests/memory/test_packet_validation_v2.py
 TestConfidenceValidation::test_confidence_below_zero() @ core/schemas/tests/test_packet_envelope.py
@@ -5741,10 +5741,10 @@ TestContentHashComputation::test_compute_content_hash_deterministic() @ tests/co
 TestContentHashComputation::test_different_metadata_different_hashes() @ tests/core/schemas/test_content_hash_integrity.py
 TestContentHashComputation::test_different_payloads_different_hashes() @ tests/core/schemas/test_content_hash_integrity.py
 TestContentHashComputation::test_different_timestamps_different_hashes() @ tests/core/schemas/test_content_hash_integrity.py
-TestContextBuilding::async test_enriched_context_structure(enricher, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py
-TestContextBuilding::async test_enriched_context_structure(enricher, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py
-TestContextBuilding::async test_without_dependencies(mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py
-TestContextBuilding::async test_without_dependencies(mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py
+TestContextBuilding::async test_enriched_context_structure(enricher, mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py
+TestContextBuilding::async test_enriched_context_structure(enricher, mock_packet) @ domain_bridge/tests/domain_bridge/test_context_enrichment.py
+TestContextBuilding::async test_without_dependencies(mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py
+TestContextBuilding::async test_without_dependencies(mock_packet) @ domain_bridge/tests/domain_bridge/test_context_enrichment.py
 TestContextStrategies::async test_naive_truncation_strategy() @ tests/core/observability/test_observability_integration.py
 TestContextStrategies::async test_recency_biased_window_strategy() @ tests/core/observability/test_observability_integration.py
 TestConvenienceFunction::test_generate_readme_for_module() @ tests/core/agents/codegenagent/test_readme_generator.py
@@ -6025,22 +6025,22 @@ TestErrorHandling::test_has_binding(container) @ tests/unit/di/test_container.py
 TestErrorHandling::test_metrics_graceful_degradation() @ tests/api/test_slack_adapter.py
 TestErrorHandling::test_resolution_error_on_factory_failure(container) @ tests/unit/di/test_container.py
 TestErrorHandling::test_unknown_version_defaults() @ tests/core/schemas/test_schema_registry.py
-TestErrorPaths::async test_empty_context(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
-TestErrorPaths::async test_empty_context(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
-TestErrorPaths::async test_reasoner_failure_handling(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
-TestErrorPaths::async test_reasoner_failure_handling(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
+TestErrorPaths::async test_empty_context(engine) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py
+TestErrorPaths::async test_empty_context(engine) @ domain_bridge/tests/domain_bridge/test_reasoning_engine.py
+TestErrorPaths::async test_reasoner_failure_handling(engine) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py
+TestErrorPaths::async test_reasoner_failure_handling(engine) @ domain_bridge/tests/domain_bridge/test_reasoning_engine.py
 TestEscalateToIgor::test_escalate_to_igor_formats_message() @ tests/runtime/test_execution_gate.py
 TestEscalateToIgor::test_escalate_to_igor_logs_escalation() @ tests/runtime/test_execution_gate.py
 TestEscalationLogging::test_get_critical_escalations() @ tests/runtime/test_kernel_state.py
 TestEscalationLogging::test_get_pending_escalations() @ tests/runtime/test_kernel_state.py
 TestEscalationLogging::test_log_escalation_appends_to_list() @ tests/runtime/test_kernel_state.py
 TestEscalationLogging::test_log_escalation_with_resolution() @ tests/runtime/test_kernel_state.py
-TestEscalationTriggers::async test_high_risk_triggers_escalation(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
-TestEscalationTriggers::async test_high_risk_triggers_escalation(governance) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py
-TestEscalationTriggers::async test_low_confidence_triggers_escalation(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
-TestEscalationTriggers::async test_low_confidence_triggers_escalation(governance) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py
-TestEscalationTriggers::async test_normal_decision_approved(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
-TestEscalationTriggers::async test_normal_decision_approved(governance) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py
+TestEscalationTriggers::async test_high_risk_triggers_escalation(governance) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py
+TestEscalationTriggers::async test_high_risk_triggers_escalation(governance) @ domain_bridge/tests/domain_bridge/test_governance_integration.py
+TestEscalationTriggers::async test_low_confidence_triggers_escalation(governance) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py
+TestEscalationTriggers::async test_low_confidence_triggers_escalation(governance) @ domain_bridge/tests/domain_bridge/test_governance_integration.py
+TestEscalationTriggers::async test_normal_decision_approved(governance) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py
+TestEscalationTriggers::async test_normal_decision_approved(governance) @ domain_bridge/tests/domain_bridge/test_governance_integration.py
 TestEventMessageBasics::test_handshake_event_roundtrip() @ tests/runtime/test_ws_protocol_static.py
 TestEventMessageBasics::test_minimal_event_defaults() @ tests/runtime/test_ws_protocol_static.py
 TestEvolutionPlan::async test_create_evolution_plan(problematic_task_context) @ tests/integration/test_kernel_evolution_flow.py
@@ -6357,8 +6357,8 @@ TestHybridScoring::test_compute_tag_similarity_empty_tags(strategy_memory_servic
 TestHybridScoring::test_compute_tag_similarity_full_match(strategy_memory_service) @ tests/memory/test_strategy_memory.py
 TestHybridScoring::test_compute_tag_similarity_no_match(strategy_memory_service) @ tests/memory/test_strategy_memory.py
 TestHybridScoring::test_compute_tag_similarity_partial_match(strategy_memory_service) @ tests/memory/test_strategy_memory.py
-TestHyperGraphDBQuery::async test_query_causal_graph(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
-TestHyperGraphDBQuery::async test_query_causal_graph(memory_bridge) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py
+TestHyperGraphDBQuery::async test_query_causal_graph(memory_bridge) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py
+TestHyperGraphDBQuery::async test_query_causal_graph(memory_bridge) @ domain_bridge/tests/domain_bridge/test_memory_integration.py
 TestIRCompilation::test_compile_to_ir(contract, ir_compiler) @ tests/codegen/test_codegen_pipeline.py
 TestIRCompilation::test_ir_has_dependencies(contract, ir_compiler) @ tests/codegen/test_codegen_pipeline.py
 TestIRCompilation::test_ir_has_packets(contract, ir_compiler) @ tests/codegen/test_codegen_pipeline.py
@@ -6846,8 +6846,8 @@ TestNeo4jLayer::async test_neo4j_create_and_query_node(neo4j_client) @ mcp_memor
 TestNeo4jLayer::async test_neo4j_labels(neo4j_client) @ mcp_memory/tests/test_all_layers.py
 TestNeo4jLayer::async test_neo4j_relationship(neo4j_client) @ mcp_memory/tests/test_all_layers.py
 TestNeo4jLayer::async test_neo4j_simple_query(neo4j_client) @ mcp_memory/tests/test_all_layers.py
-TestNeo4jQuery::async test_query_semantic_graph(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
-TestNeo4jQuery::async test_query_semantic_graph(memory_bridge) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py
+TestNeo4jQuery::async test_query_semantic_graph(memory_bridge) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py
+TestNeo4jQuery::async test_query_semantic_graph(memory_bridge) @ domain_bridge/tests/domain_bridge/test_memory_integration.py
 TestNeuralDecayScheduler::async test_run_decay_pass_dry_run() @ tests/memory/test_hierarchical_consolidation.py
 TestNeuralDecayScheduler::async test_run_decay_pass_no_repository() @ tests/memory/test_hierarchical_consolidation.py
 TestNeuralDecayScheduler::test_calculate_salience_clamps_to_valid_range() @ tests/memory/test_hierarchical_consolidation.py
@@ -6926,8 +6926,8 @@ TestOutcomeBoost::test_boost_capped_at_1_5() @ tests/memory/test_importance_reci
 TestOutcomeBoost::test_no_signals_gives_base() @ tests/memory/test_importance_recipe.py
 TestOutcomeBoost::test_reflection_adds_boost() @ tests/memory/test_importance_recipe.py
 TestOutcomeBoost::test_success_signals_increase_boost() @ tests/memory/test_importance_recipe.py
-TestOverrides::async test_escalation_to_igor(governance_with_igor) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
-TestOverrides::async test_escalation_to_igor(governance_with_igor) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py
+TestOverrides::async test_escalation_to_igor(governance_with_igor) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py
+TestOverrides::async test_escalation_to_igor(governance_with_igor) @ domain_bridge/tests/domain_bridge/test_governance_integration.py
 TestPIIDetection::test_detect_api_key() @ tests/memory/test_ingestion_audit.py
 TestPIIDetection::test_detect_email() @ tests/memory/test_ingestion_audit.py
 TestPIIDetection::test_detect_phone() @ tests/memory/test_ingestion_audit.py
@@ -7099,8 +7099,8 @@ TestPostgresLayer::async test_postgres_memory_embeddings_table(pg_pool) @ mcp_me
 TestPostgresLayer::async test_postgres_packet_store_table(pg_pool) @ mcp_memory/tests/test_all_layers.py
 TestPostgresLayer::async test_postgres_vector_search(pg_pool) @ mcp_memory/tests/test_all_layers.py
 TestPostgresLayer::async test_postgres_version(pg_pool) @ mcp_memory/tests/test_all_layers.py
-TestPostgresQuery::async test_query_episodic_memory(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
-TestPostgresQuery::async test_query_episodic_memory(memory_bridge) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py
+TestPostgresQuery::async test_query_episodic_memory(memory_bridge) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py
+TestPostgresQuery::async test_query_episodic_memory(memory_bridge) @ domain_bridge/tests/domain_bridge/test_memory_integration.py
 TestPreCommitHookPortability::test_no_date_nanoseconds() @ tests/ci/test_ci_gate_regressions.py
 TestPrebuiltSagas::test_entity_enrichment_saga_structure() @ tests/memory/test_saga.py
 TestPrebuiltSagas::test_fetch_and_enrich_saga_structure() @ tests/memory/test_saga.py
@@ -7118,12 +7118,12 @@ TestPreparePacketForIngest::test_deterministic_packet_id() @ tests/memory/test_i
 TestPreparePacketForIngest::test_normalizes_and_hashes() @ tests/memory/test_ingestion_audit.py
 TestPreparePacketForIngest::test_preserves_original_when_no_redaction() @ tests/memory/test_ingestion_audit.py
 TestPreparePacketForIngest::test_redact_pii_when_enabled() @ tests/memory/test_ingestion_audit.py
-TestProcessPacketEndpoint::async test_response_format(controller) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py
-TestProcessPacketEndpoint::async test_response_format(controller) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py
-TestProcessPacketEndpoint::async test_valid_packet_processed(controller) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py
-TestProcessPacketEndpoint::async test_valid_packet_processed(controller) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py
-TestProcessPacketFunction::async test_process_packet_creates_controller(mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
-TestProcessPacketFunction::async test_process_packet_creates_controller(mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py
+TestProcessPacketEndpoint::async test_response_format(controller) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_api_surfaces.py
+TestProcessPacketEndpoint::async test_response_format(controller) @ domain_bridge/tests/domain_bridge/test_api_surfaces.py
+TestProcessPacketEndpoint::async test_valid_packet_processed(controller) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_api_surfaces.py
+TestProcessPacketEndpoint::async test_valid_packet_processed(controller) @ domain_bridge/tests/domain_bridge/test_api_surfaces.py
+TestProcessPacketFunction::async test_process_packet_creates_controller(mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py
+TestProcessPacketFunction::async test_process_packet_creates_controller(mock_packet) @ domain_bridge/tests/domain_bridge/test_bridge_controller.py
 TestProjectIsolation::async test_search_respects_project_id(l_auth) @ tests/memory/test_governance_invariants.py
 TestPrometheusAvailability::test_prometheus_available_flag_exists() @ tests/telemetry/test_memory_metrics.py
 TestPrometheusAvailability::test_prometheus_available_when_installed() @ tests/telemetry/test_memory_metrics.py
@@ -7257,12 +7257,12 @@ TestRealWorldPatterns::test_sql_fstring_with_noqa_at_end(tmp_path) @ tests/ci/te
 TestRealWorldPatterns::test_sql_fstring_with_noqa_inside(tmp_path) @ tests/ci/test_auto_fix_validation.py
 TestReasoningGraph::async test_confidence_propagation() @ tests/test_toth_integration.py
 TestReasoningGraph::async test_reasoning_graph_construction() @ tests/test_toth_integration.py
-TestReasoningModes::async test_all_modes_applied(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
-TestReasoningModes::async test_all_modes_applied(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
+TestReasoningModes::async test_all_modes_applied(engine) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py
+TestReasoningModes::async test_all_modes_applied(engine) @ domain_bridge/tests/domain_bridge/test_reasoning_engine.py
 TestReasoningModes::async test_reasoning_mode_enum() @ tests/test_toth_integration.py
 TestReasoningModes::async test_reasoning_mode_string_conversion(toth_engine) @ tests/test_toth_integration.py
-TestReasoningModes::async test_selective_modes(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
-TestReasoningModes::async test_selective_modes(engine) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py
+TestReasoningModes::async test_selective_modes(engine) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py
+TestReasoningModes::async test_selective_modes(engine) @ domain_bridge/tests/domain_bridge/test_reasoning_engine.py
 TestReasoningModes::async toth_engine(mock_config) @ tests/test_toth_integration.py
 TestReasoningModes::mock_config() @ tests/test_toth_integration.py
 TestReciprocalRankFusion::test_basic_fusion() @ tests/memory/test_retrieval_audit.py
@@ -7310,10 +7310,10 @@ TestRedisLayer::async test_redis_connection(redis_client) @ mcp_memory/tests/tes
 TestRedisLayer::async test_redis_rate_limiting(redis_client) @ mcp_memory/tests/test_all_layers.py
 TestRedisLayer::async test_redis_set_get(redis_client) @ mcp_memory/tests/test_all_layers.py
 TestRedisLayer::async test_redis_task_queue(redis_client) @ mcp_memory/tests/test_all_layers.py
-TestRedisReadWrite::async test_get_working_memory(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
-TestRedisReadWrite::async test_get_working_memory(memory_bridge) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py
-TestRedisReadWrite::async test_set_working_memory(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
-TestRedisReadWrite::async test_set_working_memory(memory_bridge) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py
+TestRedisReadWrite::async test_get_working_memory(memory_bridge) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py
+TestRedisReadWrite::async test_get_working_memory(memory_bridge) @ domain_bridge/tests/domain_bridge/test_memory_integration.py
+TestRedisReadWrite::async test_set_working_memory(memory_bridge) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py
+TestRedisReadWrite::async test_set_working_memory(memory_bridge) @ domain_bridge/tests/domain_bridge/test_memory_integration.py
 TestRedisSet::async test_redis_set_with_ttl() @ tests/tools/test_redis_tools.py
 TestRedisSet::async test_redis_set_without_ttl() @ tests/tools/test_redis_tools.py
 TestReferentialIntegrity::test_invalid_action_dependency_error(graph_with_invalid_references) @ tests/ir_engine/test_ir_validation_and_status.py
@@ -7466,14 +7466,14 @@ TestRoleWeights::test_ordering() @ tests/test_intake_leverage.py
 TestRoleWeights::test_system_highest() @ tests/test_intake_leverage.py
 TestRoleWeights::test_tool_lowest() @ tests/test_intake_leverage.py
 TestRoleWeights::test_user_mid() @ tests/test_intake_leverage.py
-TestRouteByDomain::async test_fallback_routing(router, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py
-TestRouteByDomain::async test_fallback_routing(router, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py
-TestRouteByDomain::async test_route_by_domain(router) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py
-TestRouteByDomain::async test_route_by_domain(router) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py
-TestRouteByType::async test_get_handler_for_type(router) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py
-TestRouteByType::async test_get_handler_for_type(router) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py
-TestRouteByType::async test_route_by_packet_kind(router, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py
-TestRouteByType::async test_route_by_packet_kind(router, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py
+TestRouteByDomain::async test_fallback_routing(router, mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py
+TestRouteByDomain::async test_fallback_routing(router, mock_packet) @ domain_bridge/tests/domain_bridge/test_packet_routing.py
+TestRouteByDomain::async test_route_by_domain(router) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py
+TestRouteByDomain::async test_route_by_domain(router) @ domain_bridge/tests/domain_bridge/test_packet_routing.py
+TestRouteByType::async test_get_handler_for_type(router) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py
+TestRouteByType::async test_get_handler_for_type(router) @ domain_bridge/tests/domain_bridge/test_packet_routing.py
+TestRouteByType::async test_route_by_packet_kind(router, mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py
+TestRouteByType::async test_route_by_packet_kind(router, mock_packet) @ domain_bridge/tests/domain_bridge/test_packet_routing.py
 TestRouterWiring::test_agent_status(api_client) @ tests/docker/test_stack_smoke.py
 TestRouterWiring::test_memory_test_endpoint(api_client) @ tests/docker/test_stack_smoke.py
 TestRouterWiring::test_os_status(api_client) @ tests/docker/test_stack_smoke.py
@@ -7732,8 +7732,8 @@ TestStaticWiring::test_tool_search_meta_imports_discover() @ tests/e2e/test_tool
 TestStaticWiring::test_tool_search_meta_imports_must_stay_async() @ tests/e2e/test_tool_wiring_e2e.py
 TestStaticWiring::test_tool_search_meta_imports_register_tool() @ tests/e2e/test_tool_wiring_e2e.py
 TestStaticWiring::test_tool_search_meta_syntax_valid() @ tests/e2e/test_tool_wiring_e2e.py
-TestStatusEndpoint::async test_initialized_status(controller) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py
-TestStatusEndpoint::async test_initialized_status(controller) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py
+TestStatusEndpoint::async test_initialized_status(controller) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_api_surfaces.py
+TestStatusEndpoint::async test_initialized_status(controller) @ domain_bridge/tests/domain_bridge/test_api_surfaces.py
 TestStrategyMemoryIntegration::async test_end_to_end_record_and_retrieve(strategy_memory_service, cleanup_test_strategies) @ tests/memory/test_strategy_memory_integration.py
 TestStrategyMemoryIntegration::async test_feedback_updates_score(strategy_memory_service, neo4j_client, cleanup_test_strategies) @ tests/memory/test_strategy_memory_integration.py
 TestStrategyMemoryIntegration::async test_list_strategies(strategy_memory_service, cleanup_test_strategies) @ tests/memory/test_strategy_memory_integration.py
@@ -7865,8 +7865,8 @@ TestTimedDecorator::async test_timed_async_function() @ tests/unit/test_instrume
 TestTimedDecorator::async test_timed_logs_even_on_exception() @ tests/unit/test_instrumentation_decorators.py
 TestTimedDecorator::async test_timed_with_threshold() @ tests/unit/test_instrumentation_decorators.py
 TestTimedDecorator::test_timed_sync_function() @ tests/unit/test_instrumentation_decorators.py
-TestTimeoutHandling::async test_mock_results_without_tensoraios() @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py
-TestTimeoutHandling::async test_mock_results_without_tensoraios() @ domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py
+TestTimeoutHandling::async test_mock_results_without_tensoraios() @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_tensor_coordination.py
+TestTimeoutHandling::async test_mock_results_without_tensoraios() @ domain_bridge/tests/domain_bridge/test_tensor_coordination.py
 TestTimestamps::test_decision_timestamp_format() @ tests/runtime/test_kernel_state.py
 TestTimestamps::test_escalation_timestamp_format() @ tests/runtime/test_kernel_state.py
 TestTimestamps::test_tool_execution_timestamp_format() @ tests/runtime/test_kernel_state.py
@@ -8220,10 +8220,10 @@ TestWorkingMemoryAdapterPipelineWiring::async test_flag_on_delegates_to_pipeline
 TestWorkingMemoryAdapterPipelineWiring::async test_original_path_normalizes_hits(adapter, mock_substrate) @ tests/memory/test_pipeline_router_wiring.py
 TestWorkingMemoryAdapterPipelineWiring::async test_pipeline_method_exists(adapter) @ tests/memory/test_pipeline_router_wiring.py
 TestWorkingMemoryAdapterPipelineWiring::mock_substrate() @ tests/memory/test_pipeline_router_wiring.py
-TestWorldModelQuery::async test_causal_factors_queried(enricher, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py
-TestWorldModelQuery::async test_causal_factors_queried(enricher, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py
-TestWorldModelQuery::async test_episodic_memory_queried(enricher, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py
-TestWorldModelQuery::async test_episodic_memory_queried(enricher, mock_packet) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py
+TestWorldModelQuery::async test_causal_factors_queried(enricher, mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py
+TestWorldModelQuery::async test_causal_factors_queried(enricher, mock_packet) @ domain_bridge/tests/domain_bridge/test_context_enrichment.py
+TestWorldModelQuery::async test_episodic_memory_queried(enricher, mock_packet) @ codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py
+TestWorldModelQuery::async test_episodic_memory_queried(enricher, mock_packet) @ domain_bridge/tests/domain_bridge/test_context_enrichment.py
 TestWorldModelRepositoryBasic::async test_delete_entity_returns_bool(monkeypatch) @ tests/world_model/test_world_model_repository_basic.py
 TestWorldModelRepositoryBasic::async test_list_entities_uses_fetch(monkeypatch) @ tests/world_model/test_world_model_repository_basic.py
 TestWorldModelRepositoryBasic::async test_upsert_entity_uses_pool_and_fetchrow(monkeypatch) @ tests/world_model/test_world_model_repository_basic.py
@@ -8655,16 +8655,16 @@ WorkingMemoryService::async ttl_remaining(repo_id, branch) @ memory_cache/workin
 WorkingMemoryService::async update(repo_id, branch, intent, action, files_touched, hypothesis, error, repo_state_hash) @ memory_cache/working_memory_service.py
 WorkingMemorySnapshot::__post_init__() @ memory_cache/working_memory_service.py
 WorldContext::to_dict() @ world_model/world_model_service.py
-WorldModelBridge::__init__(world_model_url) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
-WorldModelBridge::__init__(world_model_url) @ domain_tensor_bridge/world_model_bridge.py
-WorldModelBridge::async close() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
-WorldModelBridge::async close() @ domain_tensor_bridge/world_model_bridge.py
-WorldModelBridge::async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
-WorldModelBridge::async initialize() @ domain_tensor_bridge/world_model_bridge.py
-WorldModelBridge::async query_causal_factors(entity_id) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
-WorldModelBridge::async query_causal_factors(entity_id) @ domain_tensor_bridge/world_model_bridge.py
-WorldModelBridge::async query_temporal_patterns(entity_id, window_days) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
-WorldModelBridge::async query_temporal_patterns(entity_id, window_days) @ domain_tensor_bridge/world_model_bridge.py
+WorldModelBridge::__init__(world_model_url) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py
+WorldModelBridge::__init__(world_model_url) @ domain_bridge/world_model_bridge.py
+WorldModelBridge::async close() @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py
+WorldModelBridge::async close() @ domain_bridge/world_model_bridge.py
+WorldModelBridge::async initialize() @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py
+WorldModelBridge::async initialize() @ domain_bridge/world_model_bridge.py
+WorldModelBridge::async query_causal_factors(entity_id) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py
+WorldModelBridge::async query_causal_factors(entity_id) @ domain_bridge/world_model_bridge.py
+WorldModelBridge::async query_temporal_patterns(entity_id, window_days) @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py
+WorldModelBridge::async query_temporal_patterns(entity_id, window_days) @ domain_bridge/world_model_bridge.py
 WorldModelClient::__init__(base_url, timeout) @ clients/world_model_client.py
 WorldModelClient::async __aenter__() @ clients/world_model_client.py
 WorldModelClient::async __aexit__(exc_type, exc_val, exc_tb) @ clients/world_model_client.py

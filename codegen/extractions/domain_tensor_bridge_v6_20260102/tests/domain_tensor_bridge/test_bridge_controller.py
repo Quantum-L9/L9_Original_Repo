@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from l9.core.schemas import PacketEnvelope, PacketKind
 
-from domain_tensor_bridge.agent_controller import AgentController
+from domain_bridge.agent_controller import AgentController
 
 
 @pytest.fixture
@@ -52,7 +52,7 @@ class TestAgentController:
         result = await controller.process_packet(mock_packet)
 
         assert result is not None
-        assert result.source_id == "domain_tensor_bridge"
+        assert result.source_id == "domain_bridge"
         assert result.kind == PacketKind.DECISION
 
     @pytest.mark.asyncio

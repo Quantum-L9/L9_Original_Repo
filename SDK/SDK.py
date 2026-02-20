@@ -442,7 +442,7 @@ class ReasoningInterface:
 
     Wraps:
     - orchestrators/reasoning/orchestrator.py::ReasoningOrchestrator
-    - domain_tensor_bridge (tensor inference, domain packets)
+    - domain_bridge (tensor inference, domain packets)
     """
 
     def __init__(self, sdk: L9SDK):
@@ -510,7 +510,7 @@ class ReasoningInterface:
     ) -> dict[str, Any]:
         """Run tensor bridge inference."""
         try:
-            from domain_tensor_bridge.memory_bridge import (
+            from domain_bridge.memory_bridge import (
                 MemoryBridge,
             )
 
@@ -527,7 +527,7 @@ class ReasoningInterface:
     ) -> dict[str, Any]:
         """Process a domain packet through tensor bridge."""
         try:
-            from domain_tensor_bridge.memory_bridge import (
+            from domain_bridge.memory_bridge import (
                 MemoryBridge,
             )
 

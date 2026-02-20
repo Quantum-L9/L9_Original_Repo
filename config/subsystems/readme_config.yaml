@@ -808,8 +808,8 @@ subsystems:
     - IR schema is versioned
     - Compilation is deterministic
     last_updated: '2026-02-17T00:14:44Z'
-  domain_tensor_bridge:
-    path: domain_tensor_bridge
+  domain_bridge:
+    path: domain_bridge
     title: Domain Tensor Bridge
     tier: services
     description: Bridge for domain-specific tensor operations and validation

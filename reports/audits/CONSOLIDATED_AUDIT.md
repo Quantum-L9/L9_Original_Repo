@@ -16,7 +16,7 @@
 | `collaborative_cells` | 6 | 8 | 8 | 0 | 0 | OK |
 | `config` | 10 | 13 | 13 | 0 | 0 | OK |
 | `core` | 10 | 0 | 0 | 0 | 0 | FLAG (should have API) |
-| `domain_tensor_bridge` | 22 | 10 | 0 | 3 | 0 | WARN (all, no imports) |
+| `domain_bridge` | 22 | 10 | 0 | 3 | 0 | WARN (all, no imports) |
 | `email_agent` | 8 | 7 | 9 | 0 | 2 | FAIL |
 | `governance` | 1 | 3 | 3 | 0 | 0 | OK |
 | `graph_adapter` | 1 | 1 | 1 | 0 | 0 | OK |
@@ -60,7 +60,7 @@
 **Imported but not in `__all__` (missing):**
 - `CoderAgentB`
 
-### `domain_tensor_bridge` — 3 broken, 0 missing
+### `domain_bridge` — 3 broken, 0 missing
 
 **In `__all__` but not imported (broken):**
 - `__footer_meta__`

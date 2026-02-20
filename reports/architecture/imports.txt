@@ -1940,7 +1940,7 @@ core.worldmodel.service imports:
   - typing
   - uuid
 
-domain_tensor_bridge.__init__ imports:
+domain_bridge.__init__ imports:
   - agent_controller
   - decision_synthesizer
   - governance_bridge
@@ -1948,172 +1948,172 @@ domain_tensor_bridge.__init__ imports:
   - packet_router
   - reasoning_engine
 
-domain_tensor_bridge.agent_controller imports:
+domain_bridge.agent_controller imports:
   - asyncio
   - core.schemas
   - structlog
   - typing
 
-domain_tensor_bridge.analogical_reasoner imports:
+domain_bridge.analogical_reasoner imports:
   - dataclasses
   - structlog
   - typing
 
-domain_tensor_bridge.anomaly_handler imports:
+domain_bridge.anomaly_handler imports:
   - dataclasses
   - enum
   - structlog
   - typing
 
-domain_tensor_bridge.causal_reasoner imports:
+domain_bridge.causal_reasoner imports:
   - dataclasses
   - structlog
   - typing
 
-domain_tensor_bridge.compliance_checker imports:
+domain_bridge.compliance_checker imports:
   - dataclasses
   - structlog
   - typing
 
-domain_tensor_bridge.context_enricher imports:
+domain_bridge.context_enricher imports:
   - core.schemas
   - dataclasses
   - httpx
   - structlog
   - typing
 
-domain_tensor_bridge.decision_synthesizer imports:
+domain_bridge.decision_synthesizer imports:
   - dataclasses
   - structlog
   - typing
 
-domain_tensor_bridge.domain_context_builder imports:
+domain_bridge.domain_context_builder imports:
   - core.schemas
   - dataclasses
   - structlog
   - typing
 
-domain_tensor_bridge.domain_packet_handler imports:
+domain_bridge.domain_packet_handler imports:
   - core.schemas
   - structlog
   - typing
 
-domain_tensor_bridge.embedding_processor imports:
+domain_bridge.embedding_processor imports:
   - dataclasses
   - structlog
   - typing
 
-domain_tensor_bridge.escalation_handler imports:
+domain_bridge.escalation_handler imports:
   - dataclasses
   - enum
   - structlog
   - typing
 
-domain_tensor_bridge.governance_bridge imports:
+domain_bridge.governance_bridge imports:
   - core.governance
   - dataclasses
   - enum
   - structlog
   - typing
 
-domain_tensor_bridge.memory_bridge imports:
+domain_bridge.memory_bridge imports:
   - dataclasses
   - memory.substrate_service
   - os
   - structlog
   - typing
 
-domain_tensor_bridge.packet_formatter imports:
+domain_bridge.packet_formatter imports:
   - core.schemas
   - structlog
   - typing
 
-domain_tensor_bridge.packet_router imports:
-  - core.schemas
-  - dataclasses
-  - structlog
-  - typing
-
-domain_tensor_bridge.packet_validator imports:
+domain_bridge.packet_router imports:
   - core.schemas
   - dataclasses
   - structlog
   - typing
 
-domain_tensor_bridge.reasoning_engine imports:
+domain_bridge.packet_validator imports:
+  - core.schemas
+  - dataclasses
+  - structlog
+  - typing
+
+domain_bridge.reasoning_engine imports:
   - asyncio
   - dataclasses
   - structlog
   - typing
 
-domain_tensor_bridge.reflective_auditor imports:
+domain_bridge.reflective_auditor imports:
   - dataclasses
   - structlog
   - typing
 
-domain_tensor_bridge.symbolic_reasoner imports:
+domain_bridge.symbolic_reasoner imports:
   - dataclasses
   - structlog
   - typing
 
-domain_tensor_bridge.tensor_coordinator imports:
+domain_bridge.tensor_coordinator imports:
   - asyncio
   - dataclasses
   - structlog
   - typing
 
-domain_tensor_bridge.tensoraios_bridge imports:
+domain_bridge.tensoraios_bridge imports:
   - httpx
   - structlog
   - typing
 
-domain_tensor_bridge.tests.domain_tensor_bridge.test_api_surfaces imports:
+domain_bridge.tests.domain_bridge.test_api_surfaces imports:
   - core.schemas
-  - domain_tensor_bridge.agent_controller
+  - domain_bridge.agent_controller
   - pytest
   - unittest.mock
 
-domain_tensor_bridge.tests.domain_tensor_bridge.test_bridge_controller imports:
+domain_bridge.tests.domain_bridge.test_bridge_controller imports:
   - core.schemas
-  - domain_tensor_bridge.agent_controller
+  - domain_bridge.agent_controller
   - pytest
   - unittest.mock
 
-domain_tensor_bridge.tests.domain_tensor_bridge.test_context_enrichment imports:
+domain_bridge.tests.domain_bridge.test_context_enrichment imports:
   - core.schemas
-  - domain_tensor_bridge.context_enricher
-  - domain_tensor_bridge.memory_bridge
-  - domain_tensor_bridge.world_model_bridge
+  - domain_bridge.context_enricher
+  - domain_bridge.memory_bridge
+  - domain_bridge.world_model_bridge
   - pytest
   - unittest.mock
 
-domain_tensor_bridge.tests.domain_tensor_bridge.test_governance_integration imports:
-  - domain_tensor_bridge.governance_bridge
+domain_bridge.tests.domain_bridge.test_governance_integration imports:
+  - domain_bridge.governance_bridge
   - pytest
   - unittest.mock
 
-domain_tensor_bridge.tests.domain_tensor_bridge.test_memory_integration imports:
-  - domain_tensor_bridge.memory_bridge
+domain_bridge.tests.domain_bridge.test_memory_integration imports:
+  - domain_bridge.memory_bridge
   - pytest
   - unittest.mock
 
-domain_tensor_bridge.tests.domain_tensor_bridge.test_packet_routing imports:
+domain_bridge.tests.domain_bridge.test_packet_routing imports:
   - core.schemas
-  - domain_tensor_bridge.packet_router
+  - domain_bridge.packet_router
   - pytest
   - unittest.mock
 
-domain_tensor_bridge.tests.domain_tensor_bridge.test_reasoning_engine imports:
-  - domain_tensor_bridge.reasoning_engine
+domain_bridge.tests.domain_bridge.test_reasoning_engine imports:
+  - domain_bridge.reasoning_engine
   - pytest
   - unittest.mock
 
-domain_tensor_bridge.tests.domain_tensor_bridge.test_tensor_coordination imports:
-  - domain_tensor_bridge.tensor_coordinator
+domain_bridge.tests.domain_bridge.test_tensor_coordination imports:
+  - domain_bridge.tensor_coordinator
   - pytest
   - unittest.mock
 
-domain_tensor_bridge.world_model_bridge imports:
+domain_bridge.world_model_bridge imports:
   - dataclasses
   - httpx
   - structlog

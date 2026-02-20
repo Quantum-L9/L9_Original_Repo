@@ -50,7 +50,7 @@ def generate_architecture(layout: RepoLayout) -> None:
             ("WORLD MODEL", layout.root / "world_model"),
             ("IR ENGINE", layout.root / "ir_engine"),
             ("GRAPH ADAPTER", layout.root / "graph_adapter"),
-            ("DOMAIN TENSOR BRIDGE", layout.root / "domain_tensor_bridge"),
+            ("DOMAIN TENSOR BRIDGE", layout.root / "domain_bridge"),
         ]
 
         for title, base in sections:

@@ -8,9 +8,9 @@ from unittest.mock import AsyncMock
 import pytest
 from l9.core.schemas import PacketEnvelope, PacketKind
 
-from domain_tensor_bridge.context_enricher import ContextEnricher, EnrichedContext
-from domain_tensor_bridge.memory_bridge import EpisodicEvent
-from domain_tensor_bridge.world_model_bridge import CausalFactor
+from domain_bridge.context_enricher import ContextEnricher, EnrichedContext
+from domain_bridge.memory_bridge import EpisodicEvent
+from domain_bridge.world_model_bridge import CausalFactor
 
 
 @pytest.fixture

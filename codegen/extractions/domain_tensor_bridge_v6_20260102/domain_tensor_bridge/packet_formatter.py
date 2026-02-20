@@ -65,7 +65,7 @@ class PacketFormatter:
     def _format_generic(self, result: dict[str, Any]) -> PacketEnvelope:
         """Generic format."""
         return PacketEnvelope(
-            source_id="domain_tensor_bridge",
+            source_id="domain_bridge",
             kind=PacketKind.DECISION,
             payload={"result": result, "format": "generic"},
             metadata={},
@@ -74,7 +74,7 @@ class PacketFormatter:
     def _format_plastos(self, result: dict[str, Any]) -> PacketEnvelope:
         """PlastOS-specific format."""
         return PacketEnvelope(
-            source_id="domain_tensor_bridge",
+            source_id="domain_bridge",
             kind=PacketKind.DECISION,
             payload={"plastos_result": result, "format": "plastos"},
             metadata={"domain": "plastos"},
@@ -83,7 +83,7 @@ class PacketFormatter:
     def _format_mortgageos(self, result: dict[str, Any]) -> PacketEnvelope:
         """MortgageOS-specific format."""
         return PacketEnvelope(
-            source_id="domain_tensor_bridge",
+            source_id="domain_bridge",
             kind=PacketKind.DECISION,
             payload={"mortgage_result": result, "format": "mortgageos"},
             metadata={"domain": "mortgageos"},

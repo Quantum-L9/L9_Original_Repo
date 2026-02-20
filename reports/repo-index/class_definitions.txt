@@ -446,75 +446,75 @@ codegen/dev_layer/tests/test_e2e_diff_generation.py::TestDiffGeneration - Test u
 codegen/dev_layer/tests/test_e2e_diff_generation.py::TestEndToEndPipeline - Test complete pipeline: artifact → plan → diff → report.
 codegen/dev_layer/tests/test_e2e_diff_generation.py::TestGovernanceEnforcement - Test governance enforcement in plan generation.
 codegen/dev_layer/tests/test_e2e_diff_generation.py::TestVerificationReport - Test verification report generation.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py::AgentController - Main controller for Domain-Tensor Bridge.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/analogical_reasoner.py::AnalogicalReasoner - Finds cross-domain analogies.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/analogical_reasoner.py::Analogy - Cross-domain analogy.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py::AnomalyFlag - Anomaly detection flag.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py::AnomalyHandler - Handles anomalies from tensor layer.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py::AnomalyResponse - Response to anomaly.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py::AnomalySeverity - Anomaly severity levels.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py::CausalReasoner - Applies causal logic.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py::CausalResult - Result of causal reasoning.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py::ComplianceChecker - Checks compliance with rules.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py::ComplianceResult - Result of compliance check.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py::Rule - Compliance rule.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/context_enricher.py::ContextEnricher - Enriches context for reasoning.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/context_enricher.py::EnrichedContext - Enriched context for reasoning.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py::Decision - Synthesized decision from reasoning modes.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py::DecisionSynthesizer - Synthesizes decisions from multiple reasoning outputs.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_context_builder.py::DomainContext - Domain-specific context structure.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_context_builder.py::DomainContextBuilder - Builds domain-specific context.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py::DomainPacketHandler - Handles domain-specific packet processing.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/embedding_processor.py::EmbeddingProcessor - Processes embeddings from tensor layer.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/embedding_processor.py::ProcessedEmbedding - Processed embedding with metadata.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py::EscalationHandler - Handles escalation logic.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py::EscalationResult - Result of escalation.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py::EscalationTrigger - Trigger for escalation.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py::EscalationTriggerType - Types of escalation triggers.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::EscalationResult - Result of escalation to anchor.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::GovernanceBridge - Bridge to L9 governance layer.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::GovernanceDecision - Governance check outcomes.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py::GovernanceResult - Result of governance check.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py::EpisodicEvent - Event from episodic memory.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py::MemoryBridge - Unified interface to L9 memory layers.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py::Node - Node from semantic graph.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_formatter.py::PacketFormatter - Formats response packets for domains.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py::PacketRouter - Routes packets to appropriate handlers.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py::RoutingResult - Result of packet routing decision.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py::PacketValidator - Validates PacketEnvelope structures.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py::ValidationResult - Result of packet validation.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py::ReasoningEngine - Multi-modal reasoning engine.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py::ReasoningResult - Result from reasoning execution.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reflective_auditor.py::AuditResult - Result of reflective audit.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reflective_auditor.py::ReflectiveAuditor - Self-critiques reasoning outputs.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/symbolic_reasoner.py::RuleResult - Result of rule application.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/symbolic_reasoner.py::SymbolicReasoner - Applies symbolic domain rules.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py::TensorCoordinator - Coordinates tensor layer calls.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py::TensorResult - Result from tensor layer.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py::TensorAIOSBridge - Interface to TensorAIOS layer.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py::CausalFactor - Causal factor from world model.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py::Pattern - Temporal pattern from world model.
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py::WorldModelBridge - Interface to world model layer.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py::TestProcessPacketEndpoint - Tests for process_packet API.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py::TestStatusEndpoint - Tests for status/health endpoint.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py::TestAgentController - Tests for AgentController.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py::TestProcessPacketFunction - Tests for convenience function.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py::TestContextBuilding - Tests for context construction.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py::TestWorldModelQuery - Tests for world model querying.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py::TestAuditLogging - Tests for audit trail.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py::TestEscalationTriggers - Tests for escalation triggers.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py::TestOverrides - Tests for human override handling.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py::TestHyperGraphDBQuery - Tests for HyperGraphDB (causal graph) operations.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py::TestNeo4jQuery - Tests for Neo4j (semantic graph) operations.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py::TestPostgresQuery - Tests for Postgres (episodic memory) operations.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py::TestRedisReadWrite - Tests for Redis (working memory) operations.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py::TestRouteByDomain - Tests for domain-based routing.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py::TestRouteByType - Tests for type-based routing.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py::TestConfidenceThresholds - Tests for confidence calculation.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py::TestErrorPaths - Tests for error handling.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py::TestReasoningModes - Tests for reasoning mode selection.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py::TestBatchTensorCalls - Tests for tensor call batching.
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py::TestTimeoutHandling - Tests for timeout handling.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/agent_controller.py::AgentController - Main controller for Domain-Tensor Bridge.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/analogical_reasoner.py::AnalogicalReasoner - Finds cross-domain analogies.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/analogical_reasoner.py::Analogy - Cross-domain analogy.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/anomaly_handler.py::AnomalyFlag - Anomaly detection flag.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/anomaly_handler.py::AnomalyHandler - Handles anomalies from tensor layer.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/anomaly_handler.py::AnomalyResponse - Response to anomaly.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/anomaly_handler.py::AnomalySeverity - Anomaly severity levels.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/causal_reasoner.py::CausalReasoner - Applies causal logic.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/causal_reasoner.py::CausalResult - Result of causal reasoning.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/compliance_checker.py::ComplianceChecker - Checks compliance with rules.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/compliance_checker.py::ComplianceResult - Result of compliance check.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/compliance_checker.py::Rule - Compliance rule.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/context_enricher.py::ContextEnricher - Enriches context for reasoning.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/context_enricher.py::EnrichedContext - Enriched context for reasoning.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py::Decision - Synthesized decision from reasoning modes.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/decision_synthesizer.py::DecisionSynthesizer - Synthesizes decisions from multiple reasoning outputs.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_context_builder.py::DomainContext - Domain-specific context structure.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_context_builder.py::DomainContextBuilder - Builds domain-specific context.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/domain_packet_handler.py::DomainPacketHandler - Handles domain-specific packet processing.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/embedding_processor.py::EmbeddingProcessor - Processes embeddings from tensor layer.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/embedding_processor.py::ProcessedEmbedding - Processed embedding with metadata.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/escalation_handler.py::EscalationHandler - Handles escalation logic.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/escalation_handler.py::EscalationResult - Result of escalation.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/escalation_handler.py::EscalationTrigger - Trigger for escalation.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/escalation_handler.py::EscalationTriggerType - Types of escalation triggers.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::EscalationResult - Result of escalation to anchor.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::GovernanceBridge - Bridge to L9 governance layer.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::GovernanceDecision - Governance check outcomes.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py::GovernanceResult - Result of governance check.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py::EpisodicEvent - Event from episodic memory.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py::MemoryBridge - Unified interface to L9 memory layers.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/memory_bridge.py::Node - Node from semantic graph.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_formatter.py::PacketFormatter - Formats response packets for domains.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py::PacketRouter - Routes packets to appropriate handlers.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_router.py::RoutingResult - Result of packet routing decision.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py::PacketValidator - Validates PacketEnvelope structures.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/packet_validator.py::ValidationResult - Result of packet validation.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py::ReasoningEngine - Multi-modal reasoning engine.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reasoning_engine.py::ReasoningResult - Result from reasoning execution.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reflective_auditor.py::AuditResult - Result of reflective audit.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/reflective_auditor.py::ReflectiveAuditor - Self-critiques reasoning outputs.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/symbolic_reasoner.py::RuleResult - Result of rule application.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/symbolic_reasoner.py::SymbolicReasoner - Applies symbolic domain rules.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensor_coordinator.py::TensorCoordinator - Coordinates tensor layer calls.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensor_coordinator.py::TensorResult - Result from tensor layer.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/tensoraios_bridge.py::TensorAIOSBridge - Interface to TensorAIOS layer.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py::CausalFactor - Causal factor from world model.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py::Pattern - Temporal pattern from world model.
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/world_model_bridge.py::WorldModelBridge - Interface to world model layer.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_api_surfaces.py::TestProcessPacketEndpoint - Tests for process_packet API.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_api_surfaces.py::TestStatusEndpoint - Tests for status/health endpoint.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py::TestAgentController - Tests for AgentController.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_bridge_controller.py::TestProcessPacketFunction - Tests for convenience function.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py::TestContextBuilding - Tests for context construction.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_context_enrichment.py::TestWorldModelQuery - Tests for world model querying.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py::TestAuditLogging - Tests for audit trail.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py::TestEscalationTriggers - Tests for escalation triggers.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_governance_integration.py::TestOverrides - Tests for human override handling.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py::TestHyperGraphDBQuery - Tests for HyperGraphDB (causal graph) operations.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py::TestNeo4jQuery - Tests for Neo4j (semantic graph) operations.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py::TestPostgresQuery - Tests for Postgres (episodic memory) operations.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_memory_integration.py::TestRedisReadWrite - Tests for Redis (working memory) operations.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py::TestRouteByDomain - Tests for domain-based routing.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_packet_routing.py::TestRouteByType - Tests for type-based routing.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py::TestConfidenceThresholds - Tests for confidence calculation.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py::TestErrorPaths - Tests for error handling.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_reasoning_engine.py::TestReasoningModes - Tests for reasoning mode selection.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_tensor_coordination.py::TestBatchTensorCalls - Tests for tensor call batching.
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/test_tensor_coordination.py::TestTimeoutHandling - Tests for timeout handling.
 codegen/scripts/generate_spec.py::PerplexityClient - Client for Perplexity API with retry logic.
 codegen/symbolic/analyzer.py::AnalysisResult - Result of analyzing a candidate.
 codegen/symbolic/analyzer.py::CandidateAnalyzer - Analyzes candidate code solutions for structural properties 
@@ -1268,77 +1268,77 @@ core/worldmodel/l9_schema.py::L9Tool - Tool entity in the L9 world model.
 core/worldmodel/l9_schema.py::ToolCategory - Categories of tools.
 core/worldmodel/l9_schema.py::ToolRiskLevel - Risk levels for tools.
 core/worldmodel/service.py::WorldModelService - Service for L9 world model operations.
-domain_tensor_bridge/agent_controller.py::AgentController - Main controller for Domain-Tensor Bridge.
-domain_tensor_bridge/analogical_reasoner.py::AnalogicalReasoner - Finds cross-domain analogies.
-domain_tensor_bridge/analogical_reasoner.py::Analogy - Cross-domain analogy.
-domain_tensor_bridge/anomaly_handler.py::AnomalyFlag - Anomaly detection flag.
-domain_tensor_bridge/anomaly_handler.py::AnomalyHandler - Handles anomalies from tensor layer.
-domain_tensor_bridge/anomaly_handler.py::AnomalyResponse - Response to anomaly.
-domain_tensor_bridge/anomaly_handler.py::AnomalySeverity - Anomaly severity levels.
-domain_tensor_bridge/causal_reasoner.py::CausalReasoner - Applies causal logic.
-domain_tensor_bridge/causal_reasoner.py::CausalResult - Result of causal reasoning.
-domain_tensor_bridge/compliance_checker.py::ComplianceChecker - Checks compliance with rules.
-domain_tensor_bridge/compliance_checker.py::ComplianceResult - Result of compliance check.
-domain_tensor_bridge/compliance_checker.py::Rule - Compliance rule.
-domain_tensor_bridge/context_enricher.py::ContextEnricher - Enriches context for reasoning.
-domain_tensor_bridge/context_enricher.py::EnrichedContext - Enriched context for reasoning.
-domain_tensor_bridge/decision_synthesizer.py::Decision - Synthesized decision from reasoning modes.
-domain_tensor_bridge/decision_synthesizer.py::DecisionSynthesizer - Synthesizes decisions from multiple reasoning outputs.
-domain_tensor_bridge/domain_context_builder.py::DomainContext - Domain-specific context structure.
-domain_tensor_bridge/domain_context_builder.py::DomainContextBuilder - Builds domain-specific context.
-domain_tensor_bridge/domain_packet_handler.py::DomainPacketHandler - Handles domain-specific packet processing.
-domain_tensor_bridge/embedding_processor.py::EmbeddingProcessor - Processes embeddings from tensor layer.
-domain_tensor_bridge/embedding_processor.py::ProcessedEmbedding - Processed embedding with metadata.
-domain_tensor_bridge/escalation_handler.py::EscalationHandler - Handles escalation logic.
-domain_tensor_bridge/escalation_handler.py::EscalationResult - Result of escalation.
-domain_tensor_bridge/escalation_handler.py::EscalationTrigger - Trigger for escalation.
-domain_tensor_bridge/escalation_handler.py::EscalationTriggerType - Types of escalation triggers.
-domain_tensor_bridge/governance_bridge.py::EscalationLevel - Escalation levels for governance decisions.
-domain_tensor_bridge/governance_bridge.py::EscalationResult - Result of escalation to anchor.
-domain_tensor_bridge/governance_bridge.py::GovernanceBridge - Bridge to L9 governance layer.
-domain_tensor_bridge/governance_bridge.py::GovernanceDecision - Governance check outcomes.
-domain_tensor_bridge/governance_bridge.py::GovernanceResult - Result of governance check.
-domain_tensor_bridge/l9_memory_adapter.py::L9MemoryAdapter - Concrete adapter wiring DTB's MemoryBridge to L9 services.
-domain_tensor_bridge/memory_bridge.py::EpisodicEvent - Event from episodic memory.
-domain_tensor_bridge/memory_bridge.py::MemoryBridge - Unified interface to L9 memory layers.
-domain_tensor_bridge/memory_bridge.py::Node - Node from semantic graph.
-domain_tensor_bridge/packet_formatter.py::PacketFormatter - Formats response packets for domains.
-domain_tensor_bridge/packet_router.py::PacketRouter - Routes packets to appropriate handlers.
-domain_tensor_bridge/packet_router.py::RoutingResult - Result of packet routing decision.
-domain_tensor_bridge/packet_validator.py::PacketValidator - Validates PacketEnvelope structures.
-domain_tensor_bridge/packet_validator.py::ValidationResult - Result of packet validation.
-domain_tensor_bridge/reasoning_engine.py::ReasoningEngine - Multi-modal reasoning engine.
-domain_tensor_bridge/reasoning_engine.py::ReasoningResult - Result from reasoning execution.
-domain_tensor_bridge/reflective_auditor.py::AuditResult - Result of reflective audit.
-domain_tensor_bridge/reflective_auditor.py::ReflectiveAuditor - Self-critiques reasoning outputs.
-domain_tensor_bridge/symbolic_reasoner.py::RuleResult - Result of rule application.
-domain_tensor_bridge/symbolic_reasoner.py::SymbolicReasoner - Applies symbolic domain rules.
-domain_tensor_bridge/tensor_coordinator.py::TensorCoordinator - Coordinates tensor layer calls.
-domain_tensor_bridge/tensor_coordinator.py::TensorResult - Result from tensor layer.
-domain_tensor_bridge/tensoraios_bridge.py::TensorAIOSBridge - Interface to TensorAIOS layer.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py::TestProcessPacketEndpoint - Tests for process_packet API.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py::TestStatusEndpoint - Tests for status/health endpoint.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py::TestAgentController - Tests for AgentController.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py::TestProcessPacketFunction - Tests for convenience function.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py::TestContextBuilding - Tests for context construction.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py::TestWorldModelQuery - Tests for world model querying.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py::TestAuditLogging - Tests for audit trail.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py::TestEscalationTriggers - Tests for escalation triggers.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py::TestOverrides - Tests for human override handling.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py::TestHyperGraphDBQuery - Tests for HyperGraphDB (causal graph) operations.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py::TestNeo4jQuery - Tests for Neo4j (semantic graph) operations.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py::TestPostgresQuery - Tests for Postgres (episodic memory) operations.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py::TestRedisReadWrite - Tests for Redis (working memory) operations.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py::TestRouteByDomain - Tests for domain-based routing.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py::TestRouteByType - Tests for type-based routing.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py::TestConfidenceThresholds - Tests for confidence calculation.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py::TestErrorPaths - Tests for error handling.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py::TestReasoningModes - Tests for reasoning mode selection.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py::TestBatchTensorCalls - Tests for tensor call batching.
-domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py::TestTimeoutHandling - Tests for timeout handling.
-domain_tensor_bridge/world_model_bridge.py::CausalFactor - Causal factor from world model.
-domain_tensor_bridge/world_model_bridge.py::Pattern - Temporal pattern from world model.
-domain_tensor_bridge/world_model_bridge.py::WorldModelBridge - Interface to world model layer.
+domain_bridge/agent_controller.py::AgentController - Main controller for Domain-Tensor Bridge.
+domain_bridge/analogical_reasoner.py::AnalogicalReasoner - Finds cross-domain analogies.
+domain_bridge/analogical_reasoner.py::Analogy - Cross-domain analogy.
+domain_bridge/anomaly_handler.py::AnomalyFlag - Anomaly detection flag.
+domain_bridge/anomaly_handler.py::AnomalyHandler - Handles anomalies from tensor layer.
+domain_bridge/anomaly_handler.py::AnomalyResponse - Response to anomaly.
+domain_bridge/anomaly_handler.py::AnomalySeverity - Anomaly severity levels.
+domain_bridge/causal_reasoner.py::CausalReasoner - Applies causal logic.
+domain_bridge/causal_reasoner.py::CausalResult - Result of causal reasoning.
+domain_bridge/compliance_checker.py::ComplianceChecker - Checks compliance with rules.
+domain_bridge/compliance_checker.py::ComplianceResult - Result of compliance check.
+domain_bridge/compliance_checker.py::Rule - Compliance rule.
+domain_bridge/context_enricher.py::ContextEnricher - Enriches context for reasoning.
+domain_bridge/context_enricher.py::EnrichedContext - Enriched context for reasoning.
+domain_bridge/decision_synthesizer.py::Decision - Synthesized decision from reasoning modes.
+domain_bridge/decision_synthesizer.py::DecisionSynthesizer - Synthesizes decisions from multiple reasoning outputs.
+domain_bridge/domain_context_builder.py::DomainContext - Domain-specific context structure.
+domain_bridge/domain_context_builder.py::DomainContextBuilder - Builds domain-specific context.
+domain_bridge/domain_packet_handler.py::DomainPacketHandler - Handles domain-specific packet processing.
+domain_bridge/embedding_processor.py::EmbeddingProcessor - Processes embeddings from tensor layer.
+domain_bridge/embedding_processor.py::ProcessedEmbedding - Processed embedding with metadata.
+domain_bridge/escalation_handler.py::EscalationHandler - Handles escalation logic.
+domain_bridge/escalation_handler.py::EscalationResult - Result of escalation.
+domain_bridge/escalation_handler.py::EscalationTrigger - Trigger for escalation.
+domain_bridge/escalation_handler.py::EscalationTriggerType - Types of escalation triggers.
+domain_bridge/governance_bridge.py::EscalationLevel - Escalation levels for governance decisions.
+domain_bridge/governance_bridge.py::EscalationResult - Result of escalation to anchor.
+domain_bridge/governance_bridge.py::GovernanceBridge - Bridge to L9 governance layer.
+domain_bridge/governance_bridge.py::GovernanceDecision - Governance check outcomes.
+domain_bridge/governance_bridge.py::GovernanceResult - Result of governance check.
+domain_bridge/l9_memory_adapter.py::L9MemoryAdapter - Concrete adapter wiring DTB's MemoryBridge to L9 services.
+domain_bridge/memory_bridge.py::EpisodicEvent - Event from episodic memory.
+domain_bridge/memory_bridge.py::MemoryBridge - Unified interface to L9 memory layers.
+domain_bridge/memory_bridge.py::Node - Node from semantic graph.
+domain_bridge/packet_formatter.py::PacketFormatter - Formats response packets for domains.
+domain_bridge/packet_router.py::PacketRouter - Routes packets to appropriate handlers.
+domain_bridge/packet_router.py::RoutingResult - Result of packet routing decision.
+domain_bridge/packet_validator.py::PacketValidator - Validates PacketEnvelope structures.
+domain_bridge/packet_validator.py::ValidationResult - Result of packet validation.
+domain_bridge/reasoning_engine.py::ReasoningEngine - Multi-modal reasoning engine.
+domain_bridge/reasoning_engine.py::ReasoningResult - Result from reasoning execution.
+domain_bridge/reflective_auditor.py::AuditResult - Result of reflective audit.
+domain_bridge/reflective_auditor.py::ReflectiveAuditor - Self-critiques reasoning outputs.
+domain_bridge/symbolic_reasoner.py::RuleResult - Result of rule application.
+domain_bridge/symbolic_reasoner.py::SymbolicReasoner - Applies symbolic domain rules.
+domain_bridge/tensor_coordinator.py::TensorCoordinator - Coordinates tensor layer calls.
+domain_bridge/tensor_coordinator.py::TensorResult - Result from tensor layer.
+domain_bridge/tensoraios_bridge.py::TensorAIOSBridge - Interface to TensorAIOS layer.
+domain_bridge/tests/domain_bridge/test_api_surfaces.py::TestProcessPacketEndpoint - Tests for process_packet API.
+domain_bridge/tests/domain_bridge/test_api_surfaces.py::TestStatusEndpoint - Tests for status/health endpoint.
+domain_bridge/tests/domain_bridge/test_bridge_controller.py::TestAgentController - Tests for AgentController.
+domain_bridge/tests/domain_bridge/test_bridge_controller.py::TestProcessPacketFunction - Tests for convenience function.
+domain_bridge/tests/domain_bridge/test_context_enrichment.py::TestContextBuilding - Tests for context construction.
+domain_bridge/tests/domain_bridge/test_context_enrichment.py::TestWorldModelQuery - Tests for world model querying.
+domain_bridge/tests/domain_bridge/test_governance_integration.py::TestAuditLogging - Tests for audit trail.
+domain_bridge/tests/domain_bridge/test_governance_integration.py::TestEscalationTriggers - Tests for escalation triggers.
+domain_bridge/tests/domain_bridge/test_governance_integration.py::TestOverrides - Tests for human override handling.
+domain_bridge/tests/domain_bridge/test_memory_integration.py::TestHyperGraphDBQuery - Tests for HyperGraphDB (causal graph) operations.
+domain_bridge/tests/domain_bridge/test_memory_integration.py::TestNeo4jQuery - Tests for Neo4j (semantic graph) operations.
+domain_bridge/tests/domain_bridge/test_memory_integration.py::TestPostgresQuery - Tests for Postgres (episodic memory) operations.
+domain_bridge/tests/domain_bridge/test_memory_integration.py::TestRedisReadWrite - Tests for Redis (working memory) operations.
+domain_bridge/tests/domain_bridge/test_packet_routing.py::TestRouteByDomain - Tests for domain-based routing.
+domain_bridge/tests/domain_bridge/test_packet_routing.py::TestRouteByType - Tests for type-based routing.
+domain_bridge/tests/domain_bridge/test_reasoning_engine.py::TestConfidenceThresholds - Tests for confidence calculation.
+domain_bridge/tests/domain_bridge/test_reasoning_engine.py::TestErrorPaths - Tests for error handling.
+domain_bridge/tests/domain_bridge/test_reasoning_engine.py::TestReasoningModes - Tests for reasoning mode selection.
+domain_bridge/tests/domain_bridge/test_tensor_coordination.py::TestBatchTensorCalls - Tests for tensor call batching.
+domain_bridge/tests/domain_bridge/test_tensor_coordination.py::TestTimeoutHandling - Tests for timeout handling.
+domain_bridge/world_model_bridge.py::CausalFactor - Causal factor from world model.
+domain_bridge/world_model_bridge.py::Pattern - Temporal pattern from world model.
+domain_bridge/world_model_bridge.py::WorldModelBridge - Interface to world model layer.
 email_agent/config.py::AccountConfig - Configuration for a Gmail account.
 email_agent/gmail_client.py::GmailClient - Gmail API client wrapper with multi-account support.
 email_agent/oauth_server.py::OAuthHandler - HTTP handler for OAuth flow.
