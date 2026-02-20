@@ -1,7 +1,7 @@
 """
 Tensor Bridge API Routes
 
-Endpoints for Domain Tensor Bridge and TensorGlobe adapter.
+Endpoints for Domain Bridge status and reasoning capabilities.
 Provides HTTP access to tensor reasoning capabilities.
 """
 
@@ -115,8 +115,7 @@ class DomainPacketResponse(BaseModel):
 class BridgeStatusResponse(BaseModel):
     """Status of tensor bridge components."""
 
-    domain_tensor_bridge: dict[str, Any]
-    tensorglobe_adapter: dict[str, Any]
+    domain_bridge: dict[str, Any]
     eos_status: dict[str, Any]
     timestamp: datetime
 
@@ -134,8 +133,7 @@ async def tensor_bridge_health() -> dict[str, Any]:
         "status": "healthy",
         "service": "tensor_bridge",
         "components": {
-            "domain_tensor_bridge": "available",
-            "tensorglobe_adapter": "available",
+            "domain_bridge": "available",
             "eos_gate": "available",
         },
         "timestamp": datetime.now(UTC).isoformat(),
@@ -147,15 +145,10 @@ async def tensor_bridge_health() -> dict[str, Any]:
 async def get_bridge_status() -> BridgeStatusResponse:
     """Get detailed status of all tensor bridge components."""
     return BridgeStatusResponse(
-        domain_tensor_bridge={
+        domain_bridge={
             "status": "active",
             "version": "6.0.0",
             "modules_loaded": 23,
-        },
-        tensorglobe_adapter={
-            "status": "available",
-            "connected": False,  # Not yet connected to external service
-            "endpoint": None,
         },
         eos_status={
             "accountability_engine": "active",
@@ -193,8 +186,7 @@ async def tensor_inference(request: TensorInferenceRequest) -> TensorInferenceRe
             entity_count=len(request.entities),
         )
 
-        # TODO: Wire to actual TensorGlobe adapter when endpoint configured
-        # For now, return placeholder response
+        # TODO: Wire to DomainBridgeGateway when ready
 
         latency_ms = (time.time() - start_time) * 1000
 

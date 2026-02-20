@@ -426,7 +426,7 @@ class TestEOSLedgerWriter:
     ) -> None:
         """Test writing an anomaly entry."""
         result = await ledger_writer.write_anomaly_entry(
-            source_id="tensorglobe_adapter",
+            source_id="domain_bridge_adapter",
             anomaly_type="confidence_collapse",
             anomaly_score=0.95,
             severity="high",

@@ -25,11 +25,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from . import tensorglobe_bridge
-
-__all__ = [
-    "tensorglobe_bridge",
-]
+# tensorglobe_bridge archived per ADR-0092 (cursor-fabricated module)
+__all__: list[str] = []
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
