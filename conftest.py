@@ -58,11 +58,7 @@ try:
 except ImportError:
     pass  # Will be reported as test failure
 
-# Pre-import adapters.tensorglobe_bridge for pytest adapter tests
-try:
-    import adapters.tensorglobe_bridge  # noqa: F401 — pre-import for pytest
-except ImportError:
-    pass  # Will be handled as test failure where needed
+# tensorglobe_bridge archived per ADR-0092 (cursor-fabricated module)
 
 # Pre-import api.routes.registry for pytest router registry tests
 try:
