@@ -1,11 +1,11 @@
 # L9 Core Dependencies
-fastapi>=0.109.0
-uvicorn[standard]>=0.27.0
-pydantic>=2.5.0
+fastapi>=0.136.1
+uvicorn[standard]>=0.46.0
+pydantic>=2.13.3
 python-dotenv>=1.0.0
 
 # Pydantic Settings (separate package in v2)
-pydantic-settings>=2.1.0
+pydantic-settings>=2.14.0
 
 # Database
 psycopg[binary]>=3.1.14
