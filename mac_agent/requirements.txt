@@ -1,5 +1,5 @@
 # Mac Agent Dependencies
 requests>=2.31.0
 pyautogui>=0.9.54
-playwright>=1.40.0
+playwright>=1.58.0
 websockets>=12.0
