@@ -62,7 +62,7 @@ numpy>=1.24.0
 sentence-transformers>=2.2.0
 
 # Browser Automation (Mac Agent - local only, not Docker)
-playwright>=1.40.0
+playwright>=1.58.0
 
 # MCP (Model Context Protocol) - for mcp_memory server
 mcp>=1.0.0
