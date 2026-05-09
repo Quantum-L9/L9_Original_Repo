@@ -54,7 +54,7 @@ jobs:
           kubeconfig: ${{ secrets.KUBECONFIG_DEV }}
 
       - name: Install Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@v5
         with:
           version: "3.13.0"
 
@@ -97,7 +97,7 @@ jobs:
           kubeconfig: ${{ secrets.KUBECONFIG_STAGING }}
 
       - name: Install Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@v5
         with:
           version: "3.13.0"
 
@@ -147,7 +147,7 @@ jobs:
           kubeconfig: ${{ secrets.KUBECONFIG_PROD }}
 
       - name: Install Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@v5
         with:
           version: "3.13.0"
 
