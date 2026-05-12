@@ -97,7 +97,7 @@ python-multipart
 urllib3<3
 
 # Mutation Testing
-mutmut>=2.4.5
+mutmut>=3.5.0
 
 # ToTh Reasoning Engine
 aiohttp>=3.9.0
