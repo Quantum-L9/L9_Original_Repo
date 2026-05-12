@@ -4,7 +4,7 @@
 
 # MCP Core
 mcp>=1.0.0
-pydantic-settings>=2.14.0
+pydantic-settings>=2.14.1
 
 # FastAPI & async
 fastapi>=0.136.1
