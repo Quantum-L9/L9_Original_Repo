@@ -75,7 +75,7 @@ prometheus_client>=0.19.0
 
 # OpenTelemetry (Jaeger tracing)
 opentelemetry-api>=1.41.1
-opentelemetry-sdk>=1.21.0
+opentelemetry-sdk>=1.41.1
 opentelemetry-exporter-otlp-proto-http>=1.21.0
 
 # JSON Schema Validation (used in event_type_registry, pattern orchestrator)
