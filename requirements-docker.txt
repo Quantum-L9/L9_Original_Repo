@@ -60,7 +60,7 @@ anyio>=4.2.0
 aiofiles>=23.2.0
 
 # Typing extensions
-typing-extensions>=4.9.0
+typing-extensions>=4.16.0
 
 # Twilio (SMS/Voice)
 twilio>=8.10.0
