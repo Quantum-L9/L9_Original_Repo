@@ -22,7 +22,7 @@ tenacity>=8.2.0
 langgraph>=1.1.10
 
 # Logging
-structlog>=24.1.0
+structlog>=26.1.0
 
 # System Monitoring (memory/consolidation adaptive batching)
 psutil>=5.9.0
