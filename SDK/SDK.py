@@ -448,6 +448,8 @@ class ReasoningInterface:
     def __init__(self, sdk: L9SDK):
         self._sdk = sdk
         self._orchestrator: Any | None = None
+        self._gateway: Any | None = None
+        self._gateway_loaded = False
 
     async def _get_orchestrator(self) -> Any:
         if self._orchestrator is None:
@@ -460,6 +462,18 @@ class ReasoningInterface:
             except ImportError:
                 logger.warning("ReasoningOrchestrator not available")
         return self._orchestrator
+
+    async def _get_gateway(self) -> Any:
+        if not self._gateway_loaded:
+            self._gateway_loaded = True
+            try:
+                from domain_tensor_bridge.gateway import DomainBridgeGateway
+
+                self._gateway = DomainBridgeGateway()
+            except (ImportError, TypeError):
+                logger.warning("DomainBridgeGateway not available")
+                self._gateway = None
+        return self._gateway
 
     @must_stay_async("callers use await")
     async def execute(
@@ -509,14 +523,10 @@ class ReasoningInterface:
         mode: str = "standard",
     ) -> dict[str, Any]:
         """Run tensor bridge inference."""
-        try:
-            from domain_tensor_bridge.gateway import DomainBridgeGateway
-
-            gw = DomainBridgeGateway()
-            return await gw.route_infer(input_data=input_data, mode=mode)
-        except ImportError:
-            logger.warning("DomainBridgeGateway not available")
+        gw = await self._get_gateway()
+        if gw is None or not hasattr(gw, "route_infer"):
             return {"error": "tensor bridge not available"}
+        return await gw.route_infer(input_data=input_data, mode=mode)
 
     @must_stay_async("callers use await")
     async def process_domain_packet(
@@ -524,14 +534,10 @@ class ReasoningInterface:
         packet: dict[str, Any],
     ) -> dict[str, Any]:
         """Process a domain packet through tensor bridge."""
-        try:
-            from domain_tensor_bridge.gateway import DomainBridgeGateway
-
-            gw = DomainBridgeGateway()
-            return await gw.route_packet(packet=packet)
-        except ImportError:
-            logger.warning("DomainBridgeGateway not available")
+        gw = await self._get_gateway()
+        if gw is None or not hasattr(gw, "route_packet"):
             return {"error": "tensor bridge not available"}
+        return await gw.route_packet(packet=packet)
 
 
 class EvaluationInterface:
