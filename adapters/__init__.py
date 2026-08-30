@@ -25,7 +25,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-# tensorglobe_bridge archived per ADR-0092 (cursor-fabricated module)
+# tensorglobe_bridge removed per ADR-0092 (cursor-fabricated module; not archived)
 __all__: list[str] = []
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

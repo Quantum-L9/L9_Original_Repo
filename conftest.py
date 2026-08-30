@@ -58,7 +58,7 @@ try:
 except ImportError:
     pass  # Will be reported as test failure
 
-# tensorglobe_bridge archived per ADR-0092 (cursor-fabricated module)
+# tensorglobe_bridge removed per ADR-0092 (cursor-fabricated module; not archived)
 
 # Pre-import api.routes.registry for pytest router registry tests
 try:
