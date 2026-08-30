@@ -143,10 +143,6 @@ from core.governance.tool_risk_policy import get_high_risk_tools, get_side_effec
 
 logger = structlog.get_logger(__name__)
 
-# System principal constant
-SYSTEM_PRINCIPAL_ID = "system:l9-tool-kernel"
-
-
 _ALLOWED_PRINCIPAL_PREFIXES = ("user:", "agent:", "system:")
 
 
@@ -496,7 +492,7 @@ class ExecutorToolRegistry:
         Returns:
             ToolCallResult with success/failure, result, and tool_id
         """
-        principal_id = _require_principal(principal_id, "dispatch_tool_call")
+        _require_principal(principal_id, "dispatch_tool_call")
         call_id = uuid4()
         start_time = time.monotonic()
         agent_id = context.get("agent_id", "unknown")
