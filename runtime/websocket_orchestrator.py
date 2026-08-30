@@ -218,7 +218,7 @@ class WebSocketOrchestrator:
 
         # Route worker agent events through ws_task_router (ws_bridge archived)
         from core.schemas.ws_event_stream import EventMessage, EventType
-        from orchestration.ws_task_router import handle_ws_event
+        from orchestration.ws_task_router import route_event_to_task
 
         # Convert raw data to EventMessage
         try:
@@ -236,7 +236,7 @@ class WebSocketOrchestrator:
         )
 
         # Route through ws_task_router for task conversion
-        envelope = handle_ws_event(event)
+        envelope = route_event_to_task(event)
         if envelope:
             logger.debug(
                 "Created task envelope from agent %s: kind=%s",
