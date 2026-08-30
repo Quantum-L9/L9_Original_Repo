@@ -147,6 +147,9 @@ logger = structlog.get_logger(__name__)
 SYSTEM_PRINCIPAL_ID = "system:l9-tool-kernel"
 
 
+_ALLOWED_PRINCIPAL_PREFIXES = ("user:", "agent:", "system:")
+
+
 def _require_principal(principal_id: str | None, operation: str) -> str:
     """Fail-closed principal validation."""
     if not principal_id or not isinstance(principal_id, str) or not principal_id.strip():
@@ -154,9 +157,10 @@ def _require_principal(principal_id: str | None, operation: str) -> str:
             f"principal_id REQUIRED for {operation}. Received: {principal_id!r}"
         )
     cleaned = principal_id.strip()
-    if ":" not in cleaned:
+    if not cleaned.startswith(_ALLOWED_PRINCIPAL_PREFIXES):
         raise ValueError(
-            f"Invalid principal_id format: '{cleaned}'"
+            f"Invalid principal_id format: '{cleaned}'. "
+            "Expected namespaced format (user:, agent:, system:)."
         )
     return cleaned
 
@@ -492,7 +496,7 @@ class ExecutorToolRegistry:
         Returns:
             ToolCallResult with success/failure, result, and tool_id
         """
-        validated_principal = _require_principal(principal_id, "dispatch_tool_call")
+        principal_id = _require_principal(principal_id, "dispatch_tool_call")
         call_id = uuid4()
         start_time = time.monotonic()
         agent_id = context.get("agent_id", "unknown")

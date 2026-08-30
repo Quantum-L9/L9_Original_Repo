@@ -19,6 +19,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
 
 import pytest
 
@@ -44,7 +45,7 @@ async def test_bootstrap_explicit_system_principal(mock_get_registry):
     mock_registry = MagicMock()
     mock_registry.guarded_execute = AsyncMock(
         return_value=ToolCallResult(
-            call_id=MagicMock(),
+            call_id=uuid4(),
             tool_id="infrastructure_health_check",
             success=True,
             result={"status": "healthy", "checks": ["postgres", "redis", "neo4j"]},
@@ -79,11 +80,11 @@ async def test_kernel_rejects_non_string_principal(mock_get_registry):
     from core.tools.tool_kernel import execute_via_kernel
 
     # Test with integer
-    request = ToolInvocationRequest(
+    request = ToolInvocationRequest.model_construct(
         tool_id="memory_write",
         arguments={"content": "test"},
         context={"source": "test"},
-        principal_id=12345,  # type: ignore  # Non-string
+        principal_id=12345,  # type: ignore[arg-type]
     )
 
     with pytest.raises(RuntimeError, match="principal_id is required"):
@@ -103,7 +104,7 @@ async def test_kernel_propagates_context(mock_get_registry):
     mock_registry = MagicMock()
     mock_registry.guarded_execute = AsyncMock(
         return_value=ToolCallResult(
-            call_id=MagicMock(),
+            call_id=uuid4(),
             tool_id="memory_write",
             success=True,
             result={"written": True},

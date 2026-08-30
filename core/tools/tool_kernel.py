@@ -48,14 +48,10 @@ DORA Meta
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import structlog
 
+from core.schemas.tool_schemas import ToolInvocationRequest, ToolInvocationResult
 from core.tools.registry_adapter import get_tool_registry_adapter
-
-if TYPE_CHECKING:
-    from core.schemas.tool_schemas import ToolInvocationRequest, ToolInvocationResult
 
 __all__ = [
     "SYSTEM_PRINCIPAL_ID",
@@ -155,7 +151,8 @@ async def execute_via_kernel(request: ToolInvocationRequest) -> ToolInvocationRe
         )
 
     # Enforce namespaced principal format: user:, agent:, system:
-    if ":" not in request.principal_id:
+    cleaned_principal = request.principal_id.strip()
+    if not cleaned_principal.startswith(("user:", "agent:", "system:")):
         raise RuntimeError(
             f"Invalid principal_id format: '{request.principal_id}'. "
             "Expected namespaced format (user:, agent:, system:)."
@@ -184,7 +181,7 @@ async def execute_via_kernel(request: ToolInvocationRequest) -> ToolInvocationRe
             tool_id=request.tool_id,
             arguments=request.arguments,
             context=request.context,
-            principal_id=request.principal_id,  # Explicit, no fallback
+            principal_id=cleaned_principal,
         )
 
         logger.info(
@@ -194,7 +191,16 @@ async def execute_via_kernel(request: ToolInvocationRequest) -> ToolInvocationRe
             success=result.success,
         )
 
-        return result
+        return ToolInvocationResult(
+            success=result.success,
+            output=result.result,
+            error=result.error,
+            metadata={
+                "tool_id": result.tool_id,
+                "call_id": str(result.call_id),
+                "duration_ms": result.duration_ms,
+            },
+        )
 
     except Exception as e:
         logger.error(

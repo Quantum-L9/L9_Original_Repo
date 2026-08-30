@@ -164,7 +164,7 @@ async def save_memory_handler(
             f"user_id (principal_id) REQUIRED for save_memory. "
             f"Cannot be None/empty. Received: {user_id!r}"
         )
-    validated_principal = user_id.strip()
+    user_id = user_id.strip()
 
     # GMP-68: Governance enforcement
     ctx = require_governance_context("mcp_memory.save_memory")
@@ -378,7 +378,7 @@ async def search_memory_handler(
             f"user_id (principal_id) REQUIRED for search_memory. "
             f"Cannot be None/empty. Received: {user_id!r}"
         )
-    validated_principal = user_id.strip()
+    user_id = user_id.strip()
 
     # ADR-0098: project_id from centralized config_constants (single source of truth)
     if project_id is None:

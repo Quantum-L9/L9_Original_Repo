@@ -288,7 +288,9 @@ class MemorySubstrateService:
         Returns:
             PacketWriteResult with status and written tables
         """
-        validated_principal = _require_principal(principal_id, "write_packet")
+        principal_id = _require_principal(principal_id, "write_packet")
+        if hasattr(packet_in, "principal_id"):
+            packet_in.principal_id = principal_id
         # GMP-70: Governance enforcement (fail-closed)
         ctx = self._require_rls_context("write_packet")
         if tenant_id and tenant_id != ctx.tenant_id:
