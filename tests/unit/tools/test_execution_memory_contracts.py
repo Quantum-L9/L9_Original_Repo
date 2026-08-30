@@ -18,7 +18,7 @@ from typing import Set
 from unittest.mock import AsyncMock, Mock
 
 # System under test
-from core.tools.registry_adapter import ExecutorToolRegistry, SYSTEM_PRINCIPAL_ID as TOOL_SYSTEM_PRINCIPAL
+from core.tools.registry_adapter import ExecutorToolRegistry
 from memory.substrate_service import MemorySubstrateService, SYSTEM_PRINCIPAL_ID as MEMORY_SYSTEM_PRINCIPAL
 from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 

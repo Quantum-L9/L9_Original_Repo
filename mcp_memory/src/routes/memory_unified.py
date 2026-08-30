@@ -378,7 +378,6 @@ async def search_memory_handler(
             f"user_id (principal_id) REQUIRED for search_memory. "
             f"Cannot be None/empty. Received: {user_id!r}"
         )
-    user_id = user_id.strip()
 
     # ADR-0098: project_id from centralized config_constants (single source of truth)
     if project_id is None:
