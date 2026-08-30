@@ -13,7 +13,7 @@ Tests:
 from __future__ import annotations
 
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -94,7 +94,7 @@ class TestL9SessionHooks:
         from runtime.session_hooks import L9SessionHooks
 
         return L9SessionHooks(
-            retrieval_kernel=FakeRetrievalKernel(),
+            retrieval=FakeRetrievalKernel(),
             working_memory=FakeWorkingMemory(),
             bridge=FakeBridge(),
         )
@@ -154,6 +154,7 @@ class TestL9SessionHooks:
             agent_id="test-agent",
             task_id="task-123",
             result={"status": "completed", "result": "done"},
+            principal_id="agent:test-agent",
         )
         assert len(hooks._bridge.submitted) == 1
         submitted = hooks._bridge.submitted[0]

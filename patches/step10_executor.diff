@@ -86,7 +86,27 @@
                  # Add result to history using tool_id (canonical identity)
                  instance.add_tool_result(
  
-@@ -2166,6 +2200,20 @@
+@@ -2160,6 +2194,25 @@
++        # ADR-0092: Invoke session hooks on_task_end for promotion
++        if self._session_hooks is not None:
++            try:
++                await self._session_hooks.on_task_end(
++                    agent_id=instance.task.agent_id,
++                    task_id=str(instance.task.id),
++                    result={
++                        "status": status,
++                        "result": str(final_result)[:500] if final_result else "",
++                        "iterations": instance.iteration,
++                    },
++                    principal_id=getattr(instance.task, "principal_id", None),
++                )
++            except Exception as hooks_err:
++                logger.warning(
++                    "agent.executor.session_hooks.on_task_end_failed",
++                    task_id=str(instance.task.id),
++                    error=str(hooks_err),
++                )
++
          return ExecutionResult(
              task_id=instance.task.id,
              status=status,
@@ -104,32 +124,3 @@
                  instance.user_corrections if instance.user_corrections else None
              ),
          )
-+
-+        # NOTE: The above return statement ends the method. The on_task_end
-+        # hook must be called BEFORE the return. The correct injection point
-+        # is just before the return statement above. The diff below shows
-+        # the actual insertion:
-
---- a/core/agents/executor.py (on_task_end injection — insert BEFORE the final return)
-+++ b/core/agents/executor.py
-@@ -2160,6 +2160,19 @@
-+        # ADR-0092: Invoke session hooks on_task_end for promotion
-+        if self._session_hooks is not None:
-+            try:
-+                await self._session_hooks.on_task_end(
-+                    agent_id=instance.task.agent_id,
-+                    task_id=str(instance.task.id),
-+                    result={
-+                        "status": status,
-+                        "result": str(final_result)[:500] if final_result else "",
-+                        "iterations": instance.iteration,
-+                    },
-+                )
-+            except Exception as hooks_err:
-+                logger.warning(
-+                    "agent.executor.session_hooks.on_task_end_failed",
-+                    task_id=str(instance.task.id),
-+                    error=str(hooks_err),
-+                )
-+
-         return ExecutionResult(

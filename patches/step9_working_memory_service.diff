@@ -30,7 +30,8 @@
 +            "working_memory_service.update",
 +            repo_id=repo_id,
 +            branch=branch,
-+            principal_id=principal_id or "unset",
++            principal_id=principal_id,
++            has_principal_id=bool(principal_id),
 +        )
          # Retrieve current state
          snapshot = await self.hydrate(repo_id, branch)

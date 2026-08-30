@@ -13,8 +13,6 @@ from __future__ import annotations
 
 import asyncio
 from typing import Any
-from unittest.mock import AsyncMock
-
 import pytest
 
 from memory.retrieval_kernel import L9RetrievalKernel, RetrievalHit

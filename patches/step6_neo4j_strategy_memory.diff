@@ -9,7 +9,7 @@
          context_embedding: list[float],
          tags: list[str] | None = None,
 +        *,
-+        principal_id: str | None = None,
++        principal_id: str,
      ) -> str:
          """
          Record a new strategy to Neo4j.
@@ -26,11 +26,7 @@
              logger.error("Neo4j not available, cannot record strategy")
              raise RuntimeError("Neo4j not available")
 +
-+        # ADR-0092: Log principal_id for audit trail on every Neo4j write.
-+        if not principal_id:
-+            logger.warning(
-+                "neo4j_strategy.record_new_strategy.no_principal_id",
-+                task_id=task_id,
-+            )
++        if not isinstance(principal_id, str) or not principal_id.strip():
++            raise ValueError("principal_id is required (fail-closed)")
  
          strategy_id = f"str_{uuid.uuid4().hex[:12]}"

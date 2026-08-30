@@ -5,7 +5,7 @@
          self,
          finding: dict[str, Any],
 +        *,
-+        principal_id: str | None = None,
++        principal_id: str,
      ) -> str:
          """
          Persist a research finding to Neo4j.
@@ -17,10 +17,6 @@
          Returns:
              finding_id of the persisted finding
          """
-+        # ADR-0092: Log principal_id for audit trail on every Neo4j write.
-+        if not principal_id:
-+            logger.warning(
-+                "graph_persistence.persist_finding.no_principal_id",
-+                finding_id=finding.get("finding_id", "unknown"),
-+            )
++        if not isinstance(principal_id, str) or not principal_id.strip():
++            raise ValueError("principal_id is required (fail-closed)")
          finding_id = finding.get("finding_id") or f"find_{uuid.uuid4().hex[:12]}"

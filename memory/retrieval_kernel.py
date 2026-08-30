@@ -303,10 +303,7 @@ class L9RetrievalKernel:
         """Tier 2: Semantic search (Postgres/pgvector)."""
         try:
             results = await asyncio.wait_for(
-                self._semantic.search_packets(  # type: ignore[union-attr]
-                    query=query,
-                    top_k=top_k,
-                ),
+                self._search_semantic_backend(query=query, top_k=top_k),
                 timeout=self._semantic_timeout,
             )
             hits: list[RetrievalHit] = []
@@ -355,6 +352,28 @@ class L9RetrievalKernel:
                 error=str(exc),
             )
             return []
+
+    async def _search_semantic_backend(
+        self, *, query: str, top_k: int
+    ) -> list[Any]:
+        """Call search_packets or MemorySubstrateService.semantic_search."""
+        backend = self._semantic
+        if backend is None:
+            return []
+        search_packets = getattr(backend, "search_packets", None)
+        if callable(search_packets):
+            return await search_packets(query=query, top_k=top_k)
+        semantic_search = getattr(backend, "semantic_search", None)
+        if callable(semantic_search):
+            from core.schemas import SemanticSearchRequest
+
+            result = await semantic_search(
+                SemanticSearchRequest(query=query, top_k=top_k)
+            )
+            return list(getattr(result, "hits", result) or [])
+        raise AttributeError(
+            "semantic backend must implement search_packets or semantic_search"
+        )
 
     async def _retrieve_graph(
         self,

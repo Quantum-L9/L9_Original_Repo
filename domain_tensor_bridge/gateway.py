@@ -5,7 +5,7 @@ Implements ADR-0092: every write to Postgres, Neo4j, Redis (non-exempt),
 pgvector, or the World Model MUST pass through this gateway.
 
 Pipeline per submit():
-  1. Validate PacketEnvelope schema (verify_integrity)
+  1. Validate PacketEnvelope integrity when content_hash is set
   2. Enforce principal_id (fail-closed)
   3. Enforce ingress_origin (fail-closed)
   4. Governance gate (GovernanceEngine.evaluate)
@@ -45,12 +45,25 @@ import structlog
 from pydantic import BaseModel, Field
 
 from core.decorators import must_stay_async
-from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
+from core.schemas import (
+    PacketEnvelope,
+    PacketEnvelopeIn,
+    PacketMetadata,
+    PacketWriteResult,
+)
 
 if TYPE_CHECKING:
     from core.governance.schemas import EvaluationRequest, EvaluationResult
 
 logger = structlog.get_logger(__name__)
+
+
+def _require_ingress_params(*, principal_id: str, ingress_origin: str) -> None:
+    """Fail-closed identity gates shared by submit() and submit_batch()."""
+    if not principal_id or not principal_id.strip():
+        raise ValueError("principal_id is required (fail-closed)")
+    if not ingress_origin or not ingress_origin.strip():
+        raise ValueError("ingress_origin is required (fail-closed)")
 
 
 # =============================================================================
@@ -100,7 +113,7 @@ class WriteResult(BaseModel):
         None, description="Error details if status='error'"
     )
     submitted_at: datetime = Field(
-        default_factory=lambda: datetime.now(tz=datetime.now(tz=UTC).tzinfo or UTC),
+        default_factory=lambda: datetime.now(tz=UTC),
         description="Timestamp of submission",
     )
 
@@ -225,13 +238,13 @@ class DomainBridgeGateway:
         Raises:
             ValueError: If principal_id or ingress_origin is missing/empty.
         """
-        # ── Gate 0: principal_id (fail-closed) ──────────────────────────
-        if not principal_id or not principal_id.strip():
-            raise ValueError("principal_id is required (fail-closed)")
+        _require_ingress_params(
+            principal_id=principal_id,
+            ingress_origin=ingress_origin,
+        )
 
-        # ── Gate 1: ingress_origin (fail-closed) ────────────────────────
-        if not ingress_origin or not ingress_origin.strip():
-            raise ValueError("ingress_origin is required (fail-closed)")
+        if packet.content_hash is not None and not packet.verify_integrity():
+            raise ValueError("packet failed integrity verification")
 
         packet_id = packet.packet_id
 
@@ -283,26 +296,30 @@ class DomainBridgeGateway:
         )
 
         # ── Provenance stamp ────────────────────────────────────────────
+        base_meta = packet.metadata or PacketMetadata()
         stamped = packet.with_mutation(
-            metadata={
-                **(packet.metadata or {}),
-                "domain_bridge_principal_id": principal_id,
-                "domain_bridge_ingress_origin": ingress_origin,
-                "domain_bridge_submitted_at": datetime.now(tz=UTC).isoformat(),
-            },
+            metadata=base_meta.model_copy(
+                update={
+                    "domain_bridge_principal_id": principal_id,
+                    "domain_bridge_ingress_origin": ingress_origin,
+                    "domain_bridge_submitted_at": datetime.now(tz=UTC).isoformat(),
+                }
+            ),
         )
 
         # ── Forward to ingestion ────────────────────────────────────────
         try:
+            meta_dump = (
+                stamped.metadata.model_dump() if stamped.metadata is not None else {}
+            )
+            meta_dump["principal_id"] = principal_id
+            meta_dump["ingress_origin"] = ingress_origin
             packet_in = PacketEnvelopeIn(
                 packet_type=stamped.packet_type,
                 payload=stamped.payload,
-                source_id=stamped.source_id,
-                thread_id=str(stamped.thread_id) if stamped.thread_id else None,
-                metadata=stamped.metadata,
-                tags=stamped.tags,
-                principal_id=principal_id,
-                ingress_origin=ingress_origin,
+                thread_id=stamped.thread_id,
+                metadata=meta_dump,
+                tags=stamped.tags or None,
             )
             write_result = await self._ingestion.ingest(packet_in)
         except Exception as exc:
@@ -361,10 +378,10 @@ class DomainBridgeGateway:
         Raises:
             ValueError: If principal_id or ingress_origin is missing/empty.
         """
-        if not principal_id or not principal_id.strip():
-            raise ValueError("principal_id is required (fail-closed)")
-        if not ingress_origin or not ingress_origin.strip():
-            raise ValueError("ingress_origin is required (fail-closed)")
+        _require_ingress_params(
+            principal_id=principal_id,
+            ingress_origin=ingress_origin,
+        )
 
         results: list[WriteResult] = []
         succeeded = 0
@@ -431,7 +448,7 @@ class DomainBridgeGateway:
         packet: PacketEnvelope,
         principal_id: str,
         ingress_origin: str,
-    ) -> Any:
+    ) -> EvaluationResult:
         """
         Build an EvaluationRequest and call the governance gate.
 

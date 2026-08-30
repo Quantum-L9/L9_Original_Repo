@@ -288,6 +288,7 @@ class L9SessionHooks:
         agent_id: str,
         task_id: str,
         result: dict[str, Any],
+        principal_id: str | None = None,
     ) -> None:
         """
         Called after agent execution completes.
@@ -299,31 +300,37 @@ class L9SessionHooks:
             agent_id: The agent that completed.
             task_id: The task that completed.
             result: The execution result.
+            principal_id: Namespaced caller identity (fail-closed).
         """
         logger.info(
             "session_hooks.on_task_end",
             agent_id=agent_id,
             task_id=task_id,
             status=result.get("status", "unknown"),
+            has_principal_id=bool(principal_id and str(principal_id).strip()),
         )
 
-        # ── Semantic recall for promotion decision ──────────────────────
-        if self._working_memory is not None and self._bridge is not None:
-            try:
-                summary = result.get("summary", "") or result.get("output", "")
-                if summary and _should_promote(result):
-                    await self._promote_to_long_term(
-                        agent_id=agent_id,
-                        task_id=task_id,
-                        content=result,
-                    )
-            except Exception as exc:
-                logger.warning(
-                    "session_hooks.on_task_end.promotion_error",
-                    agent_id=agent_id,
-                    task_id=task_id,
-                    error=str(exc),
-                )
+        if self._bridge is None or not _should_promote(result):
+            return
+
+        cleaned = principal_id.strip() if isinstance(principal_id, str) else ""
+        if not cleaned:
+            raise ValueError("principal_id is required (fail-closed)")
+
+        try:
+            await self._promote_to_long_term(
+                agent_id=agent_id,
+                task_id=task_id,
+                content=result,
+                principal_id=cleaned,
+            )
+        except Exception as exc:
+            logger.warning(
+                "session_hooks.on_task_end.promotion_error",
+                agent_id=agent_id,
+                task_id=task_id,
+                error=str(exc),
+            )
 
     # --------------------------------------------------------------------- #
     # Internal helpers
@@ -335,6 +342,7 @@ class L9SessionHooks:
         agent_id: str,
         task_id: str,
         content: dict[str, Any],
+        principal_id: str,
     ) -> None:
         """
         Promote task result to long-term memory via Domain Bridge.
@@ -344,28 +352,30 @@ class L9SessionHooks:
         if self._bridge is None:
             return
 
-        from core.schemas import PacketEnvelope
+        from core.schemas import PacketEnvelope, PacketMetadata
 
         packet = PacketEnvelope(
             packet_type="agent_task_result",
-            source_id=agent_id,
             payload={
                 "task_id": task_id,
                 "agent_id": agent_id,
                 "result_summary": _summarize_result(content),
             },
-            metadata={
-                "source_system": "l9_session_hooks",
-                "promotion_reason": "high_value_result",
-            },
-            principal_id=f"agent:{agent_id}",
-            ingress_origin="api",
+            metadata=PacketMetadata(
+                agent=agent_id,
+                domain="l9",
+            ).model_copy(
+                update={
+                    "source_system": "l9_session_hooks",
+                    "promotion_reason": "high_value_result",
+                }
+            ),
         )
 
         await self._bridge.submit(
             packet,
-            principal_id=f"agent:{agent_id}",
-            ingress_origin="api",
+            principal_id=principal_id,
+            ingress_origin="session_hooks",
         )
 
         logger.info(

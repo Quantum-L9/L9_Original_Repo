@@ -2,7 +2,7 @@
 +++ b/core/integration/wm_to_graph_sync.py
 @@ -138,10 +138,19 @@
 -    async def sync_all(self) -> dict[str, int]:
-+    async def sync_all(self, *, principal_id: str | None = None) -> dict[str, int]:
++    async def sync_all(self, *, principal_id: str) -> dict[str, int]:
          """Sync all world model data to Neo4j graph.
  
 +        Args:
@@ -11,11 +11,8 @@
          Returns:
              Dict with counts per entity type synced.
          """
-+        # ADR-0092: Log principal_id for audit trail on every Neo4j write.
-+        if not principal_id:
-+            logger.warning(
-+                "wm_to_graph_sync.sync_all.no_principal_id",
-+            )
++        if not isinstance(principal_id, str) or not principal_id.strip():
++            raise ValueError("principal_id is required (fail-closed)")
 +
          results = {}
          try:
