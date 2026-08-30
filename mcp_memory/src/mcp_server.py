@@ -718,12 +718,20 @@ async def handle_tool_call(
                 "mcp_tool_call_missing_or_invalid_principal",
                 tool=tool.name,
                 caller_id=caller_id,
+                principal_id=principal_id,
             )
             raise RuntimeError(
                 f"MCP request missing valid principal_id for tool '{tool.name}'."
             )
     else:
         principal_id = principal_id.strip()
+
+    logger.info(
+        "mcp_tool_call_principal_resolved",
+        tool=tool.name,
+        caller_id=caller_id,
+        principal_id=principal_id,
+    )
 
     # ADR-0098: project_id from centralized config_constants (single source of truth)
     # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9-default
