@@ -158,6 +158,19 @@ except ImportError:
 # Initialize logger early for import error handling
 logger = structlog.get_logger(__name__)
 
+_ALLOWED_PRINCIPAL_PREFIXES = ("user:", "agent:", "system:")
+
+
+def _first_namespaced_principal(*candidates: Any) -> str | None:
+    """Return the first non-blank namespaced principal, else None."""
+    for candidate in candidates:
+        if not isinstance(candidate, str) or not candidate.strip():
+            continue
+        cleaned = candidate.strip()
+        if cleaned.startswith(_ALLOWED_PRINCIPAL_PREFIXES):
+            return cleaned
+    return None
+
 # Self-reflection imports (optional - graceful degradation if not available)
 try:
     from core.agents.kernelevolution import create_evolution_plan
@@ -1785,11 +1798,10 @@ class AgentExecutorService:
             and hasattr(self._tool_registry, "get_relevant_tools")
         ):
             try:
-                # principal_id may be in task context or payload
-                principal_id = (
-                    instance.task.context.get("principal_id")
-                    or instance.task.payload.get("principal_id")
-                    or instance.task.source_id
+                principal_id = _first_namespaced_principal(
+                    instance.task.context.get("principal_id"),
+                    instance.task.payload.get("principal_id"),
+                    instance.task.source_id,
                 )
                 relevant_tools = await self._tool_registry.get_relevant_tools(
                     agent_id=instance.task.agent_id,
@@ -2346,14 +2358,16 @@ class AgentExecutorService:
         # Use guarded_execute if available (kernel-aware execution)
         try:
             # Extract principal from agent context (fail-closed)
-            principal_id = (
-                getattr(instance.task, "source_id", None)
-                or instance.context.get("user_id")
-                or instance.context.get("agent_id")
+            principal_id = _first_namespaced_principal(
+                getattr(instance.task, "source_id", None),
+                instance.context.get("principal_id"),
+                instance.context.get("user_id"),
+                instance.context.get("agent_id"),
             )
             if not principal_id:
                 raise RuntimeError(
-                    f"principal_id REQUIRED for tool dispatch. "
+                    f"principal_id REQUIRED for tool dispatch "
+                    f"(namespaced user:/agent:/system:). "
                     f"task_id={instance.task.id}, agent_id={instance.config.agent_id}"
                 )
 
