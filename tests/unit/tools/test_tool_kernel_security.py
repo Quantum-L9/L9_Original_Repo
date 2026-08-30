@@ -20,9 +20,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
 
 import pytest
 
+from core.agents.schemas import ToolCallResult
 from core.schemas.tool_schemas import ToolInvocationRequest, ToolInvocationResult
 from core.tools.tool_kernel import SYSTEM_PRINCIPAL_ID, execute_via_kernel
 
@@ -113,7 +115,7 @@ async def test_kernel_routes_to_guarded_execute(mock_get_registry):
     mock_registry = MagicMock()
     mock_registry.guarded_execute = AsyncMock(
         return_value=ToolCallResult(
-            call_id=MagicMock(),
+            call_id=uuid4(),
             tool_id="memory_write",
             success=True,
             result={"result": "test"},
@@ -128,7 +130,9 @@ async def test_kernel_routes_to_guarded_execute(mock_get_registry):
         principal_id="user:alice",
     )
 
-    await execute_via_kernel(request)
+    result = await execute_via_kernel(request)
+    assert isinstance(result, ToolInvocationResult)
+    assert result.success is True
 
     # Verify guarded_execute was called with correct args
     mock_registry.guarded_execute.assert_called_once()
@@ -149,7 +153,7 @@ async def test_explicit_system_principal_allowed(mock_get_registry):
     mock_registry = MagicMock()
     mock_registry.guarded_execute = AsyncMock(
         return_value=ToolCallResult(
-            call_id=MagicMock(),
+            call_id=uuid4(),
             tool_id="health_check",
             success=True,
             result={"status": "healthy"},
@@ -222,7 +226,3 @@ async def test_kernel_preserves_error_context(mock_get_registry):
 
     with pytest.raises(PermissionError, match="Governance denied"):
         await execute_via_kernel(request)
-
-
-# Import ToolCallResult for mock return values
-from core.agents.schemas import ToolCallResult

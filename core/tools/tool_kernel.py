@@ -48,14 +48,10 @@ DORA Meta
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import structlog
 
+from core.schemas.tool_schemas import ToolInvocationRequest, ToolInvocationResult
 from core.tools.registry_adapter import get_tool_registry_adapter
-
-if TYPE_CHECKING:
-    from core.schemas.tool_schemas import ToolInvocationRequest, ToolInvocationResult
 
 __all__ = [
     "SYSTEM_PRINCIPAL_ID",
@@ -187,7 +183,16 @@ async def execute_via_kernel(request: ToolInvocationRequest) -> ToolInvocationRe
             success=result.success,
         )
 
-        return result
+        return ToolInvocationResult(
+            success=result.success,
+            output=result.result,
+            error=result.error,
+            metadata={
+                "tool_id": result.tool_id,
+                "call_id": str(result.call_id),
+                "duration_ms": result.duration_ms,
+            },
+        )
 
     except Exception as e:
         logger.error(

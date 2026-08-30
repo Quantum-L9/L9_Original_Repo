@@ -704,15 +704,26 @@ async def handle_tool_call(
     # at the callsite — MCP layer NEVER injects it.
     # =========================================================================
     principal_id = getattr(caller, "principal_id", None)
-    if not principal_id or not isinstance(principal_id, str) or not principal_id.strip():
-        logger.error(
-            "mcp_tool_call_missing_or_invalid_principal",
-            tool=tool.name,
-            caller_id=caller_id,
-        )
-        raise RuntimeError(
-            f"MCP request missing valid principal_id for tool '{tool.name}'."
-        )
+    if not (isinstance(principal_id, str) and principal_id.strip()):
+        # CallerIdentity (mcp_memory) has caller_id/user_id, not principal_id.
+        # Derive a namespaced principal from authenticated identity only.
+        # Never inject SYSTEM_PRINCIPAL_ID.
+        derived_user = getattr(caller, "user_id", None) if caller else None
+        if caller_id == "L":
+            principal_id = "agent:l-cto"
+        elif caller_id == "C" and isinstance(derived_user, str) and derived_user.strip():
+            principal_id = f"user:{derived_user.strip()}"
+        else:
+            logger.error(
+                "mcp_tool_call_missing_or_invalid_principal",
+                tool=tool.name,
+                caller_id=caller_id,
+            )
+            raise RuntimeError(
+                f"MCP request missing valid principal_id for tool '{tool.name}'."
+            )
+    else:
+        principal_id = principal_id.strip()
 
     # ADR-0098: project_id from centralized config_constants (single source of truth)
     # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9-default

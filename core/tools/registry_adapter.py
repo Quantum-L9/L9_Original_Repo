@@ -890,13 +890,17 @@ class ExecutorToolRegistry:
 
         agent_id = getattr(agent, "agent_id", context.get("agent_id", "unknown"))
         context["agent_id"] = agent_id
-        # Defense-in-depth: Validate principal_id (kernel also checks)
-        if not principal_id:
+        # Defense-in-depth: reject None, empty, and whitespace-only principals
+        if (
+            principal_id is None
+            or not isinstance(principal_id, str)
+            or not principal_id.strip()
+        ):
             raise ValueError(
                 "principal_id is required for guarded tool execution. "
                 f"Tool: {tool_id}"
             )
-        principal_id = principal_id  # Explicit, no fallback to context or 'unknown'
+        principal_id = principal_id.strip()
 
         # Extract kernel metadata for audit trail
         kernel_hashes = getattr(agent, "_kernel_hashes", {})

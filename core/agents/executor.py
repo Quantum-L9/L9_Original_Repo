@@ -158,6 +158,14 @@ except ImportError:
 # Initialize logger early for import error handling
 logger = structlog.get_logger(__name__)
 
+
+def _first_nonblank_principal(*candidates: Any) -> str | None:
+    """Return the first non-empty stripped string, else None."""
+    for candidate in candidates:
+        if isinstance(candidate, str) and candidate.strip():
+            return candidate.strip()
+    return None
+
 # Self-reflection imports (optional - graceful degradation if not available)
 try:
     from core.agents.kernelevolution import create_evolution_plan
@@ -1785,11 +1793,11 @@ class AgentExecutorService:
             and hasattr(self._tool_registry, "get_relevant_tools")
         ):
             try:
-                # principal_id may be in task context or payload
-                principal_id = (
-                    instance.task.context.get("principal_id")
-                    or instance.task.payload.get("principal_id")
-                    or instance.task.source_id
+                # principal_id may be in task context or payload; skip whitespace
+                principal_id = _first_nonblank_principal(
+                    instance.task.context.get("principal_id"),
+                    instance.task.payload.get("principal_id"),
+                    instance.task.source_id,
                 )
                 relevant_tools = await self._tool_registry.get_relevant_tools(
                     agent_id=instance.task.agent_id,
@@ -2348,16 +2356,12 @@ class AgentExecutorService:
         # Bootstrap/system flows must explicitly pass SYSTEM_PRINCIPAL_ID
         # at the callsite — Executor MUST NOT infer it from mutable context.
         # =====================================================================
-        principal_id = (
-            instance.task.context.get("principal_id")
-            or instance.task.payload.get("principal_id")
-            or instance.task.source_id
+        principal_id = _first_nonblank_principal(
+            instance.task.context.get("principal_id"),
+            instance.task.payload.get("principal_id"),
+            instance.task.source_id,
         )
-        if (
-            principal_id is None
-            or not isinstance(principal_id, str)
-            or not principal_id.strip()
-        ):
+        if principal_id is None:
             logger.error(
                 "executor_principal_missing",
                 agent_id=instance.config.agent_id,

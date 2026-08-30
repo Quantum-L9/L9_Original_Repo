@@ -263,7 +263,11 @@ class ToolRegistry:
             tool_id: Tool identifier
 
         Returns:
-            Tool executor instance (compatibility mode) or raises RuntimeError (strict mode)
+            Tool executor instance, or None if the tool is unregistered
+            (compatibility mode).
+
+        Raises:
+            RuntimeError: If L9_STRICT_TOOL_KERNEL=1 (direct access disabled).
         """
         logger.warning(
             "legacy_get_executor_used",
@@ -279,7 +283,7 @@ class ToolRegistry:
         # Temporary compatibility path (will be removed)
         metadata = self.get(tool_id)
         if not metadata:
-            raise ValueError(f"Tool not found: {tool_id}")
+            return None
         return self._executors.get(tool_id)
 
     def get_by_type(self, tool_type: ToolType) -> list[ToolMetadata]:
