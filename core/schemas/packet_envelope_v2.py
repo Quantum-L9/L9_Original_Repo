@@ -417,7 +417,7 @@ class PacketEnvelopeIn(BaseModel):
     principal_id: PrincipalId | None = Field(
         None, description="Principal performing operation"
     )
-    model_config = {"extra": "forbid"}}
+    model_config = {"extra": "forbid"}
 
     def to_envelope(self) -> PacketEnvelope:
         """Convert input to full PacketEnvelope with defaults."""

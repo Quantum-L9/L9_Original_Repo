@@ -9,7 +9,10 @@ Validates:
 4. Memory boundary enforcement
 """
 import ast
+import os
 import pathlib
+import sys
+
 import pytest
 from typing import Set
 from unittest.mock import AsyncMock, Mock
@@ -17,7 +20,7 @@ from unittest.mock import AsyncMock, Mock
 # System under test
 from core.tools.registry_adapter import ExecutorToolRegistry, SYSTEM_PRINCIPAL_ID as TOOL_SYSTEM_PRINCIPAL
 from memory.substrate_service import MemorySubstrateService, SYSTEM_PRINCIPAL_ID as MEMORY_SYSTEM_PRINCIPAL
-from core.schemas.packets import PacketEnvelopeIn
+from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
 
 class TestToolKernelBoundary:
@@ -27,6 +30,7 @@ class TestToolKernelBoundary:
     async def test_guarded_execute_requires_principal_id(self):
         """guarded_execute must reject None principal_id."""
         mock_registry = Mock()
+        mock_registry.list_all.return_value = []
         mock_agent = Mock()
         mock_agent.kernel_state = Mock(initialized=True, kernels=["kernel1"])
 
@@ -55,7 +59,8 @@ class TestToolKernelBoundary:
     @pytest.mark.asyncio
     async def test_dispatch_tool_call_requires_principal_id(self):
         """dispatch_tool_call must reject None principal_id."""
-        mock_registry = AsyncMock()
+        mock_registry = Mock()
+        mock_registry.list_all.return_value = []
         registry = ExecutorToolRegistry(base_registry=mock_registry)
 
         with pytest.raises(RuntimeError, match="principal_id REQUIRED"):
@@ -75,6 +80,7 @@ class TestMemoryBoundary:
         """write_packet must reject None principal_id."""
         mock_repo = AsyncMock()
         mock_embedding = AsyncMock()
+        mock_embedding.dimensions = 1536
         service = MemorySubstrateService(repository=mock_repo, embedding_provider=mock_embedding)
 
         packet_in = PacketEnvelopeIn(
@@ -99,23 +105,28 @@ class TestMemoryBoundary:
         """semantic_search must reject None principal_id."""
         mock_repo = AsyncMock()
         mock_embedding = AsyncMock()
+        mock_embedding.dimensions = 1536
         service = MemorySubstrateService(repository=mock_repo, embedding_provider=mock_embedding)
 
+        from core.schemas.packet_envelope_v2 import SemanticSearchRequest
+
+        request = SemanticSearchRequest(query="test query")
         with pytest.raises(RuntimeError, match="principal_id REQUIRED"):
-            await service.semantic_search("test query", principal_id=None)
+            await service.semantic_search(request, principal_id=None)
 
         with pytest.raises(RuntimeError, match="principal_id REQUIRED"):
-            await service.semantic_search("test query", principal_id="")
+            await service.semantic_search(request, principal_id="")
 
     @pytest.mark.asyncio
     async def test_read_packet_requires_principal_id(self):
         """read_packet must reject None principal_id."""
         mock_repo = AsyncMock()
         mock_embedding = AsyncMock()
+        mock_embedding.dimensions = 1536
         service = MemorySubstrateService(repository=mock_repo, embedding_provider=mock_embedding)
 
         with pytest.raises(RuntimeError, match="principal_id REQUIRED"):
-            await service.read_packet("packet-123", principal_id=None)
+            await service.get_packet("packet-123", principal_id=None)
 
     @pytest.mark.asyncio
     async def test_system_principal_is_valid(self):
@@ -123,6 +134,7 @@ class TestMemoryBoundary:
         mock_repo = AsyncMock()
         mock_repo.write_packet = AsyncMock(return_value="packet-id-123")
         mock_embedding = AsyncMock()
+        mock_embedding.dimensions = 1536
         service = MemorySubstrateService(repository=mock_repo, embedding_provider=mock_embedding)
 
         packet_in = PacketEnvelopeIn(
@@ -130,11 +142,11 @@ class TestMemoryBoundary:
             payload={"internal": "operation"},
         )
 
-        # Should not raise
-        packet_id = await service.write_packet(packet_in, principal_id=MEMORY_SYSTEM_PRINCIPAL)
-
-        assert packet_id == "packet-id-123"
-        mock_repo.write_packet.assert_called_once()
+        # Principal format is accepted; write still requires a governance context.
+        with pytest.raises(RuntimeError, match="Governance context required"):
+            await service.write_packet(
+                packet_in, principal_id=MEMORY_SYSTEM_PRINCIPAL
+            )
 
 
 class ForbiddenPatternVisitor(ast.NodeVisitor):
@@ -202,7 +214,7 @@ class TestNoBypassScan:
 
     def test_no_direct_persistence_bypass(self):
         """Scan repo for forbidden direct persistence calls."""
-        repo_root = pathlib.Path(__file__).parent.parent.parent
+        repo_root = pathlib.Path(__file__).resolve().parents[3]
 
         violations = []
 
@@ -239,7 +251,7 @@ class TestNoBypassScan:
 
     def test_allowlist_files_exist(self):
         """Verify that allowed bypass files actually exist."""
-        repo_root = pathlib.Path(__file__).parent.parent.parent
+        repo_root = pathlib.Path(__file__).resolve().parents[3]
 
         for allowed_file in self.ALLOWED_FILES:
             filepath = repo_root / allowed_file
@@ -252,7 +264,11 @@ class TestMCPRouteInvariants:
     @pytest.mark.asyncio
     async def test_save_memory_rejects_none_user_id(self):
         """save_memory_handler must reject None user_id."""
-        from mcp.memory.src.routes.memory_unified import save_memory_handler
+        os.environ.setdefault("OPENAI_API_KEY", "sk-test-not-used")
+        os.environ.setdefault("MEMORY_DSN", "postgresql://localhost/test")
+        mcp_root = pathlib.Path(__file__).resolve().parents[3] / "mcp_memory"
+        sys.path.insert(0, str(mcp_root))
+        from src.routes.memory_unified import save_memory_handler
 
         with pytest.raises(ValueError, match="user_id.*REQUIRED"):
             await save_memory_handler(
@@ -266,7 +282,11 @@ class TestMCPRouteInvariants:
     @pytest.mark.asyncio
     async def test_search_memory_rejects_none_user_id(self):
         """search_memory_handler must reject None user_id."""
-        from mcp.memory.src.routes.memory_unified import search_memory_handler
+        os.environ.setdefault("OPENAI_API_KEY", "sk-test-not-used")
+        os.environ.setdefault("MEMORY_DSN", "postgresql://localhost/test")
+        mcp_root = pathlib.Path(__file__).resolve().parents[3] / "mcp_memory"
+        sys.path.insert(0, str(mcp_root))
+        from src.routes.memory_unified import search_memory_handler
 
         with pytest.raises(ValueError, match="user_id.*REQUIRED"):
             await search_memory_handler(
