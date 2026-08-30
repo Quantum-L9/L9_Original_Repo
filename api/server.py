@@ -2654,19 +2654,18 @@ async def lifespan(app: FastAPI):
 
     # Emit PacketEnvelope for boot trace audit trail
     try:
-        from core.schemas.packet_envelope_v2 import PacketEnvelope
+        from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketMetadata
 
         boot_packet = PacketEnvelope(
-            source_id="api.server.lifespan",
-            agent_id="l9-system",
-            thread_id="startup",
-            kind="BOOT_TRACE",
+            packet_type="BOOT_TRACE",
             payload=boot_trace.summary(),
-            metadata={
-                "steps": boot_trace.to_list(),
-                "frozen": boot_trace.is_frozen,
-            },
-            confidence=1.0,
+            metadata=PacketMetadata(agent="l9-system").model_copy(
+                update={
+                    "source_id": "api.server.lifespan",
+                    "steps": boot_trace.to_list(),
+                    "frozen": boot_trace.is_frozen,
+                }
+            ),
         )
         if hasattr(app.state, "substrate_service") and app.state.substrate_service:
             await app.state.substrate_service.write_packet(boot_packet)

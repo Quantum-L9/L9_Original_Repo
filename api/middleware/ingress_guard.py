@@ -101,7 +101,7 @@ class IngressGuardMiddleware(BaseHTTPMiddleware):
         self, request: Request, call_next: RequestResponseEndpoint
     ) -> Response:
         """Intercept every request, stamp metadata, enforce principal_id."""
-        path = request.url.path
+        path = request.url.path.rstrip("/") or "/"
         method = request.method.upper()
 
         # ── Generate or extract request_id ──────────────────────────────
@@ -176,8 +176,8 @@ class IngressGuardMiddleware(BaseHTTPMiddleware):
     # Private helpers
     # ------------------------------------------------------------------
 
-    @staticmethod
-    def _extract_principal(request: Request) -> str | None:
+    @classmethod
+    def _extract_principal(cls, request: Request) -> str | None:
         """
         Extract principal_id from the request.
 
@@ -187,8 +187,7 @@ class IngressGuardMiddleware(BaseHTTPMiddleware):
 
         Returns None if no principal can be determined.
         """
-        # 1. Explicit header
-        header_val = request.headers.get("x-principal-id", "").strip()
+        header_val = request.headers.get(cls.HEADER_NAME, "").strip()
         if header_val:
             return header_val
 

@@ -17,12 +17,7 @@ import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from api.middleware.ingress_guard import (
-    _EXEMPT_PATHS,
-    _READ_ONLY_METHODS,
-    _STATE_MUTATING_METHODS,
-    IngressGuardMiddleware,
-)
+from api.middleware.ingress_guard import IngressGuardMiddleware
 
 # ---------------------------------------------------------------------------
 # Fixtures
