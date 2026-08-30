@@ -68,7 +68,7 @@ jobs:
           version: stable
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: "pip"
@@ -100,7 +100,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: "pip"
@@ -146,7 +146,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -407,7 +407,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -477,7 +477,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
@@ -500,7 +500,7 @@ jobs:
             --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
@@ -528,7 +528,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: "pip"
@@ -552,7 +552,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: "pip"
@@ -579,7 +579,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: "pip"
@@ -693,7 +693,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: "pip"
@@ -765,7 +765,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: "pip"
@@ -799,7 +799,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: "pip"
