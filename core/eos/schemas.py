@@ -20,11 +20,7 @@ __dora_meta__ = {
         "datasources": [],
         "memory_layers": ["semantic_memory"],
         "imported_by": [
-            "adapters.tensorglobe_bridge.adapter",
-            "adapters.tensorglobe_bridge.schemas",
             "core.eos.ledger_writer",
-            "tests.adapters.tensorglobe_bridge.test_adapter",
-            "tests.adapters.tensorglobe_bridge.test_tensorglobe_eos_gating",
             "tests.core.eos.test_eos_clients",
         ],
     },
