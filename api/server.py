@@ -525,6 +525,13 @@ async def lifespan(app: FastAPI):
         )
 
     # ========================================================================
+    # BOOT TRACE: Deterministic startup instrumentation
+    # ========================================================================
+    from runtime.boot_trace import BootTrace
+
+    boot_trace = BootTrace()
+
+    # ========================================================================
     # STARTUP: Run migrations and initialize memory service
     # ========================================================================
     logger.info("Starting L9 API server...")
@@ -532,6 +539,7 @@ async def lifespan(app: FastAPI):
     # ------------------------------------------------------------------------
     # GMP-45: ModuleRegistry (runtime truth)
     # ------------------------------------------------------------------------
+    boot_trace.start("module_registry")
     try:
         from core.moduleregistry import ModuleDefinition, ModuleRegistry
 
@@ -573,10 +581,10 @@ async def lifespan(app: FastAPI):
         )
 
         app.state.module_registry = module_registry
+        boot_trace.ok("module_registry")
         logger.info("ModuleRegistry ready (GMP-45)")
     except Exception as e:
-        # Fail-fast contract: ModuleRegistry is a required wiring primitive for E2E observability.
-        # Do not silently degrade; server must not start in a half-working state.
+        boot_trace.fail("module_registry", str(e))
         app.state.module_registry = None
         logger.critical("FATAL: ModuleRegistry init failed: %s", str(e), exc_info=True)
         raise RuntimeError(f"ModuleRegistry init failed: {e}") from e
@@ -642,6 +650,7 @@ async def lifespan(app: FastAPI):
     # Register all tools: extension modules + @register_tool decorators
     # ------------------------------------------------------------------------
     # P0: Tool registration is mandatory — fail-closed
+    boot_trace.start("tool_registry")
     from runtime.tool_registry import (
         discover_tools,
         get_tool_snapshot,
@@ -666,6 +675,7 @@ async def lifespan(app: FastAPI):
             "Tool executor auto-registration found 0 tools. "
             "L9 cannot start without at least one registered tool."
         )
+    boot_trace.ok("tool_registry")
     logger.info(
         "Tool executor auto-registration complete",
         extension_tools=extension_count,
@@ -817,8 +827,8 @@ async def lifespan(app: FastAPI):
     # Unified loader for DevLayer governance and ArchitectMentor runtime
     # ------------------------------------------------------------------------
     # P0: Governance is mandatory — fail-closed
+    boot_trace.start("governance_integration")
     from pathlib import Path
-
     from core.governance_integration import GovernanceIntegration
 
     governance = GovernanceIntegration(
@@ -827,6 +837,7 @@ async def lifespan(app: FastAPI):
         memory_manager=None,  # Will be wired later if memory service available
     )
     app.state.governance = governance
+    boot_trace.ok("governance_integration")
     logger.info(
         "Governance Integration initialized",
         agent_id=governance.agent_id,
@@ -861,6 +872,7 @@ async def lifespan(app: FastAPI):
         logger.warning(f"Router auto-discovery failed (using legacy): {e}")
 
     # Get database URL — P0: mandatory, fail-closed
+    boot_trace.start("memory_substrate")
     database_url = os.getenv("MEMORY_DSN") or os.getenv("DATABASE_URL")
     if not database_url:
         raise RuntimeError(
@@ -901,6 +913,7 @@ async def lifespan(app: FastAPI):
 
         # Store in app state for route dependencies
         app.state.substrate_service = substrate_service
+        boot_trace.ok("memory_substrate")
 
         # Initialize Agent Persistence Service for checkpoint management
         try:
@@ -961,6 +974,7 @@ async def lifespan(app: FastAPI):
 
     except Exception as e:
         # P0: Memory substrate is mandatory — fail-closed
+        boot_trace.fail("memory_substrate", str(e))
         raise RuntimeError(
             f"Memory substrate init failed: {e}. L9 cannot start without memory."
         ) from e
@@ -1048,6 +1062,7 @@ async def lifespan(app: FastAPI):
         app.state.world_model_runtime = None
 
     # P0: Governance Engine is mandatory — fail-closed
+    boot_trace.start("governance_engine")
     if not _has_governance:
         raise RuntimeError(
             "Governance module import failed. "
@@ -1063,6 +1078,7 @@ async def lifespan(app: FastAPI):
     )
 
     app.state.governance_engine = governance_engine
+    boot_trace.ok("governance_engine")
     logger.info(
         "Governance Engine initialized: %d policies loaded",
         governance_engine.policy_count,
@@ -1089,7 +1105,9 @@ async def lifespan(app: FastAPI):
 
     # Initialize Agent Executor (if enabled and substrate available)
     # P0: AgentExecutor is mandatory — fail-closed
+    boot_trace.start("agent_executor")
     if not _has_agent_executor:
+        boot_trace.fail("agent_executor", "AgentExecutorService import failed")
         raise RuntimeError(
             "AgentExecutorService import failed. "
             "L9 cannot start without agent execution capability."
@@ -1279,6 +1297,7 @@ async def lifespan(app: FastAPI):
             )
 
         app.state.agent_executor = executor
+        boot_trace.ok("agent_executor")
         app.state.aios_runtime = aios_runtime
         app.state.tool_registry = tool_registry
         app.state.agent_registry = agent_registry
@@ -1474,6 +1493,7 @@ async def lifespan(app: FastAPI):
 
     except Exception as e:
         # P0: AgentExecutor is mandatory — fail-closed
+        boot_trace.fail("agent_executor", str(e))
         raise RuntimeError(
             f"Agent Executor init failed: {e}. L9 cannot start without agent execution."
         ) from e
@@ -1565,6 +1585,7 @@ async def lifespan(app: FastAPI):
 
     # P0: Neo4j is MANDATORY — fail-closed
     # Retry with exponential backoff to wait for Neo4j container to be ready
+    boot_trace.start("neo4j")
     import asyncio
 
     # Neo4j connection retry configuration (configurable via env vars)
@@ -1574,6 +1595,7 @@ async def lifespan(app: FastAPI):
 
     # P0: Neo4j URI is required
     if not neo4j_uri:
+        boot_trace.fail("neo4j", "NEO4J_URI not set")
         raise RuntimeError(
             "NEO4J_URI environment variable is required. L9 cannot start without Neo4j."
         )
@@ -1598,6 +1620,7 @@ async def lifespan(app: FastAPI):
             neo4j = await init_neo4j_client()
             if neo4j and neo4j.is_available():
                 app.state.neo4j_client = neo4j
+                boot_trace.ok("neo4j")
                 logger.info(f"Neo4j graph client initialized (attempt {attempt + 1})")
                 break
             else:
@@ -1611,6 +1634,7 @@ async def lifespan(app: FastAPI):
                     )  # Exponential backoff, max 10s
                 else:
                     # P0: Final attempt failed — fail-closed
+                    boot_trace.fail("neo4j", f"Connection failed after {neo4j_max_retries} retries")
                     raise RuntimeError(
                         f"Neo4j failed to connect after {neo4j_max_retries} retries. "
                         f"L9 cannot start without Neo4j."
@@ -1625,6 +1649,7 @@ async def lifespan(app: FastAPI):
                 await asyncio.sleep(neo4j_retry_delay)
                 neo4j_retry_delay = min(neo4j_retry_delay * 1.5, 10)
             else:
+                boot_trace.fail("neo4j", str(e))
                 raise RuntimeError(
                     f"Neo4j connection failed after {neo4j_max_retries} retries: {e}. "
                     f"L9 cannot start without Neo4j."
@@ -1695,28 +1720,57 @@ async def lifespan(app: FastAPI):
             logger.warning(f"Failed to initialize Strategy Memory: {e}")
     else:
         # P0: Neo4j is mandatory — should not reach here after retry loop
+        boot_trace.fail("neo4j", "Not healthy after initialization")
         raise RuntimeError(
             "Neo4j client not healthy after initialization. "
             "L9 cannot start without Neo4j."
         )
 
-    # Initialize Redis client (optional, graceful if unavailable)
-    try:
-        from runtime.redis_client import close_redis_client, get_redis_client
+    # Initialize Redis client — P0: mandatory, fail-closed with retry
+    boot_trace.start("redis")
+    redis_max_retries = int(os.getenv("REDIS_MAX_RETRIES", "5"))
+    redis_retry_delay = float(os.getenv("REDIS_RETRY_DELAY", "2.0"))
 
-        redis = await get_redis_client()
-        if redis and redis.is_available():
-            app.state.redis_client = redis
-            logger.info("Redis client initialized")
-        else:
-            app.state.redis_client = None
-            logger.info("Redis not available - using in-memory fallbacks")
-    except ImportError:
-        app.state.redis_client = None
-        logger.debug("Redis client not available")
-    except Exception as e:
-        app.state.redis_client = None
-        logger.warning(f"Failed to initialize Redis: {e}")
+    from runtime.redis_client import close_redis_client, get_redis_client
+
+    for attempt in range(redis_max_retries):
+        try:
+            redis = await get_redis_client()
+            if redis and redis.is_available():
+                app.state.redis_client = redis
+                boot_trace.ok("redis")
+                logger.info(f"Redis client initialized (attempt {attempt + 1})")
+                break
+            else:
+                if attempt < redis_max_retries - 1:
+                    logger.warning(
+                        f"Redis not available (attempt {attempt + 1}/{redis_max_retries}), "
+                        f"retrying in {redis_retry_delay}s..."
+                    )
+                    await asyncio.sleep(redis_retry_delay)
+                    redis_retry_delay = min(redis_retry_delay * 1.5, 10)
+                else:
+                    boot_trace.fail("redis", f"Not available after {redis_max_retries} retries")
+                    raise RuntimeError(
+                        f"Redis failed to connect after {redis_max_retries} retries. "
+                        f"L9 cannot start without Redis."
+                    )
+        except RuntimeError:
+            raise  # Re-raise our own RuntimeError
+        except Exception as e:
+            if attempt < redis_max_retries - 1:
+                logger.warning(
+                    f"Redis connection error (attempt {attempt + 1}/{redis_max_retries}): {e}, "
+                    f"retrying in {redis_retry_delay}s..."
+                )
+                await asyncio.sleep(redis_retry_delay)
+                redis_retry_delay = min(redis_retry_delay * 1.5, 10)
+            else:
+                boot_trace.fail("redis", str(e))
+                raise RuntimeError(
+                    f"Redis connection failed after {redis_max_retries} retries: {e}. "
+                    f"L9 cannot start without Redis."
+                ) from e
 
     # Store rate limiter in app state
     try:
@@ -2589,6 +2643,36 @@ async def lifespan(app: FastAPI):
             "L9 cannot start without tools."
         )
 
+    # Run assert_runtime_ready to validate all mandatory subsystems
+    from runtime.readiness_gate import assert_runtime_ready
+
+    assert_runtime_ready(app)
+
+    # Freeze boot trace — no more steps can be added
+    boot_trace.freeze()
+    app.state.boot_trace = boot_trace
+
+    # Emit PacketEnvelope for boot trace audit trail
+    try:
+        from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketMetadata
+
+        boot_packet = PacketEnvelope(
+            packet_type="BOOT_TRACE",
+            payload=boot_trace.summary(),
+            metadata=PacketMetadata(agent="l9-system").model_copy(
+                update={
+                    "source_id": "api.server.lifespan",
+                    "steps": boot_trace.to_list(),
+                    "frozen": boot_trace.is_frozen,
+                }
+            ),
+        )
+        if hasattr(app.state, "substrate_service") and app.state.substrate_service:
+            await app.state.substrate_service.write_packet(boot_packet)
+            logger.info("Boot trace packet emitted to memory substrate")
+    except Exception as e:
+        logger.warning(f"Failed to emit boot trace packet: {e}")
+
     logger.info(
         "\u2713 P0 Readiness Gate PASSED: all core subsystems initialized",
         substrate_service=type(app.state.substrate_service).__name__,
@@ -2596,7 +2680,9 @@ async def lifespan(app: FastAPI):
         governance=type(app.state.governance).__name__,
         governance_engine=type(app.state.governance_engine).__name__,
         agent_executor=type(app.state.agent_executor).__name__,
+        redis_client=type(app.state.redis_client).__name__,
         tool_count=_snap["component_count"],
+        boot_trace_summary=boot_trace.summary(),
     )
 
     yield
@@ -2831,6 +2917,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# ============================================================================
+# INGRESS GUARD MIDDLEWARE (ADR-0092: principal_id enforcement)
+# Must be registered before route auto-wiring so it intercepts all requests.
+# ============================================================================
+from api.middleware.ingress_guard import IngressGuardMiddleware
+
+app.add_middleware(IngressGuardMiddleware)
 
 # ============================================================================
 # ECHO / LIVENESS PROBE

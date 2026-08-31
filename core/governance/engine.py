@@ -338,7 +338,7 @@ class GovernanceEngineService:
         # DTB: Reflective audit of governance decision (feature-flagged)
         if os.getenv("L9_ENABLE_DTB", "false").lower() == "true":
             try:
-                from domain_tensor_bridge.reflective_auditor import ReflectiveAuditor
+                from domain_bridge.reflective_auditor import ReflectiveAuditor
 
                 auditor = ReflectiveAuditor()
                 audit_input = {

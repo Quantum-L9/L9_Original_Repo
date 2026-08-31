@@ -128,7 +128,7 @@ fixable = ["ALL"]
 "core/agents/codegenagent/*.py" = ["F821"]  # Optional dependencies
 "examples/*.py" = ["F821"]  # Example code references
 "services/tool_*.py" = ["F821"]  # Optional dependencies
-"domain_tensor_bridge/*.py" = ["F821"]  # Optional types
+"domain_bridge/*.py" = ["F821"]  # Optional types
 
 [lint.isort]
 known-first-party = ["core", "api", "memory", "agents", "orchestrators", "runtime", "world_model", "tools", "workers"]

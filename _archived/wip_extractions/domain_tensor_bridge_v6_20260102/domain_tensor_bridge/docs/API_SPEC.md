@@ -21,7 +21,7 @@ Process a packet through the reasoning pipeline.
 **Response:**
 ```json
 {
-  "source_id": "domain_tensor_bridge",
+  "source_id": "domain_bridge",
   "kind": "DECISION",
   "payload": {
     "result": {...},
@@ -54,6 +54,6 @@ Prometheus-compatible metrics.
 
 ## gRPC
 
-See `proto/domain_tensor_bridge.proto` for gRPC definitions.
+See `proto/domain_bridge.proto` for gRPC definitions.
 
 

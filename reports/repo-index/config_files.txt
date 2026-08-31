@@ -239,8 +239,8 @@ codegen/codegen_agent_spec/Spec-codegen+codegenAgent/ui_patch_audit_viewer.yaml
 codegen/codegen_agent_spec/Spec-codegen+codegenAgent/worldmodel_tool_link_mapper.yaml
 codegen/codegen_agent_spec/Spec-codegen+codegenAgent/worldmodel_tool_metadata_reflector.yaml
 codegen/dev_layer/governance/core.yaml
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge_extraction_glue.yaml
-codegen/extractions/domain_tensor_bridge_v6_20260102/manifests/domain_tensor_bridge_v6_manifest.json
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge_extraction_glue.yaml
+codegen/extractions/domain_bridge_v6_20260102/manifests/domain_bridge_v6_manifest.json
 codegen/meta-yaml/meta.codegen.schema.yaml
 codegen/meta-yaml/meta.dependency.integration (1).yaml
 codegen/meta-yaml/meta.dependency.integration.yaml
@@ -455,9 +455,9 @@ deploy/k8s/manifests/c1-secrets.yaml
 docker-compose.prod.yml
 docker-compose.yml
 docs/CODE-MAP.yaml
-domain_tensor_bridge/codegen_validation/dev_mode_tensor_bridge_phases.json
-domain_tensor_bridge/codegen_validation/domain_tensor_bridge_extraction_glue.yaml
-domain_tensor_bridge/codegen_validation/domain_tensor_bridge_v6_manifest.json
+domain_bridge/codegen_validation/dev_mode_tensor_bridge_phases.json
+domain_bridge/codegen_validation/domain_bridge_extraction_glue.yaml
+domain_bridge/codegen_validation/domain_bridge_v6_manifest.json
 dora_complete_injection_report.json
 grafana/provisioning/dashboards/dashboards.yml
 grafana/provisioning/dashboards/l9-five-tier-observability.json

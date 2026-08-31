@@ -67,8 +67,8 @@ AnomalyProcessResponse::BaseModel @ api/routes/workers.py
 AnomalyResponseMonitorRequest::BaseModel @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitorResponse::BaseModel @ workers/anomaly_response_monitor.py
 AnomalySeverity::str,Enum @ adapters/tensorglobe_bridge/anomaly_guard.py
-AnomalySeverity::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
-AnomalySeverity::str,Enum @ domain_tensor_bridge/anomaly_handler.py
+AnomalySeverity::str,Enum @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/anomaly_handler.py
+AnomalySeverity::str,Enum @ domain_bridge/anomaly_handler.py
 AnomalySeverity::str,Enum @ workers/anomaly_classifier.py
 AnomalySignal::BaseModel @ adapters/tensorglobe_bridge/schemas.py
 AnomalyType::str,Enum @ adapters/tensorglobe_bridge/anomaly_guard.py
@@ -324,11 +324,11 @@ ErrorPolicy::BaseModel @ ir_engine/meta_ir.py
 ErrorSeverity::Enum @ core/protocols/error_handling_protocols.py
 ErrorStrategy::str,Enum @ ir_engine/meta_ir.py
 EscalationConfig::BaseModel @ ir_engine/meta_ir.py
-EscalationLevel::str,Enum @ domain_tensor_bridge/governance_bridge.py
+EscalationLevel::str,Enum @ domain_bridge/governance_bridge.py
 EscalationReason::str,Enum @ agents/codegenagent/compliance_auditor.py
 EscalationRequired::Exception @ codegen/dev_layer/runtime/enforcement.py
-EscalationTriggerType::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py
-EscalationTriggerType::str,Enum @ domain_tensor_bridge/escalation_handler.py
+EscalationTriggerType::str,Enum @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/escalation_handler.py
+EscalationTriggerType::str,Enum @ domain_bridge/escalation_handler.py
 EvalResultResponse::BaseModel @ api/routes/evaluation.py
 EvalSetInfo::BaseModel @ api/routes/evaluation.py
 EvalSettings::BaseSettings @ config/ai_eval_settings.py
@@ -408,8 +408,8 @@ GoalsSpec::BaseModel @ ir_engine/meta_ir.py
 GovernanceBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 GovernanceBlockPattern::GapDetectionPattern @ core/agents/selfreflection.py
 GovernanceCheckSpan::Span @ core/observability/models.py
-GovernanceDecision::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
-GovernanceDecision::str,Enum @ domain_tensor_bridge/governance_bridge.py
+GovernanceDecision::str,Enum @ codegen/extractions/domain_bridge_v6_20260102/domain_bridge/governance_bridge.py
+GovernanceDecision::str,Enum @ domain_bridge/governance_bridge.py
 GovernanceHarmonizationConfig::BaseModel @ codegen/code-gen-files/glue_resolver.py
 GovernanceHook::ABC @ memory/governance_hooks.py
 GovernanceModel::BaseModel @ core/codegen/spec/spec_normalizer_v2.py
@@ -540,7 +540,7 @@ L9Agent::BaseModel @ core/worldmodel/l9_schema.py
 L9BaseModel::BaseModel @ core/models/l9_base_model.py
 L9ExternalSystem::BaseModel @ core/worldmodel/l9_schema.py
 L9Infrastructure::BaseModel @ core/worldmodel/l9_schema.py
-L9MemoryAdapter::MemoryBridge @ domain_tensor_bridge/l9_memory_adapter.py
+L9MemoryAdapter::MemoryBridge @ domain_bridge/l9_memory_adapter.py
 L9MemorySegment::BaseModel @ core/worldmodel/l9_schema.py
 L9PostgresSaver::BaseCheckpointSaver @ memory/checkpoint/postgres_saver.py
 L9Relationship::BaseModel @ core/worldmodel/l9_schema.py

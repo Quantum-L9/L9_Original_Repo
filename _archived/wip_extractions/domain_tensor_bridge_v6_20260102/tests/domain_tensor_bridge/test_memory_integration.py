@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from domain_tensor_bridge.memory_bridge import EpisodicEvent, MemoryBridge, Node
+from domain_bridge.memory_bridge import EpisodicEvent, MemoryBridge, Node
 
 
 @pytest.fixture

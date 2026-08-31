@@ -648,11 +648,11 @@ L9/
 │   │       ├── test_e2e_diff_generation.py
 │   ├── extractions/
 │   │   ├── sympy_locked_todo_plan.txt
-│   │   └── domain_tensor_bridge_v6_20260102/
-│   │       ├── domain_tensor_bridge_extraction_glue.yaml
+│   │   └── domain_bridge_v6_20260102/
+│   │       ├── domain_bridge_extraction_glue.yaml
 │   │       ├── evidence_report.md
 │   │       ├── locked_todo_plan.txt
-│   │       ├── domain_tensor_bridge/
+│   │       ├── domain_bridge/
 │   │       ├── manifests/
 │   │       └── tests/
 │   ├── meta/
@@ -1284,7 +1284,7 @@ L9/
 │   │   ├── migration-checklist.md
 │   │   ├── protocol-catalog.md
 │   └── diagnosis/
-├── domain_tensor_bridge/
+├── domain_bridge/
 │   ├── README.md
 │   ├── __init__.py
 │   ├── agent_controller.py
@@ -1312,8 +1312,8 @@ L9/
 │   ├── world_model_bridge.py
 │   ├── codegen_validation/
 │   │   ├── dev_mode_tensor_bridge_phases.json
-│   │   ├── domain_tensor_bridge_extraction_glue.yaml
-│   │   ├── domain_tensor_bridge_v6_manifest.json
+│   │   ├── domain_bridge_extraction_glue.yaml
+│   │   ├── domain_bridge_v6_manifest.json
 │   │   ├── evidence_report.md
 │   │   ├── locked_todo_plan.txt
 │   ├── docs/
@@ -1326,7 +1326,7 @@ L9/
 │   │   ├── PACKET_SPEC.md
 │   │   ├── REASONING_PIPELINE.md
 │   └── tests/
-│       └── domain_tensor_bridge/
+│       └── domain_bridge/
 │           ├── __init__.py
 │           ├── test_api_surfaces.py
 │           ├── test_bridge_controller.py
@@ -2025,9 +2025,9 @@ L9/
 │   │   ├── core_export_audit.md
 │   │   ├── core_triage.md
 │   │   ├── core_wiring_audit.md
-│   │   ├── domain_tensor_bridge_export_audit.md
-│   │   ├── domain_tensor_bridge_triage.md
-│   │   ├── domain_tensor_bridge_wiring_audit.md
+│   │   ├── domain_bridge_export_audit.md
+│   │   ├── domain_bridge_triage.md
+│   │   ├── domain_bridge_wiring_audit.md
 │   │   ├── email_agent_export_audit.md
 │   │   ├── email_agent_triage.md
 │   │   ├── email_agent_wiring_audit.md

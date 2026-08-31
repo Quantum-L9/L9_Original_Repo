@@ -36,8 +36,8 @@ codegen/dev_layer/ -
 codegen/dev_layer/am_engine/ - 
 codegen/dev_layer/modules/ - 
 codegen/dev_layer/runtime/ - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/ - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/ - No module docstring
+codegen/extractions/domain_bridge_v6_20260102/domain_bridge/ - 
+codegen/extractions/domain_bridge_v6_20260102/tests/domain_bridge/ - No module docstring
 collaborative_cells/ - 
 config/ - L9 Configuration Module.
 config/schemas/ - 
@@ -84,8 +84,8 @@ core/security/ -
 core/testing/ - 
 core/tools/ - 
 core/worldmodel/ - 
-domain_tensor_bridge/ - 
-domain_tensor_bridge/tests/domain_tensor_bridge/ - No module docstring
+domain_bridge/ - 
+domain_bridge/tests/domain_bridge/ - No module docstring
 email_agent/ - L9 Email Agent - Gmail API integration.
 governance/ - No module docstring
 graph_adapter/ - L9 LangGraph Integration - PacketNodeAdapter for memory-logg

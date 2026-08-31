@@ -81,7 +81,7 @@ def default_layout() -> RepoLayout:
         root / "world_model",
         root / "ir_engine",
         root / "graph_adapter",
-        root / "domain_tensor_bridge",
+        root / "domain_bridge",
     )
     api_dirs: tuple[Path, ...] = (root / "api",)
     config_dirs: tuple[Path, ...] = (

@@ -527,32 +527,32 @@ module: core.worldmodel.insight_emitter
 module: core.worldmodel.service
   def get_world_model_service(substrate_service=...)
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_api_surfaces
+module: domain_bridge.tests.domain_bridge.test_api_surfaces
   def controller()
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_bridge_controller
+module: domain_bridge.tests.domain_bridge.test_bridge_controller
   def controller()
   def mock_packet()
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_context_enrichment
+module: domain_bridge.tests.domain_bridge.test_context_enrichment
   def enricher()
   def mock_packet()
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_governance_integration
+module: domain_bridge.tests.domain_bridge.test_governance_integration
   def governance()
   def governance_with_igor()
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_memory_integration
+module: domain_bridge.tests.domain_bridge.test_memory_integration
   def memory_bridge()
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_packet_routing
+module: domain_bridge.tests.domain_bridge.test_packet_routing
   def mock_packet()
   def router()
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_reasoning_engine
+module: domain_bridge.tests.domain_bridge.test_reasoning_engine
   def engine()
 
-module: domain_tensor_bridge.tests.domain_tensor_bridge.test_tensor_coordination
+module: domain_bridge.tests.domain_bridge.test_tensor_coordination
   def coordinator()
 
 module: ir_engine.compile_meta_to_ir

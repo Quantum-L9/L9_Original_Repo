@@ -1488,7 +1488,7 @@ Would you like me to drill deeper into any specific dimension, or create detaile
 
 [^3_51]: https://ppl-ai-file-upload.s3.amazonaws.com/connectors/google_drive/1ckv37JyiF9kWoNjbmKKFS2o52X7M49JJ/b6d5b7ac-e192-418b-ae10-e7563203df6d/README.md
 
-[^3_52]: https://ppl-ai-file-upload.s3.amazonaws.com/connectors/google_drive/1uLxyH1pLLQHiu0sunW-uQSRBi-Ki71Ym/6c699d27-5e8c-4419-acaa-43e3e06d1585/domain_tensor_bridge_v6_manifest.json
+[^3_52]: https://ppl-ai-file-upload.s3.amazonaws.com/connectors/google_drive/1uLxyH1pLLQHiu0sunW-uQSRBi-Ki71Ym/6c699d27-5e8c-4419-acaa-43e3e06d1585/domain_bridge_v6_manifest.json
 
 [^3_53]: https://ppl-ai-file-upload.s3.amazonaws.com/connectors/google_drive/1y18Qk1bhquajVChsqeLpdtsyYUFIWjDr/9a2eb661-3193-414f-8e22-260d5b1adc77/locked_todo_plan.txt
 
@@ -2543,7 +2543,7 @@ Should I build these as **downloadable Python modules + prompt files** you can d
 
 [^4_9]: https://ppl-ai-file-upload.s3.amazonaws.com/connectors/google_drive/1ckv37JyiF9kWoNjbmKKFS2o52X7M49JJ/b6d5b7ac-e192-418b-ae10-e7563203df6d/README.md
 
-[^4_10]: https://ppl-ai-file-upload.s3.amazonaws.com/connectors/google_drive/1uLxyH1pLLQHiu0sunW-uQSRBi-Ki71Ym/6c699d27-5e8c-4419-acaa-43e3e06d1585/domain_tensor_bridge_v6_manifest.json
+[^4_10]: https://ppl-ai-file-upload.s3.amazonaws.com/connectors/google_drive/1uLxyH1pLLQHiu0sunW-uQSRBi-Ki71Ym/6c699d27-5e8c-4419-acaa-43e3e06d1585/domain_bridge_v6_manifest.json
 
 [^4_11]: https://ppl-ai-file-upload.s3.amazonaws.com/connectors/google_drive/1y18Qk1bhquajVChsqeLpdtsyYUFIWjDr/9a2eb661-3193-414f-8e22-260d5b1adc77/locked_todo_plan.txt
 

@@ -6,7 +6,7 @@ Tests for API surfaces - process_packet and status endpoints.
 import pytest
 from l9.core.schemas import PacketEnvelope, PacketKind
 
-from domain_tensor_bridge.agent_controller import AgentController
+from domain_bridge.agent_controller import AgentController
 
 
 @pytest.fixture
@@ -32,7 +32,7 @@ class TestProcessPacketEndpoint:
         result = await controller.process_packet(packet)
 
         assert result is not None
-        assert result.source_id == "domain_tensor_bridge"
+        assert result.source_id == "domain_bridge"
 
     @pytest.mark.asyncio
     async def test_response_format(self, controller):

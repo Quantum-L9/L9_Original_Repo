@@ -1233,7 +1233,7 @@ async def analogical_enrichment_node(
         return state
 
     try:
-        from domain_tensor_bridge.analogical_reasoner import AnalogicalReasoner
+        from domain_bridge.analogical_reasoner import AnalogicalReasoner
 
         envelope = state.get("envelope", {})
         packet_type = envelope.get("packet_type", "unknown")

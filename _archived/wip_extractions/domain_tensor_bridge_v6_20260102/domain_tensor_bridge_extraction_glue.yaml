@@ -8,7 +8,7 @@
 # updated_at: "2026-01-02T16:11:12Z"
 # layer: "foundation"
 # domain: "code_generation"
-# file_name: "domain_tensor_bridge_extraction_glue"
+# file_name: "domain_bridge_extraction_glue"
 # type: "service"
 # status: "active"
 # ============================================================================
@@ -18,12 +18,12 @@
 # Source: docs/Roadmap-Upgrades/Factory Deployment Strategy (YAML->Code)/example-L9_Tensor_MainAgent_Schema_v6.yaml
 
 extraction_metadata:
-  agent_id: domain_tensor_bridge
+  agent_id: domain_bridge
   agent_name: "Domain-Tensor Bridge"
   version: 6.0.0
   created: "2026-01-02T03:35:00Z"
   schema_source: "docs/Roadmap-Upgrades/Factory Deployment Strategy (YAML->Code)/example-L9_Tensor_MainAgent_Schema_v6.yaml"
-  extraction_root: "codegen/extractions/domain_tensor_bridge_v6_20260102"
+  extraction_root: "codegen/extractions/domain_bridge_v6_20260102"
 
 schema_to_code:
   
@@ -32,7 +32,7 @@ schema_to_code:
   # ============================================================================
   
   agent_controller:
-    target: domain_tensor_bridge/agent_controller.py
+    target: domain_bridge/agent_controller.py
     source_section: "cursorinstructions.generatefiles[0]"
     purpose: "Main entry point, packet dispatcher"
     requires: [PacketEnvelope, asyncio, structlog]
@@ -48,7 +48,7 @@ schema_to_code:
           docstring: "Dispatch packet to appropriate handler based on type"
   
   reasoning_engine:
-    target: domain_tensor_bridge/reasoning_engine.py
+    target: domain_bridge/reasoning_engine.py
     source_section: "reasoningengine"
     purpose: "Multi-modal reasoning pipeline"
     requires: [structlog, httpx, PacketEnvelope]
@@ -64,7 +64,7 @@ schema_to_code:
           signature: "async def apply_analogical_reasoning(context: dict) -> dict"
   
   decision_synthesizer:
-    target: domain_tensor_bridge/decision_synthesizer.py
+    target: domain_bridge/decision_synthesizer.py
     source_section: "reasoningpipeline.stage_4"
     purpose: "Combine reasoning modes into decision"
     requires: [structlog, pydantic]
@@ -80,7 +80,7 @@ schema_to_code:
   # ============================================================================
   
   packet_router:
-    target: domain_tensor_bridge/packet_router.py
+    target: domain_bridge/packet_router.py
     source_section: "packetrouting"
     purpose: "Route PacketEnvelopes to handlers"
     requires: [PacketEnvelope, structlog]
@@ -94,7 +94,7 @@ schema_to_code:
           signature: "def get_handler_for_type(packet_type: str) -> Callable"
   
   packet_validator:
-    target: domain_tensor_bridge/packet_validator.py
+    target: domain_bridge/packet_validator.py
     source_section: "reasoningpipeline.stage_1"
     purpose: "Validate packet structure & fields"
     requires: [pydantic, PacketEnvelope]
@@ -106,7 +106,7 @@ schema_to_code:
           signature: "def validate_packet(packet: PacketEnvelope) -> ValidationResult"
   
   domain_packet_handler:
-    target: domain_tensor_bridge/domain_packet_handler.py
+    target: domain_bridge/domain_packet_handler.py
     source_section: "packetrouting.inbound"
     purpose: "Handle domain-specific packet types"
     requires: [PacketEnvelope, structlog]
@@ -120,7 +120,7 @@ schema_to_code:
           signature: "async def handle_mortgageos_packet(packet: PacketEnvelope) -> PacketEnvelope"
   
   packet_formatter:
-    target: domain_tensor_bridge/packet_formatter.py
+    target: domain_bridge/packet_formatter.py
     source_section: "packetrouting.outbound"
     purpose: "Format responses for domains"
     requires: [PacketEnvelope, pydantic]
@@ -136,7 +136,7 @@ schema_to_code:
   # ============================================================================
   
   context_enricher:
-    target: domain_tensor_bridge/context_enricher.py
+    target: domain_bridge/context_enricher.py
     source_section: "reasoningpipeline.stage_2"
     purpose: "Query world model, enrich context"
     requires: [httpx, structlog]
@@ -148,7 +148,7 @@ schema_to_code:
           signature: "async def enrich_context(packet: PacketEnvelope) -> EnrichedContext"
   
   world_model_bridge:
-    target: domain_tensor_bridge/world_model_bridge.py
+    target: domain_bridge/world_model_bridge.py
     source_section: "worldmodelintegration"
     purpose: "Interface to world model layer"
     requires: [httpx, structlog]
@@ -162,7 +162,7 @@ schema_to_code:
           signature: "async def query_temporal_patterns(entity_id: str, window_days: int) -> List[Pattern]"
   
   domain_context_builder:
-    target: domain_tensor_bridge/domain_context_builder.py
+    target: domain_bridge/domain_context_builder.py
     source_section: "reasoningpipeline.stage_2"
     purpose: "Build domain-specific context"
     requires: [pydantic]
@@ -178,7 +178,7 @@ schema_to_code:
   # ============================================================================
   
   tensor_coordinator:
-    target: domain_tensor_bridge/tensor_coordinator.py
+    target: domain_bridge/tensor_coordinator.py
     source_section: "reasoningpipeline.stage_3"
     purpose: "Batch, call, collect tensor results"
     requires: [httpx, structlog, asyncio]
@@ -190,7 +190,7 @@ schema_to_code:
           signature: "async def coordinate_tensor_calls(entities: List[str]) -> List[TensorResult]"
   
   tensoraios_bridge:
-    target: domain_tensor_bridge/tensoraios_bridge.py
+    target: domain_bridge/tensoraios_bridge.py
     source_section: "integration.connectto[1]"
     purpose: "Interface to tensor layer"
     requires: [httpx, structlog]
@@ -204,7 +204,7 @@ schema_to_code:
           signature: "async def call_embedding_similarity(entity_a: str, entity_b: str) -> float"
   
   embedding_processor:
-    target: domain_tensor_bridge/embedding_processor.py
+    target: domain_bridge/embedding_processor.py
     source_section: "reasoningpipeline.stage_3"
     purpose: "Process embeddings from tensor layer"
     requires: [numpy, pydantic]
@@ -216,7 +216,7 @@ schema_to_code:
           signature: "def process_embeddings(raw_embeddings: List[float]) -> ProcessedEmbedding"
   
   anomaly_handler:
-    target: domain_tensor_bridge/anomaly_handler.py
+    target: domain_bridge/anomaly_handler.py
     source_section: "reasoningpipeline.stage_3"
     purpose: "Handle anomaly flags from tensor layer"
     requires: [structlog, pydantic]
@@ -232,7 +232,7 @@ schema_to_code:
   # ============================================================================
   
   symbolic_reasoner:
-    target: domain_tensor_bridge/symbolic_reasoner.py
+    target: domain_bridge/symbolic_reasoner.py
     source_section: "reasoningengine.strategymodes[0]"
     purpose: "Apply domain rules"
     requires: [pydantic, structlog]
@@ -244,7 +244,7 @@ schema_to_code:
           signature: "def apply_domain_rules(context: dict, domain: str) -> RuleResult"
   
   causal_reasoner:
-    target: domain_tensor_bridge/causal_reasoner.py
+    target: domain_bridge/causal_reasoner.py
     source_section: "reasoningengine.secondarymodels[0]"
     purpose: "Apply world model causal logic"
     requires: [structlog, httpx]
@@ -256,7 +256,7 @@ schema_to_code:
           signature: "async def apply_causal_logic(context: dict) -> CausalResult"
   
   analogical_reasoner:
-    target: domain_tensor_bridge/analogical_reasoner.py
+    target: domain_bridge/analogical_reasoner.py
     source_section: "reasoningengine.secondarymodels[1]"
     purpose: "Find patterns across domains"
     requires: [structlog, httpx]
@@ -268,7 +268,7 @@ schema_to_code:
           signature: "async def find_analogies(context: dict) -> List[Analogy]"
   
   reflective_auditor:
-    target: domain_tensor_bridge/reflective_auditor.py
+    target: domain_bridge/reflective_auditor.py
     source_section: "reasoningengine.secondarymodels[3]"
     purpose: "Self-critique reasoning"
     requires: [structlog, pydantic]
@@ -284,7 +284,7 @@ schema_to_code:
   # ============================================================================
   
   governance_bridge:
-    target: domain_tensor_bridge/governance_bridge.py
+    target: domain_bridge/governance_bridge.py
     source_section: "governance"
     purpose: "Escalate decisions, respect overrides"
     requires: [L9.core.governance, L9.governance.approvals, structlog]
@@ -301,7 +301,7 @@ schema_to_code:
           signature: "async def escalate_to_anchor(decision: Decision, reason: str) -> EscalationResult"
   
   compliance_checker:
-    target: domain_tensor_bridge/compliance_checker.py
+    target: domain_bridge/compliance_checker.py
     source_section: "governance.complianceauditor"
     purpose: "Verify compliance with rules"
     requires: [pydantic, structlog]
@@ -313,7 +313,7 @@ schema_to_code:
           signature: "def check_compliance(decision: Decision, rules: List[Rule]) -> ComplianceResult"
   
   escalation_handler:
-    target: domain_tensor_bridge/escalation_handler.py
+    target: domain_bridge/escalation_handler.py
     source_section: "governance.escalationpolicy"
     purpose: "Handle escalation logic"
     requires: [structlog, httpx]
@@ -329,7 +329,7 @@ schema_to_code:
   # ============================================================================
   
   memory_bridge:
-    target: domain_tensor_bridge/memory_bridge.py
+    target: domain_bridge/memory_bridge.py
     source_section: "memorytopology"
     purpose: "Access all memory layers (Redis, Postgres, Neo4j, HyperGraphDB)"
     requires: [L9.memory.substrate_service, structlog, httpx]
@@ -355,47 +355,47 @@ schema_to_code:
 
 documentation:
   readme:
-    target: domain_tensor_bridge/README.md
+    target: domain_bridge/README.md
     source_section: "description"
     purpose: "Architecture overview"
   
   architecture:
-    target: domain_tensor_bridge/docs/ARCHITECTURE.md
+    target: domain_bridge/docs/ARCHITECTURE.md
     source_section: "integration + memorytopology"
     purpose: "Detailed design"
   
   packet_spec:
-    target: domain_tensor_bridge/docs/PACKET_SPEC.md
+    target: domain_bridge/docs/PACKET_SPEC.md
     source_section: "packetrouting"
     purpose: "PacketEnvelope format"
   
   reasoning_pipeline:
-    target: domain_tensor_bridge/docs/REASONING_PIPELINE.md
+    target: domain_bridge/docs/REASONING_PIPELINE.md
     source_section: "reasoningpipeline"
     purpose: "Step-by-step reasoning"
   
   config:
-    target: domain_tensor_bridge/docs/CONFIG.md
+    target: domain_bridge/docs/CONFIG.md
     source_section: "learningsystem"
     purpose: "Configuration"
   
   api_spec:
-    target: domain_tensor_bridge/docs/API_SPEC.md
+    target: domain_bridge/docs/API_SPEC.md
     source_section: "deployment.endpoints"
     purpose: "REST/gRPC endpoints"
   
   integration:
-    target: domain_tensor_bridge/docs/INTEGRATION.md
+    target: domain_bridge/docs/INTEGRATION.md
     source_section: "integration"
     purpose: "How to register domain agents"
   
   autonomy_rules:
-    target: domain_tensor_bridge/docs/AUTONOMYRULES.md
+    target: domain_bridge/docs/AUTONOMYRULES.md
     source_section: "governance"
     purpose: "Autonomy & escalation"
   
   deployment:
-    target: domain_tensor_bridge/docs/DEPLOYMENT.md
+    target: domain_bridge/docs/DEPLOYMENT.md
     source_section: "deployment"
     purpose: "Deployment guide"
 
@@ -405,7 +405,7 @@ documentation:
 
 tests:
   test_bridge_controller:
-    target: tests/domain_tensor_bridge/test_bridge_controller.py
+    target: tests/domain_bridge/test_bridge_controller.py
     tests_module: agent_controller
     coverage_target: 85
     cases:
@@ -414,7 +414,7 @@ tests:
       - routing_decision_verification
   
   test_reasoning_engine:
-    target: tests/domain_tensor_bridge/test_reasoning_engine.py
+    target: tests/domain_bridge/test_reasoning_engine.py
     tests_module: reasoning_engine
     coverage_target: 85
     cases:
@@ -423,7 +423,7 @@ tests:
       - error_paths
   
   test_governance_integration:
-    target: tests/domain_tensor_bridge/test_governance_integration.py
+    target: tests/domain_bridge/test_governance_integration.py
     tests_module: governance_bridge
     coverage_target: 90
     cases:
@@ -432,7 +432,7 @@ tests:
       - audit_logging
   
   test_memory_integration:
-    target: tests/domain_tensor_bridge/test_memory_integration.py
+    target: tests/domain_bridge/test_memory_integration.py
     tests_module: memory_bridge
     coverage_target: 85
     cases:
@@ -442,7 +442,7 @@ tests:
       - hypergraphdb_query
   
   test_api_surfaces:
-    target: tests/domain_tensor_bridge/test_api_surfaces.py
+    target: tests/domain_bridge/test_api_surfaces.py
     tests_module: agent_controller
     coverage_target: 80
     cases:
@@ -450,7 +450,7 @@ tests:
       - status_endpoint
   
   test_packet_routing:
-    target: tests/domain_tensor_bridge/test_packet_routing.py
+    target: tests/domain_bridge/test_packet_routing.py
     tests_module: packet_router
     coverage_target: 85
     cases:
@@ -458,7 +458,7 @@ tests:
       - route_by_domain
   
   test_tensor_coordination:
-    target: tests/domain_tensor_bridge/test_tensor_coordination.py
+    target: tests/domain_bridge/test_tensor_coordination.py
     tests_module: tensor_coordinator
     coverage_target: 80
     cases:
@@ -466,7 +466,7 @@ tests:
       - timeout_handling
   
   test_context_enrichment:
-    target: tests/domain_tensor_bridge/test_context_enrichment.py
+    target: tests/domain_bridge/test_context_enrichment.py
     tests_module: context_enricher
     coverage_target: 80
     cases:

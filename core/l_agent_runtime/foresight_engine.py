@@ -353,7 +353,7 @@ class ForesightEngine:
             try:
                 import asyncio
 
-                from domain_tensor_bridge.causal_reasoner import CausalReasoner
+                from domain_bridge.causal_reasoner import CausalReasoner
 
                 reasoner = CausalReasoner()
                 causal_ctx = {
