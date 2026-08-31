@@ -51,7 +51,10 @@ from enum import Enum
 from typing import Any, Literal
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, constr
+
+# Principal ID constraint: non-empty, whitespace-stripped
+PrincipalId = constr(min_length=1, strip_whitespace=True)
 
 # =============================================================================
 # Schema Version Constants
@@ -411,7 +414,9 @@ class PacketEnvelopeIn(BaseModel):
     lineage: dict[str, Any] | None = Field(None)
     tags: list[str] | None = Field(None)
     ttl: datetime | None = Field(None)
-
+    principal_id: PrincipalId | None = Field(
+        None, description="Principal performing operation"
+    )
     model_config = {"extra": "forbid"}
 
     def to_envelope(self) -> PacketEnvelope:

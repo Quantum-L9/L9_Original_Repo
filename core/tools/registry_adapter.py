@@ -143,6 +143,24 @@ from core.governance.tool_risk_policy import get_high_risk_tools, get_side_effec
 
 logger = structlog.get_logger(__name__)
 
+_ALLOWED_PRINCIPAL_PREFIXES = ("user:", "agent:", "system:")
+
+
+def _require_principal(principal_id: str | None, operation: str) -> str:
+    """Fail-closed principal validation."""
+    if not principal_id or not isinstance(principal_id, str) or not principal_id.strip():
+        raise RuntimeError(
+            f"principal_id REQUIRED for {operation}. Received: {principal_id!r}"
+        )
+    cleaned = principal_id.strip()
+    if not cleaned.startswith(_ALLOWED_PRINCIPAL_PREFIXES):
+        raise ValueError(
+            f"Invalid principal_id format: '{cleaned}'. "
+            "Expected namespaced format (user:, agent:, system:)."
+        )
+    return cleaned
+
+
 # GMP-45: Stateless sanitizer instance (safe to reuse)
 _TOOL_INPUT_SANITIZER = ToolInputSanitizer()
 
@@ -455,6 +473,8 @@ class ExecutorToolRegistry:
         tool_id: str,
         arguments: dict[str, Any],
         context: dict[str, Any],
+        *,
+        principal_id: str,
     ) -> ToolCallResult:
         """
         Dispatch a tool call and return result.
@@ -467,10 +487,12 @@ class ExecutorToolRegistry:
             tool_id: Canonical tool identity
             arguments: Arguments for tool
             context: Execution context
+            principal_id: REQUIRED - Principal identifier
 
         Returns:
             ToolCallResult with success/failure, result, and tool_id
         """
+        _require_principal(principal_id, "dispatch_tool_call")
         call_id = uuid4()
         start_time = time.monotonic()
         agent_id = context.get("agent_id", "unknown")
@@ -847,7 +869,8 @@ class ExecutorToolRegistry:
         tool_id: str,
         arguments: dict[str, Any],
         context: dict[str, Any] | None = None,
-        principal_id: str | None = None,
+        *,
+        principal_id: str,
     ) -> ToolCallResult:
         """
         Execute a tool call with kernel enforcement.
@@ -866,13 +889,13 @@ class ExecutorToolRegistry:
             tool_id: Tool identifier
             arguments: Tool call arguments
             context: Optional execution context
-            principal_id: Optional principal ID for audit trail
+            principal_id: REQUIRED - Principal performing execution
 
         Returns:
             ToolCallResult with success/failure, result, and tool_id
 
         Raises:
-            RuntimeError: If kernels not active (hard failure)
+            RuntimeError: If principal_id missing or kernels not active
         """
         start_time = time.time()
         call_id = uuid4()
@@ -883,7 +906,9 @@ class ExecutorToolRegistry:
 
         agent_id = getattr(agent, "agent_id", context.get("agent_id", "unknown"))
         context["agent_id"] = agent_id
-        principal_id = principal_id or context.get("principal_id", "unknown")
+        # FAIL-CLOSED: Enforce principal
+        validated_principal = _require_principal(principal_id, "guarded_execute")
+        principal_id = validated_principal
 
         # Extract kernel metadata for audit trail
         kernel_hashes = getattr(agent, "_kernel_hashes", {})
@@ -1072,6 +1097,7 @@ class ExecutorToolRegistry:
             tool_id=tool_id,
             arguments=arguments,
             context=context,
+            principal_id=principal_id,
         )
 
         # Calculate duration

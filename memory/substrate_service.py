@@ -89,6 +89,18 @@ from telemetry.memory_metrics import (
 
 logger = structlog.get_logger(__name__)
 
+# System principal
+SYSTEM_PRINCIPAL_ID = "system:l9-memory"
+
+
+def _require_principal(principal_id: str | None, operation: str) -> str:
+    """Fail-closed principal validation."""
+    if not principal_id or not isinstance(principal_id, str) or not principal_id.strip():
+        raise RuntimeError(
+            f"principal_id REQUIRED for {operation}. Received: {principal_id!r}"
+        )
+    return principal_id.strip()
+
 
 class MemorySubstrateService:
     """
@@ -246,6 +258,8 @@ class MemorySubstrateService:
     async def write_packet(
         self,
         packet_in: PacketEnvelopeIn,
+        *,
+        principal_id: str,
         tenant_id: str | None = None,
         org_id: str | None = None,
         user_id: str | None = None,
@@ -264,6 +278,7 @@ class MemorySubstrateService:
 
         Args:
             packet_in: Input packet envelope
+            principal_id: REQUIRED - Principal performing write
             tenant_id: Tenant UUID for RLS isolation
             org_id: Organization UUID for RLS isolation
             user_id: User UUID for RLS isolation
@@ -273,6 +288,9 @@ class MemorySubstrateService:
         Returns:
             PacketWriteResult with status and written tables
         """
+        principal_id = _require_principal(principal_id, "write_packet")
+        if hasattr(packet_in, "principal_id"):
+            packet_in.principal_id = principal_id
         # GMP-70: Governance enforcement (fail-closed)
         ctx = self._require_rls_context("write_packet")
         if tenant_id and tenant_id != ctx.tenant_id:
@@ -430,18 +448,25 @@ class MemorySubstrateService:
         )
 
         self._require_rls_context("record_audit_failure")
-        return await self.write_packet(packet)
+        return await self.write_packet(packet, principal_id=SYSTEM_PRINCIPAL_ID)
 
-    async def get_packet(self, packet_id: str) -> dict[str, Any] | None:
+    async def get_packet(
+        self,
+        packet_id: str,
+        *,
+        principal_id: str,
+    ) -> dict[str, Any] | None:
         """
         Retrieve a packet by ID.
 
         Args:
             packet_id: UUID string of the packet
+            principal_id: REQUIRED - Principal performing read
 
         Returns:
             Packet envelope as dict or None if not found
         """
+        _require_principal(principal_id, "get_packet")
         from uuid import UUID
 
         ctx = self._require_rls_context("get_packet")
@@ -666,17 +691,22 @@ class MemorySubstrateService:
     # =========================================================================
 
     async def semantic_search(
-        self, request: SemanticSearchRequest
+        self,
+        request: SemanticSearchRequest,
+        *,
+        principal_id: str,
     ) -> SemanticSearchResult:
         """
         Search semantic memory for similar content.
 
         Args:
             request: Search request with query and parameters
+            principal_id: REQUIRED - Principal performing search
 
         Returns:
             SemanticSearchResult with hits
         """
+        _require_principal(principal_id, "semantic_search")
         self._require_rls_context("semantic_search")
         logger.info(
             f"Semantic search: query='{request.query[:50]}...', min_score={request.min_score}"
@@ -736,7 +766,7 @@ class MemorySubstrateService:
             top_k=5,
             min_score=0.7,
         )
-        result = await self.semantic_search(search_req)
+        result = await self.semantic_search(search_req, principal_id=SYSTEM_PRINCIPAL_ID)
         return [hit.payload for hit in result.hits]
 
     async def embed_text(
