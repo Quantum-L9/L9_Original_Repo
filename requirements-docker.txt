@@ -120,7 +120,7 @@ aiohttp>=3.9.0
 networkx>=3.0
 
 # Caching (for query result caching)
-cachetools>=5.3.0
+cachetools>=7.1.7
 
 # JSON Schema Validation (used in event_type_registry, pattern orchestrator)
 jsonschema>=4.21.0
