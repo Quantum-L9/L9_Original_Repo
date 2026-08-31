@@ -25,7 +25,7 @@ __dora_meta__ = {
     "updated_at": "2026-02-19T12:00:00Z",
     "layer": "core",
     "domain": "dtb",
-    "module_name": "domain_tensor_bridge.gateway",
+    "module_name": "domain_bridge.gateway",
     "type": "service",
     "status": "active",
     "integrates_with": {
