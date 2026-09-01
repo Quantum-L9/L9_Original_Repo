@@ -75,7 +75,8 @@ ACCESS PATTERN
     result = await registry.dispatch_tool_call(
         tool_id="memory_search",
         arguments={"query": "L's capabilities", "limit": 10},
-        context={"principal_id": "user123", "agent_id": "L"}
+        context={"principal_id": "user:user123", "agent_id": "L"},
+        principal_id="user:user123",
     )
 
 Version: 2.1.0 (Governance Integration + Architecture Docs)

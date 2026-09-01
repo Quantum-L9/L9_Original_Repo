@@ -132,6 +132,7 @@ class TestRegistryAdapterFailClosed:
             agent=mock_agent,
             tool_id="test_tool",
             arguments={"arg": "value"},
+            principal_id="agent:test_agent",
         )
 
         assert isinstance(result, ToolCallResult)
@@ -174,6 +175,7 @@ class TestRegistryAdapterFailClosed:
             agent=mock_agent,
             tool_id="test_tool",
             arguments={"arg": "value"},
+            principal_id="agent:test_agent",
         )
 
         assert isinstance(result, ToolCallResult)
@@ -198,6 +200,7 @@ class TestRegistryAdapterFailClosed:
             agent=mock_agent,
             tool_id="test_tool",
             arguments={},
+            principal_id="agent:test_agent",
         )
 
         assert isinstance(result, ToolCallResult)
