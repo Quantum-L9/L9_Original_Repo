@@ -121,13 +121,14 @@ async def instrument_tool_registry(tool_registry: Any) -> None:
         tool_id: str,
         arguments: dict[str, Any],
         context: dict[str, Any],
+        **kwargs: Any,
     ) -> Any:
         """Traced wrapper for dispatch_tool_call."""
 
         @trace_tool_call(tool_id)
         async def _dispatch() -> Any:
             """Inner span-wrapped tool dispatch."""
-            return await original_dispatch(tool_id, arguments, context)
+            return await original_dispatch(tool_id, arguments, context, **kwargs)
 
         return await _dispatch()
 

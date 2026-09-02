@@ -43,6 +43,7 @@ async def test_dispatch_tool_call_rejects_unknown_args_before_executor_runs():
         tool_id="demo_tool",
         arguments={"query": "hi", "oops": "bad"},
         context={"agent_id": "L", "task_id": "t1"},
+        principal_id="agent:L",
     )
 
     assert result.success is False

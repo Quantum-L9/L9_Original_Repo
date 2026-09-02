@@ -149,9 +149,8 @@ async def execute_tool(
             require_approval=request.require_approval,
         )
 
-        # Build execution context
+        principal_id = "system:api-tools-router"
         context = {
-            "principal_id": "api",
             "agent_id": "api-tools-router",
             "require_approval": request.require_approval,
         }
@@ -161,6 +160,7 @@ async def execute_tool(
             tool_id=request.tool_id,
             arguments=request.arguments,
             context=context,
+            principal_id=principal_id,
         )
 
         logger.info(

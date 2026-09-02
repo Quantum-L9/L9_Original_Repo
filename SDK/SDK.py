@@ -1877,8 +1877,11 @@ class L9SDK:
         return await self._tool_registry.dispatch_tool_call(
             tool_id=tool_name,
             arguments=kwargs,
-            agent_id=self.agent_id,  # Auto-injected
-            tenant_id=self.tenant_id,  # Auto-injected
+            context={
+                "agent_id": self.agent_id,
+                "tenant_id": self.tenant_id,
+            },
+            principal_id=f"agent:{self.agent_id}",
         )
 
     @must_stay_async("callers use await")

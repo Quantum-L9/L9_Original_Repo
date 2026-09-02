@@ -195,6 +195,7 @@ class ActionToolOrchestrator(IActionToolOrchestrator):
                     tool_id=tool_id,
                     arguments=arguments,
                     context={"attempt": attempt},
+                    principal_id="system:action-tool-orchestrator",
                 )
 
                 # Check result success
