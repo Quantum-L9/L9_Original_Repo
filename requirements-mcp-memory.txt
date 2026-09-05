@@ -3,7 +3,7 @@
 # Local dev in mcp_memory/: from repo root: pip install -r requirements-mcp-memory.txt
 
 # MCP Core
-mcp>=1.0.0
+mcp>=2.1.1
 pydantic-settings>=2.14.0
 
 # FastAPI & async
