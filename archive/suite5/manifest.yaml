@@ -1,0 +1,67 @@
+# ============================================================================
+# L9 CANONICAL ARCHIVE MANIFEST
+# ============================================================================
+# component_id: "ARC-S5-001"
+# component_name: "Deprecated Cursor Governance Suite 5 Manifest"
+# module_version: "1.0.0"
+# created_at: "2026-09-13T00:00:00Z"
+# created_by: "Manus AI"
+# layer: "operations"
+# domain: "archive"
+# type: "manifest"
+# status: "deprecated"
+# governance_level: "critical"
+# compliance_required: true
+# audit_trail: true
+# purpose: "Prevent reintroduction or deployment of deprecated Suite 5 Cursor Governance artifacts."
+# dependencies: []
+# ============================================================================
+
+archive:
+  artifact_id: "suite5-cursor-governance"
+  display_name: "Cursor Governance Suite 5"
+  legacy_version: "5.0.0"
+  status: "deprecated"
+  deployment_allowed: false
+  source_control_role: "historical-reference-only"
+  archived_at: "2026-09-13T00:00:00Z"
+  archived_by: "Manus AI"
+
+prohibited_runtime_patterns:
+  - ".cursorrules"
+  - ".cursor-commands symlink workflow"
+  - "standalone Flask governance API"
+  - "standalone SQLite governance telemetry"
+  - "Suite 5 Universal Governance Kernel"
+  - "Suite 5 autonomous rule generation"
+
+replacement_architecture:
+  cursor_guidance:
+    location: ".cursor/rules/*.mdc"
+    source_of_truth: "Version-controlled L9 Project Rules"
+  policy_enforcement:
+    location: "core/governance/engine.py"
+    source_of_truth: "YAML policy manifests and GovernanceEngineService"
+  learning:
+    location: "agents/cursor/gmp_meta_learning.py"
+    source_of_truth: "GMP meta-learning and scoped MCP memory"
+  observability:
+    location: "core/observability/ and telemetry/"
+    source_of_truth: "Prometheus metrics, traces, and observability routes"
+  metadata_validation:
+    location: "scripts/audit/validate_dora_complete.py"
+    source_of_truth: "DORA contract validation"
+
+recovery_policy:
+  allowed:
+    - "Extract documented requirements only after review."
+    - "Translate approved requirements into L9-native policies, tests, or Cursor Project Rules."
+  forbidden:
+    - "Copy or execute Suite 5 deployment, API, monitor, dashboard, validator, or telemetry code."
+    - "Treat Suite 5 documentation claims as production evidence."
+    - "Auto-promote Cursor lessons into global governance policy."
+
+verification:
+  cursor_rules_validator: "python3 ci/validate_cursor_rules.py"
+  dora_validator: "python3 scripts/audit/validate_dora_complete.py --repo ."
+  policy_schema_validator: "python3 ci/validate_policy_schemas.py"

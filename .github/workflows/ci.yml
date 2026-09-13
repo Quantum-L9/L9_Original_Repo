@@ -305,6 +305,11 @@ jobs:
           echo "📜 Validating policy YAML schemas in config/policies/..."
           python3 ci/validate_policy_schemas.py
 
+      - name: Validate Cursor Project Rules
+        run: |
+          echo "🧭 Validating version-controlled L9 Cursor Project Rules..."
+          python3 ci/validate_cursor_rules.py
+
       - name: Repository contract validation
         run: |
           echo "📋 Validating repository method/param contracts..."
