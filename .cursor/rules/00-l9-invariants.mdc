@@ -26,5 +26,5 @@ When a work item touches a contract, API, policy, schema, or runtime wiring, upd
 Reference sources when needed:
 - `@readme/L9-KERNEL-REFERENCE.md`
 - `@agents/cursor/docs/CURSOR-L9-INTEGRATION.md`
-- `@scripts/audit/validate_dora_complete.py`
+- `@ci/check_adr_compliance.py`
 - `@core/governance/engine.py`

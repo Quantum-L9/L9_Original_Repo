@@ -1,6 +1,3 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
 # component_name: "Workflow-Template"
 # module_version: "1.0.0"
 # created_by: "Igor Beylin"
@@ -213,9 +210,6 @@ steps:
         - "echo 'Created files:'"
         - "ls -la services/new_service.py core/new_module.py"
         - "echo 'Done!'"
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
 # tags: ["configuration", "operations", "utility", "workflow", "workflows"]
 # keywords: ["description", "name", "steps", "template", "variables", "version"]
 # last_modified: "2026-01-25T14:33:37Z"

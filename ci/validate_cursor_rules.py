@@ -22,24 +22,6 @@ from typing import Any
 
 import yaml
 
-# ============================================================================
-__dora_meta__ = {
-    "component_id": "CI-CUR-001",
-    "component_name": "Validate Cursor Rules",
-    "module_version": "1.0.0",
-    "created_at": "2026-09-13T00:00:00Z",
-    "created_by": "Manus AI",
-    "layer": "operations",
-    "domain": "ci",
-    "type": "utility",
-    "status": "active",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Validate L9-native Cursor Project Rule structure and prevent deprecated Suite 5 patterns.",
-    "dependencies": ["PyYAML"],
-}
-# ============================================================================
 
 RULES_RELATIVE_PATH = Path(".cursor/rules")
 REQUIRED_RULES = {
@@ -272,29 +254,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CI-CUR-001",
-    "security_classification": "internal",
-    "execution_mode": "sync",
-    "timeout_seconds": 30,
-    "performance_tier": "standard",
-    "last_modified": "2026-09-13T00:00:00Z",
-    "modified_by": "Manus AI",
-    "change_summary": "Added L9-native Cursor Project Rules contract validation.",
-}
-
-__l9_trace__ = {
-    "trace_id": "CURSOR-RULES-VALIDATION-001",
-    "task": "Validate version-controlled L9 Cursor Project Rules",
-    "timestamp": "2026-09-13T00:00:00Z",
-    "patterns_used": ["contract-validation", "fail-fast-ci", "deprecated-runtime-blocklist"],
-    "graph": {"inputs": [".cursor/rules"], "outputs": ["CI validation result"]},
-    "inputs": {"rules_directory": ".cursor/rules"},
-    "outputs": {"exit_code": "0 on valid rules, 1 on violations"},
-    "metrics": {"max_rule_lines": 500},
-}

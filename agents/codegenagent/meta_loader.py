@@ -14,30 +14,6 @@ Version: 2.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Meta Loader",
-    "module_version": "2.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-02T15:15:57Z",
-    "updated_at": "2026-01-07T13:35:57Z",
-    "layer": "intelligence",
-    "domain": "error_handling",
-    "module_name": "meta_loader",
-    "type": "exception",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [
-            "orchestration.quantum_swarm_loader",
-            "tests.services.symbolic_computation.test_c_gmp_engine",
-            "tests.services.symbolic_computation.test_meta_loader",
-        ],
-    },
-}
-# ============================================================================
 
 import os
 from pathlib import Path
@@ -372,55 +348,4 @@ def load_as_contract(path: str) -> MetaContract:
     return loader.load_as_contract(path)
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "AGE-INTE-010",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "config",
-        "debugging",
-        "error-handling",
-        "exception",
-        "filesystem",
-        "intelligence",
-        "loader",
-        "logging",
-        "validation",
-    ],
-    "keywords": [
-        "agent",
-        "all",
-        "contract",
-        "contracts",
-        "detect",
-        "factory",
-        "format",
-        "generation",
-    ],
-    "business_value": "Provides meta loader components including MetaLoaderError, MetaLoader",
-    "last_modified": "2026-01-07T13:35:57Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

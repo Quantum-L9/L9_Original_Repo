@@ -4,24 +4,6 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-__dora_meta__ = {
-    "component_name": "Script 2",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-19T17:39:07Z",
-    "updated_at": "2026-01-31T22:21:54Z",
-    "layer": "intelligence",
-    "domain": "agent_execution",
-    "module_name": "script_2",
-    "type": "utility",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": [],
-    },
-}
 # ============================================================================
 
 # Create comprehensive GMP v2.0 synthesis with all improvements
@@ -75,7 +57,6 @@ tags: ["gmp", "automation", "metadata", "versioning"]
 production_ready: true
 ---
 
-# DORA Block Specification v2.0
 
 ## Overview
 DORA (Deterministic Operations Recording & Automation) blocks are JSON metadata structures appended to **every file created or updated** by GMP execution. They enable automatic tracking, validation, and management of machine-generated changes.
@@ -86,7 +67,6 @@ DORA (Deterministic Operations Recording & Automation) blocks are JSON metadata 
 - **Required:** ALL files touched by GMP MUST have DORA block
 - **Update:** DORA block MUST be updated on every file modification
 
-## DORA Block Structure v2.0
 
 ```json
 {
@@ -140,7 +120,6 @@ DORA (Deterministic Operations Recording & Automation) blocks are JSON metadata 
 
 ## Field Specifications
 
-### dora_metadata Section
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -281,7 +260,6 @@ DORA (Deterministic Operations Recording & Automation) blocks are JSON metadata 
 | Phase 5 (Recursive) | Verify all DORA blocks updated correctly |
 | Phase 6 (Finalization) | Set validation_status = "validated" |
 
-## Example DORA Blocks
 
 ### Python File Example
 ```python
@@ -289,7 +267,6 @@ DORA (Deterministic Operations Recording & Automation) blocks are JSON metadata 
 # ... file content ...
 
 # ═══════════════════════════════════════════════════════════════
-# DORA BLOCK - DO NOT EDIT MANUALLY
 # ═══════════════════════════════════════════════════════════════
 ```json
 {
@@ -347,7 +324,6 @@ DORA (Deterministic Operations Recording & Automation) blocks are JSON metadata 
 
 ---
 
-## DORA BLOCK - DO NOT EDIT MANUALLY
 ```json
 {
   "dora_metadata": {
@@ -382,7 +358,6 @@ DORA (Deterministic Operations Recording & Automation) blocks are JSON metadata 
 
 ## CLI Tools (Future Enhancement)
 
-### Validate DORA Block
 ```bash
 $ dora-validate /l9/core/agents/executor.py
 ✓ DORA block present
@@ -394,7 +369,6 @@ $ dora-validate /l9/core/agents/executor.py
 STATUS: VALID
 ```
 
-### Generate DORA Block
 ```bash
 $ dora-generate /l9/new_file.py --change-type create --gmp-trace-id gmp-123
 ✓ Generated DORA block for /l9/new_file.py
@@ -402,7 +376,6 @@ $ dora-generate /l9/new_file.py --change-type create --gmp-trace-id gmp-123
 ✓ Appended to file
 ```
 
-### Update DORA Block
 ```bash
 $ dora-update /l9/core/agents/executor.py --version 1.2.4 --change-type update
 ✓ Updated version: 1.2.3 → 1.2.4
@@ -419,47 +392,4 @@ logger.info("output", value=dora_spec)
 logger.info("separator", value="\n" + "=" * 60)
 logger.info("✓ dora block spec v2.0 complete")
 logger.info("separator", value="=" * 60)
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "AGE-INTE-026",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "agent-execution",
-        "code-quality",
-        "event-driven",
-        "intelligence",
-        "linting",
-        "metrics",
-        "migration",
-        "performance",
-        "queue",
-        "security",
-    ],
-    "keywords": ["script"],
-    "business_value": "Utility module for script 2",
-    "last_modified": "2026-01-31T22:21:54Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

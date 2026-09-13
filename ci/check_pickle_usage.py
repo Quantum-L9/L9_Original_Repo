@@ -20,11 +20,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-__dora_meta__ = {
-    "component_name": "CheckPickleUsage",
-    "module_version": "1.0.0",
-    "status": "active",
-}
 
 
 def main() -> int:
@@ -69,10 +64,6 @@ def main() -> int:
     return 0
 
 
-__dora_footer__ = {
-    "governance_level": "medium",
-    "compliance_required": True,
-}
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -5,26 +5,6 @@ Blocks or allows operations based on loaded governance YAML.
 Escalates to L when rules conflict or thresholds breached.
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Enforcement",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-15T22:06:47Z",
-    "updated_at": "2026-01-15T22:06:47Z",
-    "layer": "foundation",
-    "domain": "error_handling",
-    "module_name": "enforcement",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import logging  # noqa: ADR-0019
 from dataclasses import dataclass, field
@@ -225,45 +205,4 @@ def get_decision_log() -> list[GateDecisionRecord]:
     return _engine.decision_log.copy()
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-028",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["dataclass", "engine", "error-handling", "foundation"],
-    "keywords": [
-        "audit",
-        "check",
-        "constraint",
-        "decision",
-        "enforce",
-        "enforcement",
-        "engine",
-        "escalation",
-    ],
-    "business_value": "Provides enforcement components including ConstraintViolation, EscalationRequired, GateDecision",
-    "last_modified": "2026-01-15T22:06:47Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

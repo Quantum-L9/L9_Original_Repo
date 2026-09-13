@@ -23,24 +23,6 @@ Usage:
     python scripts/gmp-validate-stage.py --files core/foo.py --json
 """
 
-__dora_meta__ = {
-    "component_name": "GMP Stage Validator",
-    "module_version": "2.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-15T15:23:54Z",
-    "updated_at": "2026-02-13T19:00:00Z",
-    "layer": "operations",
-    "domain": "scripts",
-    "module_name": "gmp_validate_stage",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["workflows.dags.gmp.nodes.core"],
-    },
-}
 
 import argparse
 import json

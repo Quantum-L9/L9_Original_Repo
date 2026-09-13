@@ -33,26 +33,6 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
      Subfolder naming: MM-DD-YYYY - <description>
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Generate Readme Superprompt",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-18T17:12:30Z",
-    "updated_at": "2026-01-31T22:21:56Z",
-    "layer": "operations",
-    "domain": "scripts",
-    "module_name": "generate_readme_superprompt",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Perplexity API"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import argparse
 import ast
@@ -160,7 +140,6 @@ class SubsystemFacts:
     )  # (name, value, file)
     # Phase 1 enhancements
     exports: list[str] = field(default_factory=list)  # __all__ contents
-    dora_meta: dict[str, Any] = field(default_factory=dict)  # __dora_meta__ contents
     has_existing_readme: bool = False  # Warning flag
 
     @property
@@ -434,21 +413,6 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
                                     if isinstance(elt, ast.Constant):
                                         facts.exports.append(elt.value)
 
-                            # Extract __dora_meta__ governance metadata
-                            elif target.id == "__dora_meta__" and isinstance(
-                                node.value, ast.Dict
-                            ):
-                                for key, val in zip(
-                                    node.value.keys, node.value.values, strict=False
-                                ):
-                                    if isinstance(key, ast.Constant) and isinstance(
-                                        val, ast.Constant
-                                    ):
-                                        facts.dora_meta[key.value] = val.value
-                                    elif isinstance(key, ast.Constant):
-                                        # Complex value, just note it exists
-                                        facts.dora_meta[key.value] = "..."
-
                             # Extract UPPERCASE constants
                             elif target.id.isupper():
                                 value = "..."
@@ -522,9 +486,6 @@ You are generating a **gold-standard README** for the `{path}` module in L9 Secu
 
 ### Public API (`__all__` exports)
 {exports_section}
-
-### DORA Governance Metadata
-{dora_section}
 
 ---
 
@@ -723,16 +684,6 @@ def generate_superprompt(
     else:
         exports_section = "*No `__all__` defined (module exports all public names)*"
 
-    # DORA metadata section
-    if facts.dora_meta:
-        dora_lines = ["```yaml"]
-        for key, val in list(facts.dora_meta.items())[:10]:
-            dora_lines.append(f"{key}: {val}")
-        dora_lines.append("```")
-        dora_section = "\n".join(dora_lines)
-    else:
-        dora_section = "*No `__dora_meta__` governance metadata found*"
-
     return SUPERPROMPT_TEMPLATE.format(
         title=title,
         path=facts.path,
@@ -749,7 +700,6 @@ def generate_superprompt(
         imports_section=imports_section,
         constants_section=constants_section,
         exports_section=exports_section,
-        dora_section=dora_section,
     )
 
 
@@ -863,7 +813,6 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
         logger.info("   imports: {len(facts.imports)}")
         # Phase 1 enhancements
         logger.info("   exports (__all__): {len(facts.exports)}")
-        logger.info("   dora meta: {'✅' if facts.dora_meta else '❌'}")
         print(
             f"   Limits: max_classes={args.max_classes}, max_functions={args.max_functions}",
             file=sys.stderr,
@@ -899,56 +848,4 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
 if __name__ == "__main__":
     sys.exit(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "SCR-OPER-007",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "ast",
-        "cli",
-        "config",
-        "dataclass",
-        "filesystem",
-        "metrics",
-        "operations",
-        "pydantic",
-        "realtime",
-    ],
-    "keywords": [
-        "annotation",
-        "decorator",
-        "extract",
-        "facts",
-        "field",
-        "fields",
-        "format",
-        "function",
-    ],
-    "business_value": "Provides generate readme superprompt components including TypeInfo, FieldInfo, ClassInfo",
-    "last_modified": "2026-01-24T13:02:53Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

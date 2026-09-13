@@ -18,26 +18,6 @@ Example:
     python l9_doc_compiler.py artifacts/raw artifacts/compiled
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "L9 Doc Compiler",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2025-12-20T18:07:27Z",
-    "updated_at": "2026-01-20T23:43:16Z",
-    "layer": "operations",
-    "domain": "current_work",
-    "module_name": "l9_doc_compiler",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import hashlib
 import re
@@ -529,55 +509,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CUR-OPER-038",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "auth",
-        "config",
-        "current-work",
-        "dataclass",
-        "event-driven",
-        "filesystem",
-        "operations",
-        "security",
-        "tracing",
-    ],
-    "keywords": [
-        "artifact",
-        "classifier",
-        "classify",
-        "compile",
-        "compiler",
-        "constraint",
-        "directory",
-        "doc",
-    ],
-    "business_value": "Takes markdown/text documents as input Classifies them by schema type Extracts structured information Emits canonical YAML artifacts Preserves provenance and traceability python l9_doc_compiler.py <in",
-    "last_modified": "2026-01-20T23:43:16Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -74,7 +74,6 @@ ALLOWED_EXCEPTIONS = {
         "core/governance/rate_limit_policy.py",  # actual wrapper has @wraps
         "core/protocols/",  # actual wrappers have @wraps
         "memory/query_cache.py",  # actual wrappers have @wraps
-        "runtime/dora.py",  # actual wrappers have @wraps
         "runtime/tool_call_wrapper.py",  # actual wrappers have @wraps
     ],
     "direct_agent_communication": [

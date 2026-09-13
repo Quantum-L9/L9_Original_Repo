@@ -6,37 +6,6 @@ Provides reusable decorators for marking code patterns and intentions.
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Decorators",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-17T14:57:53Z",
-    "updated_at": "2026-01-17T23:47:56Z",
-    "layer": "foundation",
-    "domain": "core",
-    "module_name": "decorators",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [
-            "agents.base_agent",
-            "agents.cursor.integrations.cursor_gateway",
-            "agents.cursor.integrations.cursor_langgraph",
-            "agents.research_agent",
-            "api.agent_routes",
-            "api.e2e_slack_audit",
-            "api.memory.router",
-            "api.os_routes",
-            "api.routes.commands",
-            "api.routes.cursor",
-        ],
-    },
-}
-# ============================================================================
 
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -116,53 +85,4 @@ def __getattr__(name: str):
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "async",
-        "core",
-        "event-driven",
-        "foundation",
-        "linting",
-        "service",
-    ],
-    "keywords": [
-        "async",
-        "decorator",
-        "decorators",
-        "interface",
-        "memory",
-        "must",
-        "protocol",
-        "route",
-    ],
-    "business_value": "Provides reusable decorators for marking code patterns and intentions.",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

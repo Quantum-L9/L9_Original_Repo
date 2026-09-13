@@ -11,26 +11,6 @@ Author: L9 Platform Team
 Date: 2026-01-17
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Benchmark Caching And Vector",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:53Z",
-    "layer": "operations",
-    "domain": "scripts",
-    "module_name": "benchmark_caching_and_vector",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import asyncio
 import statistics
@@ -305,56 +285,4 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "SCR-OPER-005",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["memory.query_cache"],
-    "tags": [
-        "async",
-        "auth",
-        "authorization",
-        "caching",
-        "metrics",
-        "migration",
-        "mocking",
-        "monitoring",
-        "operations",
-        "performance",
-    ],
-    "keywords": [
-        "benchmark",
-        "cached",
-        "caching",
-        "combined",
-        "database",
-        "impact",
-        "mock",
-        "query",
-    ],
-    "business_value": "Implements MockDatabase for benchmark caching and vector functionality",
-    "last_modified": "2026-01-24T13:02:53Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

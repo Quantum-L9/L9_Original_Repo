@@ -24,28 +24,6 @@ GMP: refactor-phase0-plan8
 
 from __future__ import annotations
 
-# ============================================================================
-# DORA HEADER META
-# ============================================================================
-__dora_meta__ = {
-    "component_id": "TOOL-REG-CACHE-001",
-    "component_name": "ToolRegistryCache",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-21T00:00:00Z",
-    "created_by": "L9_Refactoring_Phase0",
-    "layer": "foundation",
-    "domain": "tools",
-    "type": "service",
-    "status": "active",
-    "governance_level": "standard",
-    "compliance_required": False,
-    "audit_trail": False,
-    "purpose": "High-performance caching layer for tool registry lookups",
-    "dependencies": [
-        "core.tools.tool_registry",
-    ],
-}
-# ============================================================================
 
 from collections import OrderedDict
 from dataclasses import dataclass, field
@@ -602,53 +580,4 @@ __all__ = [
     "invalidate_all_tool_caches",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-028",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "caching",
-        "data-models",
-        "dataclass",
-        "debugging",
-        "foundation",
-        "logging",
-        "metrics",
-    ],
-    "keywords": [
-        "all",
-        "cache",
-        "cached",
-        "caching",
-        "entry",
-        "expired",
-        "hit",
-        "invalidate",
-    ],
-    "business_value": "Implements Phase 0 Plan 8: Tool Registry Caching Layer",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

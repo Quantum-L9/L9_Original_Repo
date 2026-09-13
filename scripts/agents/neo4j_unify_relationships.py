@@ -31,26 +31,6 @@ Created: 2026-01-05
 GMP: GMP-UKG-1 (Schema Unification)
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Neo4J Unify Relationships",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-06T15:07:54Z",
-    "updated_at": "2026-01-17T23:47:56Z",
-    "layer": "operations",
-    "domain": "agent_execution",
-    "module_name": "neo4j_unify_relationships",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import argparse
 import asyncio
@@ -387,56 +367,4 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "SCR-OPER-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.decorators"],
-    "tags": [
-        "agent-execution",
-        "async",
-        "auth",
-        "cli",
-        "filesystem",
-        "graph-db",
-        "logging",
-        "migration",
-        "operations",
-        "service",
-    ],
-    "keywords": [
-        "count",
-        "delete",
-        "driver",
-        "legacy",
-        "migrate",
-        "migration",
-        "neo4j",
-        "relationship",
-    ],
-    "business_value": "1. Finds all (Agent)-[:HAS_TOOL]->(Tool) relationships 2. Creates equivalent (Agent)-[:CAN_EXECUTE]->(Tool) relationships 3. Optionally deletes the legacy HAS_TOOL relationships",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

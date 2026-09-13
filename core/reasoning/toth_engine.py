@@ -4,26 +4,6 @@ Production-ready ToTh integration using cloud APIs and lightweight ML libraries
 Designed to work without PyTorch dependency issues
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Toth Engine",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:56:34Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "foundation",
-    "domain": "data_models",
-    "module_name": "toth_engine",
-    "type": "dataclass",
-    "status": "production",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Anthropic API", "HTTP API", "OpenAI API"],
-        "memory_layers": [],
-        "imported_by": ["core.reasoning.__init__", "core.reasoning.l9_toth_adapter"],
-    },
-}
-# ============================================================================
 
 import asyncio
 import logging  # noqa: ADR-0019 — stdlib logging used alongside structlog for basicConfig
@@ -1238,56 +1218,4 @@ if __name__ == "__main__":
 
     sys.exit(asyncio.run(main()))
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-073",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "async",
-        "auth",
-        "caching",
-        "cli",
-        "client",
-        "data-models",
-        "dataclass",
-        "engine",
-        "event-driven",
-    ],
-    "keywords": [
-        "aio",
-        "build",
-        "client",
-        "close",
-        "cloud",
-        "confidence",
-        "correction",
-        "decision",
-    ],
-    "business_value": "Provides toth engine components including ReasoningMode, ModelProvider, ToThConfig",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

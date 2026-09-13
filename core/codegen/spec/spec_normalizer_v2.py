@@ -21,30 +21,6 @@ validated NormalizedSpec objects for deterministic code generation.
 **Version**: 2.0.0 (L9-Aligned)
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Spec Normalizer V2",
-    "module_version": "2.0.0",
-    "created_by": "CodeGenAgent",
-    "created_at": "2026-01-25T22:54:40Z",
-    "updated_at": "2026-01-25T22:54:40Z",
-    "layer": "intelligence",
-    "domain": "codegen",
-    "module_name": "spec_normalizer_v2",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory"],
-        "imported_by": [
-            "core.codegen.compiler.module_compiler_v2",
-            "core.codegen.gatekeeper.spec_validator",
-            "core.codegen.gatekeeper.spec_optimizer",
-        ],
-    },
-}
-# ============================================================================
 
 import json
 import re
@@ -411,44 +387,4 @@ class SpecNormalizer:
         return " ".join(word.capitalize() for word in name.split())
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-CODEGEN-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["pydantic>=2.0.0", "pyyaml>=6.0.0", "structlog>=23.1.0"],
-    "tags": [
-        "async",
-        "api",
-        "codegen",
-        "data-models",
-        "foundation",
-        "parsing",
-        "validation",
-    ],
-    "keywords": ["normalize", "parse", "spec", "validate", "yaml", "json"],
-    "business_value": "Deterministic spec parsing and normalization service for L9 code generation",
-    "last_modified": "2026-01-25T22:54:40Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with Option B modular design",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

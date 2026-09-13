@@ -12,20 +12,6 @@ ADR-0087: SQL parameterization enforcement via typed exceptions.
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Security Exceptions",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-16T18:00:00Z",
-    "updated_at": "2026-02-16T18:00:00Z",
-    "layer": "foundation",
-    "domain": "core",
-    "module_name": "security",
-    "type": "module",
-    "status": "active",
-}
-# ============================================================================
 
 
 class SQLSecurityError(ValueError):
@@ -169,19 +155,3 @@ class InvalidSortColumnError(SQLSecurityError):
         base["column"] = self.column
         base["table"] = self.table
         return base
-
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CORE-FOUND-SEC-EXC",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["core", "exceptions", "security", "sql", "injection"],
-    "keywords": ["exception", "error", "security", "sql", "table", "operation"],
-    "last_modified": "2026-02-16T18:00:00Z",
-}
-# ============================================================================

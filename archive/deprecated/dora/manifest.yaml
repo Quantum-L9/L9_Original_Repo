@@ -1,0 +1,71 @@
+archive_id: L9-DORA-DEPRECATION-2026-09-13
+component: Deterministic Operational Repository Automation
+status: deprecated_archived
+archived_at: "2026-09-13"
+archive_policy:
+  executable: false
+  importable: false
+  ci_enabled: false
+  pre_commit_enabled: false
+  runtime_source_mutation_allowed: false
+  reactivation_requires:
+    - architecture_decision_record
+    - explicit_runtime_consumer
+    - append_only_external_event_store
+    - security_and_privacy_review
+    - full_test_and_release_validation
+replacement_controls:
+  governance_decisions:
+    producer: core.governance.engine.GovernanceEngineService
+    evidence: governance.engine.evaluation.trace substrate packets
+  operational_observability:
+    producer: core.observability
+    evidence: spans, metrics, and configured exporters
+  source_provenance:
+    producer: git_and_ci
+    evidence: reviewed commits, CI artifacts, and ADRs
+archived_artifacts:
+  runtime:
+    - runtime/dora.py.disabled
+  ci_and_hooks:
+    - ci/check_dora_compliance.py.disabled
+    - scripts/audit/inject_dora_complete.py.disabled
+    - scripts/audit/inject_dora_multiformat_complete.py.disabled
+    - scripts/audit/validate_dora_complete.py.disabled
+  tests:
+    - tests/runtime/test_dora_auto_update.py.disabled
+  templates:
+    - codegen/templates/dora.meta.yaml
+    - codegen/templates/README.template.meta.yaml.disabled
+    - codegen/templates/python/dora-complete-template.py.disabled
+    - codegen/templates/python/dora-enterprise-template.py.disabled
+    - codegen/templates/python/dora-template.py.disabled
+  cursor_artifacts:
+    - agents/cursor/script.py.disabled
+    - agents/cursor/script_2.py.disabled
+    - agents/cursor/script_3.py.disabled
+    - agents/cursor/script_4.py.disabled
+  documentation_and_reports:
+    - readme/adr/0014-dora-metadata-block.md
+    - readme/dora/
+    - root/TODO-DORA_BLOCK_ROOT_CAUSE_ANALYSIS.md
+    - reports/dora/
+    - reports/dora_complete_injection_report.json
+migration_actions:
+  - Removed runtime imports, decorators, source mutation, and public exports.
+  - Removed CI jobs, validator steps, pre-commit injection, code-generation output, and ADR enforcement.
+  - Removed DORA-specific tests, heuristic rules, templates, and auto-remediation.
+  - Removed passive DORA metadata blocks from active Python and YAML source.
+verification_contract:
+  forbidden_active_terms:
+    - runtime.dora
+    - DoraTraceBlock
+    - emit_executor_trace
+    - l9_traced
+    - update_dora_block
+    - DORABlockGenerator
+    - __dora_meta__
+    - __dora_footer__
+    - __l9_trace__
+    - __footer_meta__
+  archive_prefix: archive/deprecated/dora/

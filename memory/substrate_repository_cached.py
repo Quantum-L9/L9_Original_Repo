@@ -8,26 +8,6 @@ Author: L9 Platform Team
 Date: 2026-01-17
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Substrate Repository Cached",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "learning",
-    "domain": "memory_substrate",
-    "module_name": "substrate_repository_cached",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from typing import Any
 from uuid import UUID
@@ -309,61 +289,4 @@ class CachedSubstrateRepository:
         logger.info("all_caches_cleared")
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MEM-LEAR-026",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "core.schemas",
-        "memory.query_cache",
-        "memory.substrate_models",
-        "memory.substrate_repository",
-    ],
-    "tags": [
-        "async",
-        "auth",
-        "caching",
-        "data-access",
-        "debugging",
-        "event-driven",
-        "learning",
-        "logging",
-        "memory-substrate",
-        "service",
-    ],
-    "keywords": [
-        "acquire",
-        "cache",
-        "cached",
-        "checkpoint",
-        "clear",
-        "connect",
-        "disconnect",
-        "event",
-    ],
-    "business_value": "Provides 50-90% faster queries for frequently accessed data. Author: L9 Platform Team Date: 2026-01-17",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

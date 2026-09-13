@@ -4,26 +4,6 @@ Mac Agent Runner V2
 Polls L9 for Mac automation tasks and executes them using Playwright.
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Runner",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-14T12:48:58Z",
-    "updated_at": "2026-01-17T23:47:56Z",
-    "layer": "integration",
-    "domain": "mac_integration",
-    "module_name": "runner",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Slack API"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import asyncio
 import json
@@ -380,47 +360,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MAC-INTE-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["api.slack_client"],
-    "tags": [
-        "api",
-        "async",
-        "filesystem",
-        "integration",
-        "logging",
-        "mac-integration",
-        "messaging",
-        "queue",
-        "serialization",
-        "service",
-    ],
-    "keywords": ["command", "execute", "format", "poll", "runner", "steps"],
-    "business_value": "Utility module for runner",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

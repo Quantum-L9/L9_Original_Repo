@@ -58,26 +58,6 @@ This kernel routes governance queries to either:
 3. Both (for hybrid rules with probabilistic predicates)
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Hybrid Kernel",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2025-12-27T02:13:14Z",
-    "updated_at": "2026-01-21T21:57:31Z",
-    "layer": "operations",
-    "domain": "current_work",
-    "module_name": "hybrid_kernel",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Anthropic API"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import json
 import re
@@ -584,56 +564,4 @@ if __name__ == "__main__":
         audit_trail_steps=len(decision3.audit_trail),
     )
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CUR-OPER-051",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "auth",
-        "current-work",
-        "dataclass",
-        "debugging",
-        "filesystem",
-        "logging",
-        "metrics",
-        "migration",
-        "monitoring",
-    ],
-    "keywords": [
-        "action",
-        "decision",
-        "evaluate",
-        "governance",
-        "hybrid",
-        "inference",
-        "kernel",
-        "predicate",
-    ],
-    "business_value": "1. FOL Evaluator (for absolute rules) 2. Probabilistic Engine (for judgment calls) 3. Both (for hybrid rules with probabilistic predicates)",
-    "last_modified": "2026-01-21T21:57:31Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

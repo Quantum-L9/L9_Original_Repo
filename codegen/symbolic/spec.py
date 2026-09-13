@@ -9,26 +9,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Spec",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-15T23:27:16Z",
-    "updated_at": "2026-01-15T23:27:16Z",
-    "layer": "foundation",
-    "domain": "data_models",
-    "module_name": "spec",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from enum import Enum
@@ -131,45 +111,4 @@ class SymbolicCodegenPipelineResult:
     errors: list[str] = field(default_factory=list)
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-033",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["data-models", "dataclass", "debugging", "foundation", "logging"],
-    "keywords": [
-        "candidate",
-        "codegen",
-        "intent",
-        "pipeline",
-        "spec",
-        "specification",
-        "symbolic",
-        "verification",
-    ],
-    "business_value": "Provides spec components including CodegenIntent, CodegenSpec, SymbolicCandidate",
-    "last_modified": "2026-01-15T23:27:16Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

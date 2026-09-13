@@ -22,26 +22,6 @@ from starlette.responses import JSONResponse
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "IngressGuard",
-    "module_version": "1.0.0",
-    "created_by": "L-CTO Agent",
-    "created_at": "2026-02-19T12:00:00Z",
-    "updated_at": "2026-02-19T12:00:00Z",
-    "layer": "operations",
-    "domain": "api_gateway",
-    "module_name": "ingress_guard",
-    "type": "middleware",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": ["ALL"],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["api.server"],
-    },
-}
-# ============================================================================
 
 logger = structlog.get_logger(__name__)
 
@@ -207,22 +187,3 @@ class IngressGuardMiddleware(BaseHTTPMiddleware):
         if request.client:
             return request.client.host
         return "unknown"
-
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "API-OPER-INGRESS-001",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["starlette", "structlog", "core.decorators"],
-    "tags": ["api-gateway", "operations", "middleware", "security"],
-    "keywords": ["ingress", "principal_id", "authentication", "fail-closed"],
-    "business_value": "Enforces principal_id on all state-mutating API requests",
-    "last_modified": "2026-02-19T12:00:00Z",
-    "modified_by": "L-CTO Agent",
-    "change_summary": "Initial implementation per ADR-0092 Ingress Guard Strategy v3",
-}
-# ============================================================================

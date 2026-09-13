@@ -17,41 +17,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_meta__ = {
-    "component_id": "COR-FOUN-001",
-    "component_name": "Schemas",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-20T15:08:40Z",
-    "updated_at": "2026-01-18T02:34:46Z",
-    "layer": "foundation",
-    "domain": "data_models",
-    "module_name": "schemas",
-    "type": "enum",
-    "status": "active",
-    "purpose": "Provides schemas components including ExecutorState, TaskKind, AgentTask",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [
-            "_archived.legacy_slack.webhook_slack",
-            "api.agent_routes",
-            "api.routes.commands",
-            "api.server",
-            "core.agents.__init__",
-            "core.agents.agent_instance",
-            "core.agents.bootstrap.orchestrator",
-            "core.agents.bootstrap.phase_0_validate",
-            "core.agents.bootstrap.phase_2_instantiate",
-            "core.agents.executor",
-        ],
-    },
-}
-# ============================================================================
 
 from datetime import UTC, datetime
 from enum import Enum
@@ -498,79 +463,14 @@ __all__ = [
 ]
 
 # ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # Extended metadata referenced by header
 
 # ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
 
 # ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
+
 
 # ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    # === IDENTITY ===
-    "component_id": "COR-FOUN-001",
-    # === GOVERNANCE ===
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "security_classification": "internal",
-    # === DEPENDENCIES ===
-    "dependencies": [],
-    # === OPERATIONAL ===
-    "execution_mode": "on-demand",
-    "timeout_seconds": 30,
-    "performance_tier": "batch",
-    "retry_policy": "exponential",
-    "circuit_breaker_enabled": True,
-    "circuit_breaker_threshold": 5,
-    # === OBSERVABILITY ===
-    "monitoring_required": True,
-    "logging_level": "info",
-    "success_metrics": {
-        "latency_p95_ms": 500,
-        "throughput_ops_per_sec": 100,
-        "availability_percent": 99.9,
-        "error_rate_percent": 0.1,
-    },
-    # === DISCOVERY ===
-    "tags": ["data-models", "enum", "foundation", "llm", "pydantic", "validation"],
-    "keywords": ["agent", "binding", "call", "config", "dedupe", "duplicate"],
-    "business_value": "Provides schemas components including ExecutorState, TaskKind, AgentTask",
-    # === CHANGE TRACKING ===
-    "last_modified": "2026-01-18T02:34:46Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

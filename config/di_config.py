@@ -44,30 +44,6 @@ Related PR: #23 (builds on PR #22 DI/DIP foundation)
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "DI Configuration",
-    "module_version": "1.0.0",
-    "created_by": "L9 Kernel Team",
-    "created_at": "2026-01-20T00:00:00Z",
-    "updated_at": "2026-01-20T00:00:00Z",
-    "layer": "configuration",
-    "domain": "dependency_injection",
-    "module_name": "di_config",
-    "type": "configuration",
-    "status": "production",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j", "PostgreSQL", "Redis"],
-        "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": [
-            "runtime.kernel_loader",
-            "memory.substrate_service",
-            "world_model.service",
-        ],
-    },
-}
-# ============================================================================
 
 import os
 from typing import Any
@@ -534,62 +510,4 @@ __all__ = [
     "is_di_enabled",
     "should_use_di_for_substrates",
 ]
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CON-FOUN-006",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "core.di.container",
-        "core.protocols",
-        "core.tools.base_registry",
-        "memory.graph_client",
-        "memory.substrate_service",
-    ],
-    "tags": [
-        "auth",
-        "caching",
-        "config",
-        "configuration",
-        "debugging",
-        "foundation",
-        "logging",
-        "messaging",
-        "migration",
-        "mocking",
-    ],
-    "keywords": [
-        "bindings",
-        "cache",
-        "client",
-        "clients",
-        "configuration",
-        "configure",
-        "container",
-        "create",
-    ],
-    "business_value": "Cache clients (Redis) Graph clients (Neo4j) Vector stores (pgvector) Memory substrate services World model services Observability services ✅ Protocol-based bindings (uses core/abstractions/) ✅ Singlet",
-    "last_modified": "2026-01-31T22:21:50Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -10,26 +10,6 @@ MIGRATION NOTE (2026-01-25):
 - All subsystem metadata now in one file
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Validate-Readme-Sections",
-    "module_version": "2.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-18T02:07:37Z",
-    "updated_at": "2026-01-25T16:30:00Z",
-    "layer": "operations",
-    "domain": ".dora",
-    "module_name": "validate-readme-sections",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["config/subsystems/readme_config.yaml"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import re
 import sys
@@ -149,21 +129,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": ".DO-OPER-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["config/subsystems/readme_config.yaml"],
-    "tags": [".dora", "api", "cli", "config", "filesystem", "operations"],
-    "keywords": ["readme", "sections", "validate"],
-    "business_value": "This script ensures documentation structure consistency. Required sections from readme_config.yaml must all be present in README.md.",
-    "last_modified": "2026-01-25T16:30:00Z",
-    "modified_by": "README Pipeline Consolidation",
-    "change_summary": "Migrated from README.meta.yaml to readme_config.yaml",
-}
-# ============================================================================

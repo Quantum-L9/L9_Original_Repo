@@ -7,10 +7,9 @@ These test the TESTS and CODE STRUCTURE, not individual functions.
 
 Categories:
 1. Negative-path test coverage enforcement
-2. __dora_meta__ completeness enforcement
-3. Circular import detection
-4. Environment variable safety
-5. PacketEnvelope schema drift detection
+2. Circular import detection
+3. Environment variable safety
+4. PacketEnvelope schema drift detection
 
 Author: L9 Engineering
 Created: 2026-02-12
@@ -25,32 +24,10 @@ from pathlib import Path
 
 import pytest
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Structural Invariants CI",
-    "module_version": "1.0.0",
-    "created_by": "L9 Engineering",
-    "created_at": "2026-02-12T03:41:00Z",
-    "updated_at": "2026-02-12T03:41:00Z",
-    "layer": "testing",
-    "domain": "ci_enforcement",
-    "module_name": "test_structural_invariants",
-    "type": "test",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 CORE_DIRS = ["core", "memory", "orchestration", "runtime", "api", "agents"]
 TEST_DIRS = ["tests"]
-
-DORA_REQUIRED_FIELDS = {"component_name", "module_version", "status", "layer"}
 
 
 def _get_python_files(directories: list[str]) -> list[Path]:
@@ -134,61 +111,6 @@ def test_every_test_module_has_negative_case(parsed_codebase):
                 "the happy path. Add pytest.raises, assert X not in Y, etc.\n"
             )
             pytest.fail(msg)
-
-
-# ---------------------------------------------------------------------------
-# Meta-Test 2: __dora_meta__ completeness enforcement
-# ---------------------------------------------------------------------------
-
-
-class DoraMetaExtractor(ast.NodeVisitor):
-    """Extract __dora_meta__ dict assignments from AST."""
-
-    def __init__(self) -> None:
-        self.dora_keys: set[str] = set()
-        self.has_dora: bool = False
-
-    def visit_Assign(self, node: ast.Assign) -> None:
-        for target in node.targets:
-            if isinstance(target, ast.Name) and target.id == "__dora_meta__":
-                self.has_dora = True
-                if isinstance(node.value, ast.Dict):
-                    for key in node.value.keys:
-                        if isinstance(key, ast.Constant) and isinstance(key.value, str):
-                            self.dora_keys.add(key.value)
-        self.generic_visit(node)
-
-
-def test_all_dora_meta_blocks_have_required_fields(parsed_codebase):
-    """
-    Every __dora_meta__ block must include all required fields.
-
-    Severity: HIGH
-
-    Required: component_name, module_version, status, layer
-    """
-    violations: list[dict] = []
-
-    for filepath in _get_python_files(CORE_DIRS):
-        tree = _parse_safe(filepath)
-        if tree is None:
-            continue
-
-        extractor = DoraMetaExtractor()
-        extractor.visit(tree)
-
-        if extractor.has_dora:
-            missing = DORA_REQUIRED_FIELDS - extractor.dora_keys
-            if missing:
-                rel = str(filepath.relative_to(REPO_ROOT))
-                violations.append({"file": rel, "missing": missing})
-
-    if violations:
-        msg = "HIGH: __dora_meta__ blocks missing required fields:\n\n"
-        for v in violations:
-            msg += f"  {v['file']}: missing {sorted(v['missing'])}\n"
-        msg += f"\nRequired fields: {sorted(DORA_REQUIRED_FIELDS)}\n"
-        pytest.fail(msg)
 
 
 # ---------------------------------------------------------------------------

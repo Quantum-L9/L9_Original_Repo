@@ -16,26 +16,6 @@ Author: Manus AI
 Created: 2025-12-20
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "L9 Spec Generator",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2025-12-20T18:47:58Z",
-    "updated_at": "2026-01-20T23:43:16Z",
-    "layer": "operations",
-    "domain": "current_work",
-    "module_name": "l9_spec_generator",
-    "type": "test",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -536,56 +516,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CUR-OPER-037",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "auth",
-        "cli",
-        "config",
-        "current-work",
-        "dataclass",
-        "filesystem",
-        "linting",
-        "logging",
-        "messaging",
-    ],
-    "keywords": [
-        "concept",
-        "cursor",
-        "generate",
-        "generator",
-        "parse",
-        "plan",
-        "prompt",
-        "spec",
-    ],
-    "business_value": "Provides l9 spec generator components including ConceptSpec, PlanSpec, L9SpecGenerator",
-    "last_modified": "2026-01-20T23:43:16Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -1,14 +1,3 @@
----
-dora:
-  version: "1.0"
-  type: subsystem_readme
-  generated: "2026-02-17 00:14:44 UTC"
-  generator: scripts/generate_subsystem_readmes.py
-  config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
-  auto_generated: true
----
-
 # Accountability & Audit
 
 > **Tier:** CORE | **Path:** `core/accountability` | **Owner:** Igor

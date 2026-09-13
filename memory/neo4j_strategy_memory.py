@@ -19,26 +19,6 @@ GMP: GMP-102 Strategy Memory Phase 0-1
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Neo4j Strategy Memory Service",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-20T00:00:00Z",
-    "updated_at": "2026-01-20T00:00:00Z",
-    "layer": "learning",
-    "domain": "strategy_memory",
-    "module_name": "neo4j_strategy_memory",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j", "PostgreSQL"],
-        "memory_layers": ["semantic_memory", "graph_memory"],
-        "imported_by": ["memory.__init__", "orchestration.plan_executor"],
-    },
-}
-# ============================================================================
 
 import contextlib
 import hashlib
@@ -781,53 +761,4 @@ def create_neo4j_strategy_memory(
     )
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MEM-STRAT-001",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "memory.strategymemory",
-        "memory.graph_client",
-        "core.decorators",
-    ],
-    "tags": [
-        "async",
-        "graph-db",
-        "learning",
-        "neo4j",
-        "service",
-        "strategy",
-    ],
-    "keywords": [
-        "retrieval",
-        "hybrid-scoring",
-        "feedback-loop",
-        "exponential-smoothing",
-    ],
-    "business_value": "Enables strategy reuse for repeat task optimization",
-    "last_modified": "2026-01-20T00:00:00Z",
-    "modified_by": "GMP-102",
-    "change_summary": "Initial implementation of Neo4j-backed Strategy Memory",
-}
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

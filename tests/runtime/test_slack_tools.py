@@ -16,24 +16,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Slack Tools Test Suite",
-    "module_version": "1.0.0",
-    "created_by": "L9 Testing Team",
-    "created_at": "2026-01-21T00:00:00Z",
-    "updated_at": "2026-01-21T00:00:00Z",
-    "layer": "tests",
-    "domain": "runtime",
-    "module_name": "test_slack_tools",
-    "type": "test",
-    "status": "active",
-    "integrates_with": {
-        "tested_modules": ["runtime.l_tools"],
-        "dependencies": ["api.slack_client"],
-    },
-}
-# ============================================================================
 
 import os
 from unittest.mock import AsyncMock, patch
@@ -508,17 +490,3 @@ async def test_slack_send_integration():
     #     text="Integration test message from L9"
     # )
     # assert result["status"] == "success"
-
-
-# =============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "TEST-SLACK-TOOLS",
-    "governance_level": "standard",
-    "security_reviewed": True,
-    "performance_tested": True,
-    "last_audit": "2026-01-21T00:00:00Z",
-    "test_coverage": "comprehensive",
-}
-# ============================================================================

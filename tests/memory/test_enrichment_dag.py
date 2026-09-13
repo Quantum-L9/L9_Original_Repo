@@ -589,18 +589,3 @@ class TestEdgeCases:
         # All should succeed
         for result in results:
             assert result.status == "ok"
-
-
-# =============================================================================
-# DORA Footer
-# =============================================================================
-
-__dora_footer__ = {
-    "component_id": "TEST-MEM-002",
-    "governance_level": "standard",
-    "compliance_required": False,
-    "tags": ["test", "enrichment", "dag", "memory"],
-    "keywords": ["tier", "fallback", "circuit-breaker", "dlq"],
-    "business_value": "Comprehensive test coverage for EnrichmentDAG multi-tier pipeline.",
-    "last_modified": "2026-01-31T00:00:00Z",
-}

@@ -60,7 +60,6 @@ excluded_dirs:
   - "codegen"
   
   # Config directories with templates
-  - ".dora"
   - ".cursor"
   - "private"
 
@@ -90,6 +89,5 @@ grep_exclude_args:
   - "--exclude-dir=.backup"
   - "--exclude-dir=_pack_staging"
   - "--exclude-dir=codegen"
-  - "--exclude-dir=.dora"
   - "--exclude-dir=.cursor"
   - "--exclude-dir=private"

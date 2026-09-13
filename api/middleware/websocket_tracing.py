@@ -23,29 +23,6 @@ GMP: refactor-phase0-plan5
 
 from __future__ import annotations
 
-# ============================================================================
-# DORA HEADER META
-# ============================================================================
-__dora_meta__ = {
-    "component_id": "API-MIDW-001",
-    "component_name": "WebSocketTracingMiddleware",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-21T00:00:00Z",
-    "created_by": "L9_Refactoring_Phase0",
-    "layer": "api",
-    "domain": "middleware",
-    "type": "middleware",
-    "status": "active",
-    "governance_level": "standard",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "WebSocket connection tracing with distributed trace ID propagation",
-    "dependencies": [
-        "fastapi",
-        "starlette",
-    ],
-}
-# ============================================================================
 
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
@@ -336,56 +313,4 @@ __all__ = [
     "inject_trace_into_packet",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "API-OPER-011",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "api-gateway",
-        "async",
-        "auth",
-        "debugging",
-        "endpoint",
-        "event-driven",
-        "logging",
-        "messaging",
-        "middleware",
-    ],
-    "keywords": [
-        "endpoint",
-        "inject",
-        "into",
-        "middleware",
-        "module",
-        "packet",
-        "receive",
-        "send",
-    ],
-    "business_value": "Implements Phase 0 Plan 5: WebSocket Tracing Middleware",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

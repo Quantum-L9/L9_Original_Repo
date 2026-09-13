@@ -42,7 +42,7 @@ ignore = [
 
     # ── STYLE / FORMATTER ────────────────────────────────────────────────
     "E501",    # Line too long (formatter handles)
-    "E402",    # Module level import not at top (DORA metadata pattern - ADR-0014)
+    "E402",    # Module level import not at top for generated modules
     "SIM102",  # Collapsible if (style preference)
     "SIM117",  # Multiple with statements (style preference)
     "SIM105",  # Suppressible exception (use contextlib.suppress)

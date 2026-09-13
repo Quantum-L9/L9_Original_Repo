@@ -24,18 +24,6 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-__dora_meta__ = {
-    "component_name": "CI Gate Regression Tests",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-12T22:00:00Z",
-    "updated_at": "2026-02-12T22:00:00Z",
-    "layer": "testing",
-    "domain": "ci",
-    "module_name": "test_ci_gate_regressions",
-    "type": "test",
-    "status": "active",
-}
 
 L9_ROOT = Path(__file__).resolve().parent.parent.parent
 

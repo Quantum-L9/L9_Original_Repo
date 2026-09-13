@@ -16,30 +16,6 @@ from __future__ import annotations
 import os
 from typing import Literal
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Config Constants",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-13T00:00:00Z",
-    "updated_at": "2026-02-13T00:00:00Z",
-    "layer": "core",
-    "domain": "configuration",
-    "module_name": "config_constants",
-    "type": "constants",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [
-            "mcp_memory.src.main",
-            "mcp_memory.src.mcp_server",
-            "mcp_memory.src.routes.memory_unified",
-        ],
-    },
-}
-# ============================================================================
 
 
 # =============================================================================
@@ -138,11 +114,3 @@ def get_default_scope_for_caller(caller_id: str) -> str:
     if caller_id == "L":
         return os.getenv("L9_MEMORY_SCOPE", DEFAULT_MEMORY_SCOPE)
     return DEFAULT_CALLER_SCOPE
-
-
-# =============================================================================
-__dora_footer__ = {
-    "governance_level": "high",
-    "compliance_required": True,
-}
-# =============================================================================

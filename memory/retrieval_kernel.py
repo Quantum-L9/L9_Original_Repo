@@ -15,26 +15,6 @@ graceful degradation).
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "L9 Retrieval Kernel",
-    "module_version": "1.0.0",
-    "created_by": "Manus Agent",
-    "created_at": "2026-02-19T12:00:00Z",
-    "updated_at": "2026-02-19T12:00:00Z",
-    "layer": "core",
-    "domain": "memory",
-    "module_name": "memory.retrieval_kernel",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Redis", "PostgreSQL", "Neo4j"],
-        "memory_layers": ["working_memory", "semantic_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import asyncio
 from typing import Any, Protocol, runtime_checkable

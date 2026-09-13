@@ -15,11 +15,6 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-__dora_meta__ = {
-    "component_name": "RankingExtensions",
-    "module_version": "1.0.0",
-    "status": "active",
-}
 
 
 # ---------------------------------------------------------------------------
@@ -133,8 +128,3 @@ __all__ = [
     "compute_extended_score",
     "rank_extended",
 ]
-
-__dora_footer__ = {
-    "governance_level": "medium",
-    "compliance_required": True,
-}

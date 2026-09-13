@@ -8,7 +8,6 @@ Components:
 - CodeGenGatekeeperAgent: Main entry point for all code generation
 - ModuleCompiler: Deterministic Module-Spec v2.6 → Python compiler
 - CodeValidator: 14-gate validation pipeline
-- DORABlockGenerator: Metadata block generation
 - GitSafetyManager: Git-based safety and rollback
 - PerplexityResearcher: Live research integration
 

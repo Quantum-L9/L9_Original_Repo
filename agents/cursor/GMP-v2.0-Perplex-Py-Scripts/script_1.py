@@ -4,24 +4,6 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-__dora_meta__ = {
-    "component_name": "Script 1",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-19T17:39:07Z",
-    "updated_at": "2026-01-31T22:21:54Z",
-    "layer": "intelligence",
-    "domain": "agent_execution",
-    "module_name": "script_1",
-    "type": "utility",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
 # ============================================================================
 
 # Generate complete GMP v2.0 file structure
@@ -89,43 +71,4 @@ logger.info("separator", value="=" * 60)
 for filename, description in gmp_v2_files.items():
     logger.info("✓ filename", filename=filename)
     logger.info("  description\n", description=description)
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "AGE-INTE-025",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "agent-execution",
-        "api",
-        "intelligence",
-        "migration",
-        "testing",
-        "utility",
-    ],
-    "keywords": ["script"],
-    "business_value": "Utility module for script 1",
-    "last_modified": "2026-01-31T22:21:54Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

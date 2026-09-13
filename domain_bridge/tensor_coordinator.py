@@ -10,7 +10,6 @@ Summary:
     requests for efficiency. Part of reasoning pipeline Stage 3.
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -22,28 +21,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Tensor Coordinator",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "domain_bridge",
-    "module_name": "tensor_coordinator",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": [
-            "domain_bridge.tests.domain_bridge.test_tensor_coordination"
-        ],
-    },
-}
-# ============================================================================
 
 import asyncio
 from dataclasses import dataclass
@@ -114,59 +91,5 @@ class TensorCoordinator:
         )
 
 
-__footer_meta__ = {
-    "component_id": "INT-DTB-005",
-    "component_name": "Tensor Coordinator",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "intelligence",
-    "domain": "tensor_coordination",
-    "type": "coordinator",
-    "status": "active",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Batch, call, and collect tensor layer results",
-    "summary": "Coordinates calls to TensorAIOS layer with batching for efficiency.",
-    "dependencies": ["structlog", "asyncio"],
-}
 
-__all__ = ["TensorCoordinator", "TensorResult", "__footer_meta__", "__l9_trace__"]
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-008",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "batch-processing",
-        "dataclass",
-        "domain-tensor-bridge",
-        "logging",
-        "mocking",
-        "operations",
-        "tracing",
-    ],
-    "keywords": ["calls", "coordinate", "coordinator", "tensor"],
-    "business_value": "Provides tensor coordinator components including TensorResult, TensorCoordinator",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
+__all__ = ["TensorCoordinator", "TensorResult"]

@@ -19,18 +19,6 @@ Exit: 0 = pass, 1 = validation errors found
 
 from __future__ import annotations
 
-__dora_meta__ = {
-    "component_name": "Validate Policy Schemas",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-16T00:00:00Z",
-    "updated_at": "2026-02-16T00:00:00Z",
-    "layer": "operations",
-    "domain": "ci",
-    "module_name": "validate_policy_schemas",
-    "type": "ci_gate",
-    "status": "active",
-}
 
 import sys
 from pathlib import Path
@@ -239,10 +227,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
-__dora_footer__ = {
-    "governance_level": "medium",
-    "compliance_required": True,
-    "tags": ["ci", "governance", "policy", "yaml", "validation"],
-    "keywords": ["policy", "schema", "validate", "yaml"],
-}

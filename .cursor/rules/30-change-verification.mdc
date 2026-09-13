@@ -13,7 +13,7 @@ purpose: "Require evidence-based validation and accurate completion reporting fo
 
 Before completion, identify the narrowest meaningful verification for the changed surface. Run it and report the exact command, result, and any intentionally unrun checks.
 
-For Python contracts and metadata, use the existing DORA audit where applicable. For policy changes, validate policy schemas. For Cursor Project Rules, run `python3 ci/validate_cursor_rules.py`. For behavior changes, run focused pytest targets before broad suites.
+For Python contracts, verify the active governance and observability boundaries. For policy changes, validate policy schemas. For Cursor Project Rules, run `python3 ci/validate_cursor_rules.py`. For behavior changes, run focused pytest targets before broad suites.
 
 Do not replace a test with a mock dashboard, static status value, or self-reported success. A status field is not evidence that a side effect occurred.
 
@@ -22,7 +22,7 @@ When an integration requires a live dependency that is unavailable locally, veri
 Avoid duplicating L9 observability. Use the existing telemetry, traces, metrics, circuit breakers, and observability routes. If adding remediation behavior, make each external action policy-gated, idempotent, auditable, and followed by an observable outcome check.
 
 Reference sources when needed:
-- `@scripts/audit/validate_dora_complete.py`
+- `@ci/check_adr_compliance.py`
 - `@ci/validate_policy_schemas.py`
 - `@api/routes/observability.py`
 - `@workers/remediation_engine.py`

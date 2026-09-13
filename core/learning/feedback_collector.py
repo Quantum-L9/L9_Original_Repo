@@ -60,26 +60,6 @@ Captures user feedback on governance decisions and triggers:
 Fully autonomous - no manual intervention required.
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Feedback Collector",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2025-12-27T02:13:14Z",
-    "updated_at": "2026-01-21T21:57:31Z",
-    "layer": "operations",
-    "domain": "data_models",
-    "module_name": "feedback_collector",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Anthropic API"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import json
 from dataclasses import dataclass
@@ -514,55 +494,4 @@ if __name__ == "__main__":
         logged_to=str(collector.feedback_log_path),
     )
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CUR-OPER-049",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "auth",
-        "data-models",
-        "dataclass",
-        "event-driven",
-        "filesystem",
-        "logging",
-        "metrics",
-        "migration",
-        "monitoring",
-    ],
-    "keywords": [
-        "collector",
-        "event",
-        "explicit",
-        "feedback",
-        "implicit",
-        "record",
-        "summary",
-    ],
-    "business_value": "Provides feedback collector components including FeedbackType, FeedbackEvent, FeedbackCollector",
-    "last_modified": "2026-01-21T21:57:31Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

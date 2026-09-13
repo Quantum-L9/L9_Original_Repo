@@ -29,24 +29,6 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-__dora_meta__ = {
-    "component_name": "Ingest Lessons",
-    "module_version": "1.0.0",
-    "created_by": "L9 Agent",
-    "created_at": "2026-02-14T00:00:00Z",
-    "updated_at": "2026-02-14T00:00:00Z",
-    "layer": "operations",
-    "domain": "memory_substrate",
-    "module_name": "ingest_lessons",
-    "type": "script",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": ["/mcp/call"],
-        "datasources": ["repeated-mistakes.md"],
-        "memory_layers": ["semantic_memory", "packet_store"],
-        "imported_by": [],
-    },
-}
 
 # ---------------------------------------------------------------------------
 # Defaults
@@ -371,18 +353,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-__dora_footer__ = {
-    "component_id": "AGE-ING-001",
-    "governance_level": "standard",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["structlog", "cursor_memory_client"],
-    "tags": ["ingestion", "lessons", "memory"],
-    "keywords": ["ingest", "lesson", "repeated-mistakes", "mcp"],
-    "business_value": "Ingests governance lessons into semantic memory for retrieval",
-    "last_modified": "2026-02-14T00:00:00Z",
-    "modified_by": "L9_Agent",
-    "change_summary": "Initial creation — Cursor Agent Enforcement Upgrade plan item 2",
-}

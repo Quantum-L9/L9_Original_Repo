@@ -21,26 +21,6 @@ from pathlib import Path
 
 import pytest
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Inline Import Enforcement",
-    "module_version": "1.0.0",
-    "created_by": "L9 Engineering",
-    "created_at": "2026-02-12T03:41:00Z",
-    "updated_at": "2026-02-12T03:41:00Z",
-    "layer": "testing",
-    "domain": "ci_enforcement",
-    "module_name": "test_inline_import_enforcement",
-    "type": "test",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 

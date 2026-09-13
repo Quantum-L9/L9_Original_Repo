@@ -20,18 +20,6 @@ Exit: 0 = pass, 1 = violations found
 
 from __future__ import annotations
 
-__dora_meta__ = {
-    "component_name": "Check Protected Files",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-16T00:00:00Z",
-    "updated_at": "2026-02-16T00:00:00Z",
-    "layer": "operations",
-    "domain": "ci",
-    "module_name": "check_protected_files",
-    "type": "ci_gate",
-    "status": "active",
-}
 
 import fnmatch
 import subprocess
@@ -188,10 +176,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
-__dora_footer__ = {
-    "governance_level": "high",
-    "compliance_required": True,
-    "tags": ["ci", "governance", "protected-files", "security"],
-    "keywords": ["protected", "files", "hil", "approval", "gate"],
-}

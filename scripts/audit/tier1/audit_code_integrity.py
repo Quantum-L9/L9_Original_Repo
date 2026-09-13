@@ -25,26 +25,6 @@ Usage:
   python scripts/audit/tier1/audit_code_integrity.py --gmp-output
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Audit Code Integrity",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-06T19:43:29Z",
-    "updated_at": "2026-01-17T23:47:56Z",
-    "layer": "operations",
-    "domain": "scripts",
-    "module_name": "audit_code_integrity",
-    "type": "worker",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import ast
 import asyncio
@@ -84,7 +64,6 @@ SKIP_DIRS = {
     "archive",
     "deprecated",
     "templates",
-    ".dora",
     "codegen/templates",
     "codegen/code-gen-files",
 }
@@ -95,7 +74,6 @@ SKIP_PATH_PATTERNS = [
     "example",
     "/archive/",
     "/deprecated/",
-    "/.dora/",
     "/igor/audit-tools/",
 ]
 
@@ -1095,56 +1073,4 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "SCR-OPER-020",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.decorators"],
-    "tags": [
-        "ast",
-        "async",
-        "builder-pattern",
-        "caching",
-        "cli",
-        "dataclass",
-        "endpoint",
-        "filesystem",
-        "logging",
-        "operations",
-    ],
-    "keywords": [
-        "analyze",
-        "audit",
-        "builder",
-        "cache",
-        "check",
-        "circular",
-        "compute",
-        "detect",
-    ],
-    "business_value": "Provides audit code integrity components including FileHashEntry, CallGraphEdge, UncalledFunction",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

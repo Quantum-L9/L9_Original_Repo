@@ -137,7 +137,6 @@ make help                  # List all available targets
 | 0002 | Use `TYPE_CHECKING` for circular imports                            |
 | 0006 | All operations emit PacketEnvelope audit trails                     |
 | 0012 | Packets flow through DAG pipeline; validation in `intake_node` only |
-| 0014 | Every module needs `__dora_meta__` dict                             |
 | 0019 | Use structlog (not `print()` or standard `logging`)                 |
 | 0055 | Fail loudly — no silent error swallowing                            |
 | 0087 | SQL parameterization — never use f-strings for queries              |
@@ -156,25 +155,6 @@ All meaningful operations emit `PacketEnvelope` for audit trail. Schema: `core/s
 - Validation happens in `intake_node` only — no duplicate validation
 - Canonical ingestion: `memory/ingestion.py` → `ingest_packet()`
 - DAG pipeline: `memory/substrate_dag.py`
-
-### DORA Compliance (ADR-0014)
-
-Every module MUST have a DORA header and footer.
-
-```python
-# Header
-__dora_meta__ = {
-    "component_name": "My Component",
-    "module_version": "1.0.0",
-    "status": "active",
-}
-
-# Footer
-__dora_footer__ = {
-    "governance_level": "medium",
-    "compliance_required": True,
-}
-```
 
 ### 10-Kernel Stack
 
@@ -240,7 +220,6 @@ New singletons use `@register_singleton` decorator from `core/singleton_auto_reg
 | `import Foo` at module level causing circular import | `if TYPE_CHECKING: import Foo`                                                     | 0002 |
 | `pickle.dumps()` / `pickle.loads()`                  | `json.dumps()` / `msgpack`                                                         | 0088 |
 | Sync I/O in async function (`time.sleep()`)          | `await asyncio.sleep()`                                                            | 0010 |
-| Missing `__dora_meta__` in new module                | Add DORA header dict                                                               | 0014 |
 | Hardcoded secrets in code                            | `os.getenv("SECRET_NAME")` with `.env`                                             | 0090 |
 | Duplicate validation outside `intake_node`           | Validate only in `intake_node`                                                     | 0012 |
 | `eval()` / `exec()` on untrusted input               | Safe alternatives per ADR-0095                                                     | 0095 |

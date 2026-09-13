@@ -11,7 +11,7 @@ The importance score set here feeds into:
    where I(m) is seeded from importance_score at intake
 
 Migration: 0034_intake_leverage_rating.sql
-ADR: 0006 (PacketEnvelope), 0012 (DAG pipeline), 0014 (DORA metadata)
+ADR: 0006 (PacketEnvelope), 0012 (DAG pipeline)
 """
 
 from __future__ import annotations

@@ -14,26 +14,6 @@ Usage:
     python ci/check_forbidden_imports.py path/to/file.py  # Check specific file
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Check Forbidden Imports",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-25T23:48:36Z",
-    "updated_at": "2026-01-07T13:35:57Z",
-    "layer": "operations",
-    "domain": "ci",
-    "module_name": "check_forbidden_imports",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import argparse
 import re
@@ -612,56 +592,4 @@ def main() -> int:
 if __name__ == "__main__":
     sys.exit(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CI-OPER-005",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "caching",
-        "ci",
-        "cli",
-        "debugging",
-        "filesystem",
-        "http-client",
-        "linting",
-        "logging",
-        "messaging",
-        "operations",
-    ],
-    "keywords": [
-        "convert",
-        "detect",
-        "errors",
-        "extract",
-        "files",
-        "find",
-        "forbidden",
-        "imports",
-    ],
-    "business_value": "Implements LintResult for lint forbidden imports functionality",
-    "last_modified": "2026-01-07T13:35:57Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

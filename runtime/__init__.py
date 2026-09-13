@@ -14,26 +14,6 @@ Includes:
 Version: 2.2.0 (consolidated from runtime-local)
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "  Init  ",
-    "module_version": "2.2.0 (consolidated from runtime-local)",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-21T00:00:34Z",
-    "updated_at": "2026-01-31T22:21:51Z",
-    "layer": "operations",
-    "domain": "runtime_operations",
-    "module_name": "__init__",
-    "type": "utility",
-    "status": "production",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Redis"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 __version__ = "2.2.0"
 
@@ -52,16 +32,6 @@ from runtime.background_tasks import (
     get_background_task_registry,
 )
 
-# DORA Block Runtime (L9_TRACE_TEMPLATE auto-update)
-from runtime.dora import (
-    DoraGraph,
-    DoraMetrics,
-    DoraTraceBlock,
-    emit_executor_trace,
-    get_empty_dora_block_python,
-    l9_traced,
-    update_dora_block_in_file,
-)
 from runtime.execution_gate import (
     DEFAULT_TOOL_AUTHORIZATION,
     FORBIDDEN_PATTERNS,
@@ -133,9 +103,6 @@ __all__ = [
     "TOOL_PACKAGES",
     # Background Task Registry
     "BackgroundTaskRegistry",
-    "DoraGraph",
-    "DoraMetrics",
-    "DoraTraceBlock",
     "KernelStack",
     "KernelState",
     "QueuedTask",
@@ -154,12 +121,10 @@ __all__ = [
     # Working Memory Cache (new canonical name)
     "get_wmc",
     "discover_from_packages",
-    "emit_executor_trace",
     "escalate_to_igor",
     # Execution Gate (GODMODE Part 2)
     "execution_gate",
     "get_background_task_registry",
-    "get_empty_dora_block_python",
     "get_enabled_rules",
     # Kernel Loader - Query functions
     "get_kernel_by_name",
@@ -171,8 +136,6 @@ __all__ = [
     "guarded_execute_v2",
     # Kernel State (GODMODE Part 1.1 + 7.2)
     "kernel_state",
-    # DORA Block Runtime
-    "l9_traced",
     "load_all_private_kernels",
     # Kernel Loader - Dynamic discovery
     "load_kernel_file",
@@ -184,7 +147,6 @@ __all__ = [
     "require_kernel_activation",
     "select_mode_based_on_confidence",
     "should_escalate_on_confidence",
-    "update_dora_block_in_file",
     "validate_all_kernels",
     # Kernel Loader - Validation
     "validate_kernel_structure",
@@ -192,61 +154,3 @@ __all__ = [
     "verify_kernel_activation",
     "ws_orchestrator",
 ]
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "RUN-OPER-014",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "runtime.background_tasks",
-        "runtime.dora",
-        "runtime.execution_gate",
-        "runtime.kernel_loader",
-        "runtime.kernel_state",
-    ],
-    "tags": [
-        "auth",
-        "cache",
-        "metrics",
-        "operations",
-        "queue",
-        "realtime",
-        "runtime-operations",
-        "tracing",
-        "utility",
-    ],
-    "keywords": [
-        "agent",
-        "backed",
-        "fallback",
-        "kernel",
-        "memory",
-        "orchestrator",
-        "queue",
-        "redis",
-    ],
-    "business_value": "Utility module for   init  ",
-    "last_modified": "2026-01-31T22:21:51Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -7,7 +7,7 @@ component_name: "L9 Python Contracts"
 version: "1.0.0"
 status: "active"
 governance_level: "high"
-purpose: "Preserve L9 Python conventions, async boundaries, and DORA metadata contracts."
+purpose: "Preserve L9 Python conventions, async boundaries, and active governance contracts."
 ---
 
 # L9 Python Contracts
@@ -16,7 +16,7 @@ Follow existing nearby code before adding abstractions. Use `structlog` for stru
 
 Keep I/O asynchronous in async execution paths. Preserve `@must_stay_async` boundaries where the caller contract requires it. Do not insert blocking network, filesystem, or database operations into async routes, workers, or agents.
 
-Every production module must follow the current DORA contract. Before finalizing a new or materially changed module, run the applicable DORA validator and follow the existing metadata convention in adjacent files.
+Every production module must preserve the active governance and observability contracts. Runtime decision evidence belongs in structured governance packets and observability spans, not mutable source-file metadata.
 
 Use explicit exception handling. Do not introduce bare `except:` clauses. Emit actionable structured logs that include relevant identifiers while excluding secrets and sensitive payloads.
 
@@ -24,6 +24,6 @@ For policy, security, memory, runtime, or API changes, add focused tests that pr
 
 Reference sources when needed:
 - `@agents/cursor/docs/CURSOR-L9-INTEGRATION.md`
-- `@scripts/audit/validate_dora_complete.py`
+- `@ci/check_adr_compliance.py`
 - `@core/decorators.py`
 - `@core/governance/engine.py`

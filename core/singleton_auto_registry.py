@@ -13,26 +13,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Singleton Auto-Registration",
-    "module_version": "1.0.0",
-    "created_by": "L9 Auto-Wiring Team",
-    "created_at": "2026-01-18T00:00:00Z",
-    "updated_at": "2026-01-18T00:00:00Z",
-    "layer": "core",
-    "domain": "infrastructure",
-    "module_name": "singleton_auto_registry",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["core.singleton_registry"],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
@@ -462,31 +442,4 @@ def get_singleton_service_snapshot() -> dict:
     return singleton_service_registry.snapshot()
 
 
-# =============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CORE-SING-AUTO-REG",
-    "governance_level": "critical",
-    "security_reviewed": True,
-    "performance_tested": True,
-    "last_audit": "2026-01-18T00:00:00Z",
-}
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

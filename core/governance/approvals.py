@@ -25,32 +25,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Approval Manager",
-    "module_version": "1.2.0 (Enhanced with high-risk tool detection)",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-25T20:16:35Z",
-    "updated_at": "2026-01-14T15:03:00Z",
-    "layer": "foundation",
-    "domain": "governance",
-    "module_name": "approvals",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Slack API"],
-        "memory_layers": ["working_memory"],
-        "imported_by": [
-            "api.routes.commands",
-            "core.agents.executor",
-            "core.tools.registry_adapter",
-            "tests.integration.test_closed_loop_learning",
-            "tests.integration.test_l_bootstrap",
-        ],
-    },
-}
-# ============================================================================
 
 from datetime import UTC, datetime
 from typing import Any
@@ -532,55 +506,4 @@ class ApprovalManager:
             logger.warning(f"Failed to write governance pattern: {e}")
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-085",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.schemas", "memory.governance_patterns"],
-    "tags": [
-        "async",
-        "auth",
-        "caching",
-        "foundation",
-        "governance",
-        "logging",
-        "messaging",
-        "service",
-        "testing",
-    ],
-    "keywords": [
-        "approval",
-        "approve",
-        "approved",
-        "check",
-        "detection",
-        "format",
-        "governance",
-        "grant",
-    ],
-    "business_value": "Implements ApprovalManager for approvals functionality",
-    "last_modified": "2026-01-14T15:03:00Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

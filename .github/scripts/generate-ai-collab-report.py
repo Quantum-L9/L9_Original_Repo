@@ -9,26 +9,6 @@ Shows:
   4. AI collaboration rules for the PR context
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Generate-Ai-Collab-Report",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-18T02:07:37Z",
-    "updated_at": "2026-01-18T02:07:37Z",
-    "layer": "operations",
-    "domain": ".dora",
-    "module_name": "generate-ai-collab-report",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import subprocess
 import sys
@@ -193,53 +173,4 @@ def main():
 if __name__ == "__main__":
     sys.exit(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": ".DO-OPER-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        ".dora",
-        "cli",
-        "config",
-        "filesystem",
-        "operations",
-        "rest-api",
-        "subprocess",
-    ],
-    "keywords": [
-        "analyze",
-        "changed",
-        "collab",
-        "files",
-        "format",
-        "generate",
-        "load",
-        "map",
-    ],
-    "business_value": "Utility module for generate-ai-collab-report",
-    "last_modified": "2026-01-18T02:07:37Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

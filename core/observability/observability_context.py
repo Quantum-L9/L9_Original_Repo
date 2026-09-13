@@ -11,20 +11,6 @@ Provides:
 All async code should use these context managers.
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Observability Context",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-25T06:00:00Z",
-    "updated_at": "2026-01-25T06:00:00Z",
-    "layer": "foundation",
-    "domain": "observability",
-    "module_name": "observability_context",
-    "type": "context_manager",
-    "status": "active",
-}
-# ============================================================================
 
 import contextvars
 import uuid
@@ -335,35 +321,5 @@ async def span(
             _span_id.set(None)
 
 
-# =========================================================================
-# DORA Footer
-# =========================================================================
 
-__dora_footer__ = {
-    "component_id": "CORE-OBSV-001",
-    "governance_level": "standard",
-    "compliance_required": False,
-    "tags": ["observability", "tracing", "context"],
-    "keywords": ["trace", "span", "correlation", "context"],
-    "business_value": "Unified OpenTelemetry context propagation for distributed tracing.",
-    "last_modified": "2026-01-25T06:00:00Z",
-    "modified_by": "L9_Codegen_Engine",
-}
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

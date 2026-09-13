@@ -24,20 +24,6 @@ import re
 import sys
 from pathlib import Path
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Stale NoQA Checker",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-16T18:00:00Z",
-    "updated_at": "2026-02-16T18:00:00Z",
-    "layer": "ci",
-    "domain": "tooling",
-    "module_name": "check_stale_noqa",
-    "type": "script",
-    "status": "active",
-}
-# ============================================================================
 
 # Directories to skip entirely
 SKIP_DIRS: frozenset[str] = frozenset(
@@ -52,7 +38,6 @@ SKIP_DIRS: frozenset[str] = frozenset(
         ".ruff_cache",
         "dist",
         "build",
-        ".dora",  # DORA templates
         "codegen",  # Generated code
         "igor",  # User workspace
         "tests",  # Test files may have intentional noqa for test data
@@ -310,19 +295,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CI-TOOL-STALE-NOQA",
-    "governance_level": "low",
-    "compliance_required": False,
-    "audit_trail": False,
-    "dependencies": [],
-    "tags": ["ci", "tooling", "noqa", "linting"],
-    "keywords": ["stale", "noqa", "suppression", "cleanup"],
-    "last_modified": "2026-02-16T18:00:00Z",
-}
-# ============================================================================

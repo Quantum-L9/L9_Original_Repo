@@ -6,26 +6,6 @@ Runs exactly once. Fails hard. Writes bootstrap artifact.
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "  Main  ",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-28T12:26:24Z",
-    "updated_at": "2026-01-31T23:23:32Z",
-    "layer": "operations",
-    "domain": "bootstrap",
-    "module_name": "__main__",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j", "PostgreSQL"],
-        "memory_layers": ["working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import asyncio
 import json
@@ -242,61 +222,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "BOO-OPER-002",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "core.agents.bootstrap.orchestrator",
-        "core.agents.schemas",
-        "memory.graph_client",
-        "memory.migration_runner",
-        "memory.substrate_service",
-    ],
-    "tags": [
-        "async",
-        "bootstrap",
-        "event-driven",
-        "messaging",
-        "migration",
-        "operations",
-        "orm",
-        "serialization",
-        "service",
-    ],
-    "keywords": [
-        "agent",
-        "artifact",
-        "asyncpg",
-        "bootstrap",
-        "check",
-        "ensure",
-        "env",
-        "fatal",
-    ],
-    "business_value": "Utility module for   main  ",
-    "last_modified": "2026-01-31T23:18:42Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

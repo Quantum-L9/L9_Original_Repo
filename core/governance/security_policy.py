@@ -15,20 +15,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Security Policy Service",
-    "module_version": "1.0.0",
-    "created_by": "Manus AI",
-    "created_at": "2026-01-21T00:00:00Z",
-    "updated_at": "2026-01-21T00:00:00Z",
-    "layer": "foundation",
-    "domain": "governance",
-    "module_name": "security_policy",
-    "type": "service",
-    "status": "active",
-}
-# ============================================================================
 
 import os
 from dataclasses import dataclass
@@ -462,56 +448,4 @@ def audit_security_decision(
     service.audit_security_decision(decision, scan_result, context)
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-103",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "config",
-        "data-models",
-        "dataclass",
-        "filesystem",
-        "foundation",
-        "messaging",
-        "metrics",
-        "scanner",
-        "security",
-        "service",
-    ],
-    "keywords": [
-        "action",
-        "alert",
-        "allowed",
-        "audit",
-        "decision",
-        "evaluate",
-        "governance",
-        "metrics",
-    ],
-    "business_value": "Loads security policies from config/security_policy.yaml Enforces security policies at runtime Integrates with observability for metrics and alerting Provides security scanning results to governance d",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

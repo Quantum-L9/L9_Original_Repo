@@ -334,5 +334,5 @@ commands_run:
     mypy api/ core/ memory/ runtime/ --follow-imports=skip --ignore-missing-imports
     --show-error-codes --exclude "core/instrumentation/decorators.py|core/codegen/codegen_engine.py|
     core/codegen/wire_executor.py|memory/extractor/extractor.py|memory/substrate_dag.py|
-    core/auto_registry.py|core/decorators.py|runtime/dora.py"
+    core/auto_registry.py|core/decorators.py"
   per_file: "mypy <file> --show-error-codes --follow-imports=skip --ignore-missing-imports"

@@ -1,5 +1,4 @@
 # ============================================================================
-# DORA META
 # ============================================================================
 # component_name: "Importance Calibration Config"
 # module_version: "1.0.0"
@@ -108,7 +107,6 @@ importance_calibration:
   #       target_range: [5.0, 25.0]
 
 # ============================================================================
-# DORA FOOTER
 # ============================================================================
 # tags: ["configuration", "importance", "calibration", "memory", "placeholder"]
 # keywords: ["importance", "calibration", "weights", "decay", "pruning"]

@@ -101,49 +101,6 @@ async def test_memory_substrate_service_deprecation_warning():
         )
 
 
-# =============================================================================
-# Test 2: Input Segmenter Metadata Validation
-# =============================================================================
-
-
-def test_input_segmenter_dora_meta_exists():
-    """Verify __dora_meta__ block exists and is valid dict."""
-    from orchestration.input_segmenter import __dora_meta__
-
-    assert isinstance(__dora_meta__, dict), "__dora_meta__ must be dict"
-    assert "component_name" in __dora_meta__, "Must have component_name"
-    assert "module_version" in __dora_meta__, "Must have module_version"
-
-
-def test_input_segmenter_dora_footer_exists():
-    """Verify __dora_footer__ block exists and is valid dict."""
-    from orchestration.input_segmenter import __dora_footer__
-
-    assert isinstance(__dora_footer__, dict), "__dora_footer__ must be dict"
-    assert "business_value" in __dora_footer__, "Must have business_value"
-
-
-def test_input_segmenter_business_value_not_truncated():
-    """Verify business_value field is complete (not truncated)."""
-    from orchestration.input_segmenter import __dora_footer__
-
-    business_value = __dora_footer__["business_value"]
-
-    # Check it's a non-empty string
-    assert isinstance(business_value, str), "business_value must be string"
-    assert len(business_value) > 20, "business_value too short (likely truncated)"
-
-    # Check for known truncation artifacts
-    assert "segmenter = Input" not in business_value, (
-        "business_value appears truncated (contains 'segmenter = Input')"
-    )
-
-    # Check for proper sentence structure
-    assert business_value.endswith("."), (
-        "business_value should be complete sentence ending with period"
-    )
-
-
 def test_input_segmenter_file_syntax_valid():
     """Verify input_segmenter.py file is syntactically valid."""
     from orchestration.input_segmenter import InputSegmenter
@@ -241,40 +198,6 @@ def test_singleton_registry_contains_memory_service():
 
     except ImportError:
         pytest.skip("Singleton registry not available - skipping test")
-
-
-# =============================================================================
-# Test 6: Metadata Consistency
-# =============================================================================
-
-
-def test_all_dora_blocks_valid_python():
-    """Scan all Python files and validate __dora_meta__ blocks compile."""
-    import glob
-
-    python_files = glob.glob("**/*.py", recursive=True)
-    # Filter to files likely to have DORA blocks
-    dora_files = [
-        f
-        for f in python_files
-        if any(
-            keyword in f for keyword in ["memory", "orchestration", "core", "agents"]
-        )
-        and "test" not in f
-        and "__pycache__" not in f
-    ]
-
-    errors = []
-    for filepath in dora_files:
-        try:
-            with open(filepath) as f:
-                source = f.read()
-                if "__dora_meta__" in source or "__dora_footer__" in source:
-                    ast.parse(source)
-        except SyntaxError as e:
-            errors.append(f"{filepath}: {e}")
-
-    assert not errors, "Syntax errors in DORA blocks:\n" + "\n".join(errors)
 
 
 # =============================================================================

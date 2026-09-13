@@ -20,26 +20,6 @@ from unittest.mock import MagicMock
 
 import pytest
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Tool Registry Negative Tests",
-    "module_version": "1.0.0",
-    "created_by": "L9 Engineering",
-    "created_at": "2026-02-12T03:41:00Z",
-    "updated_at": "2026-02-12T03:41:00Z",
-    "layer": "testing",
-    "domain": "tool_registry",
-    "module_name": "test_tool_registry_negative",
-    "type": "test",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 
 @pytest.fixture(autouse=True)

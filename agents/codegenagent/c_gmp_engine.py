@@ -14,29 +14,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "C Gmp Engine",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-02T15:15:57Z",
-    "updated_at": "2026-01-07T13:35:57Z",
-    "layer": "intelligence",
-    "domain": "error_handling",
-    "module_name": "c_gmp_engine",
-    "type": "exception",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [
-            "orchestration.quantum_swarm_loader",
-            "tests.services.symbolic_computation.test_c_gmp_engine",
-        ],
-    },
-}
-# ============================================================================
 
 import asyncio
 from typing import Any
@@ -494,56 +471,4 @@ class CGMPEngine:
         return readme
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "AGE-INTE-009",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "async",
-        "batch-processing",
-        "engine",
-        "error-handling",
-        "exception",
-        "intelligence",
-        "logging",
-        "messaging",
-        "rest-api",
-    ],
-    "keywords": [
-        "batch",
-        "blocks",
-        "clear",
-        "engine",
-        "expand",
-        "expansion",
-        "files",
-        "generate",
-    ],
-    "business_value": "Handles mathematical code generation and template expansion. Part of the Quantum AI Factory architecture. Version: 1.0.0",
-    "last_modified": "2026-01-07T13:35:57Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

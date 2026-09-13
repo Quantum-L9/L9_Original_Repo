@@ -16,26 +16,6 @@ from __future__ import annotations
 
 import pytest
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Sanitizer Validation Order Tests",
-    "module_version": "1.0.0",
-    "created_by": "L9 Engineering",
-    "created_at": "2026-02-12T03:41:00Z",
-    "updated_at": "2026-02-12T03:41:00Z",
-    "layer": "testing",
-    "domain": "tool_registry",
-    "module_name": "test_sanitizer_validation_order",
-    "type": "test",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 
 class TestValidationOrdering:

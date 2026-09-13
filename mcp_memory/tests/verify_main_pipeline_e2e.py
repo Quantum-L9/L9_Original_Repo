@@ -16,26 +16,6 @@ Usage:
     python3 verify_main_pipeline_e2e.py
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Verify Main Pipeline E2E",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-12T20:17:23Z",
-    "updated_at": "2026-01-14T15:03:00Z",
-    "layer": "integration",
-    "domain": "mcp_integration",
-    "module_name": "verify_main_pipeline_e2e",
-    "type": "schema",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API", "PostgreSQL"],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import asyncio
 import json
@@ -551,56 +531,4 @@ if __name__ == "__main__":
     exit_code = asyncio.run(verify_main_pipeline())
     sys.exit(exit_code)
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MCP-INTE-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "async",
-        "auth",
-        "client",
-        "event-driven",
-        "http-client",
-        "integration",
-        "logging",
-        "mcp-integration",
-        "postgres",
-    ],
-    "keywords": [
-        "client",
-        "close",
-        "connect",
-        "e2e",
-        "memory",
-        "packet",
-        "pipeline",
-        "save",
-    ],
-    "business_value": "1. Saves a test memory via MCP 2. Searches for it",
-    "last_modified": "2026-01-14T15:03:00Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

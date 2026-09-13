@@ -10,7 +10,6 @@ Summary:
     to appropriate response actions including escalation and logging.
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -22,26 +21,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Anomaly Handler",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "data_models",
-    "module_name": "anomaly_handler",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from enum import Enum
@@ -125,65 +104,10 @@ class AnomalyHandler:
         )
 
 
-__footer_meta__ = {
-    "component_id": "SEC-DTB-003",
-    "component_name": "Anomaly Handler",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "security",
-    "domain": "anomaly_detection",
-    "type": "handler",
-    "status": "active",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Handle anomaly flags from tensor layer",
-    "summary": "Handles anomaly detection results and routes to appropriate response actions.",
-    "dependencies": ["structlog"],
-}
 
 __all__ = [
     "AnomalyFlag",
     "AnomalyHandler",
     "AnomalyResponse",
     "AnomalySeverity",
-    "__footer_meta__",
-    "__l9_trace__",
 ]
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-009",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "data-models",
-        "dataclass",
-        "handler",
-        "logging",
-        "operations",
-        "tracing",
-    ],
-    "keywords": ["anomaly", "flag", "handle", "handler", "severity"],
-    "business_value": "Handles anomaly detection results from tensor layer. Routes anomalies to appropriate response actions including escalation and logging. See __footer_meta__ at module footer. Runtime trace in __l9_trac",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}

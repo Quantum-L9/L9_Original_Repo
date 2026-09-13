@@ -21,31 +21,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Bootstrap L Graph",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-06T15:07:54Z",
-    "updated_at": "2026-01-14T15:03:00Z",
-    "layer": "foundation",
-    "domain": "agent_execution",
-    "module_name": "bootstrap_l_graph",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j"],
-        "memory_layers": ["working_memory"],
-        "imported_by": [
-            "scripts.agents.run_bootstrap_l_graph",
-            "scripts.memory.migrate_kernels_to_graph",
-            "tests.core.bootstrap.test_graph_state",
-            "tests.integration.test_graph_state_integration",
-        ],
-    },
-}
-# ============================================================================
 
 from typing import TYPE_CHECKING
 
@@ -413,47 +388,4 @@ async def verify_l_graph(neo4j_driver: AsyncDriver) -> dict:
         return verification
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "agent-execution",
-        "async",
-        "auth",
-        "code-quality",
-        "config",
-        "foundation",
-        "graph-db",
-        "logging",
-        "service",
-        "testing",
-    ],
-    "keywords": ["agent", "bootstrap", "graph", "kernel", "state", "verify", "yaml"],
-    "business_value": "This is idempotent - can be run multiple times safely (uses MERGE). Version: 1.0.0 Created: 2026-01-05",
-    "last_modified": "2026-01-14T15:03:00Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

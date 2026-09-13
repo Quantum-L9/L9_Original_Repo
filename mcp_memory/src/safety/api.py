@@ -11,26 +11,6 @@ Safety is responsible for:
   5. Rate limiting and abuse prevention
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Typed contracts for policy enforcement.",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-25T05:53:46Z",
-    "updated_at": "2026-01-25T08:58:44Z",
-    "layer": "integration",
-    "domain": "data_models",
-    "module_name": "api",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from abc import (  # noqa: ADR-0026 - ABC provides shared implementation
     ABC,
@@ -139,53 +119,4 @@ __all__ = [
     "SafetyService",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MCP-INTE-008",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "data-models",
-        "dataclass",
-        "event-driven",
-        "integration",
-        "security",
-        "service",
-    ],
-    "keywords": [
-        "abstract",
-        "allowed",
-        "bundle",
-        "capability",
-        "check",
-        "compliance",
-        "contracts",
-        "decision",
-    ],
-    "business_value": "This module defines the abstract interface that Safety module must implement. Kernel depends ONLY on these abstract types, never on implementation details. 1. Query validation and injection detection ",
-    "last_modified": "2026-01-25T08:58:44Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

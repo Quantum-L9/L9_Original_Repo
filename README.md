@@ -168,7 +168,7 @@ BEFORE ANY CODE OPERATION:
 | 0012 | Packets flow through DAG pipeline  | Bypass = audit gap   |
 | 0012 | Validation in `intake_node` only   | Duplicate validation |
 | 0002 | TYPE_CHECKING for circular imports | Import errors        |
-| 0003 | Module docstring + DORA metadata   | Missing docs         |
+| 0003 | Module docstring + active governance evidence | Missing docs or audit evidence |
 
 ### Key Files for AI
 

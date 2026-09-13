@@ -87,7 +87,7 @@ select = [
     "DTZ",    # flake8-datetimez: enforce timezone-aware datetime (no utcnow)
 ]
 ignore = [
-    "E402",   # Module level import not at top (DORA metadata pattern - ADR-0014)
+    "E402",   # Module level import not at top for generated modules
     "F841",   # Unused variable (future-proofing)
     "E501",   # Line too long (handled by formatter)
 ]

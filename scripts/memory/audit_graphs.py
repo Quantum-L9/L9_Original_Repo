@@ -16,26 +16,6 @@ Usage:
     python3 scripts/audit_graphs.py
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Audit Graphs",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-11T18:13:39Z",
-    "updated_at": "2026-01-14T15:03:00Z",
-    "layer": "operations",
-    "domain": "memory_substrate",
-    "module_name": "audit_graphs",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j", "PostgreSQL"],
-        "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import asyncio
 import json
@@ -576,56 +556,4 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "SCR-OPER-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["memory.graph_client", "memory.substrate_repository"],
-    "tags": [
-        "async",
-        "event-driven",
-        "filesystem",
-        "logging",
-        "memory-substrate",
-        "messaging",
-        "operations",
-        "postgres",
-        "serialization",
-        "service",
-    ],
-    "keywords": [
-        "audit",
-        "full",
-        "graphs",
-        "model",
-        "neo4j",
-        "postgresql",
-        "print",
-        "report",
-    ],
-    "business_value": "Utility module for audit graphs",
-    "last_modified": "2026-01-14T15:03:00Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

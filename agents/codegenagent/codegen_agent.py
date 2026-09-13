@@ -21,26 +21,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Central Orchestrator",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-02T15:15:57Z",
-    "updated_at": "2026-01-17T14:27:43Z",
-    "layer": "intelligence",
-    "domain": "agent_execution",
-    "module_name": "codegen_agent",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -749,60 +729,4 @@ async def preview_spec(spec_path: str) -> DryRunResult:
     return await agent.preview(spec_path)
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "AGE-INTE-014",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "agents.codegenagent.file_emitter",
-        "agents.codegenagent.meta_loader",
-        "core.decorators",
-    ],
-    "tags": [
-        "agent-execution",
-        "async",
-        "batch-processing",
-        "config",
-        "dataclass",
-        "debugging",
-        "filesystem",
-        "intelligence",
-        "logging",
-        "testing",
-    ],
-    "keywords": [
-        "agent",
-        "available",
-        "batch",
-        "central",
-        "contract",
-        "create",
-        "dry",
-        "duration",
-    ],
-    "business_value": "1. MetaLoader: Load and validate YAML spec 2. MetaToIRCompiler: Transform to intermediate representation 3. IRToPythonCompiler: Generate Python code from IR 4. FileEmitter: Write files and wire into L",
-    "last_modified": "2026-01-17T14:27:43Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

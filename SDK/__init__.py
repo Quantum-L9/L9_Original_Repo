@@ -32,27 +32,6 @@ Quick functions:
     memories = await query_memory("patterns")
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "L9 SDK",
-    "module_version": "2.0.0",
-    "created_by": "GMP-134",
-    "created_at": "2026-02-02T18:50:00Z",
-    "updated_at": "2026-02-02T18:50:00Z",
-    "layer": "sdk",
-    "domain": "public_api",
-    "module_name": "__init__",
-    "type": "package",
-    "status": "active",
-    "source": "Relocated from core/sdk/ for cleaner SDK access",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["memory_substrate"],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": ["api", "agents", "services"],
-    },
-}
-# ============================================================================
 
 from SDK.SDK import (
     # Main SDK class (preferred)

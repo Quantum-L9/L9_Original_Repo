@@ -14,26 +14,6 @@ Implements:
 NIST AI RMF Govern-2, Govern-3 (multi-substrate governance).
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Multi-Layer Persistence Coordination.",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-15T23:45:01Z",
-    "updated_at": "2026-01-17T23:47:56Z",
-    "layer": "learning",
-    "domain": "data_models",
-    "module_name": "orchestrator",
-    "type": "enum",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j", "PostgreSQL", "Redis"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from enum import Enum
 from typing import Any
@@ -491,54 +471,4 @@ class SubstrateOrchestrator:
         }
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "WOR-LEAR-024",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "cache",
-        "data-models",
-        "debugging",
-        "enum",
-        "event-driven",
-        "graph-db",
-        "learning",
-        "orchestration",
-    ],
-    "keywords": [
-        "all",
-        "cache",
-        "check",
-        "compliance",
-        "connect",
-        "consistency",
-        "coordination.",
-        "delete",
-    ],
-    "business_value": "Write-through cache (Redis → Neo4j → PostgreSQL) Read-aside cache (check Redis first) Consistency guarantees (eventual + strong) Fallback chains on failure NIST AI RMF Govern-2, Govern-3 (multi-substr",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

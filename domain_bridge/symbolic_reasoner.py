@@ -10,7 +10,6 @@ Summary:
     Part of multi-modal reasoning engine strategy modes.
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -22,26 +21,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Symbolic Reasoner",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "domain_bridge",
-    "module_name": "symbolic_reasoner",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from typing import Any
@@ -96,50 +75,5 @@ class SymbolicReasoner:
         }
 
 
-__footer_meta__ = {
-    "component_id": "INT-DTB-008",
-    "component_name": "Symbolic Reasoner",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "intelligence",
-    "domain": "symbolic_reasoning",
-    "type": "reasoner",
-    "status": "active",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Apply domain rules using symbolic reasoning",
-    "summary": "Applies domain-specific business rules using symbolic reasoning.",
-    "dependencies": ["structlog"],
-}
 
-__all__ = ["RuleResult", "SymbolicReasoner", "__footer_meta__", "__l9_trace__"]
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-016",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["dataclass", "domain-tensor-bridge", "logging", "operations", "tracing"],
-    "keywords": ["apply", "domain", "reasoner", "rule", "rules", "symbolic"],
-    "business_value": "Provides symbolic reasoner components including RuleResult, SymbolicReasoner",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
+__all__ = ["RuleResult", "SymbolicReasoner"]

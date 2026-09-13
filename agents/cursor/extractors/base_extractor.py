@@ -4,26 +4,6 @@ Base Extractor
 Abstract base class for all L9 chat/artifact extractors.
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Base Extractor",
-    "module_version": "1.0.0",
-    "created_by": "L9 Agent",
-    "created_at": "2026-02-02T23:30:00Z",
-    "updated_at": "2026-02-02T23:30:00Z",
-    "layer": "intelligence",
-    "domain": "agent_execution",
-    "module_name": "base_extractor",
-    "type": "base_class",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["agents.cursor.extractors.cursor_action_extractor"],
-    },
-}
-# ============================================================================
 
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -108,22 +88,3 @@ class BaseExtractor(ABC):
                 "output_dir_creation_failed", path=str(output_root), error=str(e)
             )
             return False
-
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "AGE-EXTR-001",
-    "governance_level": "standard",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["structlog"],
-    "tags": ["base-class", "extractor", "intelligence"],
-    "keywords": ["extract", "base", "abstract"],
-    "business_value": "Provides common base class for all extractors",
-    "last_modified": "2026-02-02T23:30:00Z",
-    "modified_by": "L9_Agent",
-    "change_summary": "Initial creation - GMP-132",
-}
-# ============================================================================

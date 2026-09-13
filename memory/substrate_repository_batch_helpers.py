@@ -11,29 +11,6 @@ Usage:
     packets_with_metadata = await helpers.get_packets_with_metadata_batch(packet_ids)
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Batch Query Helpers",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:55:26Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "learning",
-    "domain": "memory_substrate",
-    "module_name": "substrate_repository_batch_helpers",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory"],
-        "imported_by": [
-            "memory.substrate_repository_batch_helpers",
-            "tests.memory.test_batch_helpers",
-        ],
-    },
-}
-# ============================================================================
 
 from typing import Any
 from uuid import UUID
@@ -470,55 +447,4 @@ async def get_packets_with_metadata(
     return await helpers.get_packets_with_metadata_batch(packet_ids, tenant_id)
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MEM-LEAR-027",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "batch-processing",
-        "debugging",
-        "event-driven",
-        "learning",
-        "logging",
-        "memory-substrate",
-        "serialization",
-        "service",
-    ],
-    "keywords": [
-        "archive",
-        "batch",
-        "batchqueryhelpers",
-        "helpers",
-        "memory",
-        "metadata",
-        "methods",
-        "operations",
-    ],
-    "business_value": "Implements BatchQueryHelpers for substrate repository batch helpers functionality",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

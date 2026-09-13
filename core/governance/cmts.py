@@ -32,26 +32,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Code Mutation Tracking System",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-20T00:40:00Z",
-    "updated_at": "2026-01-20T00:40:00Z",
-    "layer": "governance",
-    "domain": "audit",
-    "module_name": "cmts",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["PostgreSQL"],
-        "memory_layers": ["audit_log"],
-        "imported_by": ["core.governance.__init__"],
-    },
-}
-# ============================================================================
 
 import hashlib
 from datetime import UTC, datetime
@@ -464,49 +444,4 @@ def get_cmts_service() -> CMTSService:
     return _cmts_instance
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "GOV-AUDI-001",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "audit",
-        "governance",
-        "immutable",
-        "logging",
-        "tracking",
-    ],
-    "keywords": [
-        "cmts",
-        "code",
-        "mutation",
-        "tracking",
-        "audit",
-    ],
-    "business_value": "Provides immutable audit trail for all code mutations",
-    "last_modified": "2026-01-20T00:40:00Z",
-    "modified_by": "GMP-107",
-    "change_summary": "Initial implementation of CMTS",
-}
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

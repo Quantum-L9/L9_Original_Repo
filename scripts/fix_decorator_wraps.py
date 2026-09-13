@@ -13,26 +13,6 @@ Strategy:
 Run: python scripts/fix_decorator_wraps.py
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Fix Decorator Wraps",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-31T23:12:54Z",
-    "updated_at": "2026-01-31T23:14:00Z",
-    "layer": "operations",
-    "domain": "scripts",
-    "module_name": "fix_decorator_wraps",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import ast
 import re
@@ -62,7 +42,6 @@ FILES_TO_FIX = [
     "memory/query_cache.py",
     "memory/substrate_semantic.py",
     "orchestration/task_router.py",
-    "runtime/dora.py",
     "runtime/tool_registry.py",
     "runtime/kernel_loader.py",
     "runtime/tool_call_wrapper.py",
@@ -279,45 +258,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "SCR-OPER-004",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "analyzer",
-        "ast",
-        "caching",
-        "cli",
-        "filesystem",
-        "operations",
-        "scripts",
-        "testing",
-    ],
-    "keywords": ["analyzer", "decorator", "ensure", "fix", "wraps"],
-    "business_value": "the first parameter of the outer function (usually 'func' or 'f') 3. Ensure 'from functools import wraps' is imported Run: python scripts/fix_decorator_wraps.py",
-    "last_modified": "2026-01-31T23:14:00Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

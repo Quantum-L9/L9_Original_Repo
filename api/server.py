@@ -14,44 +14,6 @@ Version: 0.5.0 (Research Factory Integration)
 
 from typing import Any
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Server",
-    "module_version": "0.5.0 (Research Factory Integration)",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-09T01:02:49Z",
-    "updated_at": "2026-01-18T02:40:22Z",
-    "layer": "operations",
-    "domain": "api_gateway",
-    "module_name": "server",
-    "type": "router",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [
-            "GET /",
-            "GET /health",
-            "GET /health/startup",
-            "POST /kernels/reload",
-            "GET /health/neo4j",
-            "GET /health/services",
-            "POST /lchat",
-            "POST /chat",
-        ],
-        "datasources": ["HTTP API", "Neo4j", "OpenAI API", "Redis", "Slack API"],
-        "memory_layers": ["working_memory", "semantic_memory"],
-        "imported_by": [
-            "api.routes.gmp_learning",
-            "scripts.audit.find_dead_code",
-            "tests.api.test_server_health",
-            "tests.api.test_websocket_auth",
-            "tests.integration.test_api_agent_integration",
-            "tests.integration.test_api_memory_integration",
-            "tests.integration.test_kernel_hot_reload",
-            "tests.test_imports",
-        ],
-    },
-}
-# ============================================================================
 
 import os
 from contextlib import asynccontextmanager, suppress
@@ -2943,7 +2905,7 @@ async def echo() -> dict:
         "system": "L9",
         "component": "api-server",
         "status": "alive",
-        "version": __dora_meta__["module_version"],
+        "version": get_openapi_config()["version"],
         "timestamp": now.isoformat(),
     }
 
@@ -3888,62 +3850,4 @@ async def l_ws(websocket: WebSocket) -> None:
         await ws_orchestrator.unregister(client_id)
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "API-OPER-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "agents.cursor.gmp_meta_learning",
-        "agents.cursor.integrations.cursor_executor",
-        "agents.cursor.integrations.cursor_gateway",
-        "agents.cursor.integrations.cursor_langgraph",
-        "agents.reflection_agent",
-    ],
-    "tags": [
-        "api",
-        "api-gateway",
-        "async",
-        "auth",
-        "authorization",
-        "batch-processing",
-        "caching",
-        "debugging",
-        "endpoint",
-        "event-driven",
-    ],
-    "keywords": [
-        "agent",
-        "auth",
-        "chat",
-        "consolidation",
-        "cursor",
-        "deps",
-        "endpoint",
-        "global",
-    ],
-    "business_value": "REST API endpoints for OS, agent, and memory operations WebSocket endpoint for real-time agent communication World model API (optional, v1.1.0+) Version: 0.5.0 (Research Factory Integration)",
-    "last_modified": "2026-01-18T02:40:22Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

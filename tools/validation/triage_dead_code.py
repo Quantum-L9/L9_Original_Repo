@@ -136,7 +136,7 @@ def git_creation_date(filepath: str, repo_root: Path) -> datetime | None:
 def git_last_meaningful_date(filepath: str, repo_root: Path) -> datetime | None:
     """Get the last commit date that wasn't a bulk/automated operation."""
     # Skip commits that are clearly automated sweeps
-    auto_keywords = ["dora", "readme", "tech-debt", "formatting", "index", "deploy"]
+    auto_keywords = ["readme", "tech-debt", "formatting", "index", "deploy"]
     cmd = [
         "git",
         "log",

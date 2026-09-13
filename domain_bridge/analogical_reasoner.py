@@ -10,7 +10,6 @@ Summary:
     from similar situations in other domains.
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -22,26 +21,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Analogical Reasoner",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "domain_bridge",
-    "module_name": "analogical_reasoner",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from typing import Any
@@ -90,57 +69,5 @@ class AnalogicalReasoner:
         return analogies
 
 
-__footer_meta__ = {
-    "component_id": "INT-DTB-010",
-    "component_name": "Analogical Reasoner",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "intelligence",
-    "domain": "analogical_reasoning",
-    "type": "reasoner",
-    "status": "active",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Find patterns across domains",
-    "summary": "Identifies cross-domain patterns and transfers knowledge.",
-    "dependencies": ["structlog"],
-}
 
-__all__ = ["AnalogicalReasoner", "Analogy", "__footer_meta__", "__l9_trace__"]
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-007",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "dataclass",
-        "domain-tensor-bridge",
-        "logging",
-        "operations",
-        "tracing",
-    ],
-    "keywords": ["analogical", "analogies", "analogy", "find", "reasoner"],
-    "business_value": "Provides analogical reasoner components including Analogy, AnalogicalReasoner",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
+__all__ = ["AnalogicalReasoner", "Analogy"]

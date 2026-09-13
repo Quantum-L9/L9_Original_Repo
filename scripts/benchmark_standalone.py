@@ -11,26 +11,6 @@ Author: L9 Platform Team
 Date: 2026-01-17
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Benchmark Standalone",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-31T22:21:56Z",
-    "layer": "operations",
-    "domain": "scripts",
-    "module_name": "benchmark_standalone",
-    "type": "utility",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import statistics
 import time
@@ -214,47 +194,4 @@ logger.info("1. review pr and merge changes")
 logger.info("2. run migration: 0020_optimize_vector_search.sql")
 logger.info("3. monitor production metrics")
 logger.info("4. adjust cache sizes based on usage patterns")
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "SCR-OPER-013",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "auth",
-        "authorization",
-        "caching",
-        "metrics",
-        "migration",
-        "monitoring",
-        "operations",
-        "performance",
-        "scripts",
-        "utility",
-    ],
-    "keywords": ["benchmark", "standalone"],
-    "business_value": "Utility module for benchmark standalone",
-    "last_modified": "2026-01-31T22:21:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -21,26 +21,6 @@ production-ready L9-integrated Python modules.
 Version: 2.0.0 (L9-Aligned)
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Module Compiler V2",
-    "module_version": "2.0.0",
-    "created_by": "CodeGenAgent",
-    "created_at": "2025-12-31T20:00:00Z",
-    "updated_at": "2026-01-25T22:55:34Z",
-    "layer": "intelligence",
-    "domain": "codegen",
-    "module_name": "module_compiler_v2",
-    "type": "class",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory"],
-        "imported_by": ["core.codegen.gatekeeper.codegen_gatekeeper"],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -70,26 +50,6 @@ Generated at: {{timestamp}}
 Module ID: {{module_id}}
 \"\"\"
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "{{metadata.name}}",
-    "module_version": "{{metadata.version}}",
-    "created_by": "CodeGenAgent",
-    "created_at": "{{timestamp}}",
-    "updated_at": "{{timestamp}}",
-    "layer": "intelligence",
-    "domain": "{{metadata.domain | default('agents')}}",
-    "module_name": "{{module_id}}_agent",
-    "type": "class",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": {{datasources | tojson}},
-        "memory_layers": ["working_memory", "episodic_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from __future__ import annotations
 
@@ -867,56 +827,4 @@ pytest tests/test_{module_id}_agent.py -v
 
 from uuid import uuid4
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-135",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "async",
-        "code-generation",
-        "dataclass",
-        "filesystem",
-        "foundation",
-        "logging",
-        "messaging",
-        "mocking",
-        "pydantic",
-    ],
-    "keywords": [
-        "compile",
-        "compiler",
-        "decorators",
-        "includes",
-        "module",
-        "orchestrator",
-        "prompt",
-        "system",
-    ],
-    "business_value": "Provides module compiler v2 components including CompilerOutput, ModuleCompilerV2",
-    "last_modified": "2026-01-25T22:55:34Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Integrated SpecNormalizer for modular spec parsing (Option B)",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

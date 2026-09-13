@@ -11,7 +11,6 @@ Summary:
     for consumption by domain agents.
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -23,26 +22,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Packet Formatter",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "domain_bridge",
-    "module_name": "packet_formatter",
-    "type": "utility",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from typing import Any
 
@@ -91,57 +70,5 @@ class PacketFormatter:
         )
 
 
-__footer_meta__ = {
-    "component_id": "OPS-DTB-005",
-    "component_name": "Packet Formatter",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "operations",
-    "domain": "packet_formatting",
-    "type": "formatter",
-    "status": "active",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Format response packets for domain agents",
-    "summary": "Formats outbound response packets according to domain-specific requirements.",
-    "dependencies": ["structlog", "l9.core.schemas"],
-}
 
-__all__ = ["PacketFormatter", "__footer_meta__", "__l9_trace__"]
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-012",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.schemas"],
-    "tags": [
-        "debugging",
-        "domain-tensor-bridge",
-        "logging",
-        "operations",
-        "tracing",
-        "utility",
-    ],
-    "keywords": ["domain", "format", "formatter", "packet"],
-    "business_value": "Implements PacketFormatter for packet formatter functionality",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
+__all__ = ["PacketFormatter"]

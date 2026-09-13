@@ -17,34 +17,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Tool Risk Policy",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-19T21:00:00Z",
-    "updated_at": "2026-01-19T21:00:00Z",
-    "layer": "foundation",
-    "domain": "governance",
-    "module_name": "tool_risk_policy",
-    "type": "utility",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [
-            "orchestrators.action_tool.validator",
-            "core.tools.registry_adapter",
-            "core.governance.approvals",
-            "core.governance.approval_manager",
-            "core.compliance.audit_reporter",
-            "scripts.memory.bootstrap_neo4j_schema",
-            "ci.check_tool_wiring",
-        ],
-    },
-}
-# ============================================================================
 
 from pathlib import Path
 
@@ -264,36 +236,4 @@ IGOR_APPROVAL_REQUIRED: set[str] = get_igor_approval_tools()
 SAFE_TOOLS: set[str] = get_safe_tools()
 
 
-# =============================================================================
-# DORA FOOTER META
-# =============================================================================
-__dora_footer__ = {
-    "component_id": "GOV-TOOL-RISK-001",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["pyyaml", "structlog"],
-    "tags": ["governance", "tools", "risk", "policy"],
-    "keywords": ["high-risk", "igor-approval", "safe-tools"],
-    "business_value": "Single source of truth for tool risk classification",
-    "last_modified": "2026-01-19T21:00:00Z",
-    "modified_by": "GMP-104",
-    "change_summary": "Initial creation - consolidates 7 duplicate definitions",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

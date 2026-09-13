@@ -4,24 +4,6 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-__dora_meta__ = {
-    "component_name": "Script 3",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-19T17:39:07Z",
-    "updated_at": "2026-01-31T22:21:54Z",
-    "layer": "intelligence",
-    "domain": "agent_execution",
-    "module_name": "script_3",
-    "type": "utility",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["PostgreSQL", "Redis"],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": [],
-    },
-}
 # ============================================================================
 
 # Generate Executive Delivery Package with File Summaries
@@ -327,7 +309,6 @@ KEY CHANGES IN v2.0:
 
 2. DORA BLOCK VALIDATION (New Category)
    ```markdown
-   ## DORA BLOCK AUDIT
    For each modified file:
    - [ ] DORA block present at bottom of file
    - [ ] Valid JSON format
@@ -727,7 +708,6 @@ KEY CHANGES IN v2.0:
 
 2. DORA BLOCK GENERATION (New Section)
    ```markdown
-   ## DORA BLOCK REQUIREMENTS
 
    For EVERY file you create or modify:
    1. Read DORA-Block-Spec-v2.0.md
@@ -861,14 +841,12 @@ STEP 3: EXECUTE WITH CURSOR
 # Pass generated prompt to Cursor
 # Cursor performs capability handshake
 # Cursor executes Phases 0-6
-# Cursor generates report + DORA blocks
 ```
 
 STEP 4: AUDIT EXECUTION
 ```bash
 # Run audit on generated report
 # Verify confidence ≥95%
-# Check DORA blocks valid
 # Verify L9 integration correct
 ```
 
@@ -944,47 +922,4 @@ logger.info("output", value=delivery_package)
 logger.info("separator", value="\n" + "=" * 70)
 logger.info("✅ gmp v2.0 production-ready delivery package complete")
 logger.info("separator", value="=" * 70)
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "AGE-INTE-027",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "agent-execution",
-        "api",
-        "auth",
-        "authorization",
-        "code-quality",
-        "event-driven",
-        "intelligence",
-        "linting",
-        "messaging",
-        "metrics",
-    ],
-    "keywords": ["script"],
-    "business_value": "Utility module for script 3",
-    "last_modified": "2026-01-31T22:21:54Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

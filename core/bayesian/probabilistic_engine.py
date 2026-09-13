@@ -57,26 +57,6 @@ Memory: <10MB overhead (typically ~4MB)
 Architecture: Weighted evidence ensemble with PAC-Bayesian optimization
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Probabilistic Engine",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2025-12-27T02:13:14Z",
-    "updated_at": "2026-01-21T21:57:31Z",
-    "layer": "operations",
-    "domain": "data_models",
-    "module_name": "probabilistic_engine",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Anthropic API"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import json
 import math
@@ -781,56 +761,4 @@ if __name__ == "__main__":
         time_ms=assessment2.execution_time_ms,
     )
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CUR-OPER-050",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "auth",
-        "data-models",
-        "dataclass",
-        "debugging",
-        "engine",
-        "filesystem",
-        "logging",
-        "metrics",
-        "migration",
-    ],
-    "keywords": [
-        "assess",
-        "assessment",
-        "calculate",
-        "compliance",
-        "cursor",
-        "ece",
-        "engine",
-        "evidence",
-    ],
-    "business_value": "Provides probabilistic engine components including RiskLevel, Evidence, SubjectiveLogic",
-    "last_modified": "2026-01-21T21:57:31Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

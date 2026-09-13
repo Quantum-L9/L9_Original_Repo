@@ -4,26 +4,6 @@ Instrumentation decorators for automatic span creation and tracing.
 Provides @trace_span, @trace_llm_call, @trace_tool_call, @trace_governance_check.
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Instrumentation",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-06T15:07:54Z",
-    "updated_at": "2026-01-14T15:03:00Z",
-    "layer": "foundation",
-    "domain": "core",
-    "module_name": "instrumentation",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["tests.core.observability.test_observability_integration"],
-    },
-}
-# ============================================================================
 
 import asyncio
 import functools
@@ -422,45 +402,4 @@ def trace_governance_check(
     return decorator
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["async", "core", "foundation", "logging", "service", "tracing"],
-    "keywords": [
-        "async",
-        "check",
-        "decorator",
-        "generate",
-        "governance",
-        "instrumentation",
-        "llm",
-        "policy",
-    ],
-    "business_value": "Provides @trace_span, @trace_llm_call, @trace_tool_call, @trace_governance_check.",
-    "last_modified": "2026-01-14T15:03:00Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

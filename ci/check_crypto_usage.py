@@ -17,11 +17,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-__dora_meta__ = {
-    "component_name": "CheckCryptoUsage",
-    "module_version": "1.0.0",
-    "status": "active",
-}
 
 
 def check_md5() -> tuple[bool, str]:
@@ -173,10 +168,6 @@ def main() -> int:
     return exit_code
 
 
-__dora_footer__ = {
-    "governance_level": "high",
-    "compliance_required": True,
-}
 
 if __name__ == "__main__":
     sys.exit(main())

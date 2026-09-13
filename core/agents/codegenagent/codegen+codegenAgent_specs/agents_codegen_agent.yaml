@@ -1,6 +1,3 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
 # component_name: "Agents Codegen Agent"
 # module_version: "1.0.0"
 # created_by: "Igor Beylin"
@@ -54,9 +51,6 @@ code: |
           # Emit via PacketEnvelope or write to FS
           return files
 
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
 # tags: ["agent-config", "api-config", "codegenagent", "operations", "schema", "service", "tool-config"]
 # keywords: ["agent", "agents", "code", "codegen", "description", "filename"]
 # last_modified: "2026-01-25T08:49:00Z"

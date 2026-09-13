@@ -18,7 +18,6 @@ HIGH (should fix):
 MEDIUM (recommended):
 - ADR-0004: Singleton auto-registry
 - ADR-0008: Feature flag gating
-- ADR-0014: DORA metadata block
 - ADR-0017: Tool definition schema
 - ADR-0026: Protocol-based abstractions
 
@@ -36,26 +35,6 @@ LOW (advisory):
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Comprehensive ADR compliance checking",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-24T16:03:39Z",
-    "updated_at": "2026-01-24T16:30:16Z",
-    "layer": "operations",
-    "domain": "tools",
-    "module_name": "adr_enforcer",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API"],
-        "memory_layers": ["working_memory"],
-        "imported_by": ["tests.unit.adr.test_adr_enforcer"],
-    },
-}
-# ============================================================================
 
 import ast
 import json
@@ -149,7 +128,6 @@ class ADREnforcementValidator:
         # Medium - Recommended
         "ADR-0004": "MEDIUM",  # Singleton auto-registry
         "ADR-0008": "MEDIUM",  # Feature flag gating
-        "ADR-0014": "MEDIUM",  # DORA metadata block
         "ADR-0017": "MEDIUM",  # Tool definition schema
         "ADR-0026": "MEDIUM",  # Protocol-based abstractions
         # Low - Advisory
@@ -188,7 +166,6 @@ class ADREnforcementValidator:
         "current_work",
         "igor",
         "codegen",
-        ".dora",
         ".backup",
         # Documentation (not production code)
         "readme",
@@ -1078,34 +1055,6 @@ class ADREnforcementValidator:
 
         return violations
 
-    # ===== ADR-0014: DORA Metadata Block Pattern =====
-
-    def check_adr_0014(self, path: Path) -> list[Violation]:
-        """Check for missing __dora_meta__ in Python modules."""
-        violations: list[Violation] = []
-        text = self._read(path)
-
-        # Skip __init__.py, conftest.py, and small files
-        if path.name in ("__init__.py", "conftest.py"):
-            return violations
-        if len(text.splitlines()) < 20:
-            return violations
-
-        # Check for __dora_meta__
-        if "__dora_meta__" not in text:
-            violations.append(
-                Violation(
-                    adr="ADR-0014",
-                    severity="MEDIUM",
-                    file=str(path),
-                    line=1,
-                    issue="Missing __dora_meta__ metadata block.",
-                    fix="Add __dora_meta__ dict after module docstring (run scripts/audit/inject_dora_complete.py).",
-                )
-            )
-
-        return violations
-
     # ===== ADR-0015: Migration Sequential Apply Pattern =====
 
     def check_adr_0015(self) -> list[Violation]:
@@ -1395,7 +1344,6 @@ class ADREnforcementValidator:
         # Medium
         violations.extend(self.check_adr_0004(path))
         violations.extend(self.check_adr_0008(path))
-        violations.extend(self.check_adr_0014(path))
         violations.extend(self.check_adr_0017(path))
         violations.extend(self.check_adr_0026(path))
         # Low (advisory)
@@ -1544,47 +1492,4 @@ def main() -> int:
 if __name__ == "__main__":
     sys.exit(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "TOO-OPER-002",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "ast",
-        "audit-tool",
-        "caching",
-        "cli",
-        "dataclass",
-        "event-driven",
-        "filesystem",
-        "logging",
-        "migration",
-    ],
-    "keywords": ["0001", "0002", "0003", "0006", "0010", "0022", "0026", "0055"],
-    "business_value": "ADR-0001: Path safety ADR-0002: Circular imports ADR-0003: Documentation standards ADR-0006: PacketEnvelope audit trails ADR-0010: Async patterns ADR-0022: Registry patterns ADR-0026: Protocol-based a",
-    "last_modified": "2026-01-24T16:30:16Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

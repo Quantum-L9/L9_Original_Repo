@@ -17,26 +17,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Universal Extractor",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-20T15:08:40Z",
-    "updated_at": "2026-01-06T16:58:23Z",
-    "layer": "foundation",
-    "domain": "code_generation",
-    "module_name": "extractor",
-    "type": "dataclass",
-    "status": "production",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import json
 from dataclasses import dataclass, field
@@ -689,56 +669,4 @@ __all__ = [
     "create_extractor",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-004",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "async",
-        "code-generation",
-        "config",
-        "dataclass",
-        "debugging",
-        "filesystem",
-        "foundation",
-        "logging",
-        "serialization",
-    ],
-    "keywords": [
-        "against",
-        "agent",
-        "create",
-        "extract",
-        "extraction",
-        "extractor",
-        "generated",
-        "manifest",
-    ],
-    "business_value": "1. Parse schema into normalized AST (via schema_parser) 2. Validate against rules (via schema_validator) 3. Resolve dependencies via glue layer (via glue_resolver) 4. Apply extraction templates 5. Gen",
-    "last_modified": "2026-01-06T16:58:23Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -11,26 +11,6 @@ Usage:
 """
 # Python 3.12+ required (L9 standard)
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "AI Eval Settings",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-25T00:00:00Z",
-    "updated_at": "2026-01-25T00:00:00Z",
-    "layer": "foundation",
-    "domain": "configuration",
-    "module_name": "ai_eval_settings",
-    "type": "schema",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["OpenAI API"],
-        "memory_layers": [],
-        "imported_by": ["ci.ai_guardrails.runner"],
-    },
-}
-# ============================================================================
 
 from functools import lru_cache
 
@@ -235,37 +215,4 @@ def reset_ai_eval_settings() -> None:
     get_ai_eval_settings.cache_clear()
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CONFIG-FOUND-007",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["config", "ai", "evaluation", "guardrails", "ci"],
-    "keywords": ["hallucination", "bias", "security", "eval", "settings"],
-    "business_value": "Configuration for AI guardrails CI checks",
-    "last_modified": "2026-01-25T00:00:00Z",
-    "modified_by": "GMP-AI-CI",
-    "change_summary": "Initial creation for AI guardrails integration",
-}
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

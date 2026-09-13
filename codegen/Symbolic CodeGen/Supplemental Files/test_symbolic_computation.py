@@ -4,26 +4,6 @@ Comprehensive tests for symbolic computation module.
 Uses pytest for testing with >80% coverage requirement.
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Test Symbolic Computation",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-01T13:15:24Z",
-    "updated_at": "2026-01-15T15:48:34Z",
-    "layer": "operations",
-    "domain": "current_work",
-    "module_name": "test_symbolic_computation",
-    "type": "test",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import pytest
 import asyncio
@@ -340,36 +320,4 @@ class TestPerformance:
         assert result2.success is True
         # Note: Caching happens at lambdify level, not evaluation
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CUR-OPER-033",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["async", "caching", "current-work", "messaging", "metrics", "operations", "test", "testing", "validation"],
-    "keywords": ["caching", "check", "codegen", "collection", "computation", "compute", "end", "engine"],
-    "business_value": "Provides test symbolic computation components including TestExpressionEvaluator, TestCodeGenerator, TestSymbolicComputation",
-    "last_modified": "2026-01-15T15:48:34Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

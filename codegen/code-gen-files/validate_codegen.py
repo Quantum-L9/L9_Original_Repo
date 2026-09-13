@@ -22,26 +22,6 @@ Usage:
     python ci/validate_codegen.py --spec path/to/spec.yaml --dir api/
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Validate Codegen",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-20T15:08:40Z",
-    "updated_at": "2026-01-06T16:58:23Z",
-    "layer": "foundation",
-    "domain": "code_generation",
-    "module_name": "validate_codegen",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API"],
-        "memory_layers": ["working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import os
 import re
@@ -504,54 +484,4 @@ logger = structlog.get_logger(__name__)
 if __name__ == "__main__":
     sys.exit(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-002",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "cli",
-        "code-generation",
-        "config",
-        "filesystem",
-        "foundation",
-        "logging",
-        "testing",
-    ],
-    "keywords": [
-        "codegen",
-        "contract",
-        "dependency",
-        "dir",
-        "expand",
-        "files",
-        "find",
-        "forbidden",
-    ],
-    "business_value": "Implements CodeValidationResult for validate codegen functionality",
-    "last_modified": "2026-01-06T16:58:23Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

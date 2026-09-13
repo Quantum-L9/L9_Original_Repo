@@ -170,7 +170,6 @@ def test_substrate_graph_state() -> None:
     assert "facts" in state
 
 
-# DORA footer
 # Tests for memory.substrate_dag module
 # Version: 1.1.0
 # Created by: Igor Beylin

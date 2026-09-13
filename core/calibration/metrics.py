@@ -10,26 +10,6 @@ Measures of calibration quality:
 Reference: L9-Calibration-Implementation-Roadmap.md §B.4, Spec §4.1
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Metrics",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-28T21:06:46Z",
-    "updated_at": "2026-01-31T22:21:46Z",
-    "layer": "foundation",
-    "domain": "core",
-    "module_name": "metrics",
-    "type": "tracker",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 
 import numpy as np
@@ -284,45 +264,4 @@ def compute_selective_accuracy(
     return coverage, selected_accuracy
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-058",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["core", "foundation", "metrics", "tracker"],
-    "keywords": [
-        "accuracy",
-        "brier",
-        "calibration",
-        "compute",
-        "diagram",
-        "ece",
-        "mce",
-        "metrics",
-    ],
-    "business_value": "Utility module for metrics",
-    "last_modified": "2026-01-31T22:21:46Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

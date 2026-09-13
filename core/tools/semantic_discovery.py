@@ -16,26 +16,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Semantic Discovery Service",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-25T11:17:21Z",
-    "updated_at": "2026-01-25T11:58:31Z",
-    "layer": "foundation",
-    "domain": "data_models",
-    "module_name": "semantic_discovery",
-    "type": "dataclass",
-    "status": "production",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["OpenAI API", "PostgreSQL"],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": ["core.tools.__init__"],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass
 from enum import Enum
@@ -355,55 +335,4 @@ __all__ = [
     "ToolStatus",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-025",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.tools.tool_embeddings"],
-    "tags": [
-        "async",
-        "auth",
-        "caching",
-        "data-models",
-        "dataclass",
-        "debugging",
-        "foundation",
-        "logging",
-        "service",
-    ],
-    "keywords": [
-        "budget",
-        "definition",
-        "discover",
-        "discovery",
-        "dynamic",
-        "embedding",
-        "format",
-        "formatter",
-    ],
-    "business_value": "DynamicToolDiscoveryService: Semantic + keyword hybrid search for tools ToolContextFormatter: Format discovered tools for LLM prompts ToolStatus: Tool availability states Note: Uses pgvector (via tool",
-    "last_modified": "2026-01-25T11:58:31Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

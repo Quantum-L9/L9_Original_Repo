@@ -10,24 +10,6 @@ _get_l_tool_schema_for_registry() to decouple from L-CTO-specific code.
 
 from __future__ import annotations
 
-__dora_meta__ = {
-    "component_name": "Tool Schemas",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-13T00:00:00Z",
-    "updated_at": "2026-02-13T00:00:00Z",
-    "layer": "config",
-    "domain": "tools",
-    "module_name": "tool_schemas",
-    "type": "data",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["core.tools.registry_adapter"],
-    },
-}
 
 # =============================================================================
 # Canonical tool schemas (OpenAI function-calling format)
@@ -1012,21 +994,3 @@ TOOL_SCHEMAS: dict[str, dict] = {
 def get_tool_schema(tool_id: str) -> dict:
     """Look up a tool schema by ID. Returns empty schema if not found."""
     return TOOL_SCHEMAS.get(tool_id, {"type": "object", "properties": {}})
-
-
-# ============================================================================
-# DORA FOOTER META
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CFG-TOOL-SCHEMAS-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": False,
-    "dependencies": [],
-    "tags": ["config", "tools", "schemas", "openai"],
-    "keywords": ["schema", "function-calling", "openai", "tool"],
-    "business_value": "Canonical tool schemas for OpenAI function-calling, decoupled from agent-specific code.",
-    "last_modified": "2026-02-13T00:00:00Z",
-    "modified_by": "ADR-0094 migration",
-    "change_summary": "Extracted from registry_adapter.py _get_tool_schema and _get_l_tool_schema_for_registry",
-}

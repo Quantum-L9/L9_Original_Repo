@@ -20,31 +20,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "High-Level Service Protocols",
-    "module_version": "1.0.0",
-    "created_by": "GMP-114",
-    "created_at": "2026-01-24T00:00:00Z",
-    "updated_at": "2026-01-24T00:00:00Z",
-    "layer": "foundation",
-    "domain": "abstractions",
-    "module_name": "service_protocols",
-    "type": "protocol",
-    "status": "active",
-    "adr": ["ADR-0026"],
-    "source": "PR #49",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Redis", "Neo4j", "PostgreSQL", "OpenAI", "Anthropic"],
-        "memory_layers": ["semantic_memory", "working_memory", "episodic_memory"],
-        "imported_by": [
-            "core.protocols.__init__",
-            "core.di.container",
-        ],
-    },
-}
-# ============================================================================
 
 from typing import Any, Protocol, runtime_checkable
 
@@ -382,55 +357,4 @@ __all__ = [
     "WorldModelService",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-122",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "async",
-        "caching",
-        "core",
-        "foundation",
-        "messaging",
-        "mocking",
-        "service",
-        "testing",
-    ],
-    "keywords": [
-        "approval",
-        "chat",
-        "check",
-        "complete",
-        "embed",
-        "enforce",
-        "execute",
-        "fine",
-    ],
-    "business_value": "Provides service protocols components including MemoryService, LLMService, GovernanceService",
-    "last_modified": "2026-01-24T15:21:11Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

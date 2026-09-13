@@ -28,26 +28,6 @@ Exit codes:
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Check noqa Placement",
-    "module_version": "1.1.0",
-    "created_by": "L9 Agent",
-    "created_at": "2026-02-13T00:00:00Z",
-    "updated_at": "2026-02-16T00:00:00Z",
-    "layer": "operations",
-    "domain": "ci",
-    "module_name": "check_noqa_placement",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["ci.auto_fix_adr"],
-    },
-}
-# ============================================================================
 
 import argparse
 import re

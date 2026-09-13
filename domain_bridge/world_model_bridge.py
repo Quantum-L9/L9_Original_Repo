@@ -10,7 +10,6 @@ Summary:
     temporal patterns, and entity relationships used in reasoning.
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -22,28 +21,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "World Model Bridge",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "domain_bridge",
-    "module_name": "world_model_bridge",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API"],
-        "memory_layers": [],
-        "imported_by": [
-            "domain_bridge.tests.domain_bridge.test_context_enrichment"
-        ],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass
 
@@ -125,75 +102,9 @@ class WorldModelBridge:
             await self._client.aclose()
 
 
-__footer_meta__ = {
-    "component_id": "INT-DTB-004",
-    "component_name": "World Model Bridge",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "intelligence",
-    "domain": "world_model",
-    "type": "bridge",
-    "status": "active",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Interface to world model layer",
-    "summary": "Connects to L9's world model for querying causal factors and temporal patterns.",
-    "dependencies": ["structlog", "httpx"],
-}
 
 __all__ = [
     "CausalFactor",
     "Pattern",
     "WorldModelBridge",
-    "__footer_meta__",
-    "__l9_trace__",
 ]
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-010",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "async",
-        "dataclass",
-        "debugging",
-        "domain-tensor-bridge",
-        "http-client",
-        "logging",
-        "operations",
-        "tracing",
-    ],
-    "keywords": [
-        "bridge",
-        "causal",
-        "close",
-        "factor",
-        "factors",
-        "initialize",
-        "model",
-        "pattern",
-    ],
-    "business_value": "Provides world model bridge components including CausalFactor, Pattern, WorldModelBridge",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}

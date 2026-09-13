@@ -21,26 +21,6 @@ Version: 1.0.0
 Based on: reports/COMPONENT_WIRING_AUDIT_GUIDE.md
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Component Audit Dag",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-14T00:00:00Z",
-    "updated_at": "2026-02-14T00:00:00Z",
-    "layer": "operations",
-    "domain": "workflows",
-    "module_name": "component_audit_dag",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["workflows.dags.__init__"],
-    },
-}
-# ============================================================================
 
 from workflows.session.interface import (
     GateType,
@@ -513,9 +493,3 @@ def register():
 
 # Auto-register on import
 register()
-# ============================================================================
-__dora_footer__ = {
-    "governance_level": "medium",
-    "compliance_required": True,
-}
-# ============================================================================

@@ -39,11 +39,6 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-__dora_meta__ = {
-    "component_name": "Try-Run Validator",
-    "module_version": "1.0.0",
-    "status": "active",
-}
 
 
 def check_syntax(file_path: Path) -> tuple[bool, str]:
@@ -267,10 +262,6 @@ def main() -> int:
     return 1
 
 
-__dora_footer__ = {
-    "governance_level": "medium",
-    "compliance_required": True,
-}
 
 
 if __name__ == "__main__":
