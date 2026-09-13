@@ -18,24 +18,6 @@ Usage:
     python scripts/update_workflow_state.py --from-report reports/GMP-Report-142-Foo.md
 """
 
-__dora_meta__ = {
-    "component_name": "Update Workflow State",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-13T19:00:00Z",
-    "updated_at": "2026-02-13T19:00:00Z",
-    "layer": "operations",
-    "domain": "scripts",
-    "module_name": "update_workflow_state",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["workflows.dags.gmp.nodes.core"],
-    },
-}
 
 import argparse
 import os

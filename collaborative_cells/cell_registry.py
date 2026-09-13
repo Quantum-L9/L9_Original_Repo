@@ -9,26 +9,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Collaborative Cell Registry",
-    "module_version": "1.0.0",
-    "created_by": "L9 Auto-Wiring Team",
-    "created_at": "2026-01-18T00:00:00Z",
-    "updated_at": "2026-01-18T00:00:00Z",
-    "layer": "collaborative",
-    "domain": "multi_agent",
-    "module_name": "cell_registry",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["collaborative_cells.__init__"],
-    },
-}
-# ============================================================================
 
 
 import structlog
@@ -217,31 +197,4 @@ def register_legacy_cells() -> int:
     return registered
 
 
-# =============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COLLAB-CELL-REG",
-    "governance_level": "standard",
-    "security_reviewed": True,
-    "performance_tested": True,
-    "last_audit": "2026-01-18T00:00:00Z",
-}
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

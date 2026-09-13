@@ -17,20 +17,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Background Task Registry",
-    "module_version": "1.0.0",
-    "created_by": "L9_Auto_Wiring_System",
-    "created_at": "2026-01-19T00:00:00Z",
-    "updated_at": "2026-01-19T00:00:00Z",
-    "layer": "runtime",
-    "domain": "task_management",
-    "module_name": "background_tasks",
-    "type": "registry",
-    "status": "active",
-}
-# ============================================================================
 
 import asyncio
 import os
@@ -275,39 +261,10 @@ def get_background_task_registry() -> BackgroundTaskRegistry:
     return _background_task_registry
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "RUNTIME-BG-TASKS-001",
-    "governance_level": "standard",
-    "compliance_required": False,
-    "audit_trail": False,
-    "dependencies": ["asyncio", "structlog"],
-    "tags": ["runtime", "background", "tasks", "registry"],
-    "keywords": ["background", "task", "periodic", "scheduler"],
-    "business_value": "Consolidates background task management, reducing api/server.py boilerplate by ~100 lines",
-}
-# ============================================================================
 
 __all__ = [
     "BackgroundTaskRegistry",
     "get_background_task_registry",
 ]
 # ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

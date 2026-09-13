@@ -11,26 +11,6 @@ Version: 1.0.0
 Created: 2025-12-31
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Deterministic Module-Spec v2.6 → Python Code Generator",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:56:58Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "foundation",
-    "domain": "data_models",
-    "module_name": "module_compiler",
-    "type": "test",
-    "status": "production",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["PostgreSQL"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from datetime import UTC, datetime
 from pathlib import Path
@@ -68,7 +48,6 @@ class ModuleCompiler:
     - Full type hints + Pydantic validation
     - L9-integrated (feature flags, kernels, memory substrate)
     - Test generation (pytest, >80% coverage target)
-    - DORA block injection points
     """
 
     def __init__(self, templates_dir: Path | None = None):
@@ -927,100 +906,3 @@ structlog>=23.1.0
         """Convert text to PascalCase"""
         words = text.replace("_", " ").replace("-", " ").split()
         return "".join(word.capitalize() for word in words)
-
-
-# ═══════════════════════════════════════════════════════════════
-# DORA BLOCK - DO NOT EDIT MANUALLY
-# ═══════════════════════════════════════════════════════════════
-"""
-{
-  "dora_metadata": {
-    "file_id": "module-compiler-001",
-    "last_updated_by": "manus_agent",
-    "last_updated_timestamp": "2025-12-31T00:00:00Z",
-    "version": "1.0.0",
-    "change_type": "create",
-    "codegen_trace_id": "unified-codegen-system-v1.0",
-    "spec_ids_implemented": ["module-spec-v2.6"],
-    "validation_status": "pending",
-    "dependencies": [
-      "/l9/core/logger.py"
-    ],
-    "deprecated": false,
-    "successor_file": null
-  },
-  "automation_rules": {
-    "auto_update_enabled": true,
-    "update_triggers": ["spec_change"],
-    "validation_required_before_update": true,
-    "rollback_enabled": true
-  },
-  "l9_integration": {
-    "feature_flags": ["L9_ENABLE_CODEGEN"],
-    "kernel_dependencies": ["01-master-kernel.yaml"],
-    "memory_substrate_access": false,
-    "tool_registry_integration": false,
-    "agent_capabilities": ["code_generation"],
-    "protected_by_safety_kernel": true
-  },
-  "quality_metrics": {
-    "code_coverage_percent": 0,
-    "lint_score": 100,
-    "security_scan_passed": true
-  }
-}
-"""
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-136",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.logger"],
-    "tags": [
-        "api",
-        "async",
-        "auth",
-        "data-models",
-        "filesystem",
-        "foundation",
-        "linting",
-        "messaging",
-        "metrics",
-        "postgres",
-    ],
-    "keywords": [
-        "check",
-        "compilation",
-        "compile",
-        "compiler",
-        "connect",
-        "creation",
-        "deterministic",
-        "disconnect",
-    ],
-    "business_value": "This is the core deterministic code generation engine that transforms Module-Spec v2.6 YAML into production-ready Python modules with full L9 integration, async/await patterns, type hints, and test co",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

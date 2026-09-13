@@ -11,7 +11,6 @@ Summary:
     governance checks, and enforces compliance anchors (Igor, Compliance).
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -23,28 +22,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Governance Bridge",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "data_models",
-    "module_name": "governance_bridge",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [
-            "domain_bridge.tests.domain_bridge.test_governance_integration"
-        ],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from enum import Enum
@@ -276,77 +253,10 @@ class GovernanceBridge:
 # FOOTER META - Extended Metadata (Static)
 # ============================================================================
 
-__footer_meta__ = {
-    "component_id": "SEC-DTB-002",
-    "component_name": "Governance Bridge",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "security",
-    "domain": "governance",
-    "type": "bridge",
-    "status": "active",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Interface to L9 governance layer for escalation and approval",
-    "summary": "Connects Domain-Tensor Bridge to L9 governance infrastructure. Handles escalation decisions, respects human overrides, and enforces compliance anchors.",
-    "dependencies": [
-        "structlog",
-        "core.governance",
-    ],
-}
 
 __all__ = [
     "EscalationResult",
     "GovernanceBridge",
     "GovernanceDecision",
     "GovernanceResult",
-    "__footer_meta__",
-    "__l9_trace__",
 ]
-
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# ============================================================================
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-018",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.governance"],
-    "tags": ["async", "data-models", "dataclass", "logging", "operations", "tracing"],
-    "keywords": [
-        "anchor",
-        "bridge",
-        "check",
-        "decision",
-        "escalate",
-        "escalation",
-        "governance",
-        "initialize",
-    ],
-    "business_value": "Handles escalation decisions, respects human overrides, logs all governance checks, and enforces compliance anchors (Igor, Compliance). See __footer_meta__ at module footer. Runtime trace in __l9_trac",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}

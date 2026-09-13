@@ -26,29 +26,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-# DORA HEADER META
-# ============================================================================
-__dora_meta__ = {
-    "component_id": "MEM-EXEC-SNAP-001",
-    "component_name": "ExecutionPlanSnapshot",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-21T00:00:00Z",
-    "created_by": "L9_Refactoring_Phase0",
-    "layer": "learning",
-    "domain": "memory_substrate",
-    "type": "service",
-    "status": "active",
-    "governance_level": "standard",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Execution plan snapshots for checkpoint recovery and analysis",
-    "dependencies": [
-        "memory.checkpoint_manager",
-        "core.agents.executor",
-    ],
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -538,56 +515,4 @@ __all__ = [
     "get_snapshot_manager",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MEM-LEAR-033",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "data-models",
-        "dataclass",
-        "debugging",
-        "learning",
-        "logging",
-        "messaging",
-        "metrics",
-        "queue",
-        "testing",
-    ],
-    "keywords": [
-        "analysis",
-        "analyze",
-        "checkpoint",
-        "checkpoints",
-        "cleanup",
-        "create",
-        "current",
-        "evolution",
-    ],
-    "business_value": "Implements Phase 0 Plan 7: Execution Plan Snapshots in Checkpoints",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

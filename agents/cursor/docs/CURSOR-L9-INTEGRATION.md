@@ -233,7 +233,7 @@ import requests  # Use httpx instead
 | Error handling  | Explicit packets, not bare except |
 | I/O operations  | Always async                      |
 | Data validation | Pydantic v2 BaseModel             |
-| DORA headers    | `__dora_meta__` dict in every module |
+| Runtime evidence | Governance packets and observability spans |
 
 ### Pre-Generation Checklist
 
@@ -247,7 +247,7 @@ Before outputting any Python code for L9:
 6. No bare `except:` clauses
 7. All I/O is async
 8. Uses `$HOME` not hardcoded paths
-9. Has `__dora_meta__` header (ADR-0014)
+9. Preserves active governance and observability contracts
 10. Uses parameterized SQL, not f-strings (ADR-0087)
 
 ---

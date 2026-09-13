@@ -20,26 +20,6 @@ import re
 
 import pytest
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "System Prompt Contract Tests",
-    "module_version": "1.0.0",
-    "created_by": "L9 Engineering",
-    "created_at": "2026-02-12T03:41:00Z",
-    "updated_at": "2026-02-12T03:41:00Z",
-    "layer": "testing",
-    "domain": "agents",
-    "module_name": "test_system_prompt_contracts",
-    "type": "test",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 
 def _get_agent_or_skip():

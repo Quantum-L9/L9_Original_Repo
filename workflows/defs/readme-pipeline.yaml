@@ -38,7 +38,6 @@ tags:
   - documentation
   - generation
   - subsystems
-  - dora
 
 # Key files this workflow operates on
 artifacts:

@@ -11,7 +11,6 @@ Summary:
     and fallback routing for unknown packet types.
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -23,28 +22,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Packet Router",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "domain_bridge",
-    "module_name": "packet_router",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory"],
-        "imported_by": [
-            "domain_bridge.tests.domain_bridge.test_packet_routing"
-        ],
-    },
-}
-# ============================================================================
 
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -204,80 +181,8 @@ class PacketRouter:
 # FOOTER META - Extended Metadata (Static)
 # ============================================================================
 
-__footer_meta__ = {
-    "component_id": "OPS-DTB-003",
-    "component_name": "Packet Router",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "operations",
-    "domain": "packet_routing",
-    "type": "router",
-    "status": "active",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Route PacketEnvelopes to appropriate handlers",
-    "summary": "Routes incoming packets to the correct handler based on packet type, source domain, and routing rules.",
-    "dependencies": ["structlog", "l9.core.schemas"],
-}
 
 __all__ = [
     "PacketRouter",
     "RoutingResult",
-    "__footer_meta__",
-    "__l9_trace__",
 ]
-
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# ============================================================================
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-011",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.schemas"],
-    "tags": [
-        "async",
-        "dataclass",
-        "domain-tensor-bridge",
-        "logging",
-        "operations",
-        "routing",
-        "tracing",
-    ],
-    "keywords": [
-        "domain",
-        "fallback",
-        "handler",
-        "packet",
-        "register",
-        "route",
-        "router",
-        "routing",
-    ],
-    "business_value": "Provides packet router components including RoutingResult, PacketRouter",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}

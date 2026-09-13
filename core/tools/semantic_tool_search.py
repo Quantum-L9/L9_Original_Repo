@@ -17,26 +17,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Semantic Tool Search",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-25T12:00:01Z",
-    "updated_at": "2026-01-25T11:57:16Z",
-    "layer": "foundation",
-    "domain": "tool_registry",
-    "module_name": "semantic_tool_search",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Anthropic API"],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": ["core.tools.__init__"],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from typing import Any
@@ -293,54 +273,4 @@ __all__ = [
     "ToolSearchResult",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-022",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.tools.tool_embeddings"],
-    "tags": [
-        "adapter-pattern",
-        "async",
-        "dataclass",
-        "debugging",
-        "foundation",
-        "logging",
-        "testing",
-        "tool-registry",
-    ],
-    "keywords": [
-        "adapter",
-        "always",
-        "available",
-        "build",
-        "coverage",
-        "keywords",
-        "module",
-        "optimal",
-    ],
-    "business_value": "SemanticToolSearchAdapter: Register and search tools by semantic similarity ToolSearchOptimizer: Optimize tool availability based on usage patterns Note: This is L9's internal tool search, NOT Anthrop",
-    "last_modified": "2026-01-25T11:57:16Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

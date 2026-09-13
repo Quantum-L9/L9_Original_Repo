@@ -1,6 +1,3 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
 # component_name: "Di Runtime Config"
 # module_version: "1.0.0"
 # created_by: "Igor Beylin"
@@ -110,7 +107,6 @@ feature_flags:
 #   enable_protocol_validation: false  # Skip validation in tests for speed
 
 # ============================================================================
-# DORA FOOTER
 # ============================================================================
 # tags: ["config", "dependency-injection", "runtime", "yaml"]
 # keywords: ["config", "di", "embedding", "memory", "substrate"]

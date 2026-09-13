@@ -30,34 +30,6 @@ Usage:
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Memory Metrics",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-06T15:07:54Z",
-    "updated_at": "2026-01-13T13:49:43Z",
-    "layer": "operations",
-    "domain": "observability",
-    "module_name": "memory_metrics",
-    "type": "tracker",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
-        "imported_by": [
-            "api.server",
-            "memory.substrate_service",
-            "memory.tool_audit",
-            "telemetry.memory_metrics",
-            "tests.integration.test_tool_observability_integration",
-            "tests.telemetry.conftest",
-            "tests.telemetry.test_memory_metrics",
-        ],
-    },
-}
-# ============================================================================
 
 
 import structlog
@@ -567,54 +539,4 @@ __all__ = [
     "update_vector_index_size",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "TEL-OPER-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "audit-tool",
-        "event-driven",
-        "logging",
-        "metrics",
-        "observability",
-        "operations",
-        "tracker",
-    ],
-    "keywords": [
-        "after",
-        "dedup",
-        "health",
-        "index",
-        "ingest",
-        "invocation",
-        "latency",
-        "memory",
-    ],
-    "business_value": "the prometheus_client library. Version: 1.0.0 Author: L9 Enterprise from telemetry.memory_metrics import ( record_memory_write, record_memory_search, record_tool_invocation, ) record_memory_write(segm",
-    "last_modified": "2026-01-13T13:49:43Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

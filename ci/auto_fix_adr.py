@@ -18,7 +18,6 @@ MODES:
 REAL CODE TRANSFORMS (--transform-only runs these):
 - ADR-0002: TYPE_CHECKING → add 'from __future__ import annotations'
 - ADR-0010: @must_stay_async → add decorator to async-without-await functions
-- ADR-0014: DORA metadata → add __dora_meta__ block to production modules
 - ADR-0027: LRU cache → add maxsize=128 to bare @lru_cache
 - ADR-0055: Bare except → convert 'except:' to 'except Exception:'
 - ADR-0083: datetime.now(UTC) → datetime.now(UTC) + add UTC import
@@ -810,160 +809,6 @@ def fix_must_stay_async(
     return False
 
 
-# =============================================================================
-# FIX 11: Missing DORA metadata (ADR-0014)
-# =============================================================================
-
-
-DORA_TEMPLATE = """__dora_meta__ = {{
-    "component_name": "{component_name}",
-    "module_version": "1.0.0",
-    "created_by": "Auto-fix ADR-0014",
-    "created_at": "{timestamp}",
-    "updated_at": "{timestamp}",
-    "layer": "{layer}",
-    "domain": "{domain}",
-    "module_name": "{module_name}",
-    "type": "module",
-    "status": "active",
-    "integrates_with": {{
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    }},
-}}
-"""
-
-
-def fix_missing_dora(file_path: Path, dry_run: bool = False) -> bool:
-    """
-    Add __dora_meta__ block to files that are missing it.
-    Only applies to production code (core/, api/, memory/, services/, runtime/).
-    """
-    if is_protected(file_path):
-        return False
-
-    # Only apply to production code
-    path_str = str(file_path)
-    prod_dirs = ["core/", "api/", "memory/", "services/", "runtime/", "orchestrators/"]
-    if not any(d in path_str for d in prod_dirs):
-        return False
-
-    # Skip test files
-    if "test_" in path_str or "_test.py" in path_str:
-        return False
-
-    try:
-        content = file_path.read_text()
-    except (UnicodeDecodeError, OSError):
-        return False
-
-    # Check if already has DORA
-    if "__dora_meta__" in content:
-        return False
-
-    # Determine layer and domain from path
-    layer = "core"
-    domain = "unknown"
-    if "api/" in path_str:
-        layer = "api"
-        domain = "api"
-    elif "memory/" in path_str:
-        layer = "core"
-        domain = "memory"
-    elif "services/" in path_str:
-        layer = "service"
-        domain = "services"
-    elif "runtime/" in path_str:
-        layer = "foundation"
-        domain = "runtime"
-    elif "orchestrators/" in path_str:
-        layer = "integration"
-        domain = "orchestration"
-    elif "core/" in path_str:
-        layer = "core"
-        # Try to get subdomain
-        if "agents/" in path_str:
-            domain = "agents"
-        elif "tools/" in path_str:
-            domain = "tools"
-        elif "governance/" in path_str:
-            domain = "governance"
-        else:
-            domain = "core"
-
-    # Generate component name from file name
-    component_name = file_path.stem.replace("_", " ").title()
-    module_name = path_str.replace("/", ".").replace(".py", "")
-    if module_name.startswith("."):
-        module_name = module_name[1:]
-
-    from datetime import UTC, datetime
-
-    timestamp = datetime.now(UTC).isoformat()
-
-    dora_block = DORA_TEMPLATE.format(
-        component_name=component_name,
-        timestamp=timestamp,
-        layer=layer,
-        domain=domain,
-        module_name=module_name,
-    )
-
-    # Find insertion point (after docstring AND after from __future__ imports)
-    lines = content.split("\n")
-    insert_pos = 0
-
-    in_docstring = False
-    docstring_char = None
-
-    for i, line in enumerate(lines):
-        stripped = line.strip()
-
-        if not in_docstring:
-            if stripped.startswith('"""') or stripped.startswith("'''"):
-                docstring_char = stripped[:3]
-                if stripped.count(docstring_char) >= 2:
-                    # Single line docstring
-                    insert_pos = i + 1
-                else:
-                    in_docstring = True
-            elif stripped.startswith("#"):
-                insert_pos = i + 1
-            elif stripped.startswith("from __future__"):
-                # CRITICAL: __future__ imports MUST come before __dora_meta__
-                insert_pos = i + 1
-            elif stripped:
-                # First non-comment, non-docstring, non-future line
-                break
-        else:
-            if docstring_char in stripped:
-                in_docstring = False
-                insert_pos = i + 1
-
-    # Also skip past any from __future__ that appears right after docstring
-    while insert_pos < len(lines):
-        stripped = lines[insert_pos].strip()
-        if stripped.startswith("from __future__"):
-            insert_pos += 1
-        elif stripped == "":
-            # Skip blank lines between docstring/future and code
-            insert_pos += 1
-        else:
-            break
-
-    # Insert DORA block
-    new_lines = [*lines[:insert_pos], "", dora_block, "", *lines[insert_pos:]]
-    new_content = "\n".join(new_lines)
-
-    if dry_run:
-        print(f"  Would add DORA: {file_path}")
-        return True
-
-    file_path.write_text(new_content)
-    print(f"  Added DORA: {file_path}")
-    return True
 
 
 # =============================================================================
@@ -1801,7 +1646,6 @@ Examples:
 REAL CODE TRANSFORMS (7 fixers — safe to run):
     ADR-0002  TYPE_CHECKING → add 'from __future__ import annotations'
     ADR-0010  @must_stay_async → add decorator to async-without-await
-    ADR-0014  DORA metadata → add __dora_meta__ block
     ADR-0027  LRU cache → add maxsize=128
     ADR-0055  Bare except → convert to 'except Exception:'
     ADR-0083  datetime.now(UTC) → datetime.now(UTC)
@@ -1875,9 +1719,6 @@ NOQA ADDITIONS (16 fixers — use --all, NOT recommended):
         help="Fix @must_stay_async (ADR-0010)",
     )
     parser.add_argument(
-        "--fix-dora", action="store_true", help="Fix missing DORA metadata (ADR-0014)"
-    )
-    parser.add_argument(
         "--fix-circuit-breaker",
         action="store_true",
         help="Fix circuit breaker (ADR-0009)",
@@ -1945,7 +1786,7 @@ NOQA ADDITIONS (16 fixers — use --all, NOT recommended):
         action="store_true",
         help="RECOMMENDED: Only run fixes that TRANSFORM code (no noqa additions). "
         "Transforms: utcnow→now(UTC), bare except→Exception, lru_cache maxsize, "
-        "future annotations, @must_stay_async, DORA metadata, timezone imports.",
+        "future annotations, @must_stay_async, timezone imports.",
     )
     parser.add_argument("--path", type=str, default=".", help="Root path to scan")
 
@@ -1963,7 +1804,6 @@ NOQA ADDITIONS (16 fixers — use --all, NOT recommended):
         args.fix_singleton,
         args.fix_type_conversion,
         args.fix_must_stay_async,
-        args.fix_dora,
         args.fix_circuit_breaker,
         args.fix_credentials,
         args.fix_lru_cache,
@@ -1995,7 +1835,6 @@ NOQA ADDITIONS (16 fixers — use --all, NOT recommended):
         args.fix_bare_except = True
         args.fix_lru_cache = True
         args.fix_must_stay_async = True
-        args.fix_dora = True
         # Explicitly ensure noqa-only fixers are NOT enabled
         # (they only run if --all or their specific flag is set)
 
@@ -2085,12 +1924,6 @@ NOQA ADDITIONS (16 fixers — use --all, NOT recommended):
     if args.fix_must_stay_async or args.all:
         print("\n=== Fixing @must_stay_async (ADR-0010) ===")
         count = run_fix(fix_must_stay_async, "must_stay_async", args.dry_run, args.safe)
-        print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
-        total_fixed += count
-
-    if args.fix_dora or args.all:
-        print("\n=== Fixing DORA metadata (ADR-0014) ===")
-        count = run_fix(fix_missing_dora, "dora", args.dry_run)
         print(f"  {count} files {'would be ' if args.dry_run else ''}fixed")
         total_fixed += count
 

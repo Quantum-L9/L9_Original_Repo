@@ -32,26 +32,6 @@ vcs_path: "core/bayesian/subjective_logic.py"
 
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Subjective Logic",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2025-12-27T02:13:14Z",
-    "updated_at": "2026-01-21T21:57:31Z",
-    "layer": "foundation",
-    "domain": "current_work",
-    "module_name": "subjective_logic",
-    "type": "adapter",
-    "status": "production",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 """
 Subjective Logic Adapter
@@ -315,53 +295,4 @@ if __name__ == "__main__":
 
     logger.info("Subjective Logic adapter validated", status="success")
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CUR-FOUN-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "adapter",
-        "adapter-pattern",
-        "auth",
-        "current-work",
-        "foundation",
-        "logging",
-        "testing",
-    ],
-    "keywords": [
-        "adapter",
-        "agent",
-        "bayesian",
-        "beta",
-        "combine",
-        "confidence",
-        "core",
-        "disbelief",
-    ],
-    "business_value": "Implements SubjectiveLogicAdapter for subjective logic functionality",
-    "last_modified": "2026-01-21T21:57:31Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -9,26 +9,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "World Model Mocks",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-09T01:02:49Z",
-    "updated_at": "2026-01-07T13:35:58Z",
-    "layer": "operations",
-    "domain": "tests",
-    "module_name": "world_model_mocks",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["tests.mocks.__init__"],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -354,45 +334,4 @@ class MockWorldModel:
         }
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "TES-OPER-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["async", "dataclass", "mocking", "operations", "testing", "tests"],
-    "keywords": [
-        "create",
-        "delete",
-        "edge",
-        "edges",
-        "implementations",
-        "link",
-        "mock",
-        "mocks",
-    ],
-    "business_value": "Provides world model mocks components including MockNode, MockEdge, MockWorldModel",
-    "last_modified": "2026-01-07T13:35:58Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

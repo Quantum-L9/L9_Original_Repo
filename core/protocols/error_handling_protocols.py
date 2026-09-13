@@ -10,26 +10,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Error Handling Protocols",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-25T08:48:24Z",
-    "updated_at": "2026-02-02T10:35:00Z",
-    "layer": "foundation",
-    "domain": "data_models",
-    "module_name": "error_handling_protocols",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API", "PostgreSQL"],
-        "memory_layers": [],
-        "imported_by": ["core.protocols.__init__"],
-    },
-}
-# ============================================================================
 
 import asyncio
 import dataclasses
@@ -522,29 +502,5 @@ async def with_error_handling(
         raise last_error
 
 
-__dora_footer__ = {
-    "component_id": "CORE-PROTO-001",
-    "governance_level": "standard",
-    "compliance_required": True,
-    "tags": ["error-handling", "protocol", "resilience"],
-    "keywords": ["error", "retry", "classification", "async"],
-    "business_value": "Unified error handling protocol with classification and retry logic.",
-    "last_modified": "2026-01-25T12:00:00Z",
-}
 # ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

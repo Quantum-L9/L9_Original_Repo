@@ -10,8 +10,6 @@ Summary:
     and how it fits into the L9 system}
 
 Extended Metadata:
-    See __footer_meta__ at module footer for full governance, classification,
-    and audit metadata. Runtime trace in __l9_trace__ at very end.
 
 ================================================================================
 # HEADER META - Module Identity (Static, set on generation)
@@ -23,26 +21,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Module-Template",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-02T15:15:57Z",
-    "updated_at": "2026-01-06T16:58:22Z",
-    "layer": "foundation",
-    "domain": "code_generation",
-    "module_name": "module-template",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 # ============================================================================
 # STANDARD LIBRARY IMPORTS
@@ -146,32 +124,6 @@ async def example_function(param1: str) -> dict[str, Any]:
 # Header points here. CI/CD validates this block.
 # DO NOT MODIFY STRUCTURE - only replace {PLACEHOLDER} values on generation.
 
-__footer_meta__ = {
-    # Component Identity (REQUIRED)
-    "component_id": "{LAYER}-{ABBREV}-{NUM}",
-    "component_name": "{component_name}",
-    "module_version": "1.0.0",
-    # Authorship (REQUIRED)
-    "created_at": "{YYYY-MM-DDTHH:MM:SSZ}",
-    "created_by": "{creator_name}",
-    # Classification (REQUIRED)
-    "layer": "{foundation|intelligence|operations|learning|security}",
-    "domain": "{domain_name}",
-    "type": "{service|collector|tracker|engine|utility|adapter}",
-    "status": "{active|deprecated|experimental|maintenance}",
-    # Governance (REQUIRED)
-    "governance_level": "{critical|high|medium|low}",
-    "compliance_required": True,
-    "audit_trail": True,
-    # Business Context (REQUIRED)
-    "purpose": "{one_sentence_description}",
-    "summary": "{2-3_sentence_description}",
-    # Dependencies (REQUIRED)
-    "dependencies": [
-        "l9.core.memory",
-        "l9.core.governance",
-    ],
-}
 
 # ============================================================================
 # MODULE EXPORTS
@@ -180,8 +132,6 @@ __all__ = [
     "MODULE_ID",
     "MODULE_NAME",
     "MODULE_VERSION",
-    "__footer_meta__",
-    "__l9_trace__",
     "example_function",
     "health_check",
     "initialize_module",
@@ -190,55 +140,4 @@ __all__ = [
 # This is the L9_TRACE_TEMPLATE - 100% machine-managed
 # Updates automatically on EVERY execution - never human-edited
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "auth",
-        "code-generation",
-        "debugging",
-        "foundation",
-        "metrics",
-        "pydantic",
-        "service",
-        "tracing",
-        "validation",
-    ],
-    "keywords": [
-        "check",
-        "example",
-        "function",
-        "health",
-        "initialize",
-        "module",
-        "template",
-    ],
-    "business_value": "Utility module for module-template",
-    "last_modified": "2026-01-06T16:58:22Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -23,26 +23,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Schema Parser",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-20T15:08:40Z",
-    "updated_at": "2026-01-06T16:58:23Z",
-    "layer": "foundation",
-    "domain": "data_models",
-    "module_name": "schema_parser",
-    "type": "schema",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j", "PostgreSQL", "Redis", "S3"],
-        "memory_layers": ["episodic_memory", "semantic_memory", "working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from pathlib import Path
 from typing import Any
@@ -698,56 +678,4 @@ __all__ = [
     "parse_schema_file",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-007",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "audit-tool",
-        "caching",
-        "config",
-        "data-models",
-        "engine",
-        "event-driven",
-        "filesystem",
-        "foundation",
-        "linting",
-    ],
-    "keywords": [
-        "agent",
-        "audit",
-        "autonomy",
-        "block",
-        "case",
-        "channel",
-        "collaboration",
-        "collaborator",
-    ],
-    "business_value": "1. system - Agent identity and role 2. integration - Dependencies and wiring points 3. governance - Escalation, compliance, audit scope 4. memorytopology - Working/episodic/semantic/causal/archive mem",
-    "last_modified": "2026-01-06T16:58:23Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

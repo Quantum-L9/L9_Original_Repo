@@ -1,23 +1,3 @@
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Schemas",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-13T13:44:10Z",
-    "updated_at": "2026-01-13T13:44:10Z",
-    "layer": "foundation",
-    "domain": "code_generation",
-    "module_name": "schemas",
-    "type": "schema",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 # codegen/compiler/schemas.py
 """
@@ -72,36 +52,4 @@ def validate_schema(artifact_name: str, artifact: dict[str, Any]) -> None:
             )
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["code-generation", "foundation", "schema"],
-    "keywords": ["schema", "schemas", "validate"],
-    "business_value": "decisions.yaml ial_candidates.yaml typed_invariants.yaml work_packets.yaml",
-    "last_modified": "2026-01-13T13:44:10Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

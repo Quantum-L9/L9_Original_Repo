@@ -11,26 +11,6 @@ Author: L9 Auto-Wiring System
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Router Registry",
-    "module_version": "1.0.0",
-    "created_by": "L9_Auto_Wiring_System",
-    "created_at": "2026-01-18T00:00:00Z",
-    "updated_at": "2026-01-18T00:00:00Z",
-    "layer": "operations",
-    "domain": "api_gateway",
-    "module_name": "registry",
-    "type": "registry",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["api.server", "api.routes.*"],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -384,36 +364,4 @@ def get_router_registry() -> RouterRegistry:
     return router_registry
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "API-OPS-ROUTER-REG-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["fastapi", "core.moduleregistry"],
-    "tags": ["api", "registry", "auto-wiring", "routers"],
-    "keywords": ["router", "fastapi", "auto-registration", "wiring", "discovery"],
-    "business_value": "Eliminates 150+ lines of manual router registration boilerplate",
-    "last_modified": "2026-01-18T00:00:00Z",
-    "modified_by": "L9_Auto_Wiring_System",
-    "change_summary": "Initial router auto-registry implementation",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -17,26 +17,6 @@ Version: 1.0.0
 Based on: .cursor-commands/commands/confirm-wiring.md v2.0.0
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Confirm Wiring Dag",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-14T00:00:00Z",
-    "updated_at": "2026-02-14T00:00:00Z",
-    "layer": "operations",
-    "domain": "workflows",
-    "module_name": "confirm_wiring_dag",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": ["workflows.dags.__init__"],
-    },
-}
-# ============================================================================
 
 from workflows.session.interface import (
     NodeType,
@@ -299,10 +279,3 @@ If ANY check fails:
         SessionEdge(from_node="verify_tests", to_node="report"),
     ],
 )
-
-# ============================================================================
-__dora_footer__ = {
-    "governance_level": "medium",
-    "compliance_required": True,
-}
-# ============================================================================

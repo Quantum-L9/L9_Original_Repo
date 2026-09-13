@@ -14,29 +14,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Memory Unified",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-11T18:13:39Z",
-    "updated_at": "2026-01-17T23:47:56Z",
-    "layer": "integration",
-    "domain": "api_gateway",
-    "module_name": "memory_unified",
-    "type": "router",
-    "status": "deprecated",
-    "integrates_with": {
-        "api_endpoints": ["POST /save", "POST /search", "GET /stats"],
-        "datasources": ["Neo4j", "OpenAI API", "PostgreSQL"],
-        "memory_layers": ["working_memory", "semantic_memory"],
-        "imported_by": [
-            "tests.memory.test_governance_invariants",
-            "tests.memory.test_unified_pipeline",
-        ],
-    },
-}
-# ============================================================================
 
 import json
 import os
@@ -1599,56 +1576,4 @@ async def save_memory_with_confidence(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MCP-INTE-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.schemas", "memory.governance_gate"],
-    "tags": [
-        "api",
-        "api-gateway",
-        "async",
-        "auth",
-        "debugging",
-        "endpoint",
-        "event-driven",
-        "integration",
-        "logging",
-        "messaging",
-    ],
-    "keywords": [
-        "agent",
-        "apply",
-        "cleanup",
-        "compound",
-        "confidence",
-        "decay",
-        "delete",
-        "expired",
-    ],
-    "business_value": "This replaces the deprecated memory.* tables with the unified L9 memory substrate. Uses packet_store for event log and memory_embeddings for vector storage. MANDATORY: ALL WRITES ROUTE THROUGH MAIN L9",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

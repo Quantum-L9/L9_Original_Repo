@@ -25,15 +25,7 @@ import yaml
 from core.observability.instrumentation import trace_span
 
 # ---------------------------------------------------------------------------
-# DORA Metadata Block (ADR-0014)
 # ---------------------------------------------------------------------------
-__dora_meta__ = {
-    "component_name": "cga_spec_generator",
-    "version": "1.0.0",
-    "status": "active",
-    "owner": "l9-platform",
-    "description": "Automated generation of CodeGenAgent specs from audit findings",
-}
 
 log = structlog.get_logger(__name__)
 

@@ -52,36 +52,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_meta__ = {
-    "component_id": "COR-FOUN-001",
-    "component_name": "Agent Instance",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-20T15:08:40Z",
-    "updated_at": "2026-01-18T01:57:15Z",
-    "layer": "foundation",
-    "domain": "agent_execution",
-    "module_name": "agent_instance",
-    "type": "utility",
-    "status": "active",
-    "purpose": "Represents a running agent instance with its configuration and bound tools.",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j", "PostgreSQL", "Redis"],
-        "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
-        "imported_by": [
-            "core.agents.__init__",
-            "core.agents.bootstrap.orchestrator",
-            "core.agents.executor",
-            "tests.integration.test_governance_tracking_e2e",
-            "tests.unit.test_guarded_execution",
-        ],
-    },
-}
-# ============================================================================
 
 import hashlib
 import re
@@ -821,89 +791,10 @@ __all__ = [
     "AgentInstance",
 ]
 # ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
+
 
 # ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    # === IDENTITY ===
-    "component_id": "COR-FOUN-001",
-    # === GOVERNANCE ===
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "security_classification": "internal",
-    # === DEPENDENCIES ===
-    "dependencies": ["core.agents.schemas"],
-    # === OPERATIONAL ===
-    "execution_mode": "on-demand",
-    "timeout_seconds": 30,
-    "performance_tier": "batch",
-    "retry_policy": "exponential",
-    "circuit_breaker_enabled": True,
-    "circuit_breaker_threshold": 5,
-    # === OBSERVABILITY ===
-    "monitoring_required": True,
-    "logging_level": "info",
-    "success_metrics": {
-        "latency_p95_ms": 500,
-        "throughput_ops_per_sec": 100,
-        "availability_percent": 99.9,
-        "error_rate_percent": 0.1,
-    },
-    # === DISCOVERY ===
-    "tags": [
-        "agent-execution",
-        "cache",
-        "foundation",
-        "graph-db",
-        "llm",
-        "logging",
-        "utility",
-    ],
-    "keywords": ["add", "agent", "aios", "assemble", "assistant", "block"],
-    "business_value": "Represents a running agent instance with its configuration and bound tools.",
-    # === CHANGE TRACKING ===
-    "last_modified": "2026-01-18T01:57:15Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

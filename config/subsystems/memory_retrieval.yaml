@@ -1,6 +1,3 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
 # component_name: "Memory Retrieval"
 # module_version: "1.0.0"
 # created_by: "Igor Beylin"
@@ -111,9 +108,6 @@ subsystem_config_v1:
       - "Index schema modifications"
       - "Ranking algorithm changes"
       - "RLS policy modifications"
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
 # tags: ["agent-config", "configuration", "foundation", "memory", "retrieval", "utility"]
 # keywords: ["memory", "retrieval", "search", "embedding", "subsystem_config_v1"]
 # last_modified: "2026-01-20T00:30:00Z"

@@ -4,26 +4,6 @@ Perplexity AI PR Reviewer - AUDIT MODE
 Deep security, performance, and architecture analysis
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "AUDIT MODE",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-24T17:18:54Z",
-    "updated_at": "2026-01-24T17:18:34Z",
-    "layer": "operations",
-    "domain": "scripts",
-    "module_name": "perplexity_reviewer",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API", "Neo4j", "Perplexity API", "PostgreSQL", "Redis"],
-        "memory_layers": ["working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import json
 import os
@@ -265,56 +245,4 @@ if __name__ == "__main__":
     auditor = PerplexityAuditor()
     auditor.run()
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "SCR-OPER-012",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "audit-tool",
-        "auth",
-        "batch-processing",
-        "cli",
-        "code-quality",
-        "filesystem",
-        "messaging",
-        "operations",
-        "realtime",
-    ],
-    "keywords": [
-        "apply",
-        "audit",
-        "auditor",
-        "auto",
-        "diff",
-        "fixes",
-        "generate",
-        "mode",
-    ],
-    "business_value": "Implements PerplexityAuditor for perplexity reviewer functionality",
-    "last_modified": "2026-01-24T17:18:34Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

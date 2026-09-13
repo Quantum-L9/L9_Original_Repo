@@ -14,30 +14,6 @@ The pipeline flow:
     pass_5_integrate_results → END
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Research Factory Nodes",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-09T01:02:49Z",
-    "updated_at": "2026-01-17T23:47:56Z",
-    "layer": "foundation",
-    "domain": "core",
-    "module_name": "research_factory_nodes",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [
-            "core.schemas.__init__",
-            "core.schemas.tests.test_research_factory",
-            "core.schemas.universal_schema",
-        ],
-    },
-}
-# ============================================================================
 
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -471,59 +447,4 @@ def build_research_graph():
     return graph.compile()
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "core.decorators",
-        "core.schemas.research_factory_models",
-        "core.schemas.research_factory_state",
-    ],
-    "tags": [
-        "async",
-        "batch-processing",
-        "core",
-        "foundation",
-        "logging",
-        "metrics",
-        "mocking",
-        "service",
-        "testing",
-    ],
-    "keywords": [
-        "build",
-        "execute",
-        "extract",
-        "factory",
-        "graph",
-        "integrate",
-        "langgraph",
-        "nodes",
-    ],
-    "business_value": "Implements the 5-pass structured research pipeline as LangGraph node functions.",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

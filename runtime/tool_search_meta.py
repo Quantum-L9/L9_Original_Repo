@@ -24,29 +24,6 @@ Created: 2026-02-12
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Tool Search Meta-Tool",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-12T18:24:00Z",
-    "updated_at": "2026-02-12T18:24:00Z",
-    "layer": "runtime",
-    "domain": "tool_registry",
-    "module_name": "tool_search_meta",
-    "type": "tool",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["PostgreSQL", "Redis"],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": [
-            "core.agents.dynamic_tool_binding",
-            "runtime.tool_packages",
-        ],
-    },
-}
-# ============================================================================
 
 from typing import Any
 
@@ -167,55 +144,4 @@ __all__ = [
     "tool_search",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "RUN-TOOL-SRCH-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "core.decorators",
-        "core.tools.dynamic_discovery",
-    ],
-    "tags": [
-        "async",
-        "meta-tool",
-        "tool-discovery",
-        "anthropic-pattern",
-        "runtime",
-    ],
-    "keywords": [
-        "tool_search",
-        "meta",
-        "discovery",
-        "deferred",
-        "anthropic",
-        "claude",
-    ],
-    "business_value": (
-        "Implements Anthropic's Tool Search pattern for deferred tool loading. "
-        "Reduces context bloat from 73+ tools to 1 meta-tool + 3-5 discovered tools per task."
-    ),
-    "last_modified": "2026-02-12T18:24:00Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial implementation - Anthropic Tool Search meta-tool",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

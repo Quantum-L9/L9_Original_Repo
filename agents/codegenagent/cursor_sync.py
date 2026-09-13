@@ -12,26 +12,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Cursor Sync",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-15T23:27:48Z",
-    "updated_at": "2026-01-15T23:27:48Z",
-    "layer": "intelligence",
-    "domain": "agent_execution",
-    "module_name": "cursor_sync",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import json
 from dataclasses import dataclass, field
@@ -264,53 +244,4 @@ def clear_cursor_context(context_path: str | None = None) -> bool:
     return False
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "AGE-INTE-012",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "agent-execution",
-        "dataclass",
-        "debugging",
-        "filesystem",
-        "intelligence",
-        "logging",
-        "serialization",
-    ],
-    "keywords": [
-        "capsule",
-        "clear",
-        "codegenagent",
-        "cursor",
-        "envelope",
-        "memory",
-        "state",
-        "sync",
-    ],
-    "business_value": "Provides cursor sync components including CursorCapsule, ContextEnvelope",
-    "last_modified": "2026-01-15T23:27:48Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

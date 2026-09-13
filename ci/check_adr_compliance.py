@@ -17,7 +17,6 @@ CODE QUALITY (warning by default, error in --strict):
 - ADR-0006: PacketEnvelope audit trail (operations emit packets)
 - ADR-0009: Circuit breaker resilience (external HTTP calls)
 - ADR-0010: @must_stay_async decorator (async without await)
-- ADR-0014: DORA metadata block (__dora_meta__ in production modules)
 - ADR-0016: TypedDict vs Pydantic boundary (proper separation)
 - ADR-0019: structlog logging standard (no print/logging module)
 - ADR-0022: Registry pattern (proper registry classes)
@@ -52,24 +51,6 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-__dora_meta__ = {
-    "component_name": "Check Adr Compliance",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-31T20:27:26Z",
-    "updated_at": "2026-01-31T22:51:33Z",
-    "layer": "operations",
-    "domain": "ci",
-    "module_name": "check_adr_compliance",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory"],
-        "imported_by": [],
-    },
-}
 # ============================================================================
 
 import argparse
@@ -93,7 +74,6 @@ SKIP_DIRS = {
     ".backup",
     "igor",
     "codegen",
-    ".dora",
     ".github",
     "tests",
 }
@@ -104,7 +84,6 @@ ALLOWED_EXCEPTIONS = {
     "eval": {  # security test
         "ci/check_adr_compliance.py",  # This file (AST analysis)
         "ci/check_imports.py",  # AST analysis
-        "ci/validate_dora_blocks.py",  # CI validation tool
         "tools/adr/adr_enforcer.py",  # ADR enforcement tool
         "workflows/runner.py",  # Workflow runner (executes Python steps)
         "services/symbolic_computation/core/code_generator.py",  # Code generator
@@ -160,7 +139,6 @@ WARNING_ADRS = {
     "ADR-0033",  # Async context managers
     "ADR-0055",  # Fail-loudly
     "ADR-0010",  # @must_stay_async decorator
-    "ADR-0014",  # DORA metadata block
     "ADR-0084",  # Async resource cleanup
     "ADR-0085",  # Thread-safe singletons
     "ADR-0086",  # Safe type conversion
@@ -741,21 +719,7 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
                 "File imports 'logging' module. Use structlog instead per ADR-0019.",
             )
 
-    # ADR-0014: Check for __dora_meta__ block
     rel_path = str(filepath)
-    skip_dora_dirs = {"tests", "scripts", "tools", "ci", "workflows", "agents/cursor"}
-    should_check_dora = not any(d in rel_path for d in skip_dora_dirs)
-
-    if should_check_dora and "__dora_meta__" not in content:
-        # Only flag production code files
-        if any(
-            d in rel_path for d in ["core/", "api/", "memory/", "services/", "runtime/"]
-        ):
-            checker._add_violation(
-                "ADR-0014",
-                1,
-                "Missing __dora_meta__ block. Add DORA metadata after module docstring.",
-            )
 
     # ADR-0085: Check for singleton pattern without lock
     import re
@@ -1016,9 +980,6 @@ def main() -> int:
         print("  ADR-0010  @must_stay_async decorator")  # noqa: ADR-0019
         print("            - Async functions without await need decorator")  # noqa: ADR-0019
         print()  # noqa: ADR-0019
-        print("  ADR-0014  DORA metadata block")  # noqa: ADR-0019
-        print("            - Production modules need __dora_meta__")  # noqa: ADR-0019
-        print()  # noqa: ADR-0019
         print("  ADR-0016  TypedDict vs Pydantic boundary")  # noqa: ADR-0019
         print("            - Don't mix TypedDict and Pydantic in same file")  # noqa: ADR-0019
         print()  # noqa: ADR-0019
@@ -1166,47 +1127,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CI-OPER-018",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "ast",
-        "caching",
-        "ci",
-        "cli",
-        "code-quality",
-        "dataclass",
-        "debugging",
-        "filesystem",
-        "messaging",
-        "operations",
-    ],
-    "keywords": ["adr", "check", "checker", "compliance", "violation"],
-    "business_value": "Provides check adr compliance components including Violation, ADRChecker",
-    "last_modified": "2026-01-31T22:51:33Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

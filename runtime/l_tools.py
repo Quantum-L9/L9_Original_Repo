@@ -10,30 +10,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "L Tools",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-27T02:00:41Z",
-    "updated_at": "2026-01-17T23:47:56Z",
-    "layer": "operations",
-    "domain": "runtime_operations",
-    "module_name": "l_tools",
-    "type": "engine",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j", "OpenAI API", "Redis"],
-        "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": [
-            "ci.check_tool_wiring",
-            "core.tools.registry_adapter",
-            "runtime.execution_gate",
-        ],
-    },
-}
-# ============================================================================
 
 from datetime import UTC, datetime
 from typing import Any
@@ -2912,62 +2888,4 @@ async def kernel_read(
 # ============================================================================
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "RUN-OPER-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "api.vps_executor",
-        "core.decorators",
-        "core.tools.base_registry",
-        "core.tools.reflection_tools",
-        "core.tools.research_tools",
-    ],
-    "tags": [
-        "api",
-        "async",
-        "batch-processing",
-        "cache",
-        "caching",
-        "engine",
-        "event-driven",
-        "logging",
-        "messaging",
-        "metrics",
-    ],
-    "keywords": [
-        "agent",
-        "all",
-        "api",
-        "available",
-        "blast",
-        "catalog",
-        "check",
-        "checkpoint",
-    ],
-    "business_value": "Utility module for l tools",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

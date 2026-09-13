@@ -23,15 +23,7 @@ import structlog
 import yaml
 
 # ---------------------------------------------------------------------------
-# DORA Metadata Block (ADR-0014)
 # ---------------------------------------------------------------------------
-__dora_meta__ = {
-    "component_name": "noqa_debt_eliminator",
-    "version": "1.0.0",
-    "status": "active",
-    "owner": "l9-platform",
-    "description": "Systematic tracking and elimination of ADR noqa debt",
-}
 
 log = structlog.get_logger(__name__)
 
@@ -66,7 +58,6 @@ class NoqaDebtEliminator:
             "ADR-0038": "P0",  # Secrets
             "ADR-0006": "P1",  # PacketEnvelope
             "ADR-0019": "P2",  # Logging
-            "ADR-0014": "P2",  # DORA
             "ADR-0002": "P1",  # Circular imports
             "ADR-0026": "P2",  # Protocols
         }

@@ -14,26 +14,6 @@ Features:
 Version: 1.2.0
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Slack Files",
-    "module_version": "1.2.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-14T12:48:58Z",
-    "updated_at": "2026-01-25T00:00:00Z",
-    "layer": "operations",
-    "domain": "services",
-    "module_name": "slack_files",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API", "OpenAI API", "Slack API", "S3"],
-        "memory_layers": [],
-        "imported_by": ["_archived.legacy_slack.webhook_slack", "memory.slack_ingest"],
-    },
-}
-# ============================================================================
 
 import hashlib
 import os
@@ -753,80 +733,6 @@ async def process_file_attachments(files: list[dict[str, Any]]) -> list[dict[str
     return artifacts
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    # === IDENTITY ===
-    "component_id": "SER-OPER-001",
-    # === GOVERNANCE ===
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "security_classification": "internal",
-    # === DEPENDENCIES ===
-    "dependencies": ["api.slack_client"],
-    # === OPERATIONAL ===
-    "execution_mode": "on-demand",
-    "timeout_seconds": 30,
-    "performance_tier": "realtime",
-    "retry_policy": "exponential",
-    "circuit_breaker_enabled": True,
-    "circuit_breaker_threshold": 5,
-    # === OBSERVABILITY ===
-    "monitoring_required": True,
-    "logging_level": "info",
-    "success_metrics": {
-        "latency_p95_ms": 50,
-        "throughput_ops_per_sec": 1000,
-        "availability_percent": 99.99,
-        "error_rate_percent": 0.01,
-    },
-    # === DISCOVERY ===
-    "tags": [
-        "api",
-        "async",
-        "auth",
-        "debugging",
-        "event-driven",
-        "filesystem",
-        "http-client",
-        "llm",
-        "logging",
-        "messaging",
-    ],
-    "keywords": [
-        "artifact",
-        "attachments",
-        "build",
-        "disk",
-        "download",
-        "files",
-        "orchestrator",
-        "process",
-    ],
-    "business_value": "Handles downloading, saving, and managing file attachments from Slack messages. Download files from Slack using Web API Save files to managed storage directory (~/.l9/slack_files/YYYY/MM/DD/) Create f",
-    # === CHANGE TRACKING ===
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
 
 # ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

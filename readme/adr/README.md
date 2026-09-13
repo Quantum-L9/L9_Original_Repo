@@ -27,7 +27,6 @@ These ADRs enforce safety, audit, and structural invariants. Violating them brea
 | [0002](./0002-circular-import-prevention.md) | Circular Import Prevention | Use `TYPE_CHECKING` for type-only imports |
 | [0006](./0006-packet-envelope-audit-trail.md) | PacketEnvelope Audit Trail | All operations emit PacketEnvelope |
 | [0012](./0012-memory-dag-pipeline.md) | Memory DAG Pipeline | Validation in `intake_node` only; no duplicate validation |
-| [0014](./0014-dora-metadata-block.md) | DORA Metadata Block | Every module needs `__dora_meta__` dict |
 | [0019](./0019-structlog-logging-standard.md) | structlog Logging | Use structlog, never `print()` or `logging` |
 | [0055](./0055-fail-loudly-vs-graceful-degradation.md) | Fail-Loudly vs Graceful Degradation | Explicit failure semantics; no silent swallowing |
 | [0087](./0087-sql-parameterization.md) | SQL Parameterization | Never use f-strings for SQL; always parameterize |
@@ -64,7 +63,6 @@ graph TD
     0000 --> 0007[Bootstrap]
     0007 --> 0004[Singleton Registry]
     0004 --> 0011[Lazy Init]
-    0019[structlog] --> 0014[DORA Metadata]
     0035[ADR Bootstrap] --> 0065[Cursor ADR Enforcement]
 ```
 
@@ -72,7 +70,6 @@ graph TD
 
 ## 📋 Compliance Checklist for Agents
 
-- [ ] Does the module have a `__dora_meta__` block? (ADR-0014)
 - [ ] Are all imports circular-safe using `TYPE_CHECKING`? (ADR-0002)
 - [ ] Does every significant operation emit a `PacketEnvelope`? (ADR-0006)
 - [ ] Are all database queries parameterized? (ADR-0087)

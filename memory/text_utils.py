@@ -12,28 +12,6 @@ is a bug waiting to happen — route through here.
 
 from __future__ import annotations
 
-__dora_meta__ = {
-    "component_name": "Text Extraction Utilities",
-    "module_version": "1.0.0",
-    "created_by": "L9_Pipeline_Unification",
-    "created_at": "2026-02-12T20:00:00Z",
-    "updated_at": "2026-02-12T20:00:00Z",
-    "layer": "learning",
-    "domain": "memory_substrate",
-    "module_name": "text_utils",
-    "type": "utility",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": [
-            "memory.substrate_dag",
-            "memory.retrieval",
-            "memory.substrate_service",
-        ],
-    },
-}
 
 from typing import Any
 

@@ -4,26 +4,6 @@ Autonomous Research Agent for Perplexity Labs Multi-Prompt Synthesis
 Orchestrates multi-variation prompt research, aggregates findings, generates production code
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Autonomous-Research-Agent",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2025-12-30T14:30:36Z",
-    "updated_at": "2026-01-12T15:56:02Z",
-    "layer": "foundation",
-    "domain": "code_generation",
-    "module_name": "autonomous-research-agent",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API", "Perplexity API"],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import asyncio
 import json
@@ -804,56 +784,4 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-061",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "async",
-        "auth",
-        "batch-processing",
-        "client",
-        "code-generation",
-        "dataclass",
-        "engine",
-        "event-driven",
-        "foundation",
-    ],
-    "keywords": [
-        "agent",
-        "architectural",
-        "architecture",
-        "autonomous",
-        "build",
-        "client",
-        "compute",
-        "concepts",
-    ],
-    "business_value": "Orchestrates multi-variation prompt research, aggregates findings, generates production code",
-    "last_modified": "2026-01-12T15:56:02Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

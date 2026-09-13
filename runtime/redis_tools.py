@@ -18,26 +18,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Redis Tools",
-    "module_version": "1.0.0",
-    "created_by": "GMP-122",
-    "created_at": "2026-01-24T00:00:00Z",
-    "updated_at": "2026-01-24T00:00:00Z",
-    "layer": "runtime",
-    "domain": "tools",
-    "module_name": "redis_tools",
-    "type": "tools",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Redis"],
-        "memory_layers": ["working_memory"],
-        "imported_by": ["runtime.tool_packages"],
-    },
-}
-# ============================================================================
 
 from typing import Any
 
@@ -544,31 +524,4 @@ async def redis_decrement_rate_limit(
         return {"error": str(e), "status": "error"}
 
 
-# =============================================================================
-# DORA FOOTER META - AUTO-GENERATED
-# =============================================================================
-__dora_footer__ = {
-    "component_id": "RUN-REDIS-TOOLS-001",
-    "governance_level": "standard",
-    "security_reviewed": False,
-    "performance_tested": False,
-    "last_audit": "2026-01-24T00:00:00Z",
-}
-# =============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

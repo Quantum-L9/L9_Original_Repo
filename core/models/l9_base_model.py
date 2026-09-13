@@ -3,10 +3,9 @@
 L9 Unified BaseModel
 
 Central place for all Pydantic models in L9.
-Provides DORA compliance, streaming, content hashing, and serialization.
+Provides streaming, content hashing, and serialization.
 
 Extends pydantic.BaseModel with L9-specific capabilities:
-- DORA metadata (__dora_meta__, __dora_footer__)
 - Content hashing (SHA-256)
 - Streaming serialization
 - Telemetry integration
@@ -15,30 +14,6 @@ Extends pydantic.BaseModel with L9-specific capabilities:
 All models in L9 should inherit from L9BaseModel.
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "L9 Base Model",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-25T06:00:00Z",
-    "updated_at": "2026-01-25T06:00:00Z",
-    "layer": "foundation",
-    "domain": "data_models",
-    "module_name": "l9_base_model",
-    "type": "base_model",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": [
-            "core.schemas.*",
-            "memory.*",
-            "agents.*",
-        ],
-    },
-}
-# ============================================================================
 
 import hashlib
 import json
@@ -55,7 +30,6 @@ class L9BaseModel(BaseModel):
     Unified base model for all L9 types.
 
     Provides:
-    - DORA compliance metadata
     - Content hashing (SHA-256)
     - Streaming serialization
     - Telemetry integration
@@ -69,32 +43,6 @@ class L9BaseModel(BaseModel):
         validate_default=True,
         use_enum_values=False,
     )
-
-    # =========================================================================
-    # DORA Metadata
-    # =========================================================================
-
-    @classmethod
-    def _get_dora_meta(cls) -> dict[str, Any]:
-        """Return DORA metadata for this model."""
-        if hasattr(cls, "__dora_meta__"):
-            return cls.__dora_meta__
-        return {
-            "component_name": cls.__name__,
-            "module_version": "1.0.0",
-            "status": "active",
-        }
-
-    @classmethod
-    def _get_dora_footer(cls) -> dict[str, Any]:
-        """Return DORA footer for this model."""
-        if hasattr(cls, "__dora_footer__"):
-            return cls.__dora_footer__
-        return {
-            "component_id": f"L9-{cls.__name__.upper()}",
-            "governance_level": "standard",
-            "compliance_required": False,
-        }
 
     # =========================================================================
     # Content Hashing
@@ -206,55 +154,3 @@ class L9BaseModel(BaseModel):
                 error_type=type(e).__name__,
             )
             raise
-
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CORE-FOUN-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "base-model",
-        "data-models",
-        "foundation",
-        "pydantic",
-        "serialization",
-    ],
-    "keywords": [
-        "base",
-        "content",
-        "dora",
-        "hash",
-        "metadata",
-        "model",
-        "serialize",
-        "streaming",
-    ],
-    "business_value": "Unified base model for all L9 types with DORA compliance, content hashing, and streaming support.",
-    "last_modified": "2026-01-25T06:00:00Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

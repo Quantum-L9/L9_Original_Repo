@@ -1,6 +1,3 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
 # component_name: "Runtime Semantic Knowledge Model Integrator"
 # module_version: "1.0.0"
 # created_by: "Igor Beylin"
@@ -56,9 +53,6 @@ code: |
   if __name__ == "__main__":
       integrate()
 
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
 # tags: ["agent-config", "agent-execution", "cli", "intelligence", "model-config", "schema"]
 # keywords: ["code", "description", "filename", "integrator", "knowledge", "language"]
 # last_modified: "2026-01-07T13:35:57Z"

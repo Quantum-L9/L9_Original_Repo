@@ -14,26 +14,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Quantum Swarm Loader",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-02T15:15:57Z",
-    "updated_at": "2026-01-17T23:51:17Z",
-    "layer": "intelligence",
-    "domain": "error_handling",
-    "module_name": "quantum_swarm_loader",
-    "type": "exception",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import asyncio
 from pathlib import Path
@@ -273,59 +253,4 @@ async def load_quantum_swarm(capsule_path: str) -> dict[str, Any]:
     return await loader.load_quantum_swarm(capsule_path)
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "ORC-INTE-030",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "agents.codegenagent.c_gmp_engine",
-        "agents.codegenagent.meta_loader",
-    ],
-    "tags": [
-        "async",
-        "batch-processing",
-        "caching",
-        "config",
-        "error-handling",
-        "exception",
-        "filesystem",
-        "intelligence",
-        "loader",
-        "logging",
-    ],
-    "keywords": [
-        "cache",
-        "generate",
-        "generation",
-        "limit",
-        "load",
-        "loader",
-        "orchestrator",
-        "quantum",
-    ],
-    "business_value": "Provides quantum swarm loader components including SwarmLoaderError, QuantumSwarmLoader",
-    "last_modified": "2026-01-17T23:51:17Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

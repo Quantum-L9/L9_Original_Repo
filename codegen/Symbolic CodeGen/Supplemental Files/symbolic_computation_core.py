@@ -5,26 +5,6 @@ Implements high-performance symbolic-to-numeric conversion using SymPy utilities
 Provides production-ready interfaces for AI agents to perform mathematical computations.
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Symbolic Computation Core",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-01T13:15:07Z",
-    "updated_at": "2026-01-15T15:48:34Z",
-    "layer": "operations",
-    "domain": "current_work",
-    "module_name": "symbolic_computation_core",
-    "type": "service",
-    "status": "production",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import asyncio
 import time
@@ -432,36 +412,4 @@ class SymbolicComputation:
                 "error": str(e)
             }
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CUR-OPER-036",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["async", "caching", "current-work", "debugging", "messaging", "metrics", "operations", "service", "testing"],
-    "keywords": ["cache", "check", "computation", "compute", "core", "evaluate", "evaluator", "expression"],
-    "business_value": "Implements high-performance symbolic-to-numeric conversion using SymPy utilities.",
-    "last_modified": "2026-01-15T15:48:34Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

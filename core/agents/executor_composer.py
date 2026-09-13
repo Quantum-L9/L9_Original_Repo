@@ -27,31 +27,6 @@ GMP: refactor-phase0-plan1
 
 from __future__ import annotations
 
-# ============================================================================
-# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_meta__ = {
-    "component_id": "COR-FOUN-002",
-    "component_name": "ExecutorComposer",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-21T00:00:00Z",
-    "created_by": "L9_Refactoring_Phase0",
-    "layer": "foundation",
-    "domain": "agent_composition",
-    "type": "composer",
-    "status": "active",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Composition root for AgentExecutorService with DI pattern",
-    "dependencies": [
-        "core.agents.executor",
-        "core.di.container",
-        "memory.substrate_service",
-        "core.tools.registry_adapter",
-    ],
-}
-# ============================================================================
 
 import os
 from dataclasses import dataclass
@@ -429,60 +404,4 @@ __all__ = [
     "ExecutorDeps",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-054",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "core.agents.executor",
-        "core.agents.registry",
-        "core.aios.runtime",
-        "core.governance.approvals",
-        "core.tools.registry_adapter",
-    ],
-    "tags": [
-        "agent-execution",
-        "dataclass",
-        "debugging",
-        "executor",
-        "foundation",
-        "logging",
-        "testing",
-        "tracing",
-    ],
-    "keywords": [
-        "agent",
-        "agentexecutorservice",
-        "compose",
-        "composer",
-        "composition",
-        "configuration",
-        "container",
-        "dependency",
-    ],
-    "business_value": "Provides executor composer components including ExecutorConfig, ExecutorDeps, ExecutorComposer",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

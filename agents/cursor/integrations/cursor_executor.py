@@ -12,26 +12,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Cursor Executor",
-    "module_version": "2.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-11T18:13:39Z",
-    "updated_at": "2026-01-17T23:47:56Z",
-    "layer": "intelligence",
-    "domain": "data_models",
-    "module_name": "cursor_executor",
-    "type": "schema",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory"],
-        "imported_by": ["api.routes.cursor", "api.server"],
-    },
-}
-# ============================================================================
 
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
@@ -252,62 +232,4 @@ class CursorExecutor:
             raise
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "AGE-INTE-022",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "agents.cursor.integrations.cursor_gateway",
-        "agents.cursor.integrations.cursor_langgraph",
-        "core.governance.approval_manager",
-        "memory.checkpoint.cursor_checkpoint_manager",
-        "memory.substrate_service",
-    ],
-    "tags": [
-        "async",
-        "data-models",
-        "executor",
-        "intelligence",
-        "logging",
-        "pydantic",
-        "rest-api",
-        "schema",
-        "tracing",
-        "validation",
-    ],
-    "keywords": [
-        "cursor",
-        "executor",
-        "governance",
-        "memory",
-        "resume",
-        "spec",
-        "task",
-        "thread",
-    ],
-    "business_value": "Provides cursor executor components including CursorTaskSpec, CursorResult, CursorExecutor",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

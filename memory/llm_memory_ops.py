@@ -20,11 +20,6 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-__dora_meta__ = {
-    "component_name": "LLMMemoryOps",
-    "module_version": "1.0.0",
-    "status": "active",
-}
 
 
 # ---------------------------------------------------------------------------
@@ -290,8 +285,3 @@ __all__ = [
     "LLMMemoryOps",
     "SummarizeResult",
 ]
-
-__dora_footer__ = {
-    "governance_level": "medium",
-    "compliance_required": True,
-}

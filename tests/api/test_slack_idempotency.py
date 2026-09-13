@@ -21,26 +21,6 @@ logger = structlog.get_logger(__name__)
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Slack Idempotency Tests",
-    "module_version": "1.0.0",
-    "created_by": "L9 Engineering",
-    "created_at": "2026-02-12T03:41:00Z",
-    "updated_at": "2026-02-12T03:41:00Z",
-    "layer": "testing",
-    "domain": "api",
-    "module_name": "test_slack_idempotency",
-    "type": "test",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": ["/api/slack/events"],
-        "datasources": ["Redis", "PostgreSQL"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 
 def _make_slack_event(event_id: str = "Ev01TEST", text: str = "hello") -> dict:

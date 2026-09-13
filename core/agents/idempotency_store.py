@@ -17,30 +17,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Idempotency Store",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-31T08:57:02Z",
-    "updated_at": "2026-01-31T22:21:47Z",
-    "layer": "foundation",
-    "domain": "agent_execution",
-    "module_name": "idempotency_store",
-    "type": "engine",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Redis"],
-        "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": [
-            "core.agents.__init__",
-            "core.agents.executor",
-            "tests.core.bootstrap.test_executor_idempotency",
-        ],
-    },
-}
-# ============================================================================
 
 import hashlib
 import json
@@ -311,56 +287,4 @@ class IdempotencyStore:
 #     await self._idempotency_store.mark_executed(packet, result)
 #
 #     return result
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-099",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.schemas.packet_envelope"],
-    "tags": [
-        "agent-execution",
-        "api",
-        "async",
-        "auth",
-        "cache",
-        "caching",
-        "debugging",
-        "engine",
-        "event-driven",
-        "foundation",
-    ],
-    "keywords": [
-        "agent",
-        "cache",
-        "check",
-        "client",
-        "duplicate",
-        "enhancement",
-        "execute",
-        "executed",
-    ],
-    "business_value": "Provides idempotency store components including SubstrateServiceProtocol, IdempotencyStore",
-    "last_modified": "2026-01-31T22:21:47Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

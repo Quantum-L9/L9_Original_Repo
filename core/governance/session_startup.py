@@ -31,34 +31,6 @@ GMP: kernel_boot_frontier_phase1
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Session Startup Protocol",
-    "module_version": "2.1.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-02T15:15:57Z",
-    "updated_at": "2026-01-20T12:00:00Z",
-    "layer": "foundation",
-    "domain": "governance",
-    "module_name": "session_startup",
-    "type": "dataclass",
-    "status": "active",
-    "architecture_patterns": [
-        "ADR loading at startup (ADR-0003)",
-    ],
-    "pep_compliance": ["PEP 563"],
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [
-            "api.server",
-            "scripts.workspace.init_workspace",
-            "tests.unit.test_startup_readiness",
-        ],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -738,55 +710,4 @@ __all__ = [
     "create_session_startup",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-088",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.agents.kernel_registry"],
-    "tags": [
-        "dataclass",
-        "debugging",
-        "filesystem",
-        "foundation",
-        "governance",
-        "logging",
-        "messaging",
-        "profiling",
-        "security",
-    ],
-    "keywords": [
-        "check",
-        "checks",
-        "create",
-        "execute",
-        "files",
-        "governance",
-        "kernel",
-        "load",
-    ],
-    "business_value": "Provides session startup components including StartupFile, PreflightResult, KernelReadinessResult",
-    "last_modified": "2026-01-07T23:04:26Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

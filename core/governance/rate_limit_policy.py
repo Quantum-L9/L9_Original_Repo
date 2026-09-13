@@ -33,26 +33,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Rate Limit Policy",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-20T01:00:00Z",
-    "updated_at": "2026-01-20T01:00:00Z",
-    "layer": "governance",
-    "domain": "policy",
-    "module_name": "rate_limit_policy",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": ["*"],
-        "datasources": ["Redis", "config/policies/rate_limits.yaml"],
-        "memory_layers": [],
-        "imported_by": ["core.governance.__init__"],
-    },
-}
-# ============================================================================
 
 from collections.abc import Callable
 from contextlib import asynccontextmanager, suppress
@@ -644,52 +624,4 @@ __all__ = [
 ]
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "GOV-POLI-002",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["runtime.rate_limiter"],
-    "tags": [
-        "async",
-        "config",
-        "decorator",
-        "fastapi",
-        "governance",
-        "policy",
-        "rate-limiting",
-    ],
-    "keywords": [
-        "config",
-        "decorator",
-        "dependency",
-        "policy",
-        "rate-limit",
-        "unified",
-    ],
-    "business_value": "Unified config-driven rate limiting across all L9 components",
-    "last_modified": "2026-01-20T01:00:00Z",
-    "modified_by": "GMP-109",
-    "change_summary": "Initial implementation of unified rate limit policy",
-}
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -7,29 +7,6 @@ Author: L9 Platform Team
 Date: 2026-01-17
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Vector Search Config",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "learning",
-    "domain": "memory_substrate",
-    "module_name": "vector_search_config",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["PostgreSQL"],
-        "memory_layers": [],
-        "imported_by": [
-            "memory.substrate_repository",
-            "tests.memory.test_query_cache_and_vector",
-        ],
-    },
-}
-# ============================================================================
 
 
 import structlog
@@ -135,52 +112,4 @@ def set_vector_config(config: VectorSearchConfig) -> None:
     logger.info("global_vector_config_updated", ef_search=config.ef_search)
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MEM-LEAR-042",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "debugging",
-        "learning",
-        "logging",
-        "memory-substrate",
-        "service",
-    ],
-    "keywords": [
-        "apply",
-        "balanced",
-        "configuration",
-        "fast",
-        "high",
-        "recall",
-        "search",
-        "vector",
-    ],
-    "business_value": "Provides runtime configuration for optimized vector search performance. Author: L9 Platform Team Date: 2026-01-17",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

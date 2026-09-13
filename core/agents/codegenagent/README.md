@@ -1,14 +1,3 @@
----
-dora:
-  version: "1.0"
-  type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
-  generator: scripts/generate_subsystem_readmes.py
-  config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
-  auto_generated: true
----
-
 # CodeGen Agent
 
 > **Tier:** AGENTS | **Path:** `codegenagent` | **Owner:** Igor

@@ -9,26 +9,6 @@ Version: 1.0.0
 Created: 2025-12-31
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Single Entry Point for All Code Generation",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:56:58Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "foundation",
-    "domain": "data_models",
-    "module_name": "codegen_gatekeeper",
-    "type": "enum",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API", "Perplexity API"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import json
 import os
@@ -110,7 +90,6 @@ class CodeGenOutput(BaseModel):
     coverage: float = Field(..., ge=0, le=100, description="Test coverage percentage")
     validation_passed: bool
     validation_report: dict[str, Any] = Field(default_factory=dict)
-    dora_blocks_generated: int = 0
     generation_time_seconds: float
 
 
@@ -237,10 +216,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
                     "generation_time": code_output.generation_time_seconds,
                 },
                 confidence=normalized_spec.confidence / 100.0,
-                metadata={
-                    "validation_report": code_output.validation_report,
-                    "dora_blocks": code_output.dora_blocks_generated,
-                },
+                metadata={"validation_report": code_output.validation_report},
             )
 
         except Exception as e:
@@ -764,19 +740,16 @@ class CodeGenGatekeeperAgent(BaseAgent):
         This orchestrates the full generation pipeline:
         1. Create Git branch
         2. Generate code based on strategy
-        3. Generate DORA blocks
-        4. Generate tests
-        5. Validate (14 gates)
-        6. Commit files
-        7. Run tests
-        8. Generate documentation
+        3. Commit files
+        4. Validate code
+        5. Run tests
+        6. Generate documentation
         """
         start_time = datetime.now(UTC)
         options = options or {}
 
         # Import generation modules (lazy import to avoid circular dependencies)
         from core.codegen.compiler.module_compiler import ModuleCompiler
-        from core.codegen.dora.dora_generator import DORABlockGenerator
         from core.codegen.git_safety.git_manager import GitSafetyManager
         from core.codegen.validator.code_validator import CodeValidator
 
@@ -793,20 +766,6 @@ class CodeGenGatekeeperAgent(BaseAgent):
         generated_files = await compiler.compile_module(
             spec=spec.spec_data, output_dir=output_dir
         )
-
-        # Step 3: Generate DORA blocks for all files
-        dora_generator = DORABlockGenerator()
-        dora_count = 0
-        for file_path in generated_files:
-            await dora_generator.add_dora_block(
-                file_path=file_path,
-                spec_id=spec.spec_id,
-                metadata={
-                    "generation_strategy": spec.generation_strategy,
-                    "confidence": spec.confidence,
-                },
-            )
-            dora_count += 1
 
         # Step 4: Commit files
         git_commits = []
@@ -836,110 +795,5 @@ class CodeGenGatekeeperAgent(BaseAgent):
             coverage=coverage,
             validation_passed=validation_report.get("passed", False),
             validation_report=validation_report,
-            dora_blocks_generated=dora_count,
             generation_time_seconds=generation_time,
         )
-
-
-# ═══════════════════════════════════════════════════════════════
-# DORA BLOCK - DO NOT EDIT MANUALLY
-# ═══════════════════════════════════════════════════════════════
-"""
-{
-  "dora_metadata": {
-    "file_id": "codegen-gatekeeper-001",
-    "last_updated_by": "manus_agent",
-    "last_updated_timestamp": "2025-12-31T00:00:00Z",
-    "version": "1.0.0",
-    "change_type": "create",
-    "codegen_trace_id": "unified-codegen-system-v1.0",
-    "spec_ids_implemented": ["unified-codegen-architecture-v1.0"],
-    "validation_status": "pending",
-    "dependencies": [
-      "/l9/core/agents/base_agent.py",
-      "/l9/core/tools/registry_adapter.py"
-    ],
-    "deprecated": false,
-    "successor_file": null
-  },
-  "automation_rules": {
-    "auto_update_enabled": true,
-    "update_triggers": ["spec_change", "dependency_change"],
-    "validation_required_before_update": true,
-    "rollback_enabled": true
-  },
-  "l9_integration": {
-    "feature_flags": ["L9_ENABLE_CODEGEN", "L9_ENABLE_PERPLEXITY_RESEARCH"],
-    "kernel_dependencies": ["01-master-kernel.yaml", "07-execution-kernel.yaml"],
-    "memory_substrate_access": false,
-    "tool_registry_integration": true,
-    "agent_capabilities": ["reasoning", "research", "code_generation"],
-    "protected_by_safety_kernel": true
-  },
-  "quality_metrics": {
-    "code_coverage_percent": 0,
-    "lint_score": 100,
-    "security_scan_passed": true
-  }
-}
-"""
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-134",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "core.agents.base_agent",
-        "core.codegen.compiler.module_compiler",
-        "core.codegen.dora.dora_generator",
-        "core.codegen.git_safety.git_manager",
-        "core.codegen.validator.code_validator",
-    ],
-    "tags": [
-        "api",
-        "async",
-        "config",
-        "data-models",
-        "enum",
-        "filesystem",
-        "foundation",
-        "http-client",
-        "linting",
-        "messaging",
-    ],
-    "keywords": [
-        "agent",
-        "all",
-        "blind",
-        "codegen",
-        "contract",
-        "entry",
-        "finding",
-        "gatekeeper",
-    ],
-    "business_value": "This is the main orchestrator that receives contracts/specs and converts them into deterministic codegen-level specifications with research-enhanced gap filling. Author: L9 AIOS Version: 1.0.0 Created",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

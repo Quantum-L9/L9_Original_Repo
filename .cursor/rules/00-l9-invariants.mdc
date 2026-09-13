@@ -1,0 +1,30 @@
+---
+description: "Always-applied L9 repository invariants for safe, evidence-based Cursor work."
+alwaysApply: true
+l9_component_id: "CUR-RUL-001"
+component_name: "L9 Cursor Invariants"
+version: "1.0.0"
+status: "active"
+governance_level: "critical"
+purpose: "Keep every Cursor-assisted change aligned with L9 authority, governance, and verification contracts."
+---
+
+# L9 Cursor Invariants
+
+Treat repository code, configuration, ADRs, and test contracts as the source of truth. Before proposing a material change, consult the most relevant source files; use `reports/repo-index/` before broad codebase searches.
+
+Do not claim a feature is fixed, production-ready, wired, deployed, or tested without recording the exact verification performed and its result. State unknowns explicitly.
+
+Respect L9 governance boundaries. Tool actions, permissions, and high-risk changes must flow through existing governance and approval mechanisms. Do not bypass policy evaluation, audit logging, memory access controls, or protected-file controls.
+
+Keep changes narrow and reversible. Do not rename, move, delete, or bulk-rewrite files unless the task requires it and the impact has been inspected. Never introduce secrets, tokens, passwords, private keys, production host credentials, or unredacted local paths into tracked files.
+
+Use the current L9-native architecture. Do not restore any runtime pattern prohibited by `@archive/suite5/manifest.yaml`, including standalone governance services or duplicate telemetry stores.
+
+When a work item touches a contract, API, policy, schema, or runtime wiring, update focused tests and run the narrowest relevant verification before completion.
+
+Reference sources when needed:
+- `@readme/L9-KERNEL-REFERENCE.md`
+- `@agents/cursor/docs/CURSOR-L9-INTEGRATION.md`
+- `@ci/check_adr_compliance.py`
+- `@core/governance/engine.py`

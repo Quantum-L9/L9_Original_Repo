@@ -16,26 +16,6 @@ Pipeline per submit():
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Domain Bridge Gateway",
-    "module_version": "1.0.0",
-    "created_by": "Manus Agent",
-    "created_at": "2026-02-19T12:00:00Z",
-    "updated_at": "2026-02-19T12:00:00Z",
-    "layer": "core",
-    "domain": "dtb",
-    "module_name": "domain_bridge.gateway",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j", "PostgreSQL", "Redis"],
-        "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable

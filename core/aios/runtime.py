@@ -23,30 +23,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Runtime",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-20T15:08:40Z",
-    "updated_at": "2026-01-14T15:22:16Z",
-    "layer": "foundation",
-    "domain": "core",
-    "module_name": "runtime",
-    "type": "engine",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["OpenAI API"],
-        "memory_layers": [],
-        "imported_by": [
-            "api.server",
-            "core.aios.__init__",
-            "tests.core.aios.test_runtime",
-        ],
-    },
-}
-# ============================================================================
 
 import json
 import os
@@ -423,56 +399,4 @@ __all__ = [
     "create_aios_runtime",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-031",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.agents.schemas"],
-    "tags": [
-        "api",
-        "async",
-        "core",
-        "engine",
-        "foundation",
-        "llm",
-        "logging",
-        "messaging",
-        "serialization",
-        "testing",
-    ],
-    "keywords": [
-        "agent",
-        "aios",
-        "check",
-        "create",
-        "execute",
-        "executor",
-        "health",
-        "model",
-    ],
-    "business_value": "The AIOS Runtime handles agent reasoning by calling the LLM with context and tools. It returns either a final response or a tool call request.",
-    "last_modified": "2026-01-14T15:22:16Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

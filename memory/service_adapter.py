@@ -19,31 +19,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "MemoryService Adapter",
-    "module_version": "1.0.0",
-    "created_by": "GMP-115",
-    "created_at": "2026-01-24T00:00:00Z",
-    "updated_at": "2026-01-24T00:00:00Z",
-    "layer": "service",
-    "domain": "memory_substrate",
-    "module_name": "service_adapter",
-    "type": "adapter",
-    "status": "active",
-    "adr": ["ADR-0026"],
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["PostgreSQL", "Neo4j", "Redis", "pgvector"],
-        "memory_layers": ["semantic_memory", "working_memory", "episodic_memory"],
-        "imported_by": [
-            "memory.__init__",
-            "core.di.container",
-            "agents.cursor.integrations",
-        ],
-    },
-}
-# ============================================================================
 
 import uuid
 from typing import TYPE_CHECKING, Any
@@ -279,55 +254,4 @@ _check_protocol_compliance()
 
 __all__ = ["MemoryServiceAdapter"]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MEM-LEAR-060",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.protocols", "core.schemas", "memory.substrate_service"],
-    "tags": [
-        "adapter",
-        "adapter-pattern",
-        "async",
-        "debugging",
-        "learning",
-        "logging",
-        "memory-substrate",
-        "messaging",
-        "service",
-    ],
-    "keywords": [
-        "adapter",
-        "agent",
-        "memory",
-        "memoryservice",
-        "memoryserviceadapter",
-        "memorysubstrateservice",
-        "operations",
-        "protocol",
-    ],
-    "business_value": "This provides a high-level, agent-friendly interface while delegating to the existing substrate service for actual operations. MemoryService (Protocol) <- MemoryServiceAdapter (Implementation) MemoryS",
-    "last_modified": "2026-01-24T15:21:11Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

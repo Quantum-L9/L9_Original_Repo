@@ -4,26 +4,6 @@ Comprehensive examples for symbolic computation module.
 Demonstrates all features and integration patterns.
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Examples Symbolic Computation",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-02T15:15:57Z",
-    "updated_at": "2026-01-06T16:58:23Z",
-    "layer": "foundation",
-    "domain": "code_generation",
-    "module_name": "examples_symbolic_computation",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import asyncio
 
@@ -385,55 +365,4 @@ async def run_all_examples():
 if __name__ == "__main__":
     asyncio.run(run_all_examples())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-006",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "batch-processing",
-        "caching",
-        "code-generation",
-        "foundation",
-        "messaging",
-        "metrics",
-        "service",
-        "testing",
-    ],
-    "keywords": [
-        "agent",
-        "all",
-        "array",
-        "basic",
-        "batch",
-        "caching",
-        "check",
-        "codegen",
-    ],
-    "business_value": "Implements MathAgent for examples symbolic computation functionality",
-    "last_modified": "2026-01-06T16:58:23Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -7,26 +7,6 @@ Properties:
 - Constrained: all plans validated against governance
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Code Planning",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-15T22:06:47Z",
-    "updated_at": "2026-01-15T22:06:47Z",
-    "layer": "foundation",
-    "domain": "data_models",
-    "module_name": "code_planning",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import hashlib
 import json
@@ -251,53 +231,4 @@ class VerificationReport:
         return json.dumps(asdict(self), indent=2)
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-029",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "data-models",
-        "dataclass",
-        "foundation",
-        "security",
-        "serialization",
-        "testing",
-        "tracing",
-    ],
-    "keywords": [
-        "change",
-        "compute",
-        "deterministic",
-        "diff",
-        "generate",
-        "governance",
-        "hash",
-        "json",
-    ],
-    "business_value": "Provides code planning components including ChangeType, CodeChange, CodePlan",
-    "last_modified": "2026-01-15T22:06:47Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

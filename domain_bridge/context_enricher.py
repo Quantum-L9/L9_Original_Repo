@@ -10,7 +10,6 @@ Summary:
     and domain knowledge. Part of reasoning pipeline Stage 2.
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -22,28 +21,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Context Enricher",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "domain_bridge",
-    "module_name": "context_enricher",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API"],
-        "memory_layers": ["episodic_memory", "semantic_memory", "working_memory"],
-        "imported_by": [
-            "domain_bridge.tests.domain_bridge.test_context_enrichment"
-        ],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from typing import Any
@@ -109,59 +86,5 @@ class ContextEnricher:
         return context
 
 
-__footer_meta__ = {
-    "component_id": "INT-DTB-003",
-    "component_name": "Context Enricher",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "intelligence",
-    "domain": "context_enrichment",
-    "type": "enricher",
-    "status": "active",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Query world model and enrich packet context",
-    "summary": "Enriches incoming packets with context from world model, memory layers, and domain knowledge.",
-    "dependencies": ["structlog", "httpx", "l9.core.schemas"],
-}
 
-__all__ = ["ContextEnricher", "EnrichedContext", "__footer_meta__", "__l9_trace__"]
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-022",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.schemas"],
-    "tags": [
-        "async",
-        "dataclass",
-        "domain-tensor-bridge",
-        "event-driven",
-        "http-client",
-        "logging",
-        "operations",
-        "tracing",
-    ],
-    "keywords": ["enrich", "enriched", "enricher"],
-    "business_value": "Provides context enricher components including EnrichedContext, ContextEnricher",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
+__all__ = ["ContextEnricher", "EnrichedContext"]

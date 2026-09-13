@@ -25,26 +25,6 @@ Usage:
     python tools/codegen/docstring_injector.py --limit 50         # Limit count
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "L9 Docstring Injector",
-    "module_version": "2.0.0",  # v2: AST-enriched context
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-29T12:00:00Z",
-    "updated_at": "2026-01-31T09:00:00Z",
-    "layer": "operations",
-    "domain": "tools",
-    "module_name": "docstring_injector",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["OpenAI API"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import argparse
 import ast
@@ -1436,54 +1416,4 @@ def validate_injected_docstrings(
 if __name__ == "__main__":
     sys.exit(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "TOO-OPER-DOCSTRING-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["openai", "structlog"],
-    "tags": [
-        "ast",
-        "automation",
-        "cli",
-        "codegen",
-        "documentation",
-        "llm",
-        "operations",
-        "tools",
-    ],
-    "keywords": [
-        "docstring",
-        "generate",
-        "inject",
-        "python",
-        "scanner",
-        "ast",
-        "llm",
-    ],
-    "business_value": "Automates docstring generation for Python files using LLM, "
-    "ensuring consistent documentation across the L9 codebase.",
-    "last_modified": "2026-01-29T12:00:00Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial implementation with AST scanning and LLM generation",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

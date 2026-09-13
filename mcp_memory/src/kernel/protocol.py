@@ -13,26 +13,6 @@ Kernel INVARIANTS (enforced by type system and tests):
   6. No circular references in payload
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "PacketEnvelope and Packet Definitions.",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-25T05:47:37Z",
-    "updated_at": "2026-01-25T08:58:44Z",
-    "layer": "integration",
-    "domain": "mcp_integration",
-    "module_name": "protocol",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -189,54 +169,4 @@ __all__ = [
     "create_packet",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MCP-INTE-010",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "audit-tool",
-        "dataclass",
-        "debugging",
-        "event-driven",
-        "integration",
-        "mcp-integration",
-        "testing",
-        "tracing",
-    ],
-    "keywords": [
-        "audit",
-        "create",
-        "definitions.",
-        "envelope",
-        "governance",
-        "immutable",
-        "kernel",
-        "metadata",
-    ],
-    "business_value": "This module defines the immutable contract for all inter-module communication. All substrate operations must be wrapped in PacketEnvelope for tracing, audit, and governance enforcement. 1. PacketEnvel",
-    "last_modified": "2026-01-25T08:58:44Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -35,26 +35,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Auth Rate Limiter",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-20T00:30:00Z",
-    "updated_at": "2026-01-20T00:30:00Z",
-    "layer": "operations",
-    "domain": "security",
-    "module_name": "auth_rate_limiter",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": ["/api/auth/*"],
-        "datasources": ["Redis"],
-        "memory_layers": ["audit_log"],
-        "imported_by": ["api.auth", "api.dependencies"],
-    },
-}
-# ============================================================================
 
 import contextlib
 from collections import defaultdict
@@ -497,49 +477,4 @@ __all__ = [
 ]
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "RUN-SECU-001",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["runtime.redis_client"],
-    "tags": [
-        "async",
-        "auth",
-        "rate-limiting",
-        "security",
-        "service",
-    ],
-    "keywords": [
-        "auth",
-        "brute-force",
-        "lockout",
-        "rate-limit",
-        "security",
-    ],
-    "business_value": "Prevents brute force and credential stuffing attacks",
-    "last_modified": "2026-01-20T00:30:00Z",
-    "modified_by": "GMP-108",
-    "change_summary": "Initial implementation of auth rate limiting",
-}
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

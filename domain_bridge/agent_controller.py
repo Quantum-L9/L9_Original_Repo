@@ -11,7 +11,6 @@ Summary:
     Handles packet validation, routing, and response formatting.
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -23,29 +22,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Agent Controller",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "domain_bridge",
-    "module_name": "agent_controller",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory"],
-        "imported_by": [
-            "domain_bridge.tests.domain_bridge.test_api_surfaces",
-            "domain_bridge.tests.domain_bridge.test_bridge_controller",
-        ],
-    },
-}
-# ============================================================================
 
 from typing import Any
 
@@ -216,73 +192,8 @@ async def process_packet(packet: PacketEnvelope) -> PacketEnvelope:
 # FOOTER META - Extended Metadata (Static)
 # ============================================================================
 
-__footer_meta__ = {
-    "component_id": "OPS-DTB-002",
-    "component_name": "Agent Controller",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "operations",
-    "domain": "agent_orchestration",
-    "type": "service",
-    "status": "active",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Main entry point and packet dispatcher for Domain-Tensor Bridge",
-    "summary": "Central controller that receives PacketEnvelopes from domain agents, orchestrates the reasoning pipeline, and returns enriched results.",
-    "dependencies": [
-        "structlog",
-        "l9.core.schemas",
-    ],
-}
 
 __all__ = [
     "AgentController",
-    "__footer_meta__",
-    "__l9_trace__",
     "process_packet",
 ]
-
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# ============================================================================
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-003",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.schemas"],
-    "tags": [
-        "async",
-        "domain-tensor-bridge",
-        "logging",
-        "operations",
-        "service",
-        "tracing",
-    ],
-    "keywords": ["agent", "controller", "initialize", "packet", "process"],
-    "business_value": "orchestrates the reasoning pipeline, and returns enriched results.",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}

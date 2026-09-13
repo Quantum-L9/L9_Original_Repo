@@ -26,28 +26,6 @@ GMP: refactor-phase0-plan3
 
 from __future__ import annotations
 
-# ============================================================================
-# DORA HEADER META
-# ============================================================================
-__dora_meta__ = {
-    "component_id": "COR-FOUN-003",
-    "component_name": "DIBootstrap",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-21T00:00:00Z",
-    "created_by": "L9_Refactoring_Phase0",
-    "layer": "foundation",
-    "domain": "dependency_injection",
-    "type": "bootstrap",
-    "status": "active",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Bootstrap DIContainer with all core service registrations",
-    "dependencies": [
-        "core.di.container",
-    ],
-}
-# ============================================================================
 
 from typing import Any
 
@@ -361,61 +339,4 @@ def bootstrap_di_container(container: Any) -> dict[str, int]:
 __all__ = [
     "bootstrap_di_container",
 ]
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-045",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "api.memory.cache",
-        "api.memory.graph",
-        "core.agents.registry",
-        "core.aios.runtime",
-        "core.governance.approvals",
-    ],
-    "tags": [
-        "api",
-        "caching",
-        "core",
-        "debugging",
-        "foundation",
-        "logging",
-        "messaging",
-        "mocking",
-        "utility",
-    ],
-    "keywords": [
-        "agent",
-        "bootstrap",
-        "container",
-        "core",
-        "dicontainer",
-        "does",
-        "governance",
-        "memory",
-    ],
-    "business_value": "This module implements the Service Registration pattern, ensuring all core services are properly registered as singletons in the DI container before application startup.",
-    "last_modified": "2026-01-31T22:21:46Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

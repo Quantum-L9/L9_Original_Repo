@@ -10,7 +10,6 @@ Summary:
     data. Tailors context format to each domain's requirements.
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -22,26 +21,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Domain Context Builder",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "domain_bridge",
-    "module_name": "domain_context_builder",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from typing import Any
@@ -88,58 +67,5 @@ class DomainContextBuilder:
         )
 
 
-__footer_meta__ = {
-    "component_id": "OPS-DTB-006",
-    "component_name": "Domain Context Builder",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "operations",
-    "domain": "context_building",
-    "type": "builder",
-    "status": "active",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Build domain-specific context for reasoning",
-    "summary": "Constructs domain-specific context structures from packets and enrichment data.",
-    "dependencies": ["structlog", "l9.core.schemas"],
-}
 
-__all__ = ["DomainContext", "DomainContextBuilder", "__footer_meta__", "__l9_trace__"]
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-019",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.schemas"],
-    "tags": [
-        "builder-pattern",
-        "dataclass",
-        "debugging",
-        "domain-tensor-bridge",
-        "logging",
-        "operations",
-        "tracing",
-    ],
-    "keywords": ["build", "builder", "domain"],
-    "business_value": "Provides domain context builder components including DomainContext, DomainContextBuilder",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
+__all__ = ["DomainContext", "DomainContextBuilder"]

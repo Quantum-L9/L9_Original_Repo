@@ -1,6 +1,3 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
 # component_name: "Tests Harness Test Harness Autowire"
 # module_version: "1.0.0"
 # created_by: "Igor Beylin"
@@ -47,9 +44,6 @@ patch:
             with open(f'tests/generated/test_{schema["name"]}.py', 'w') as f:
                 f.write(test_code)
 
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
 # tags: ["code-generation", "foundation", "prompt", "schema", "utility"]
 # keywords: ["autowire", "description", "filename", "harness", "language", "patch"]
 # last_modified: "2026-01-06T16:58:23Z"

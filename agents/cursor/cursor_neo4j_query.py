@@ -21,26 +21,6 @@ Environment:
     NEO4J_PASSWORD: Password (from .env or default)
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Cursor Neo4J Query",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-14T12:08:12Z",
-    "updated_at": "2026-01-14T12:10:12Z",
-    "layer": "intelligence",
-    "domain": "agent_execution",
-    "module_name": "cursor_neo4j_query",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import argparse
 import json
@@ -256,46 +236,4 @@ def main():
 if __name__ == "__main__":
     sys.exit(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "AGE-INTE-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "agent-execution",
-        "api",
-        "auth",
-        "cli",
-        "filesystem",
-        "intelligence",
-        "logging",
-        "messaging",
-        "serialization",
-    ],
-    "keywords": ["cursor", "format", "neo4j", "query", "results"],
-    "business_value": "File locations Class definitions Import relationships Tool registrations python scripts/cursor_neo4j",
-    "last_modified": "2026-01-14T12:10:12Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

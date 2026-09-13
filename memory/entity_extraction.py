@@ -15,28 +15,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-__dora_meta__ = {
-    "component_name": "Unified Entity Extraction Service",
-    "module_version": "1.0.0",
-    "created_by": "L9_Pipeline_Unification",
-    "created_at": "2026-02-12T20:00:00Z",
-    "updated_at": "2026-02-12T20:00:00Z",
-    "layer": "learning",
-    "domain": "memory_substrate",
-    "module_name": "entity_extraction",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": [
-            "memory.substrate_dag",
-            "memory.retrieval",
-            "memory.hybrid_rag",
-        ],
-    },
-}
 
 import re
 from dataclasses import dataclass, field

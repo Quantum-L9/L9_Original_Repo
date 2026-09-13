@@ -478,23 +478,6 @@ class TestSystemInvariants:
             "ADR-0019 violations (must use structlog):\n" + "\n".join(violations)
         )
 
-    def test_dora_meta_in_new_files(self):
-        """New files should have __dora_meta__ blocks."""
-        new_files = [
-            PROJECT_ROOT / "runtime" / "tool_search_meta.py",
-            PROJECT_ROOT / "core" / "agents" / "dynamic_tool_binding.py",
-        ]
-        missing = []
-
-        for path in new_files:
-            if not path.exists():
-                continue
-            source = path.read_text(encoding="utf-8")
-            if "__dora_meta__" not in source:
-                missing.append(path.name)
-
-        assert not missing, f"Files missing __dora_meta__ block: {missing}"
-
 
 # ============================================================================
 # LAYER 6: TOOL PACKAGES BACKWARD COMPATIBILITY

@@ -13,26 +13,6 @@ MIGRATION NOTE (2026-01-25):
 - Single source of truth: config/subsystems/readme_config.yaml
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Test Code Facts Extraction",
-    "module_version": "2.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-18T02:07:37Z",
-    "updated_at": "2026-01-25T16:30:00Z",
-    "layer": "operations",
-    "domain": ".dora",
-    "module_name": "test_code_facts_extraction",
-    "type": "test",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["config/subsystems/readme_config.yaml"],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from pathlib import Path
 from typing import Any
@@ -270,35 +250,3 @@ class TestReadmeGeneratorScript:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": ".DO-OPER-003",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["config/subsystems/readme_config.yaml"],
-    "tags": [
-        ".dora",
-        "api",
-        "config",
-        "filesystem",
-        "operations",
-        "rest-api",
-        "test",
-        "testing",
-    ],
-    "keywords": [
-        "readme",
-        "config",
-        "validation",
-        "subsystems",
-    ],
-    "business_value": "Validates readme_config.yaml and README generation pipeline",
-    "last_modified": "2026-01-25T16:30:00Z",
-    "modified_by": "README Pipeline Consolidation",
-    "change_summary": "Migrated from README.meta.yaml to readme_config.yaml",
-}
-# ============================================================================

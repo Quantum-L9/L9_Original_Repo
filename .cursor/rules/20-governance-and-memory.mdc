@@ -1,0 +1,30 @@
+---
+description: "Apply when modifying governance, memory, tool registration, agents/cursor, or MCP-facing code."
+globs: "core/governance/**,memory/**,agents/cursor/**,api/routes/cursor.py,api/routes/gmp_learning.py"
+alwaysApply: false
+l9_component_id: "CUR-RUL-003"
+component_name: "L9 Governance and Memory"
+version: "1.0.0"
+status: "active"
+governance_level: "critical"
+purpose: "Protect policy enforcement, scoped memory, and Cursor-to-L9 integration boundaries."
+---
+
+# L9 Governance and Memory Contracts
+
+Use L9's existing `GovernanceEngineService` and YAML policy manifests for authorization and policy decisions. Preserve deny-by-default behavior. Do not create a second policy engine, a standalone rule registry, or a Cursor-only governance API.
+
+Use the Cursor MCP memory pathway and its scope model. Cursor-created lessons belong in the `cursor` scope unless an approved migration changes that policy. Do not bypass MCP, direct-write canonical memory tables, or access `l-private` data.
+
+Treat recurring Cursor corrections as evidence, not automatic global policy. Record the lesson through the approved memory path, aggregate it through existing learning mechanisms, and promote it to a repository rule only through human review and a committed change.
+
+For tool registration, preserve ADR-0094's unified primary registration path and governance approval gates. Do not make a tool agent-specific by bypassing the registry.
+
+When changing governance or memory behavior, verify at least one allow path, one deny or isolation path, and the relevant audit, trace, or metric emission.
+
+Reference sources when needed:
+- `@core/governance/engine.py`
+- `@agents/cursor/docs/CURSOR-L9-INTEGRATION.md`
+- `@agents/cursor/cursor_memory_kernel.yaml`
+- `@agents/cursor/gmp_meta_learning.py`
+- `@telemetry/memory_metrics.py`

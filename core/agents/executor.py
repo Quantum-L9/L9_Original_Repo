@@ -23,32 +23,7 @@ Version: 1.0.0
 from __future__ import annotations
 
 # ============================================================================
-# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # See footer for extended metadata
-# ============================================================================
-__dora_meta__ = {
-    "component_id": "COR-FOUN-001",
-    "component_name": "Executor",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-18T05:25:09Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "foundation",
-    "domain": "agent_execution",
-    "type": "engine",
-    "status": "active",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Provides executor components including AIOSRuntime, ToolRegistryProtocol, SubstrateServiceProtocol",
-    "dependencies": [
-        "core.agents.adaptive_prompting",
-        "core.agents.agent_instance",
-        "core.agents.kernelevolution",
-        "core.agents.prompt_builder",
-        "core.agents.prompt_defense",
-    ],
-}
-# ============================================================================
 
 import json
 import os
@@ -76,7 +51,6 @@ from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerCon
 from core.schemas import PacketEnvelopeIn
 from core.tools.tool_graph import ToolGraph
 from core.worldmodel.insight_emitter import get_insight_emitter
-from runtime.dora import emit_executor_trace, update_dora_block_in_file
 
 # GMP-LCTO-FIXES: Import governance context for tool dispatch propagation
 try:
@@ -1175,27 +1149,6 @@ class AgentExecutorService:
                 result.duration_ms,
                 result.error,
             )
-
-            # Emit DORA trace block (auto-updates on every execution)
-            _dora_trace = await emit_executor_trace(
-                task_id=task_id_str,
-                task_name=getattr(task, "name", None) or f"task_{task.kind.value}",
-                agent_id=task.agent_id,
-                inputs={"query": task.payload.get("query", "") if task.payload else ""},
-                outputs={
-                    "status": result.status,
-                    "iterations": result.iterations,
-                    "result": str(result.result)[:500] if result.result else None,
-                },
-                duration_ms=result.duration_ms,
-                errors=[result.error] if result.error else None,
-                patterns=["agent_execution", "reasoning_loop"],
-            )
-
-            # Update DORA trace block in executor source file (GMP-DORA-WIRE)
-            # This writes the runtime trace to __l9_trace__ at end of this file
-            if os.environ.get("L9_DORA_UPDATE_SOURCE", "").lower() == "true":
-                update_dora_block_in_file(__file__, _dora_trace)
 
             # Active memory encoding hook (GMP-80-A7: Frontier Memory)
             # System automatically extracts and encodes learnings from task outcomes
@@ -2965,43 +2918,4 @@ __all__ = [
 ]
 
 # ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # Extended metadata referenced by header
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-001",
-    "security_classification": "internal",
-    "execution_mode": "on-demand",
-    "timeout_seconds": 30,
-    "performance_tier": "batch",
-    "last_modified": "2026-01-18T05:25:09Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "f892b0df",
-    "task": "l_agent:second_test",
-    "timestamp": "2026-01-18T06:31:09.967674+00:00",
-    "patterns_used": ["agent_execution", "reasoning_loop"],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {
-        "task_id": "test-456",
-        "agent_id": "l_agent",
-        "query": "verify replacement",
-    },
-    "outputs": {"status": "success", "iterations": 3},
-    "metrics": {
-        "confidence": "0.95",
-        "errors_detected": [],
-        "stability_score": "1.0",
-        "duration_ms": 250,
-    },
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

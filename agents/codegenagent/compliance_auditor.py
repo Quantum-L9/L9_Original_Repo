@@ -15,26 +15,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Compliance Auditor",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-15T23:25:33Z",
-    "updated_at": "2026-01-15T23:25:33Z",
-    "layer": "intelligence",
-    "domain": "data_models",
-    "module_name": "compliance_auditor",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["working_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import re
 from dataclasses import dataclass, field
@@ -598,55 +578,4 @@ def check_code_compliance(code: str) -> dict[str, bool]:
     }
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "AGE-INTE-006",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "audit-tool",
-        "config",
-        "data-models",
-        "dataclass",
-        "filesystem",
-        "intelligence",
-        "loader",
-        "logging",
-        "tracing",
-    ],
-    "keywords": [
-        "audit",
-        "auditor",
-        "check",
-        "compliance",
-        "escalation",
-        "files",
-        "generate",
-        "governance",
-    ],
-    "business_value": "Provides compliance auditor components including ComplianceLevel, EscalationReason, ComplianceIssue",
-    "last_modified": "2026-01-15T23:25:33Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

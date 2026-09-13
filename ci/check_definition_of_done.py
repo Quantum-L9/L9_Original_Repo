@@ -26,24 +26,6 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-__dora_meta__ = {
-    "component_name": "Check Definition Of Done",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-31T22:13:26Z",
-    "updated_at": "2026-01-31T22:21:50Z",
-    "layer": "operations",
-    "domain": "ci",
-    "module_name": "check_definition_of_done",
-    "type": "cli",
-    "status": "draft",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
 # ============================================================================
 
 import argparse
@@ -288,56 +270,4 @@ To defer a TODO intentionally:
 
 if __name__ == "__main__":
     sys.exit(main())
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "CI-OPER-008",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "auth",
-        "caching",
-        "ci",
-        "cli",
-        "filesystem",
-        "migration",
-        "operations",
-        "security",
-        "subprocess",
-    ],
-    "keywords": [
-        "auth",
-        "check",
-        "consistency",
-        "definition",
-        "diff",
-        "done",
-        "healthcheck",
-        "incomplete",
-    ],
-    "business_value": "Implements DoDViolation for check definition of done functionality",
-    "last_modified": "2026-01-31T22:21:50Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

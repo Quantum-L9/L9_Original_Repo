@@ -22,29 +22,6 @@ GMP: Research Graph Persistence
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Research Graph Persistence",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-20T00:00:00Z",
-    "updated_at": "2026-01-20T00:00:00Z",
-    "layer": "operations",
-    "domain": "research_services",
-    "module_name": "graph_persistence",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j"],
-        "memory_layers": ["graph_memory"],
-        "imported_by": [
-            "services.research.__init__",
-            "services.research.agents.researcher_agent",
-        ],
-    },
-}
-# ============================================================================
 
 import threading
 import uuid
@@ -640,51 +617,4 @@ def init_graph_persistence(
     return _persistence
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "SER-OPER-015",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "core.decorators",
-    ],
-    "tags": [
-        "async",
-        "graph-db",
-        "neo4j",
-        "operations",
-        "research-services",
-        "service",
-    ],
-    "keywords": [
-        "finding",
-        "graph",
-        "neo4j",
-        "persistence",
-        "research",
-    ],
-    "business_value": "Persists research findings as typed Neo4j nodes for knowledge graph",
-    "last_modified": "2026-01-20T00:00:00Z",
-    "modified_by": "GMP Research Graph Persistence",
-    "change_summary": "Initial implementation",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

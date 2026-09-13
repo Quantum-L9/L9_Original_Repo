@@ -22,20 +22,6 @@ from __future__ import annotations
 
 import pytest
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "SQL Injection Tests",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-02-16T18:00:00Z",
-    "updated_at": "2026-02-16T18:00:00Z",
-    "layer": "testing",
-    "domain": "security",
-    "module_name": "test_sql_injection",
-    "type": "test",
-    "status": "active",
-}
-# ============================================================================
 
 
 # ============================================================================
@@ -585,19 +571,3 @@ class TestCIToolingIntegration:
             assert not regex.search(safe_code), (
                 f"Safe code should not be flagged: {pattern}"
             )
-
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "TEST-SEC-SQL",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.exceptions.security"],
-    "tags": ["test", "security", "sql", "injection", "ADR-0087"],
-    "keywords": ["sql", "injection", "allowlist", "parameterized", "security"],
-    "last_modified": "2026-02-16T18:00:00Z",
-}
-# ============================================================================

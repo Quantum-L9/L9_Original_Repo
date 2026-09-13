@@ -11,7 +11,6 @@ Summary:
     pipeline stages and synthesizes decisions from multiple reasoning modes.
 
 Extended Metadata:
-    See __footer_meta__ at module footer. Runtime trace in __l9_trace__.
 
 ================================================================================
 # HEADER META - Module Identity (Static)
@@ -23,28 +22,6 @@ Extended Metadata:
 ================================================================================
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Reasoning Engine",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "operations",
-    "domain": "domain_bridge",
-    "module_name": "reasoning_engine",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [
-            "domain_bridge.tests.domain_bridge.test_reasoning_engine"
-        ],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass
 from typing import Any
@@ -264,81 +241,8 @@ class ReasoningEngine:
 # FOOTER META - Extended Metadata (Static)
 # ============================================================================
 
-__footer_meta__ = {
-    "component_id": "INT-DTB-001",
-    "component_name": "Reasoning Engine",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-02T03:35:00Z",
-    "created_by": "L9_Codegen_Engine",
-    "layer": "intelligence",
-    "domain": "reasoning",
-    "type": "engine",
-    "status": "active",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Multi-modal reasoning pipeline for Domain-Tensor Bridge",
-    "summary": "Executes multi-modal reasoning combining symbolic rules, causal logic, analogical patterns, and reflective auditing.",
-    "dependencies": [
-        "structlog",
-    ],
-}
 
 __all__ = [
     "ReasoningEngine",
     "ReasoningResult",
-    "__footer_meta__",
-    "__l9_trace__",
 ]
-
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# ============================================================================
-
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "DOM-OPER-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "dataclass",
-        "domain-tensor-bridge",
-        "engine",
-        "logging",
-        "operations",
-        "tracing",
-    ],
-    "keywords": [
-        "analogical",
-        "apply",
-        "causal",
-        "engine",
-        "execute",
-        "initialize",
-        "reasoning",
-    ],
-    "business_value": "Provides reasoning engine components including ReasoningResult, ReasoningEngine",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}

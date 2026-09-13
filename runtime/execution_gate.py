@@ -11,31 +11,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "THE enforcement mechanism for the kernel system.",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-15T11:17:09Z",
-    "updated_at": "2026-01-17T23:47:56Z",
-    "layer": "operations",
-    "domain": "runtime_operations",
-    "module_name": "execution_gate",
-    "type": "utility",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j", "Redis"],
-        "memory_layers": [],
-        "imported_by": [
-            "agents.l_cto",
-            "conftest",
-            "runtime.__init__",
-            "tests.runtime.test_execution_gate",
-        ],
-    },
-}
-# ============================================================================
 
 from typing import TYPE_CHECKING, Any
 
@@ -527,56 +502,4 @@ __all__ = [
     "should_escalate_on_confidence",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "RUN-OPER-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["runtime.kernel_state", "runtime.l_tools"],
-    "tags": [
-        "api",
-        "auth",
-        "logging",
-        "messaging",
-        "operations",
-        "queue",
-        "rest-api",
-        "runtime-operations",
-        "tracing",
-        "utility",
-    ],
-    "keywords": [
-        "based",
-        "confidence",
-        "enforcement",
-        "escalate",
-        "execute",
-        "gate",
-        "guarded",
-        "igor",
-    ],
-    "business_value": "This module implements GODMODE Part 2 (Guarded Execute Contract). Every tool call MUST go through this gate. This is where YAML rules become Python enforcement. Version: 1.0.0",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

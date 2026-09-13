@@ -29,26 +29,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Resilience Mixin",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-20T16:00:00Z",
-    "updated_at": "2026-01-20T16:00:00Z",
-    "layer": "foundation",
-    "domain": "resilience",
-    "module_name": "mixin",
-    "type": "mixin",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import asyncio
 from typing import TYPE_CHECKING, Any
@@ -227,57 +207,4 @@ class ResilienceMixin:
         raise RuntimeError(f"{operation_name}: Unexpected retry loop exit")
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-092",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "core.observability.circuit_breaker",
-        "memory.dead_letter",
-        "memory.substrate_dag_wrapper",
-    ],
-    "tags": [
-        "async",
-        "circuit-breaker",
-        "dip",
-        "dlq",
-        "foundation",
-        "mixin",
-        "resilience",
-        "retry",
-    ],
-    "keywords": [
-        "circuit_breaker",
-        "dlq",
-        "mixin",
-        "resilience",
-        "retry",
-        "with_resilience",
-    ],
-    "business_value": "Mixin providing standard retry + CB + DLQ, reducing boilerplate from ~40 to ~5 lines per component",
-    "last_modified": "2026-01-20T16:00:00Z",
-    "modified_by": "GMP-091",
-    "change_summary": "Initial creation per ADR-0014",
-}
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

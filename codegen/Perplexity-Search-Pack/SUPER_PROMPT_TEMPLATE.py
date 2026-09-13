@@ -1,23 +1,3 @@
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Super Prompt Template",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2025-12-16T21:54:14Z",
-    "updated_at": "2026-01-12T15:56:02Z",
-    "layer": "foundation",
-    "domain": "code_generation",
-    "module_name": "SUPER_PROMPT_TEMPLATE",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API", "Perplexity API"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 # SUPER PROMPT TEMPLATE FOR GENERATING AI OPERATING SYSTEM LAYERS
 # ================================================================
@@ -739,47 +719,4 @@ if __name__ == "__main__":
     print("\nTotal lines of code generation possible: 2,500+ per API call")  # noqa: ADR-0019
     print("Total documentation generation possible: 1,200+ lines per API call")  # noqa: ADR-0019
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "auth",
-        "cli",
-        "code-generation",
-        "foundation",
-        "messaging",
-        "metrics",
-        "monitoring",
-        "performance",
-        "testing",
-    ],
-    "keywords": ["prompt", "super", "template"],
-    "business_value": "Complete Python script packets (2,500+ lines) Multi-file modular architectures Production-ready implementations Comprehensive documentation Working examples and quick-start guides Integration patterns",
-    "last_modified": "2026-01-12T15:56:02Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

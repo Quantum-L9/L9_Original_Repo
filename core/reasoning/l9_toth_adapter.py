@@ -3,26 +3,6 @@ L9 ToTh Adapter
 Integrates Theorem-of-Thought reasoning with L9's BaseAgent, memory substrate, and governance
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "L9 Toth Adapter",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:56:34Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "foundation",
-    "domain": "core",
-    "module_name": "l9_toth_adapter",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Neo4j", "PostgreSQL"],
-        "memory_layers": ["semantic_memory"],
-        "imported_by": ["core.reasoning.__init__"],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -648,53 +628,4 @@ class L9ToThAdapter:
         return self.toth_engine.get_performance_metrics()
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-074",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.reasoning.toth_engine"],
-    "tags": [
-        "adapter-pattern",
-        "async",
-        "core",
-        "dataclass",
-        "debugging",
-        "foundation",
-        "metrics",
-    ],
-    "keywords": [
-        "adapter",
-        "agent",
-        "board",
-        "ceo",
-        "governance",
-        "history",
-        "memory",
-        "metrics",
-    ],
-    "business_value": "Provides l9 toth adapter components including L9ReasoningContext, L9ToThAdapter",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

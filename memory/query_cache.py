@@ -8,30 +8,6 @@ Author: L9 Platform Team
 Date: 2026-01-17
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Query Cache",
-    "module_version": "1.0.0",
-    "created_by": "cryptoxdog",
-    "created_at": "2026-01-23T15:07:20Z",
-    "updated_at": "2026-01-24T13:02:52Z",
-    "layer": "learning",
-    "domain": "memory_substrate",
-    "module_name": "query_cache",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [
-            "memory.substrate_repository_cached",
-            "scripts.benchmark_caching_and_vector",
-            "tests.memory.test_query_cache_and_vector",
-        ],
-    },
-}
-# ============================================================================
 
 import hashlib
 import json
@@ -428,56 +404,4 @@ def reset_cache() -> None:
     _global_cache = None
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MEM-LEAR-004",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "auth",
-        "authorization",
-        "caching",
-        "debugging",
-        "learning",
-        "logging",
-        "memory-substrate",
-        "security",
-        "serialization",
-    ],
-    "keywords": [
-        "agent",
-        "cache",
-        "caching",
-        "decorator",
-        "invalidate",
-        "module",
-        "permissions",
-        "query",
-    ],
-    "business_value": "Provides TTL-based and LRU caching for database queries to improve performance by 50-90% for frequently accessed data. Author: L9 Platform Team Date: 2026-01-17",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

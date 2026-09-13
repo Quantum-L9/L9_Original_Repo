@@ -1,6 +1,3 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
 # component_name: "Spec Workflow Similarity Approval Inheritance V20251229 205131"
 # module_version: "1.0.0"
 # created_by: "L9_Codegen_Engine"
@@ -122,9 +119,6 @@ engine_contract:
 
 ```
 
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
 # tags: ["agent-config", "code-generation", "foundation", "schema", "tool-config", "utility", "workflow"]
 # keywords: ["205131", "approval", "inheritance", "similarity", "spec", "v20251229"]
 # last_modified: "2026-01-15T15:55:23Z"

@@ -13,26 +13,6 @@ All substrate writes go through DomainBridgeGateway (ADR-0092).
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "L9 Session Hooks",
-    "module_version": "1.0.0",
-    "created_by": "Manus Agent",
-    "created_at": "2026-02-19T12:00:00Z",
-    "updated_at": "2026-02-19T12:00:00Z",
-    "layer": "core",
-    "domain": "runtime",
-    "module_name": "runtime.session_hooks",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Redis", "PostgreSQL", "Neo4j"],
-        "memory_layers": ["working_memory", "semantic_memory"],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from typing import Any, Protocol, runtime_checkable
 

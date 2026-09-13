@@ -8,26 +8,6 @@ Validates:
 - Idempotency
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Validate",
-    "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-15T22:06:47Z",
-    "updated_at": "2026-01-15T22:06:47Z",
-    "layer": "foundation",
-    "domain": "code_generation",
-    "module_name": "validate",
-    "type": "utility",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import logging  # noqa: ADR-0019
 from pathlib import Path
@@ -147,55 +127,4 @@ def validate_yaml_file(filepath: Path) -> tuple[bool, list[str]]:
     return len(errors) == 0, errors
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COD-FOUN-026",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "audit-tool",
-        "code-generation",
-        "config",
-        "filesystem",
-        "foundation",
-        "messaging",
-        "security",
-        "utility",
-        "validation",
-    ],
-    "keywords": [
-        "artifact",
-        "audit",
-        "auditor",
-        "compliance",
-        "governance",
-        "schema",
-        "validate",
-        "validator",
-    ],
-    "business_value": "Provides validate components including SchemaValidator, ComplianceAuditor",
-    "last_modified": "2026-01-15T22:06:47Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

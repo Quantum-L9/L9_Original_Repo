@@ -17,13 +17,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-__dora_meta__ = {
-    "component_name": "CheckTypeCheckingPattern",
-    "module_version": "1.1.0",
-    "status": "active",
-    "layer": "operations",
-    "domain": "ci",
-}
 
 
 def find_files_with_type_checking(repo_root: Path) -> list[Path]:
@@ -181,10 +174,6 @@ def main() -> int:
     return 1
 
 
-__dora_footer__ = {
-    "governance_level": "medium",
-    "compliance_required": True,
-}
 
 if __name__ == "__main__":
     sys.exit(main())

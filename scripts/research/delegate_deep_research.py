@@ -20,26 +20,6 @@ Usage:
     python scripts/delegate_deep_research.py --module 01_config_loader
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Delegate Deep Research",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-20T15:08:40Z",
-    "updated_at": "2026-01-09T12:30:43Z",
-    "layer": "operations",
-    "domain": "scripts",
-    "module_name": "delegate_deep_research",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API", "Perplexity API"],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import argparse
 import asyncio
@@ -314,56 +294,4 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "SCR-OPER-001",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "api",
-        "async",
-        "auth",
-        "cli",
-        "filesystem",
-        "http-client",
-        "logging",
-        "messaging",
-        "operations",
-        "scripts",
-    ],
-    "keywords": [
-        "deep",
-        "delegate",
-        "extract",
-        "module",
-        "payload",
-        "process",
-        "prompt",
-        "research",
-    ],
-    "business_value": "Utility module for delegate deep research",
-    "last_modified": "2026-01-09T12:30:43Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

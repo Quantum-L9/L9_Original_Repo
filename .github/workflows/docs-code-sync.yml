@@ -1,13 +1,9 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
 # component_name: "Docs-Code-Sync"
 # module_version: "2.0.0"
 # created_by: "L9_Codegen_Engine"
 # created_at: "2026-01-18T02:07:37Z"
 # updated_at: "2026-01-25T16:30:00Z"
 # layer: "operations"
-# domain: ".dora"
 # file_name: "docs-code-sync"
 # type: "utility"
 # status: "active"
@@ -98,15 +94,11 @@ jobs:
         run: python scripts/generate_subsystem_readmes.py --subsystem core_agents --dry-run --skip-time-verify
       - name: "Run tests"
         run: pytest tests/test_code_facts_extraction.py -v
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
 # MIGRATION NOTE (2026-01-25):
 # - Replaced per-subsystem README.meta.yaml with centralized config/subsystems/readme_config.yaml
 # - All 35 subsystems now defined in single config file
 # - Old README.meta.yaml files deprecated (can be deleted after migration)
 # ============================================================================
-# tags: [".dora", "agent-config", "api-config", "operations", "tool-config", "utility", "workflow"]
 # keywords: ["code", "description", "docs", "jobs", "name", "sync"]
 # last_modified: "2026-01-25T16:30:00Z"
 # ============================================================================

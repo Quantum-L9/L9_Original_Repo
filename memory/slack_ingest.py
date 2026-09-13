@@ -34,31 +34,6 @@ Error handling:
   - Memory persistence fails: Log error, still return 200 to Slack
 """
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Slack Ingest",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2025-12-20T15:08:40Z",
-    "updated_at": "2026-01-17T23:47:56Z",
-    "layer": "learning",
-    "domain": "memory_substrate",
-    "module_name": "slack_ingest",
-    "type": "engine",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["HTTP API", "OpenAI API", "Slack API"],
-        "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": [
-            "api.e2e_slack_audit",
-            "api.routes.slack",
-            "tests.api.test_e2e_slack_audit",
-            "tests.api.test_slack_adapter",
-        ],
-    },
-}
-# ============================================================================
 
 # Governance context for memory operations (required on C1 with RLS enabled)
 import os
@@ -2219,62 +2194,4 @@ def _build_system_prompt(
     return "\n".join(parts)
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MEM-LEAR-001",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [
-        "api.slack_adapter",
-        "api.slack_client",
-        "core.agents.schemas",
-        "core.commands.executor",
-        "core.commands.intent_extractor",
-    ],
-    "tags": [
-        "api",
-        "async",
-        "auth",
-        "debugging",
-        "engine",
-        "event-driven",
-        "http-client",
-        "learning",
-        "logging",
-        "memory-substrate",
-    ],
-    "keywords": [
-        "agent",
-        "agentexecutorservice",
-        "aios",
-        "check",
-        "command",
-        "commands",
-        "delivery",
-        "detection",
-    ],
-    "business_value": "1. Dedupe check (prevent double-processing) 2. Memory context retrieval (fetch thread history + semantic hits) 3. L-CTO agent routing via AgentExecutorService (when legacy flag is False) 4. AIOS /chat",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

@@ -37,15 +37,7 @@ from core.observability.instrumentation import trace_span
 from scripts.cga_spec_generator import CGASpecGenerator
 
 # ---------------------------------------------------------------------------
-# DORA Metadata Block (ADR-0014)
 # ---------------------------------------------------------------------------
-__dora_meta__ = {
-    "component_name": "perplexity_audit_agent",
-    "version": "1.0.0",
-    "status": "active",
-    "owner": "l9-platform",
-    "description": "Automated tech debt detection via Perplexity API research agent",
-}
 
 log = structlog.get_logger(__name__)
 
@@ -142,7 +134,6 @@ CONSTRAINTS:
 - You are bound by 56 Architecture Decision Records (ADRs)
 - structlog exclusively (ADR-0019) — standard logging is BANNED
 - PacketEnvelope audit trails (ADR-0006) on all data operations
-- DORA metadata blocks (ADR-0014) on every Python module
 - TYPE_CHECKING imports (ADR-0002) for circular import prevention
 - DAG pipeline rules (ADR-0012): validation in intake_node ONLY
 - ZERO ambiguous language: no "likely", "probably", "should", "might"
@@ -229,7 +220,7 @@ CATEGORY_PROMPTS: dict[str, str] = {
     "observability": (
         "SCAN: observability\n"
         "Detect: silent failures (bare except), missing structlog calls (ADR-0019), "
-        "standard logging usage (BANNED), missing DORA metadata (ADR-0014), "
+        "standard logging usage (BANNED), "
         "missing health checks, missing metrics, missing tracing.\n"
         "L9 patterns: five-tier observability completeness, Grafana coverage, "
         "PacketEnvelope operations missing audit emission, DAG nodes missing spans."
@@ -249,7 +240,7 @@ CATEGORY_PROMPTS: dict[str, str] = {
         "implemented? Are there violations? Are there files that should follow "
         "the ADR but do not?\n"
         "Priority: ADR-0002 (TYPE_CHECKING), ADR-0006 (PacketEnvelope), "
-        "ADR-0012 (DAG validation), ADR-0014 (DORA metadata), ADR-0019 "
+        "ADR-0012 (DAG validation), ADR-0019 "
         "(structlog), ADR-0028 (transactions), ADR-0038 (secrets)."
     ),
     "dependencies": (

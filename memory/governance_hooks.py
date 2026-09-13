@@ -26,29 +26,6 @@ from __future__ import annotations
 
 from core.decorators import must_stay_async
 
-# ============================================================================
-# DORA HEADER META
-# ============================================================================
-__dora_meta__ = {
-    "component_id": "MEM-GOV-HOOKS-001",
-    "component_name": "GovernanceHooks",
-    "module_version": "1.0.0",
-    "created_at": "2026-01-21T00:00:00Z",
-    "created_by": "L9_Refactoring_Phase0",
-    "layer": "learning",
-    "domain": "memory_substrate",
-    "type": "service",
-    "status": "active",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "purpose": "Governance policy enforcement hooks for memory operations",
-    "dependencies": [
-        "memory.governance_gate",
-        "memory.substrate_repository",
-    ],
-}
-# ============================================================================
 
 from abc import (  # noqa: ADR-0026 - ABC provides shared implementation
     ABC,
@@ -676,56 +653,4 @@ __all__ = [
     "get_hook_registry",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "MEM-LEAR-021",
-    "governance_level": "high",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "async",
-        "audit-tool",
-        "auth",
-        "authorization",
-        "data-models",
-        "dataclass",
-        "debugging",
-        "event-driven",
-        "learning",
-        "logging",
-    ],
-    "keywords": [
-        "allow",
-        "audit",
-        "authorization",
-        "deny",
-        "enforcement",
-        "execute",
-        "governance",
-        "hook",
-    ],
-    "business_value": "Implements Phase 0 Plan 4: Governance Policy Enforcement Hooks",
-    "last_modified": "2026-01-24T13:02:52Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

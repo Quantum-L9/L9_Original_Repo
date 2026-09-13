@@ -6,7 +6,6 @@ Utility to generate YAML governance policies from templates.
 
 Features:
 - Template presets (allow, deny, scope-access, tool-approval)
-- Auto-generates DORA metadata
 - Validates required fields
 - CLI and programmatic interfaces
 
@@ -34,26 +33,6 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Policy Generator",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-20T12:00:00Z",
-    "updated_at": "2026-01-20T12:00:00Z",
-    "layer": "foundation",
-    "domain": "governance",
-    "module_name": "policy_generator",
-    "type": "utility",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -169,52 +148,9 @@ class PolicyGenerator:
         Initialize generator.
 
         Args:
-            author: Author name for DORA metadata
+            author: Author label retained for API compatibility.
         """
         self.author = author
-
-    # -------------------------------------------------------------------------
-    # DORA Metadata
-    # -------------------------------------------------------------------------
-
-    def _generate_dora_header(
-        self,
-        component_name: str,
-        file_name: str,
-        policy_type: str = "policy",
-    ) -> str:
-        """Generate DORA metadata header."""
-        now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-        return f"""# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
-# component_name: "{component_name}"
-# module_version: "1.0.0"
-# created_by: "{self.author}"
-# created_at: "{now}"
-# updated_at: "{now}"
-# layer: "foundation"
-# domain: "configuration"
-# file_name: "{file_name}"
-# type: "{policy_type}"
-# status: "active"
-# ============================================================================
-"""
-
-    def _generate_dora_footer(self, tags: list[str], keywords: list[str]) -> str:
-        """Generate DORA metadata footer."""
-        now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-        tags_str = ", ".join(f'"{t}"' for t in tags)
-        keywords_str = ", ".join(f'"{k}"' for k in keywords)
-        return f"""
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
-# tags: [{tags_str}]
-# keywords: [{keywords_str}]
-# last_modified: "{now}"
-# ============================================================================
-"""
 
     # -------------------------------------------------------------------------
     # Simple Policy Templates
@@ -310,7 +246,7 @@ class PolicyGenerator:
             extra_sections: Optional additional YAML sections
 
         Returns:
-            Complete YAML string with DORA metadata
+            Complete YAML string.
         """
         # Build YAML content
         content_dict: dict[str, Any] = {}
@@ -339,24 +275,9 @@ class PolicyGenerator:
             desc_lines = description.strip().split("\n")
             desc_comment = "\n".join(f"# {line}" for line in desc_lines) + "\n\n"
 
-        # Extract keywords from policies
-        keywords = set()
-        for p in policies:
-            keywords.add(p.get("id", "").split("-")[0])
-            keywords.update(p.get("actions", [])[:2])
-        keywords = list(keywords)[:5]
-
-        # Assemble file
-        return (
-            self._generate_dora_header(component_name, file_name)
-            + "\n"
-            + desc_comment
-            + yaml_content
-            + self._generate_dora_footer(
-                tags=["configuration", "foundation", "policy"],
-                keywords=keywords or ["policy"],
-            )
-        )
+        # Assemble plain policy YAML. Runtime policy evaluation and audit traces
+        # are handled by the governance engine and observability subsystems.
+        return desc_comment + yaml_content
 
     # -------------------------------------------------------------------------
     # Template Presets
@@ -755,37 +676,4 @@ if __name__ == "__main__":
     main()
 
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-GOV-001",
-    "governance_level": "standard",
-    "compliance_required": True,
-    "audit_trail": False,
-    "dependencies": [],
-    "tags": ["governance", "foundation", "utility", "generator"],
-    "keywords": ["policy", "yaml", "generator", "template"],
-    "business_value": "Generates governance policies from templates",
-    "last_modified": "2026-01-20T12:00:00Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial implementation",
-}
-# ============================================================================
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

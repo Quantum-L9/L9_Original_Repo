@@ -17,26 +17,6 @@ Usage:
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Fix Logging To Structlog",
-    "module_version": "2.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-31T20:27:26Z",
-    "updated_at": "2026-02-16T14:30:00Z",
-    "layer": "operations",
-    "domain": "scripts",
-    "module_name": "fix_logging_to_structlog",
-    "type": "cli",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": [],
-        "imported_by": [],
-    },
-}
-# ============================================================================
 
 import argparse
 import re
@@ -59,7 +39,6 @@ SKIP_DIRS = {
     "build",
     "dist",
     ".cursor",
-    ".dora",
     "current_work",
     "igor",
     "data",
@@ -303,20 +282,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "SCR-OPER-021",
-    "governance_level": "medium",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": ["cli", "linting", "logging", "operations", "scripts"],
-    "keywords": ["fix", "logging", "structlog", "scanner", "adr-0019"],
-    "business_value": "Auto-fixes logging -> structlog violations across the codebase",
-    "last_modified": "2026-02-16T14:30:00Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "v2.0: Rewritten from hardcoded list to dynamic scanner",
-}
-# ============================================================================

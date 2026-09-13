@@ -1,6 +1,3 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
 # component_name: "07 Execution Kernel"
 # module_version: "1.0.0"
 # created_by: "Igor Beylin"
@@ -136,9 +133,6 @@ schema:
     - steps_completed
     - validation_status
     - timestamp
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
 # tags: ["kernel", "operations", "private", "schema", "utility", "workflow"]
 # keywords: ["description", "execution", "file", "init", "kernel", "parse_intent"]
 # last_modified: "2026-01-07T13:35:57Z"

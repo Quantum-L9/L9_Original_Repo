@@ -1,6 +1,3 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
 # component_name: "Domain Tensor Bridge Extraction Glue"
 # module_version: "1.0.0"
 # created_by: "cryptoxdog"
@@ -506,10 +503,7 @@ quality_gates:
   - gate: "Code coverage >= 85%"
   - gate: "All governance anchors reachable"
   - gate: "No circular imports"
-  - gate: "Three-block system: Header Meta + Footer Meta + DORA Block"
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
+  - gate: "Governance and observability contract review"
 # tags: ["agent-config", "api-config", "configuration", "domain-tensor-bridge", "model-config", "operations", "pipeline", "redis-config"]
 # keywords: ["bridge", "documentation", "domain", "enforcement", "extraction", "extraction_metadata"]
 # last_modified: "2026-01-24T13:02:52Z"

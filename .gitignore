@@ -40,6 +40,11 @@ neo4j/data/
 .cursor-commands
 .cursorrules
 .cursor/
+# L9-native Cursor Project Rules are repository governance artifacts.
+# Keep all other local Cursor state ignored, but version the reviewed *.mdc rules.
+!.cursor/
+!.cursor/rules/
+!.cursor/rules/*.mdc
 .dora/
 
 # --- Igor's working files (local only) ---

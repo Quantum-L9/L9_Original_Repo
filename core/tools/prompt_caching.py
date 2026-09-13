@@ -15,26 +15,6 @@ Design:
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Prompt Caching Strategy",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
-    "created_at": "2026-01-25T11:17:21Z",
-    "updated_at": "2026-01-25T11:59:02Z",
-    "layer": "foundation",
-    "domain": "tool_registry",
-    "module_name": "prompt_caching",
-    "type": "dataclass",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": [],
-        "memory_layers": ["episodic_memory", "semantic_memory"],
-        "imported_by": ["core.tools.__init__"],
-    },
-}
-# ============================================================================
 
 from dataclasses import dataclass
 from typing import Any
@@ -298,54 +278,4 @@ __all__ = [
     "PromptCachingStrategy",
 ]
 
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-017",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": [],
-    "tags": [
-        "authorization",
-        "caching",
-        "dataclass",
-        "foundation",
-        "logging",
-        "messaging",
-        "metrics",
-        "tool-registry",
-    ],
-    "keywords": [
-        "build",
-        "cache",
-        "cached",
-        "caching",
-        "collector",
-        "dynamic",
-        "estimate",
-        "full",
-    ],
-    "business_value": "PromptCachingStrategy: Build cached system prompts + dynamic tool context CachingMetricsCollector: Track cache hits, token savings, latency Tier 1 (Cached): System prompt, instructions, tool discovery",
-    "last_modified": "2026-01-25T11:59:02Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
